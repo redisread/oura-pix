@@ -1,0 +1,48 @@
+# Cloudflare Pages Configuration for OuraPix
+# Documentation: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+
+name = "oura-pix"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# Build output directory (Next.js + @cloudflare/next-on-pages)
+pages_build_output_dir = ".vercel/output/static"
+
+# Cloudflare D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "oura-pix-db"
+database_id = "your-database-id-here"
+migrations_dir = "drizzle/migrations"
+
+# Cloudflare R2 Storage for images
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "oura-pix-images"
+
+# Environment Variables (non-secret)
+[vars]
+NEXT_PUBLIC_APP_URL = "https://oura-pix.your-subdomain.workers.dev"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_test_your_stripe_publishable_key"
+
+# Secrets (use `wrangler pages secret put` to set these)
+# AUTH_SECRET - Better Auth secret key
+# AUTH_GOOGLE_ID - Google OAuth Client ID
+# AUTH_GOOGLE_SECRET - Google OAuth Client Secret
+# STRIPE_SECRET_KEY - Stripe Secret Key
+# STRIPE_WEBHOOK_SECRET - Stripe Webhook Secret
+# GEMINI_API_KEY - Google Gemini API Key
+
+# KV Namespace for caching (optional)
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "your-kv-namespace-id"
+
+# Analytics (optional)
+# [analytics]
+# enabled = true
+
+# Logging (optional)
+# [observability]
+# enabled = true
+# head_sampling_rate = 1

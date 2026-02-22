@@ -1,0 +1,611 @@
+{
+  "metadata": {
+    "title": "OuraPix - AI Product Detail Page Generator",
+    "description": "Generate stunning product detail pages with AI. Transform your product images into compelling content for e-commerce."
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "pricing": "Pricing",
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "profile": "Profile",
+    "settings": "Settings",
+    "generate": "Generate",
+    "getStarted": "Get Started",
+    "signIn": "Sign In",
+    "history": "Generation History"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account and view generation history",
+    "tabs": {
+      "overview": "Overview",
+      "history": "History",
+      "settings": "Account Settings"
+    },
+    "stats": {
+      "totalGenerations": "Total Generations",
+      "thisMonth": "This Month",
+      "remainingCredits": "Remaining Credits",
+      "favoriteStyle": "Favorite Style"
+    },
+    "userInfo": {
+      "username": "Username",
+      "email": "Email",
+      "memberSince": "Member Since",
+      "plan": "Current Plan"
+    },
+    "history": {
+      "title": "Generation History",
+      "subtitle": "View all your generation records",
+      "empty": "No generation records",
+      "emptyDesc": "Start generating your first product detail page",
+      "prompt": "Prompt",
+      "uploadedImages": "Uploaded Images",
+      "generatedImages": "Generated Results",
+      "platform": "Platform",
+      "style": "Style",
+      "date": "Date",
+      "download": "Download",
+      "viewDetails": "View Details",
+      "regenerate": "Regenerate",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this record?",
+      "deleteSuccess": "Record deleted successfully",
+      "filter": {
+        "all": "All Time",
+        "today": "Today",
+        "week": "This Week",
+        "month": "This Month"
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "page": "Page",
+        "of": "of",
+        "total": "Total {{count}} records"
+      },
+      "detailModal": {
+        "title": "Generation Details",
+        "createdAt": "Created At",
+        "status": "Status",
+        "originalImages": "Original Images",
+        "generatedResults": "Generated Results",
+        "promptUsed": "Prompt Used"
+      }
+    },
+    "editProfile": "Edit Profile",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel"
+  },
+  "hero": {
+    "badge": "AI-Powered Product Detail Page Generator",
+    "title": "Minimalist",
+    "titleHighlight": "AI",
+    "subtitle": "Cross-border Product Detail Page Generator",
+    "description": "Upload product images, select platform style, and let AI automatically generate professional product detail pages. Make cross-border e-commerce operations easier and more efficient.",
+    "ctaPrimary": "Start Generating",
+    "ctaSecondary": "View Pricing",
+    "ctaFree": "Get Started Free"
+  },
+  "stats": {
+    "pagesGenerated": "Pages Generated",
+    "satisfaction": "User Satisfaction",
+    "avgTime": "Avg. Generation Time"
+  },
+  "steps": {
+    "title": "Generate in 3 Easy Steps",
+    "subtitle": "Just three simple steps to get professional product detail pages",
+    "step1": {
+      "title": "Upload Product Image",
+      "description": "Drag and drop your main product image, supports JPG, PNG formats"
+    },
+    "step2": {
+      "title": "Configure Settings",
+      "description": "Choose target platform, generation quantity, and style preferences"
+    },
+    "step3": {
+      "title": "Generate Detail Page",
+      "description": "AI automatically generates high-quality product detail pages, download with one click"
+    }
+  },
+  "homeFeatures": {
+    "title": "Why Choose OuraPix",
+    "subtitle": "One-stop solution for cross-border e-commerce detail page generation",
+    "feature1": {
+      "title": "Multi-platform Support",
+      "description": "Perfectly adapted for Amazon, Shopify, and other major cross-border e-commerce platforms"
+    },
+    "feature2": {
+      "title": "AI Smart Generation",
+      "description": "Based on advanced AI technology, automatically generates compelling product descriptions"
+    },
+    "feature3": {
+      "title": "Batch Processing",
+      "description": "Upload once, generate multiple detail pages in batches, improving work efficiency"
+    },
+    "feature4": {
+      "title": "Style Customization",
+      "description": "Supports multiple style templates to match different brand tones"
+    }
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "subtitle": "Experience AI-driven product detail page generation and boost your cross-border e-commerce efficiency"
+  },
+  "features": {
+    "title": "Features",
+    "subtitle": "Everything you need to create professional product content",
+    "aiGeneration": {
+      "title": "AI Content Generation",
+      "description": "Generate compelling product descriptions, titles, and bullet points with advanced AI technology."
+    },
+    "multiLanguage": {
+      "title": "Multi-Language Support",
+      "description": "Create content in multiple languages to reach global customers."
+    },
+    "imageAnalysis": {
+      "title": "Smart Image Analysis",
+      "description": "Our AI analyzes your product images to create accurate, detailed descriptions."
+    },
+    "seoOptimized": {
+      "title": "SEO Optimized",
+      "description": "Get SEO-friendly content with relevant keywords to improve your search rankings."
+    },
+    "templates": {
+      "title": "Professional Templates",
+      "description": "Choose from various templates designed for different product categories."
+    },
+    "fastProcessing": {
+      "title": "Lightning Fast",
+      "description": "Generate complete product pages in seconds, not hours."
+    }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the plan that fits your needs and start generating product detail pages efficiently",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 20%",
+    "mostPopular": "Most Popular",
+    "free": {
+      "name": "Free",
+      "description": "Perfect for trying out OuraPix",
+      "period": "Free forever",
+      "cta": "Get Started"
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For small and medium sellers",
+      "period": "/month",
+      "cta": "Subscribe Now"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "For large teams",
+      "period": "/month",
+      "cta": "Contact Sales"
+    },
+    "features": {
+      "feature": "Feature",
+      "generationsPerMonth": "Generations per month",
+      "templates": "Templates",
+      "resolution": "Output resolution",
+      "platforms": "Supported platforms",
+      "batchGeneration": "Batch generation",
+      "apiAccess": "API access",
+      "generationSpeed": "Generation speed",
+      "support": "Customer support",
+      "basicTemplates": "3 basic",
+      "allTemplates": "10+ advanced",
+      "customTemplates": "All + custom",
+      "standard": "Standard",
+      "hd": "HD (2K)",
+      "4k": "4K Ultra HD",
+      "amazon": "Amazon",
+      "multiPlatform": "Amazon + Shopify",
+      "allPlatforms": "All platforms",
+      "notAvailable": "—",
+      "batch10": "Up to 10",
+      "unlimited": "Unlimited",
+      "standardSpeed": "Standard",
+      "priority": "Priority",
+      "highestPriority": "Highest priority",
+      "community": "Community support",
+      "prioritySupport": "Priority support",
+      "dedicatedManager": "Dedicated manager"
+    },
+    "comparison": "Feature Comparison",
+    "comparisonSubtitle": "Detailed comparison of features across all plans",
+    "faq": "Frequently Asked Questions",
+    "faq1": {
+      "question": "What happens when I run out of generation credits?",
+      "answer": "Free users can wait for the monthly reset or upgrade to Pro/Enterprise. Paid users can purchase additional credit packs anytime."
+    },
+    "faq2": {
+      "question": "Can I cancel my subscription anytime?",
+      "answer": "Yes, you can cancel anytime. You'll continue to have access to all features until the end of your billing period, then automatically downgrade to Free."
+    },
+    "faq3": {
+      "question": "Can I use generated images commercially?",
+      "answer": "Absolutely. You have full commercial rights to all generated images for any business purpose, including e-commerce and advertising."
+    },
+    "faq4": {
+      "question": "Which e-commerce platforms are supported?",
+      "answer": "We currently support Amazon, Shopify, and other major platforms. Enterprise plan also supports custom template sizes."
+    },
+    "ctaTitle": "Still have questions?",
+    "ctaSubtitle": "Our team is ready to answer any questions you may have",
+    "ctaFree": "Try Free",
+    "ctaContact": "Contact Us",
+    "free": {
+      "name": "Free",
+      "description": "Perfect for trying out OuraPix",
+      "price": "$0",
+      "period": "/month",
+      "features": [
+        "10 generations per month",
+        "Basic templates",
+        "Standard quality",
+        "Email support"
+      ],
+      "cta": "Get Started"
+    },
+    "starter": {
+      "name": "Starter",
+      "description": "For small sellers getting started",
+      "price": "$9.99",
+      "period": "/month",
+      "features": [
+        "100 generations per month",
+        "All templates",
+        "High quality",
+        "Priority processing",
+        "Email support"
+      ],
+      "cta": "Start Free Trial"
+    },
+    "pro": {
+      "name": "Pro",
+      "description": "For growing businesses",
+      "price": "$29.99",
+      "period": "/month",
+      "popular": "Most Popular",
+      "features": [
+        "500 generations per month",
+        "All templates",
+        "Ultra quality",
+        "Priority processing",
+        "API access",
+        "Chat support"
+      ],
+      "cta": "Start Free Trial"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "description": "For large-scale operations",
+      "price": "$99.99",
+      "period": "/month",
+      "features": [
+        "2000 generations per month",
+        "Custom templates",
+        "Ultra quality",
+        "Priority processing",
+        "Full API access",
+        "Dedicated support",
+        "White-label options"
+      ],
+      "cta": "Contact Sales"
+    },
+    "credits": {
+      "title": "Need more credits?",
+      "description": "Purchase additional credits anytime",
+      "small": "100 Credits - $4.99",
+      "medium": "500 Credits - $19.99",
+      "large": "2000 Credits - $69.99"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}",
+    "credits": {
+      "title": "Credits",
+      "remaining": "{remaining} of {total} remaining",
+      "buyMore": "Buy More"
+    },
+    "generations": {
+      "title": "Recent Generations",
+      "empty": "No generations yet. Create your first product page!",
+      "createNew": "Create New",
+      "viewAll": "View All"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "uploadImage": "Upload Image",
+      "enterText": "Enter Text",
+      "batchProcess": "Batch Process"
+    }
+  },
+  "generation": {
+    "title": "Generate Product Detail Page",
+    "subtitle": "Upload product images, choose settings, and AI will generate professional product detail pages for you",
+    "uploadSection": "Upload Images",
+    "mainImage": "Main Product Image",
+    "mainImageDesc": "Upload your main product image, this will be the core of the detail page",
+    "styleImage": "Style Reference (Optional)",
+    "styleImageDesc": "Upload reference style images to help AI understand your preferences",
+    "uploadTips": "Upload Tips",
+    "uploadTip1": "Use product images with white or transparent background",
+    "uploadTip2": "Image resolution should be at least 800x800",
+    "uploadTip3": "Supports JPG, PNG formats",
+    "errors": {
+      "noImage": "Please upload a main product image first"
+    },
+    "styles": {
+      "minimal": {
+        "label": "Minimalist",
+        "desc": "Clean and simple, highlighting the product"
+      },
+      "luxury": {
+        "label": "Luxury",
+        "desc": "Premium and elegant, showcasing quality"
+      },
+      "lifestyle": {
+        "label": "Lifestyle",
+        "desc": "Scene integration, emotional connection"
+      },
+      "tech": {
+        "label": "Tech",
+        "desc": "Modern and cutting-edge, strong tech feel"
+      }
+    },
+    "settings": "Generation Settings",
+    "platform": "Select Platform",
+    "platformDesc": "Choose your target e-commerce platform",
+    "count": "Generation Count",
+    "countDesc": "Select the number of detail pages to generate (5-10)",
+    "style": "Style Preference",
+    "styleDesc": "Choose a visual style that suits your brand",
+    "outputLang": "Output Language",
+    "outputLangDesc": "Select the output language for detail pages",
+    "generating": "Generating...",
+    "generateBtn": "Start Generation",
+    "preview": "Preview Area",
+    "previewDesc": "Generated detail pages will be displayed here",
+    "progress": "Generation Progress",
+    "eta": "Estimated remaining time",
+    "steps": {
+      "upload": "Upload",
+      "configure": "Configure",
+      "generate": "Generate",
+      "review": "Review"
+    },
+    "upload": {
+      "title": "Upload Product Image",
+      "dragDrop": "Drag and drop your image here",
+      "or": "or",
+      "browse": "Browse files",
+      "supported": "Supports: JPG, PNG, WebP (max 10MB)",
+      "enterText": "Or enter product details manually"
+    },
+    "configure": {
+      "title": "Configure Generation",
+      "productName": "Product Name",
+      "category": "Category",
+      "targetAudience": "Target Audience",
+      "brandVoice": "Brand Voice",
+      "language": "Output Language",
+      "options": {
+        "professional": "Professional",
+        "casual": "Casual",
+        "luxury": "Luxury",
+        "fun": "Fun",
+        "technical": "Technical"
+      }
+    },
+    "generating": {
+      "title": "Generating Your Content",
+      "description": "Our AI is analyzing your product and creating compelling content...",
+      "eta": "This usually takes 10-30 seconds"
+    },
+    "result": {
+      "title": "Your Content is Ready",
+      "download": "Download",
+      "copy": "Copy",
+      "regenerate": "Regenerate",
+      "edit": "Edit",
+      "save": "Save to Library"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "rateLimit": "Too many requests. Please wait a moment.",
+    "unauthorized": "Please sign in to continue.",
+    "forbidden": "You don't have permission to access this resource.",
+    "notFound": "The requested resource was not found.",
+    "validation": "Please check your input and try again.",
+    "server": "Server error. Please try again later.",
+    "network": "Network error. Please check your connection.",
+    "insufficientCredits": "Insufficient credits. Please upgrade your plan or purchase more credits.",
+    "fileTooLarge": "File is too large. Maximum size is 10MB.",
+    "invalidFileType": "Invalid file type. Please upload JPG, PNG, or WebP."
+  },
+  "common": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "processing": "Processing...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "continue": "Continue",
+    "done": "Done",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "optional": "Optional",
+    "required": "Required",
+    "learnMore": "Learn more",
+    "viewDetails": "View details",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "custom": "Custom",
+    "image": "Image",
+    "images": "images",
+    "preview": "Preview",
+    "download": "Download",
+    "downloadAll": "Download All"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign In",
+      "subtitle": "Sign in to your OuraPix account",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "submit": "Sign In",
+      "loading": "Signing in...",
+      "success": "Sign in successful",
+      "error": "Sign in failed, please check your email and password"
+    },
+    "signUp": {
+      "title": "Create Account",
+      "subtitle": "Create an OuraPix account to start generating product detail pages",
+      "name": "Username",
+      "namePlaceholder": "Enter your username",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password (at least 8 characters)",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Enter password again",
+      "agreeToTerms": "I agree to the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "submit": "Sign Up",
+      "loading": "Signing up...",
+      "success": "Sign up successful",
+      "error": "Sign up failed",
+      "passwordMismatch": "Passwords do not match",
+      "passwordRequirements": "Password must contain uppercase, lowercase, number and special character"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email and we'll send you a password reset link",
+      "email": "Email",
+      "emailPlaceholder": "Enter your registered email",
+      "submit": "Send Reset Link",
+      "loading": "Sending...",
+      "success": "Reset link sent, please check your email",
+      "error": "Failed to send, please check your email",
+      "backToLogin": "Back to Sign In"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password to reset your account",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Reset Password",
+      "loading": "Resetting...",
+      "success": "Password reset successful",
+      "error": "Reset failed, link may have expired",
+      "backToLogin": "Back to Sign In"
+    },
+    "logout": "Sign Out",
+    "logoutSuccess": "Successfully signed out"
+  },
+  "notifications": {
+    "generationComplete": {
+      "title": "Generation Complete",
+      "description": "Your product detail page for {productName} is ready!"
+    },
+    "creditsLow": {
+      "title": "Low Credits",
+      "description": "You have {remaining} credits remaining. Consider upgrading your plan."
+    },
+    "subscriptionExpiring": {
+      "title": "Subscription Expiring",
+      "description": "Your subscription expires on {date}. Renew to avoid interruption."
+    }
+  },
+  "footer": {
+    "tagline": "AI-powered cross-border product detail page generator",
+    "tagline2": "Make product showcase easier",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "changelog": "Changelog",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "tutorials": "Tutorials",
+    "contact": "Contact Us",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookies": "Cookie Policy",
+    "copyright": "All rights reserved."
+  },
+  "docs": {
+    "title": "Documentation",
+    "breadcrumb": "Docs",
+    "backToHome": "Back to Docs Home",
+    "loading": "Loading document...",
+    "loadingDesc": "This page requires MDX rendering. Please view full content in local development.",
+    "pages": {
+      "index": {
+        "title": "Quick Start",
+        "description": "Learn how to use OuraPix to generate AI product detail pages"
+      },
+      "guide/upload": {
+        "title": "Upload Tutorial",
+        "description": "How to upload product images for best results"
+      },
+      "guide/settings": {
+        "title": "Settings Guide",
+        "description": "Configure generation parameters and preferences"
+      },
+      "guide/download": {
+        "title": "Download Guide",
+        "description": "How to download and use generated content"
+      },
+      "faq": {
+        "title": "FAQ",
+        "description": "Frequently asked questions"
+      }
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Explore best practices, templates, and tips for AI product detail page generation",
+    "featured": "Featured",
+    "allPosts": "All Posts",
+    "readMore": "Read More",
+    "relatedPosts": "Related Posts",
+    "backToBlog": "Back to Blog",
+    "tags": {
+      "templates": "Templates",
+      "tips": "Tips",
+      "showcase": "Showcase"
+    }
+  }
+}

@@ -1,0 +1,611 @@
+{
+  "metadata": {
+    "title": "OuraPix - AI 商品详情页生成器",
+    "description": "使用 AI 生成精美的商品详情页。将您的产品图片转换为引人入胜的电商内容。"
+  },
+  "navigation": {
+    "home": "首页",
+    "dashboard": "控制台",
+    "pricing": "定价",
+    "features": "功能",
+    "about": "关于我们",
+    "contact": "联系我们",
+    "login": "登录",
+    "signup": "注册",
+    "logout": "退出登录",
+    "profile": "个人资料",
+    "settings": "设置",
+    "generate": "开始生成",
+    "getStarted": "立即开始",
+    "signIn": "登录",
+    "history": "生成历史"
+  },
+  "profile": {
+    "title": "个人资料",
+    "subtitle": "管理您的账号和查看生成历史",
+    "tabs": {
+      "overview": "概览",
+      "history": "生成历史",
+      "settings": "账号设置"
+    },
+    "stats": {
+      "totalGenerations": "总生成次数",
+      "thisMonth": "本月生成",
+      "remainingCredits": "剩余额度",
+      "favoriteStyle": "常用风格"
+    },
+    "userInfo": {
+      "username": "用户名",
+      "email": "邮箱",
+      "memberSince": "注册时间",
+      "plan": "当前套餐"
+    },
+    "history": {
+      "title": "生成历史",
+      "subtitle": "查看您所有的生成记录",
+      "empty": "暂无生成记录",
+      "emptyDesc": "开始生成您的第一个商品详情页吧",
+      "prompt": "提示词",
+      "uploadedImages": "上传图片",
+      "generatedImages": "生成结果",
+      "platform": "平台",
+      "style": "风格",
+      "date": "日期",
+      "download": "下载",
+      "viewDetails": "查看详情",
+      "regenerate": "重新生成",
+      "delete": "删除",
+      "deleteConfirm": "确定要删除这条记录吗？",
+      "deleteSuccess": "记录删除成功",
+      "filter": {
+        "all": "全部",
+        "today": "今天",
+        "week": "本周",
+        "month": "本月"
+      },
+      "pagination": {
+        "prev": "上一页",
+        "next": "下一页",
+        "page": "第",
+        "of": "页，共",
+        "total": "共 {{count}} 条记录"
+      },
+      "detailModal": {
+        "title": "生成详情",
+        "createdAt": "创建时间",
+        "status": "状态",
+        "originalImages": "原始图片",
+        "generatedResults": "生成结果",
+        "promptUsed": "使用的提示词"
+      }
+    },
+    "editProfile": "编辑资料",
+    "saveChanges": "保存更改",
+    "cancel": "取消"
+  },
+  "hero": {
+    "badge": "AI 驱动的商品详情页生成工具",
+    "title": "极简",
+    "titleHighlight": "AI",
+    "subtitle": "跨境商品详情页生成",
+    "description": "上传商品图片，选择平台风格，AI 自动生成专业级商品详情页。让跨境电商运营更简单、更高效。",
+    "ctaPrimary": "开始生成",
+    "ctaSecondary": "查看定价",
+    "ctaFree": "免费开始使用"
+  },
+  "stats": {
+    "pagesGenerated": "已生成页面",
+    "satisfaction": "用户满意度",
+    "avgTime": "平均生成时间"
+  },
+  "steps": {
+    "title": "三步轻松生成",
+    "subtitle": "简单三步，即可获得专业级商品详情页",
+    "step1": {
+      "title": "上传商品图",
+      "description": "拖拽上传您的主商品图片，支持 JPG、PNG 格式"
+    },
+    "step2": {
+      "title": "选择设置",
+      "description": "选择目标平台、生成数量和风格偏好"
+    },
+    "step3": {
+      "title": "生成详情页",
+      "description": "AI 自动生成高质量商品详情页，一键下载使用"
+    }
+  },
+  "homeFeatures": {
+    "title": "为什么选择 OuraPix",
+    "subtitle": "专为跨境电商打造的一站式详情页生成解决方案",
+    "feature1": {
+      "title": "多平台支持",
+      "description": "完美适配 Amazon、Shopify 等主流跨境电商平台"
+    },
+    "feature2": {
+      "title": "AI 智能生成",
+      "description": "基于先进 AI 技术，自动生成吸引人的商品描述"
+    },
+    "feature3": {
+      "title": "批量处理",
+      "description": "一次上传，批量生成多张详情页，提升工作效率"
+    },
+    "feature4": {
+      "title": "风格定制",
+      "description": "支持多种风格模板，匹配不同品牌调性"
+    }
+  },
+  "cta": {
+    "title": "准备好开始了吗？",
+    "subtitle": "立即体验 AI 驱动的商品详情页生成，提升您的跨境电商运营效率"
+  },
+  "features": {
+    "title": "功能特性",
+    "subtitle": "创建专业商品内容所需的一切",
+    "aiGeneration": {
+      "title": "AI 内容生成",
+      "description": "利用先进的 AI 技术生成引人入胜的商品描述、标题和卖点。"
+    },
+    "multiLanguage": {
+      "title": "多语言支持",
+      "description": "以多种语言创建内容，触达全球客户。"
+    },
+    "imageAnalysis": {
+      "title": "智能图像分析",
+      "description": "我们的 AI 分析您的产品图片，创建准确、详细的描述。"
+    },
+    "seoOptimized": {
+      "title": "SEO 优化",
+      "description": "获取包含相关关键词的 SEO 友好内容，提升搜索排名。"
+    },
+    "templates": {
+      "title": "专业模板",
+      "description": "针对不同商品类别设计的多种模板供您选择。"
+    },
+    "fastProcessing": {
+      "title": "极速处理",
+      "description": "几秒钟内生成完整的商品页面，无需等待数小时。"
+    }
+  },
+  "pricing": {
+    "title": "简单透明的定价",
+    "subtitle": "选择适合您的方案，开始高效生成商品详情页",
+    "monthly": "月付",
+    "yearly": "年付",
+    "save": "节省 20%",
+    "mostPopular": "最受欢迎",
+    "free": {
+      "name": "免费版",
+      "description": "适合个人用户体验",
+      "period": "永久免费",
+      "cta": "免费开始"
+    },
+    "pro": {
+      "name": "专业版",
+      "description": "适合中小卖家",
+      "period": "/月",
+      "cta": "立即订阅"
+    },
+    "enterprise": {
+      "name": "企业版",
+      "description": "适合大型团队",
+      "period": "/月",
+      "cta": "联系销售"
+    },
+    "features": {
+      "feature": "功能",
+      "generationsPerMonth": "每月生成次数",
+      "templates": "风格模板",
+      "resolution": "输出分辨率",
+      "platforms": "支持平台",
+      "batchGeneration": "批量生成",
+      "apiAccess": "API 接入",
+      "generationSpeed": "生成速度",
+      "support": "客服支持",
+      "basicTemplates": "3 种基础",
+      "allTemplates": "10+ 种高级",
+      "customTemplates": "全部 + 自定义",
+      "standard": "标准",
+      "hd": "高清 (2K)",
+      "4k": "4K 超清",
+      "amazon": "Amazon",
+      "multiPlatform": "Amazon + Shopify",
+      "allPlatforms": "全平台",
+      "notAvailable": "—",
+      "batch10": "最多 10 张",
+      "unlimited": "无限制",
+      "standardSpeed": "标准",
+      "priority": "优先",
+      "highestPriority": "最高优先级",
+      "community": "社区支持",
+      "prioritySupport": "优先支持",
+      "dedicatedManager": "专属经理"
+    },
+    "comparison": "功能对比",
+    "comparisonSubtitle": "详细对比各版本功能差异",
+    "faq": "常见问题",
+    "faq1": {
+      "question": "生成额度用完后怎么办？",
+      "answer": "免费版用户可等待次月额度重置，或升级至专业版/企业版。付费用户可随时购买额外额度包。"
+    },
+    "faq2": {
+      "question": "可以随时取消订阅吗？",
+      "answer": "是的，您可以随时取消订阅。取消后，您仍可使用已付费周期内的所有功能，到期后自动降级为免费版。"
+    },
+    "faq3": {
+      "question": "生成的图片可以商用吗？",
+      "answer": "完全可以。您拥有生成图片的完整使用权，可用于任何商业用途，包括电商平台、广告投放等。"
+    },
+    "faq4": {
+      "question": "支持哪些电商平台？",
+      "answer": "目前支持 Amazon、Shopify 等主流平台，并持续增加对更多平台的支持。企业版还支持自定义模板尺寸。"
+    },
+    "ctaTitle": "还有疑问？",
+    "ctaSubtitle": "我们的团队随时准备为您解答任何问题",
+    "ctaFree": "免费试用",
+    "ctaContact": "联系我们",
+    "free": {
+      "name": "免费版",
+      "description": "适合体验 OuraPix",
+      "price": "¥0",
+      "period": "/月",
+      "features": [
+        "每月 10 次生成",
+        "基础模板",
+        "标准质量",
+        "邮件支持"
+      ],
+      "cta": "开始使用"
+    },
+    "starter": {
+      "name": "入门版",
+      "description": "适合刚起步的小卖家",
+      "price": "¥69",
+      "period": "/月",
+      "features": [
+        "每月 100 次生成",
+        "全部模板",
+        "高质量",
+        "优先处理",
+        "邮件支持"
+      ],
+      "cta": "开始免费试用"
+    },
+    "pro": {
+      "name": "专业版",
+      "description": "适合成长中的企业",
+      "price": "¥199",
+      "period": "/月",
+      "popular": "最受欢迎",
+      "features": [
+        "每月 500 次生成",
+        "全部模板",
+        "超高质量",
+        "优先处理",
+        "API 访问",
+        "在线客服"
+      ],
+      "cta": "开始免费试用"
+    },
+    "enterprise": {
+      "name": "企业版",
+      "description": "适合大规模运营",
+      "price": "¥699",
+      "period": "/月",
+      "features": [
+        "每月 2000 次生成",
+        "自定义模板",
+        "超高质量",
+        "优先处理",
+        "完整 API 访问",
+        "专属客服",
+        "白标选项"
+      ],
+      "cta": "联系销售"
+    },
+    "credits": {
+      "title": "需要更多积分？",
+      "description": "随时购买额外积分",
+      "small": "100 积分 - ¥35",
+      "medium": "500 积分 - ¥139",
+      "large": "2000 积分 - ¥489"
+    }
+  },
+  "dashboard": {
+    "title": "控制台",
+    "welcome": "欢迎回来，{name}",
+    "credits": {
+      "title": "积分",
+      "remaining": "剩余 {remaining} / 总计 {total}",
+      "buyMore": "购买更多"
+    },
+    "generations": {
+      "title": "最近生成",
+      "empty": "还没有生成记录。创建您的第一个商品页面！",
+      "createNew": "创建新内容",
+      "viewAll": "查看全部"
+    },
+    "quickActions": {
+      "title": "快捷操作",
+      "uploadImage": "上传图片",
+      "enterText": "输入文字",
+      "batchProcess": "批量处理"
+    }
+  },
+  "generation": {
+    "title": "生成商品详情页",
+    "subtitle": "上传商品图片，选择设置，AI 将为您生成专业的商品详情页",
+    "uploadSection": "上传图片",
+    "mainImage": "主商品图片",
+    "mainImageDesc": "上传您的主商品图片，这将是详情页的核心",
+    "styleImage": "风格参考图（可选）",
+    "styleImageDesc": "上传参考风格图片，帮助 AI 理解您的偏好",
+    "uploadTips": "上传提示",
+    "uploadTip1": "建议使用白色或透明背景的商品图",
+    "uploadTip2": "图片分辨率建议不低于 800x800",
+    "uploadTip3": "支持 JPG、PNG 格式",
+    "errors": {
+      "noImage": "请先上传主商品图片"
+    },
+    "styles": {
+      "minimal": {
+        "label": "极简风格",
+        "desc": "简洁干净，突出产品"
+      },
+      "luxury": {
+        "label": "奢华风格",
+        "desc": "高端大气，彰显品质"
+      },
+      "lifestyle": {
+        "label": "生活风格",
+        "desc": "场景融入，情感共鸣"
+      },
+      "tech": {
+        "label": "科技风格",
+        "desc": "现代前卫，科技感强"
+      }
+    },
+    "settings": "生成设置",
+    "platform": "选择平台",
+    "platformDesc": "选择您的目标电商平台",
+    "count": "生成数量",
+    "countDesc": "选择需要生成的详情页数量（5-10张）",
+    "style": "风格偏好",
+    "styleDesc": "选择适合您品牌的视觉风格",
+    "outputLang": "生成语言",
+    "outputLangDesc": "选择详情页的输出语言",
+    "generating": "正在生成...",
+    "generateBtn": "开始生成",
+    "preview": "预览区域",
+    "previewDesc": "生成的详情页将在此显示",
+    "progress": "生成进度",
+    "eta": "预计剩余时间",
+    "steps": {
+      "upload": "上传",
+      "configure": "配置",
+      "generate": "生成",
+      "review": "查看"
+    },
+    "upload": {
+      "title": "上传商品图片",
+      "dragDrop": "将图片拖放到此处",
+      "or": "或",
+      "browse": "浏览文件",
+      "supported": "支持：JPG、PNG、WebP（最大 10MB）",
+      "enterText": "或手动输入商品详情"
+    },
+    "configure": {
+      "title": "配置生成选项",
+      "productName": "商品名称",
+      "category": "商品类别",
+      "targetAudience": "目标受众",
+      "brandVoice": "品牌调性",
+      "language": "输出语言",
+      "options": {
+        "professional": "专业",
+        "casual": "休闲",
+        "luxury": "奢华",
+        "fun": "有趣",
+        "technical": "技术"
+      }
+    },
+    "generating": {
+      "title": "正在生成您的内容",
+      "description": "我们的 AI 正在分析您的商品并创建引人入胜的内容...",
+      "eta": "通常需要 10-30 秒"
+    },
+    "result": {
+      "title": "您的内容已就绪",
+      "download": "下载",
+      "copy": "复制",
+      "regenerate": "重新生成",
+      "edit": "编辑",
+      "save": "保存到库"
+    }
+  },
+  "errors": {
+    "generic": "出了点问题，请重试。",
+    "rateLimit": "请求过于频繁，请稍后再试。",
+    "unauthorized": "请先登录以继续。",
+    "forbidden": "您没有权限访问此资源。",
+    "notFound": "未找到请求的资源。",
+    "validation": "请检查您的输入并重试。",
+    "server": "服务器错误，请稍后再试。",
+    "network": "网络错误，请检查您的连接。",
+    "insufficientCredits": "积分不足。请升级方案或购买更多积分。",
+    "fileTooLarge": "文件太大，最大支持 10MB。",
+    "invalidFileType": "无效的文件类型，请上传 JPG、PNG 或 WebP 格式。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "saving": "保存中...",
+    "processing": "处理中...",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑",
+    "save": "保存",
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步",
+    "submit": "提交",
+    "continue": "继续",
+    "done": "完成",
+    "copy": "复制",
+    "copied": "已复制！",
+    "success": "成功",
+    "error": "错误",
+    "warning": "警告",
+    "info": "信息",
+    "optional": "可选",
+    "required": "必填",
+    "learnMore": "了解更多",
+    "viewDetails": "查看详情",
+    "showMore": "显示更多",
+    "showLess": "显示更少",
+    "custom": "自定义",
+    "image": "图片",
+    "images": "张",
+    "preview": "预览",
+    "download": "下载",
+    "downloadAll": "下载全部"
+  },
+  "auth": {
+    "signIn": {
+      "title": "登录",
+      "subtitle": "登录您的 OuraPix 账号",
+      "email": "邮箱",
+      "emailPlaceholder": "请输入邮箱",
+      "password": "密码",
+      "passwordPlaceholder": "请输入密码",
+      "forgotPassword": "忘记密码？",
+      "noAccount": "还没有账号？",
+      "signUp": "立即注册",
+      "submit": "登录",
+      "loading": "登录中...",
+      "success": "登录成功",
+      "error": "登录失败，请检查邮箱和密码"
+    },
+    "signUp": {
+      "title": "创建账号",
+      "subtitle": "注册 OuraPix 账号，开始生成商品详情页",
+      "name": "用户名",
+      "namePlaceholder": "请输入用户名",
+      "email": "邮箱",
+      "emailPlaceholder": "请输入邮箱",
+      "password": "密码",
+      "passwordPlaceholder": "请输入密码（至少8位）",
+      "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "请再次输入密码",
+      "agreeToTerms": "我同意",
+      "termsOfService": "服务条款",
+      "and": "和",
+      "privacyPolicy": "隐私政策",
+      "hasAccount": "已有账号？",
+      "signIn": "立即登录",
+      "submit": "注册",
+      "loading": "注册中...",
+      "success": "注册成功",
+      "error": "注册失败",
+      "passwordMismatch": "两次输入的密码不一致",
+      "passwordRequirements": "密码需包含大小写字母、数字和特殊字符"
+    },
+    "forgotPassword": {
+      "title": "忘记密码",
+      "subtitle": "输入您的邮箱，我们将发送重置密码链接",
+      "email": "邮箱",
+      "emailPlaceholder": "请输入注册邮箱",
+      "submit": "发送重置链接",
+      "loading": "发送中...",
+      "success": "重置链接已发送，请检查邮箱",
+      "error": "发送失败，请检查邮箱是否正确",
+      "backToLogin": "返回登录"
+    },
+    "resetPassword": {
+      "title": "重置密码",
+      "subtitle": "输入新密码重置您的账号",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "submit": "重置密码",
+      "loading": "重置中...",
+      "success": "密码重置成功",
+      "error": "重置失败，链接可能已过期",
+      "backToLogin": "返回登录"
+    },
+    "logout": "退出登录",
+    "logoutSuccess": "已成功退出登录"
+  },
+  "notifications": {
+    "generationComplete": {
+      "title": "生成完成",
+      "description": "您的商品 {productName} 详情页已准备就绪！"
+    },
+    "creditsLow": {
+      "title": "积分不足",
+      "description": "您还剩 {remaining} 积分。考虑升级您的方案。"
+    },
+    "subscriptionExpiring": {
+      "title": "订阅即将到期",
+      "description": "您的订阅将于 {date} 到期。请续订以避免服务中断。"
+    }
+  },
+  "footer": {
+    "tagline": "极简AI跨境商品详情页生成工具",
+    "tagline2": "让商品展示更简单",
+    "product": "产品",
+    "features": "功能介绍",
+    "pricing": "定价方案",
+    "changelog": "更新日志",
+    "support": "支持",
+    "helpCenter": "帮助中心",
+    "tutorials": "使用教程",
+    "contact": "联系我们",
+    "legal": "法律",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "cookies": "Cookie政策",
+    "copyright": "All rights reserved."
+  },
+  "docs": {
+    "title": "文档",
+    "breadcrumb": "文档",
+    "backToHome": "返回文档首页",
+    "loading": "文档内容加载中...",
+    "loadingDesc": "此页面需要配置 MDX 渲染。请在本地开发环境中查看完整内容。",
+    "pages": {
+      "index": {
+        "title": "快速开始",
+        "description": "了解如何使用 OuraPix 生成 AI 跨境商品详情页"
+      },
+      "guide/upload": {
+        "title": "上传教程",
+        "description": "如何上传产品图片以获得最佳效果"
+      },
+      "guide/settings": {
+        "title": "设置说明",
+        "description": "配置生成参数和偏好设置"
+      },
+      "guide/download": {
+        "title": "下载指南",
+        "description": "如何下载和使用生成的内容"
+      },
+      "faq": {
+        "title": "常见问题",
+        "description": "常见问题解答"
+      }
+    }
+  },
+  "blog": {
+    "title": "博客",
+    "subtitle": "探索 AI 商品详情页生成的最佳实践、模板和技巧",
+    "featured": "精选",
+    "allPosts": "全部文章",
+    "readMore": "阅读更多",
+    "relatedPosts": "相关文章",
+    "backToBlog": "返回博客",
+    "tags": {
+      "templates": "模板",
+      "tips": "技巧",
+      "showcase": "案例"
+    }
+  }
+}
