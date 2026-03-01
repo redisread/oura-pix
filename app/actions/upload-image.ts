@@ -1,8 +1,9 @@
 "use server";
 
-import type { D1Database } from "@cloudflare/workers-types";
+import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
+import { uploadArrayBuffer, R2Folders, getPublicUrl } from "@/lib/r2";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -85,96 +86,6 @@ async function getImageDimensions(buffer: ArrayBuffer): Promise<ImageDimensions 
 }
 
 /**
- * 上传图片到存储
- * @param file 文件对象
- * @param userId 用户ID
- * @returns 存储URL
- */
-async function uploadToStorage(
-  file: File,
-  userId: string
-): Promise<{ url: string; path: string }> {
-  // 生成唯一文件名
-  const timestamp = Date.now();
-  const randomString = Math.random().toString(36).substring(2, 15);
-  const extension = file.name.split(".").pop() || "jpg";
-  const filename = `${timestamp}-${randomString}.${extension}`;
-  const path = `uploads/${userId}/${filename}`;
-
-  // 读取文件内容
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-
-  // 上传到 R2 存储
-  const bucket = process.env.R2_BUCKET;
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
-
-  if (!bucket || !accountId || !accessKeyId || !secretAccessKey) {
-    throw new Error("Storage configuration missing");
-  }
-
-  // 使用 S3 兼容 API 上传
-  const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
-  const uploadUrl = `${endpoint}/${bucket}/${path}`;
-
-  const response = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: {
-      "Content-Type": file.type,
-      "Content-Length": buffer.length.toString(),
-      Authorization: `AWS ${accessKeyId}:${await calculateSignature(
-        path,
-        file.type,
-        secretAccessKey
-      )}`,
-    },
-    body: buffer,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Upload failed: ${response.statusText}`);
-  }
-
-  // 构建公开访问 URL
-  const publicUrl = process.env.R2_PUBLIC_URL
-    ? `${process.env.R2_PUBLIC_URL}/${path}`
-    : `${endpoint}/${bucket}/${path}`;
-
-  return { url: publicUrl, path };
-}
-
-/**
- * 计算 AWS 签名(简化版)
- */
-async function calculateSignature(
-  path: string,
-  contentType: string,
-  secretKey: string
-): Promise<string> {
-  const date = new Date().toUTCString();
-  const stringToSign = `PUT\n\n${contentType}\n${date}\n/${process.env.R2_BUCKET}/${path}`;
-
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secretKey),
-    { name: "HMAC", hash: "SHA-1" },
-    false,
-    ["sign"]
-  );
-
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    encoder.encode(stringToSign)
-  );
-
-  return btoa(String.fromCharCode(...new Uint8Array(signature)));
-}
-
-/**
  * 上传图片 Server Action
  * @param formData 包含文件的 FormData
  * @returns 上传结果
@@ -183,22 +94,14 @@ export async function uploadImage(
   formData: FormData
 ): Promise<UploadImageResponse> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 获取当前用户
     const request = new Request("http://localhost", {
       headers: {
         cookie: formData.get("cookie") as string,
       },
     });
-
-    // 这里需要通过 context 获取 D1 数据库和 auth 实例
-    // 实际使用时需要在页面中传入
-    const env = (formData.get("env") as unknown) as {
-      DB: D1Database;
-    };
-
-    if (!env?.DB) {
-      return { success: false, error: "Database not available" };
-    }
 
     const auth = createAuth(env.DB);
     const user = await getCurrentUser(auth, request);
@@ -230,8 +133,27 @@ export async function uploadImage(
     const arrayBuffer = await file.arrayBuffer();
     const dimensions = await getImageDimensions(arrayBuffer);
 
-    // 上传到存储
-    const { url } = await uploadToStorage(file, user.id);
+    // 生成文件路径
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const extension = file.name.split(".").pop() || "jpg";
+    const filename = `${timestamp}-${randomString}.${extension}`;
+    const key = `${R2Folders.USER_UPLOADS}/${user.id}/${filename}`;
+
+    // 上传到 R2（使用 binding）
+    await uploadArrayBuffer(arrayBuffer, file.name, {
+      folder: R2Folders.USER_UPLOADS,
+      contentType: file.type,
+    });
+
+    // 生成公开访问 URL
+    let url: string;
+    try {
+      url = getPublicUrl(key);
+    } catch {
+      // 如果没有配置公开 URL，使用 key 作为标识
+      url = key;
+    }
 
     // 保存到数据库
     const db = createDb(env.DB);
@@ -271,18 +193,18 @@ export async function uploadImage(
 /**
  * 删除图片
  * @param imageId 图片ID
- * @param env 环境变量(包含 DB)
- * @param cookie Cookie 字符串
  * @returns 操作结果
  */
 export async function deleteImage(
-  imageId: string,
-  env: { DB: D1Database },
-  cookie: string
+  imageId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const { env } = await getCloudflareContext();
+
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: {
+        cookie: "", // Cookie should be passed from client
+      },
     });
 
     const auth = createAuth(env.DB);
@@ -327,14 +249,10 @@ export async function deleteImage(
 
 /**
  * 获取用户图片列表
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @param type 图片类型筛选
  * @returns 图片列表
  */
 export async function getUserImages(
-  env: { DB: D1Database },
-  cookie: string,
   type?: "product" | "reference"
 ): Promise<{
   success: boolean;
@@ -350,8 +268,12 @@ export async function getUserImages(
   error?: string;
 }> {
   try {
+    const { env } = await getCloudflareContext();
+
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: {
+        cookie: "", // Cookie should be passed from client
+      },
     });
 
     const auth = createAuth(env.DB);

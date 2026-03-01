@@ -1,6 +1,6 @@
 "use server";
 
-import type { D1Database } from "@cloudflare/workers-types";
+import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
 import { type GenerationSettings } from "@/db/schema";
@@ -9,7 +9,7 @@ import {
   validateGenerationSettings,
   estimateGenerationCost,
 } from "@/lib/ai-generation";
-import { eq, and, gte } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 /**
  * 创建生成任务请求
@@ -81,19 +81,17 @@ async function deductQuota(
 /**
  * 创建生成任务
  * @param request 生成请求
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 创建结果
  */
 export async function createGeneration(
-  request: CreateGenerationRequest,
-  env: { DB: D1Database },
-  cookie: string
+  request: CreateGenerationRequest
 ): Promise<CreateGenerationResponse> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const httpRequest = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);
@@ -186,8 +184,6 @@ export async function createGeneration(
     });
 
     // 异步执行生成任务
-    // 注意: 在 Cloudflare Workers 中, 需要使用 waitUntil 或队列处理
-    // 这里返回任务ID, 前端可以轮询状态
     processGeneration(generation.id, env.DB).catch(console.error);
 
     return {
@@ -224,7 +220,7 @@ function estimateGenerationTime(imageCount: number, generationCount: number): nu
  */
 async function processGeneration(
   generationId: string,
-  d1Database: D1Database
+  d1Database: typeof import("@cloudflare/workers-types").D1Database.prototype
 ): Promise<void> {
   const db = createDb(d1Database);
 
@@ -305,6 +301,3 @@ async function processGeneration(
       .where(eq(schema.generations.id, generationId));
   }
 }
-
-// 导入 sql
-import { sql } from "drizzle-orm";

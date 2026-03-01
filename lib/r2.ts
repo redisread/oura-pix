@@ -1,58 +1,18 @@
 /**
  * Cloudflare R2 Storage Integration
- * Provides file upload, download, and presigned URL functionality
+ *
+ * Uses R2 binding API for file storage operations.
+ * Works in both production (Cloudflare Workers) and local development (wrangler).
  */
 
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { v4 as uuidv4 } from 'uuid';
+import { getR2 } from "./cloudflare-context";
+import type { R2Bucket, R2ObjectBody } from "@cloudflare/workers-types";
 
 /**
- * R2 Client Configuration
+ * R2 public access URL
+ * Used for generating public URLs for stored files
  */
-const R2_ACCOUNT_ID = process.env.CLOUDFLARE_R2_ACCOUNT_ID;
-const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
-const R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
-const R2_BUCKET_NAME = process.env.CLOUDFLARE_R2_BUCKET_NAME || 'ourapix-storage';
 const R2_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL;
-
-/**
- * Validate environment variables
- */
-function validateConfig(): void {
-  if (!R2_ACCOUNT_ID) {
-    throw new Error('Missing CLOUDFLARE_R2_ACCOUNT_ID environment variable');
-  }
-  if (!R2_ACCESS_KEY_ID) {
-    throw new Error('Missing CLOUDFLARE_R2_ACCESS_KEY_ID environment variable');
-  }
-  if (!R2_SECRET_ACCESS_KEY) {
-    throw new Error('Missing CLOUDFLARE_R2_SECRET_ACCESS_KEY environment variable');
-  }
-}
-
-/**
- * S3 Client instance for R2
- */
-let r2Client: S3Client | null = null;
-
-/**
- * Get or create R2 client instance
- */
-function getR2Client(): S3Client {
-  if (!r2Client) {
-    validateConfig();
-    r2Client = new S3Client({
-      region: 'auto',
-      endpoint: `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: R2_ACCESS_KEY_ID!,
-        secretAccessKey: R2_SECRET_ACCESS_KEY!,
-      },
-    });
-  }
-  return r2Client;
-}
 
 /**
  * File upload options
@@ -81,49 +41,80 @@ export interface UploadResult {
  */
 function generateFileKey(originalName: string, folder?: string): string {
   const timestamp = Date.now();
-  const uniqueId = uuidv4().split('-')[0];
-  const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const key = `${timestamp}_${uniqueId}_${sanitizedName}`;
+  const randomString = Math.random().toString(36).substring(2, 15);
+  const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
+  const key = `${timestamp}_${randomString}_${sanitizedName}`;
   return folder ? `${folder}/${key}` : key;
 }
 
 /**
  * Upload file to R2 storage
- * @param fileBuffer - File content as Buffer
+ *
+ * @param body - File content (ArrayBuffer or string)
  * @param originalName - Original file name
  * @param options - Upload options
  * @returns Upload result with URLs
  */
 export async function uploadFile(
-  fileBuffer: Buffer,
+  body: ArrayBuffer | string,
   originalName: string,
   options: UploadOptions = {}
 ): Promise<UploadResult> {
-  const client = getR2Client();
+  const bucket = (await getR2()) as R2Bucket;
   const key = generateFileKey(originalName, options.folder);
 
-  const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-    Body: fileBuffer,
-    ContentType: options.contentType || 'application/octet-stream',
-    Metadata: options.metadata || {},
-  });
+  // Prepare upload options
+  const putOptions: any = {};
 
-  const response = await client.send(command);
+  if (options.contentType) {
+    putOptions.httpMetadata = {
+      contentType: options.contentType,
+    };
+  }
+
+  if (options.metadata) {
+    putOptions.customMetadata = options.metadata;
+  }
+
+  // Upload to R2
+  const result = await bucket.put(key, body, putOptions);
+
+  if (!result) {
+    throw new Error("Failed to upload file to R2");
+  }
+
+  // Generate public URL
+  const publicUrl = R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/${key}` : key;
 
   return {
     key,
-    url: `r2://${R2_BUCKET_NAME}/${key}`,
-    publicUrl: R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/${key}` : `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${R2_BUCKET_NAME}/${key}`,
-    size: fileBuffer.length,
-    contentType: options.contentType || 'application/octet-stream',
-    etag: response.ETag,
+    url: `r2://${key}`,
+    publicUrl,
+    size: result.size,
+    contentType: options.contentType || "application/octet-stream",
+    etag: result.etag,
   };
 }
 
 /**
+ * Upload file from ArrayBuffer (convenience method)
+ *
+ * @param arrayBuffer - File content as ArrayBuffer
+ * @param originalName - Original file name
+ * @param options - Upload options
+ * @returns Upload result
+ */
+export async function uploadArrayBuffer(
+  arrayBuffer: ArrayBuffer,
+  originalName: string,
+  options: UploadOptions = {}
+): Promise<UploadResult> {
+  return uploadFile(arrayBuffer, originalName, options);
+}
+
+/**
  * Upload from URL
+ *
  * @param url - Source URL
  * @param options - Upload options
  * @returns Upload result
@@ -137,144 +128,67 @@ export async function uploadFromUrl(
     throw new Error(`Failed to fetch file from URL: ${response.status} ${response.statusText}`);
   }
 
-  const contentType = response.headers.get('content-type') || 'application/octet-stream';
+  const contentType = response.headers.get("content-type") || "application/octet-stream";
   const arrayBuffer = await response.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
 
-  const fileName = url.split('/').pop() || 'download';
+  const fileName = url.split("/").pop() || "download";
 
-  return uploadFile(buffer, fileName, {
+  return uploadFile(arrayBuffer, fileName, {
     ...options,
     contentType,
   });
 }
 
 /**
- * Generate presigned URL for file access
- * @param key - File key in R2
- * @param expiresIn - URL expiration time in seconds (default: 3600)
- * @returns Presigned URL
- */
-export async function getPresignedUrl(
-  key: string,
-  expiresIn: number = 3600
-): Promise<string> {
-  const client = getR2Client();
-
-  const command = new GetObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-  });
-
-  return getSignedUrl(client, command, { expiresIn });
-}
-
-/**
- * Generate presigned upload URL
- * @param fileName - Original file name
- * @param contentType - Content type
- * @param expiresIn - URL expiration time in seconds (default: 600)
- * @param options - Upload options
- * @returns Presigned upload URL and key
- */
-export async function getPresignedUploadUrl(
-  fileName: string,
-  contentType: string,
-  expiresIn: number = 600,
-  options: UploadOptions = {}
-): Promise<{ uploadUrl: string; key: string; publicUrl: string }> {
-  const client = getR2Client();
-  const key = generateFileKey(fileName, options.folder);
-
-  const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-    ContentType: contentType,
-    Metadata: options.metadata || {},
-  });
-
-  const uploadUrl = await getSignedUrl(client, command, { expiresIn });
-
-  return {
-    uploadUrl,
-    key,
-    publicUrl: R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/${key}` : `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${R2_BUCKET_NAME}/${key}`,
-  };
-}
-
-/**
- * Download file from R2
+ * Get file from R2
+ *
  * @param key - File key
- * @returns File buffer
+ * @returns R2ObjectBody or null if not found
  */
-export async function downloadFile(key: string): Promise<Buffer> {
-  const client = getR2Client();
+export async function getFile(key: string): Promise<R2ObjectBody | null> {
+  const bucket = (await getR2()) as R2Bucket;
+  return bucket.get(key);
+}
 
-  const command = new GetObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-  });
-
-  const response = await client.send(command);
-
-  if (!response.Body) {
-    throw new Error('Empty response body');
-  }
-
-  const stream = response.Body as ReadableStream;
-  const chunks: Uint8Array[] = [];
-
-  // @ts-ignore - Web Streams API
-  for await (const chunk of stream) {
-    chunks.push(chunk);
-  }
-
-  return Buffer.concat(chunks);
+/**
+ * Download file as ArrayBuffer
+ *
+ * @param key - File key
+ * @returns File content as ArrayBuffer or null if not found
+ */
+export async function downloadFile(key: string): Promise<ArrayBuffer | null> {
+  const object = await getFile(key);
+  if (!object) return null;
+  return object.arrayBuffer();
 }
 
 /**
  * Delete file from R2
+ *
  * @param key - File key
  */
 export async function deleteFile(key: string): Promise<void> {
-  const client = getR2Client();
-
-  const command = new DeleteObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-  });
-
-  await client.send(command);
+  const bucket = (await getR2()) as R2Bucket;
+  await bucket.delete(key);
 }
 
 /**
  * Check if file exists
+ *
  * @param key - File key
  * @returns True if file exists
  */
 export async function fileExists(key: string): Promise<boolean> {
-  const client = getR2Client();
-
-  try {
-    const command = new HeadObjectCommand({
-      Bucket: R2_BUCKET_NAME,
-      Key: key,
-    });
-
-    await client.send(command);
-    return true;
-  } catch (error: any) {
-    if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-      return false;
-    }
-    throw error;
-  }
+  const bucket = (await getR2()) as R2Bucket;
+  const object = await bucket.head(key);
+  return object !== null;
 }
 
 /**
  * Get file metadata
+ *
  * @param key - File key
- * @returns File metadata
+ * @returns File metadata or null if not found
  */
 export async function getFileMetadata(key: string): Promise<{
   size: number;
@@ -282,34 +196,74 @@ export async function getFileMetadata(key: string): Promise<{
   lastModified: Date;
   etag: string;
   metadata: Record<string, string>;
-}> {
-  const client = getR2Client();
+} | null> {
+  const bucket = (await getR2()) as R2Bucket;
+  const object = await bucket.head(key);
 
-  const command = new HeadObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-  });
-
-  const response = await client.send(command);
+  if (!object) return null;
 
   return {
-    size: response.ContentLength || 0,
-    contentType: response.ContentType || 'application/octet-stream',
-    lastModified: response.LastModified || new Date(),
-    etag: response.ETag || '',
-    metadata: response.Metadata || {},
+    size: object.size,
+    contentType: object.httpMetadata?.contentType || "application/octet-stream",
+    lastModified: object.uploaded,
+    etag: object.etag,
+    metadata: object.customMetadata || {},
   };
 }
 
 /**
- * Folder types for organizing uploads
+ * Generate public access URL
+ *
+ * Note: R2 binding does not support presigned URLs.
+ * Use R2 public access or implement a custom solution if needed.
+ *
+ * @param key - File key
+ * @returns Public URL
+ */
+export function getPublicUrl(key: string): string {
+  if (!R2_PUBLIC_URL) {
+    throw new Error("CLOUDFLARE_R2_PUBLIC_URL is not configured");
+  }
+  return `${R2_PUBLIC_URL}/${key}`;
+}
+
+/**
+ * List files in a folder
+ *
+ * @param prefix - Folder prefix
+ * @param limit - Maximum number of files to return
+ * @returns List of objects with keys
+ */
+export async function listFiles(
+  prefix?: string,
+  limit: number = 100
+): Promise<{ objects: Array<{ key: string; size: number; uploaded: Date }>; truncated: boolean; cursor?: string }> {
+  const bucket = (await getR2()) as R2Bucket;
+  const result = await bucket.list({
+    prefix,
+    limit,
+  });
+
+  return {
+    objects: result.objects.map((obj) => ({
+      key: obj.key,
+      size: obj.size,
+      uploaded: obj.uploaded,
+    })),
+    truncated: result.truncated,
+    cursor: "cursor" in result ? (result as any).cursor : undefined,
+  };
+}
+
+/**
+ * Folder constants for organizing uploads
  */
 export const R2Folders = {
-  PRODUCT_IMAGES: 'product-images',
-  GENERATED_CONTENT: 'generated-content',
-  USER_UPLOADS: 'user-uploads',
-  TEMP: 'temp',
-  EXPORTS: 'exports',
+  PRODUCT_IMAGES: "product-images",
+  GENERATED_CONTENT: "generated-content",
+  USER_UPLOADS: "user-uploads",
+  TEMP: "temp",
+  EXPORTS: "exports",
 } as const;
 
 export type R2Folder = typeof R2Folders[keyof typeof R2Folders];

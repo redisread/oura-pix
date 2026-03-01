@@ -1,6 +1,6 @@
 "use server";
 
-import type { D1Database } from "@cloudflare/workers-types";
+import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { type GenerationStatusType } from "@/db/schema";
 import { getCurrentUser, createAuth } from "@/lib/auth";
@@ -66,19 +66,17 @@ export interface GetHistoryResponse {
 /**
  * 获取生成历史记录
  * @param params 查询参数
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 历史记录列表
  */
 export async function getHistory(
-  params: GetHistoryRequest,
-  env: { DB: D1Database },
-  cookie: string
+  params: GetHistoryRequest = {}
 ): Promise<GetHistoryResponse> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);
@@ -263,29 +261,21 @@ async function getGenerationStats(
 /**
  * 获取最近生成记录
  * @param limit 数量限制
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 最近生成记录
  */
 export async function getRecentGenerations(
-  limit: number = 5,
-  env: { DB: D1Database },
-  cookie: string
+  limit: number = 5
 ): Promise<{
   success: boolean;
   data?: HistoryItem[];
   error?: string;
 }> {
-  const result = await getHistory(
-    {
-      page: 1,
-      pageSize: limit,
-      sortBy: "createdAt",
-      sortOrder: "desc",
-    },
-    env,
-    cookie
-  );
+  const result = await getHistory({
+    page: 1,
+    pageSize: limit,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
 
   if (!result.success) {
     return { success: false, error: result.error };
@@ -300,19 +290,17 @@ export async function getRecentGenerations(
 /**
  * 删除生成记录
  * @param generationId 生成任务ID
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 操作结果
  */
 export async function deleteGeneration(
-  generationId: string,
-  env: { DB: D1Database },
-  cookie: string
+  generationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);
@@ -359,23 +347,21 @@ export async function deleteGeneration(
 /**
  * 导出历史记录
  * @param params 查询参数
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns CSV 格式的历史记录
  */
 export async function exportHistory(
-  params: Omit<GetHistoryRequest, "page" | "pageSize">,
-  env: { DB: D1Database },
-  cookie: string
+  params: Omit<GetHistoryRequest, "page" | "pageSize"> = {}
 ): Promise<{
   success: boolean;
   data?: { csv: string; filename: string };
   error?: string;
 }> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);

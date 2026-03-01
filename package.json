@@ -6,24 +6,20 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cf": "npx @opennextjs/cloudflare",
+    "deploy": "npm run build:cf && wrangler pages deploy",
+    "preview": "npm run build:cf && wrangler pages dev .open-next/worker.js",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply oura-pix-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db",
-    "db:studio": "drizzle-kit studio",
-    "deploy": "wrangler deploy",
-    "preview": "npx @cloudflare/next-on-pages && npx wrangler pages dev .vercel/output/static --compatibility-date=2024-11-12 --compatibility-flags=nodejs_compat",
-    "cf:build": "npx @cloudflare/next-on-pages",
-    "cf:deploy": "npx @cloudflare/next-on-pages && wrangler pages deploy .vercel/output/static",
-    "postinstall": ""
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.0.0",
     "@auth/drizzle-adapter": "^1.7.0",
-    "@aws-sdk/client-s3": "^3.995.0",
-    "@aws-sdk/s3-request-presigner": "^3.995.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -70,8 +66,8 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.0",
     "@cloudflare/workers-types": "^4.20241112.0",
+    "@opennextjs/cloudflare": "^1.17.1",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

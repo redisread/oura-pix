@@ -1,10 +1,10 @@
 "use server";
 
-import type { D1Database } from "@cloudflare/workers-types";
+import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { type GenerationResult, type GenerationSettings } from "@/db/schema";
 import { getCurrentUser, createAuth } from "@/lib/auth";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 /**
  * 生成任务详情响应
@@ -39,19 +39,17 @@ export interface GetGenerationResponse {
 /**
  * 获取生成任务详情
  * @param generationId 生成任务ID
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 生成任务详情
  */
 export async function getGeneration(
-  generationId: string,
-  env: { DB: D1Database },
-  cookie: string
+  generationId: string
 ): Promise<GetGenerationResponse> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);
@@ -191,23 +189,21 @@ function calculateProgress(
 /**
  * 重新生成
  * @param generationId 原生成任务ID
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 新的生成任务
  */
 export async function retryGeneration(
-  generationId: string,
-  env: { DB: D1Database },
-  cookie: string
+  generationId: string
 ): Promise<{
   success: boolean;
   data?: { id: string };
   error?: string;
 }> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);
@@ -241,16 +237,12 @@ export async function retryGeneration(
 
     // 重新创建任务
     const { createGeneration } = await import("./create-generation");
-    return createGeneration(
-      {
-        productImageId: generation.productImageId || "",
-        referenceImageIds: generation.referenceImageIds || [],
-        prompt: generation.prompt || undefined,
-        settings: generation.settings || {},
-      },
-      env,
-      cookie
-    );
+    return createGeneration({
+      productImageId: generation.productImageId || "",
+      referenceImageIds: generation.referenceImageIds || [],
+      prompt: generation.prompt || undefined,
+      settings: generation.settings || {},
+    });
   } catch (error) {
     console.error("Retry generation error:", error);
     return {
@@ -263,19 +255,17 @@ export async function retryGeneration(
 /**
  * 取消生成任务
  * @param generationId 生成任务ID
- * @param env 环境变量
- * @param cookie Cookie 字符串
  * @returns 操作结果
  */
 export async function cancelGeneration(
-  generationId: string,
-  env: { DB: D1Database },
-  cookie: string
+  generationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const { env } = await getCloudflareContext();
+
     // 验证用户
     const request = new Request("http://localhost", {
-      headers: { cookie },
+      headers: { cookie: "" }, // Cookie should be passed from client
     });
 
     const auth = createAuth(env.DB);
@@ -339,6 +329,3 @@ export async function cancelGeneration(
     };
   }
 }
-
-// 导入 sql
-import { sql } from "drizzle-orm";

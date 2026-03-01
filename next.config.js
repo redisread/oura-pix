@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Cloudflare Workers specific configuration
-  output: 'standalone',
+  // Note: output: 'standalone' is not needed for OpenNext Cloudflare
+  // OpenNext handles the build output separately
 
   // Image optimization configuration
   images: {
