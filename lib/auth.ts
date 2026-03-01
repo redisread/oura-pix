@@ -6,6 +6,7 @@ import { createDb, schema } from "@/db";
 /**
  * Better Auth 配置
  * 支持邮箱/密码登录和会话管理
+ * 使用 Drizzle 的 integer mode: 'timestamp_ms' 自动处理 Date 对象转换
  */
 export function createAuth(d1Database: D1Database) {
   const db = createDb(d1Database);
@@ -18,6 +19,10 @@ export function createAuth(d1Database: D1Database) {
     // 数据库适配器配置
     database: drizzleAdapter(db, {
       provider: "sqlite",
+      camelCase: true, // 使用 camelCase 字段名映射
+      debugLogs: {
+        isRunningEnvironment: true,
+      },
       schema: {
         user: schema.users,
         account: schema.accounts,
@@ -35,10 +40,11 @@ export function createAuth(d1Database: D1Database) {
 
     // 会话配置
     session: {
-      // 会话过期时间(毫秒)
-      expiresIn: 7 * 24 * 60 * 60 * 1000, // 7天
-      // 更新会话频率
-      updateAge: 24 * 60 * 60 * 1000, // 1天
+      // 会话过期时间 - Better Auth Cookie maxAge 使用秒值
+      // 7天 = 7 * 24 * 60 * 60 = 604800 秒
+      expiresIn: 604800, // 7天（秒）
+      // 更新会话频率 - 1天 = 86400 秒
+      updateAge: 86400, // 1天（秒）
     },
 
     // Cookie 配置
@@ -48,8 +54,10 @@ export function createAuth(d1Database: D1Database) {
         // 开发环境使用 HTTP，生产环境使用 HTTPS
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "lax" as const,
         path: "/",
+        // Cookie 最大有效期：7天（不超过 400 天限制）
+        maxAge: 7 * 24 * 60 * 60,
       },
     },
 

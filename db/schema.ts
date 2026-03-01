@@ -7,11 +7,9 @@ import {
   primaryKey,
 } from "drizzle-orm/sqlite-core";
 
-// OAuth 账户类型
-type AdapterAccountType = "oauth" | "email" | "credentials";
-
 /**
  * 用户表 - Better Auth 集成
+ * 使用 integer mode: 'timestamp_ms' 自动处理 Date 对象与毫秒时间戳的转换
  */
 export const users = sqliteTable("user", {
   id: text("id")
@@ -19,43 +17,39 @@ export const users = sqliteTable("user", {
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").unique().notNull(),
-  emailVerified: text("emailVerified"),
+  emailVerified: integer("emailVerified", { mode: "boolean" }).default(false),
   image: text("image"),
-  password: text("password"), // 邮箱/密码登录用
-  createdAt: text("createdAt")
-    .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text("updatedAt")
-    .notNull()
-    .default(sql`(datetime('now'))`),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" }).notNull(),
 });
 
 /**
- * 账户表 - OAuth 登录用
+ * 账户表 - Better Auth 标准
+ * 用于邮箱/密码登录和 OAuth 登录
  */
-export const accounts = sqliteTable(
-  "account",
-  {
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccountType>().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
-  },
-  (account) => ({
-    compoundKey: primaryKey({
-      columns: [account.provider, account.providerAccountId],
-    }),
-  })
-);
+export const accounts = sqliteTable("account", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accountId: text("accountId").notNull(),
+  providerId: text("providerId").notNull(),
+  accessToken: text("accessToken"),
+  refreshToken: text("refreshToken"),
+  idToken: text("idToken"),
+  accessTokenExpiresAt: integer("accessTokenExpiresAt", { mode: "timestamp_ms" }),
+  refreshTokenExpiresAt: integer("refreshTokenExpiresAt", { mode: "timestamp_ms" }),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+});
 
 /**
  * 会话表 - Better Auth 标准结构
@@ -65,34 +59,37 @@ export const sessions = sqliteTable("session", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   token: text("token").notNull().unique(),
-  expiresAt: text("expiresAt").notNull(),
+  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
   ipAddress: text("ipAddress"),
   userAgent: text("userAgent"),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: text("createdAt")
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text("updatedAt")
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .default(sql`(strftime('%s', 'now') * 1000)`),
 });
 
 /**
- * 验证令牌表
+ * 验证令牌表 - Better Auth 标准
  */
-export const verificationTokens = sqliteTable(
-  "verificationToken",
-  {
-    identifier: text("identifier").notNull(),
-    token: text("token").notNull(),
-    expires: text("expires").notNull(),
-  },
-  (verToken) => ({
-    compoundKey: primaryKey({ columns: [verToken.identifier, verToken.token] }),
-  })
-);
+export const verificationTokens = sqliteTable("verificationToken", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+});
 
 /**
  * 图片上传记录表
@@ -121,13 +118,13 @@ export const images = sqliteTable("images", {
   // 是否已删除
   isDeleted: integer("isDeleted", { mode: "boolean" }).default(false),
   // 删除时间
-  deletedAt: text("deletedAt"),
-  createdAt: text("createdAt")
+  deletedAt: integer("deletedAt", { mode: "timestamp_ms" }),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text("updatedAt")
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .default(sql`(strftime('%s', 'now') * 1000)`),
 });
 
 /**
@@ -173,13 +170,13 @@ export const generations = sqliteTable("generations", {
   // 错误信息
   errorMessage: text("errorMessage"),
   // 完成时间
-  completedAt: text("completedAt"),
-  createdAt: text("createdAt")
+  completedAt: integer("completedAt", { mode: "timestamp_ms" }),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text("updatedAt")
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .default(sql`(strftime('%s', 'now') * 1000)`),
 });
 
 /**
@@ -255,9 +252,9 @@ export const subscriptions = sqliteTable("subscriptions", {
     .notNull()
     .default("active"),
   // 当前周期开始时间
-  currentPeriodStart: text("currentPeriodStart"),
+  currentPeriodStart: integer("currentPeriodStart", { mode: "timestamp_ms" }),
   // 当前周期结束时间
-  currentPeriodEnd: text("currentPeriodEnd"),
+  currentPeriodEnd: integer("currentPeriodEnd", { mode: "timestamp_ms" }),
   // 已使用生成次数
   usedGenerations: integer("usedGenerations").notNull().default(0),
   // 月度生成限额
@@ -267,13 +264,13 @@ export const subscriptions = sqliteTable("subscriptions", {
   // 订阅ID(外部支付系统)
   externalSubscriptionId: text("externalSubscriptionId"),
   // 取消时间
-  canceledAt: text("canceledAt"),
-  createdAt: text("createdAt")
+  canceledAt: integer("canceledAt", { mode: "timestamp_ms" }),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text("updatedAt")
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .default(sql`(strftime('%s', 'now') * 1000)`),
 });
 
 /**
@@ -296,7 +293,7 @@ export const usageLogs = sqliteTable("usage_logs", {
   details: text("details").$type<Record<string, unknown>>(),
   // 消耗额度
   creditsUsed: integer("creditsUsed").default(1),
-  createdAt: text("createdAt")
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .default(sql`(strftime('%s', 'now') * 1000)`),
 });

@@ -1,16 +1,17 @@
 CREATE TABLE `account` (
+	`id` text PRIMARY KEY NOT NULL,
 	`userId` text NOT NULL,
-	`type` text NOT NULL,
-	`provider` text NOT NULL,
-	`providerAccountId` text NOT NULL,
-	`refresh_token` text,
-	`access_token` text,
-	`expires_at` integer,
-	`token_type` text,
+	`accountId` text NOT NULL,
+	`providerId` text NOT NULL,
+	`accessToken` text,
+	`refreshToken` text,
+	`idToken` text,
+	`accessTokenExpiresAt` text,
+	`refreshTokenExpiresAt` text,
 	`scope` text,
-	`id_token` text,
-	`session_state` text,
-	PRIMARY KEY(`provider`, `providerAccountId`),
+	`password` text,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -95,17 +96,18 @@ CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text,
 	`email` text NOT NULL,
-	`emailVerified` text,
+	`emailVerified` integer DEFAULT false,
 	`image` text,
-	`password` text,
 	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
 	`updatedAt` text DEFAULT (datetime('now')) NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
 CREATE TABLE `verificationToken` (
+	`id` text PRIMARY KEY NOT NULL,
 	`identifier` text NOT NULL,
-	`token` text NOT NULL,
-	`expires` text NOT NULL,
-	PRIMARY KEY(`identifier`, `token`)
+	`value` text NOT NULL,
+	`expiresAt` text NOT NULL,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL
 );

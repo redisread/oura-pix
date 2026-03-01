@@ -30,13 +30,26 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log("[Auth POST] Starting request handling...");
     const { env } = await getCloudflareContext();
+    console.log("[Auth POST] Got Cloudflare context, DB:", !!env.DB);
     const auth = createAuth(env.DB);
-    return auth.handler(request);
+    console.log("[Auth POST] Auth instance created");
+
+    const response = await auth.handler(request);
+    console.log("[Auth POST] Response status:", response.status);
+
+    // Log response body for debugging
+    const responseClone = response.clone();
+    const body = await responseClone.text();
+    console.log("[Auth POST] Response body:", body);
+
+    return response;
   } catch (error) {
     console.error("Auth POST error:", error);
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack");
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: "Internal server error", details: error instanceof Error ? error.message : String(error) }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
