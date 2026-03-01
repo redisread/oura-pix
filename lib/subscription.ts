@@ -1,8 +1,13 @@
 /**
  * Subscription Management
+ *
  * Handles user subscriptions, credits, and plan management
+ * 使用 Drizzle ORM 进行数据库操作
  */
 
+import { getDb } from "@/lib/db-utils";
+import { subscriptions, usageLogs, users } from "@/db/schema";
+import { eq, and, gte, desc, sql } from "drizzle-orm";
 import { getStripe, SUBSCRIPTION_PLANS, PlanId, listCustomerSubscriptions } from './stripe';
 
 /**
@@ -134,9 +139,24 @@ export async function deductCredits(
   description: string,
   metadata?: Record<string, any>
 ): Promise<{ success: boolean; remainingCredits: number; error?: string }> {
-  const hasEnough = await hasEnoughCredits(userId, amount);
+  const db = await getDb();
 
-  if (!hasEnough) {
+  // 获取当前订阅状态
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+  });
+
+  if (!subscription) {
+    return {
+      success: false,
+      remainingCredits: 0,
+      error: 'Subscription not found',
+    };
+  }
+
+  const availableCredits = subscription.generationLimit - subscription.usedGenerations;
+
+  if (availableCredits < amount) {
     return {
       success: false,
       remainingCredits: 0,
@@ -144,29 +164,30 @@ export async function deductCredits(
     };
   }
 
-  // In a real implementation, this would update the database
-  // For now, we return a mock response
-  const status = await getSubscriptionStatus(userId);
-  const newUsed = status.creditsUsed + amount;
+  // 更新已使用额度
+  const newUsed = subscription.usedGenerations + amount;
+  await db
+    .update(subscriptions)
+    .set({
+      usedGenerations: newUsed,
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.userId, userId));
 
-  // Record transaction (mock)
-  const transaction: CreditTransaction = {
-    id: generateTransactionId(),
+  // 记录交易
+  await db.insert(usageLogs).values({
     userId,
-    type: 'usage',
-    amount: -amount,
-    balance: status.credits - newUsed,
-    description,
-    metadata,
-    createdAt: new Date(),
-  };
-
-  // TODO: Persist transaction to database
-  console.log('Credit transaction:', transaction);
+    type: 'generation',
+    creditsUsed: amount,
+    details: {
+      description,
+      ...metadata,
+    },
+  });
 
   return {
     success: true,
-    remainingCredits: transaction.balance,
+    remainingCredits: subscription.generationLimit - newUsed,
   };
 }
 
@@ -194,27 +215,46 @@ export async function addCredits(
     };
   }
 
-  const status = await getSubscriptionStatus(userId);
-  const newBalance = status.credits + amount;
+  const db = await getDb();
 
-  // Record transaction (mock)
-  const transaction: CreditTransaction = {
-    id: generateTransactionId(),
+  // 获取当前订阅状态
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+  });
+
+  if (!subscription) {
+    return {
+      success: false,
+      newBalance: 0,
+      error: 'Subscription not found',
+    };
+  }
+
+  // 增加额度
+  const newLimit = subscription.generationLimit + amount;
+  await db
+    .update(subscriptions)
+    .set({
+      generationLimit: newLimit,
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.userId, userId));
+
+  // 记录交易
+  await db.insert(usageLogs).values({
     userId,
-    type,
-    amount,
-    balance: newBalance,
-    description,
-    metadata,
-    createdAt: new Date(),
-  };
-
-  // TODO: Persist transaction to database
-  console.log('Credit transaction:', transaction);
+    type: type === 'purchase' ? 'generation' : 'generation',
+    creditsUsed: -amount, // 负数表示增加
+    details: {
+      description,
+      transactionType: type,
+      ...metadata,
+    },
+  });
 
   return {
     success: true,
-    newBalance,
+    newBalance: newLimit - subscription.usedGenerations,
   };
 }
 
@@ -224,16 +264,35 @@ export async function addCredits(
  * @returns Subscription status
  */
 export async function getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
-  // TODO: Fetch from database
-  // This is a mock implementation
+  const db = await getDb();
+
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+  });
+
+  if (!subscription) {
+    // 返回默认的 free 计划状态
+    return {
+      userId,
+      planId: 'free',
+      status: 'active',
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      cancelAtPeriodEnd: false,
+      credits: 10,
+      creditsUsed: 0,
+    };
+  }
+
   return {
     userId,
-    planId: 'free',
-    status: 'active',
-    currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    cancelAtPeriodEnd: false,
-    credits: 10,
-    creditsUsed: 0,
+    planId: (subscription.plan || 'free') as PlanId,
+    status: (subscription.status || 'active') as SubscriptionStatus['status'],
+    currentPeriodEnd: subscription.currentPeriodEnd || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    cancelAtPeriodEnd: subscription.canceledAt !== null,
+    credits: subscription.generationLimit,
+    creditsUsed: subscription.usedGenerations,
+    stripeCustomerId: subscription.paymentMethodId || undefined,
+    stripeSubscriptionId: subscription.externalSubscriptionId || undefined,
   };
 }
 
@@ -254,20 +313,47 @@ export async function updateSubscriptionFromStripe(
   status: string,
   currentPeriodEnd: Date
 ): Promise<void> {
-  // TODO: Update database with subscription info
-  console.log('Updating subscription:', {
-    userId,
-    stripeCustomerId,
-    stripeSubscriptionId,
-    planId,
-    status,
-    currentPeriodEnd,
+  const db = await getDb();
+  const features = getPlanFeatures(planId);
+
+  // 检查订阅记录是否存在
+  const existing = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
   });
 
-  // If subscription is active, add monthly credits
+  if (existing) {
+    // 更新现有订阅
+    await db
+      .update(subscriptions)
+      .set({
+        plan: planId,
+        status: status as any,
+        currentPeriodStart: existing.currentPeriodStart || new Date(),
+        currentPeriodEnd: currentPeriodEnd,
+        externalSubscriptionId: stripeSubscriptionId,
+        paymentMethodId: stripeCustomerId,
+        generationLimit: features.monthlyCredits,
+        usedGenerations: 0, // 重置使用量
+        updatedAt: new Date(),
+      })
+      .where(eq(subscriptions.userId, userId));
+  } else {
+    // 创建新的订阅记录
+    await db.insert(subscriptions).values({
+      userId,
+      plan: planId,
+      status: status as any,
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: currentPeriodEnd,
+      externalSubscriptionId: stripeSubscriptionId,
+      paymentMethodId: stripeCustomerId,
+      generationLimit: features.monthlyCredits,
+      usedGenerations: 0,
+    });
+  }
+
+  // 如果订阅激活，添加月度积分
   if (status === 'active' || status === 'trialing') {
-    const features = getPlanFeatures(planId);
-    // TODO: Check if credits already added for this period
     await addCredits(
       userId,
       features.monthlyCredits,
@@ -320,9 +406,41 @@ export async function getCreditTransactions(
   limit: number = 20,
   offset: number = 0
 ): Promise<CreditTransaction[]> {
-  // TODO: Fetch from database
-  // Mock implementation
-  return [];
+  const db = await getDb();
+
+  const logs = await db.query.usageLogs.findMany({
+    where: eq(usageLogs.userId, userId),
+    orderBy: [desc(usageLogs.createdAt)],
+    limit,
+    offset,
+  });
+
+  // 获取当前余额
+  const subscription = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+    columns: { generationLimit: true, usedGenerations: true },
+  });
+
+  const currentBalance = (subscription?.generationLimit || 0) - (subscription?.usedGenerations || 0);
+
+  // 转换为 CreditTransaction 格式
+  let runningBalance = currentBalance;
+
+  return logs.reverse().map((log, index) => {
+    const amount = log.creditsUsed ?? 0; // 处理 null
+    runningBalance -= amount; // 计算历史余额
+
+    return {
+      id: log.id,
+      userId: log.userId,
+      type: (log.details as any)?.transactionType || 'usage',
+      amount: amount,
+      balance: runningBalance,
+      description: (log.details as any)?.description || 'Credit usage',
+      metadata: log.details as Record<string, any>,
+      createdAt: log.createdAt,
+    };
+  }).reverse();
 }
 
 /**
@@ -346,9 +464,21 @@ export async function hasFeatureAccess(
  * @returns Today's generation count
  */
 export async function getDailyUsage(userId: string): Promise<number> {
-  // TODO: Fetch from database
-  // Mock implementation
-  return 0;
+  const db = await getDb();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(usageLogs)
+    .where(and(
+      eq(usageLogs.userId, userId),
+      eq(usageLogs.type, 'generation'),
+      gte(usageLogs.createdAt, today)
+    ));
+
+  return result[0]?.count || 0;
 }
 
 /**

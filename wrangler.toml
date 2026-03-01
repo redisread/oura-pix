@@ -86,6 +86,15 @@ STRIPE_CREDITS_LARGE_PRICE_ID = ""
 # wrangler pages secret list
 
 # ============================================
+# 模块别名配置
+# ============================================
+# 将不支持的 Node.js 模块替换为空模块
+# Cloudflare Workers 不支持 node:sqlite，使用 D1 数据库代替
+[alias]
+"node:sqlite" = "./.open-next/cloudflare-templates/shims/empty.js"
+"sqlite" = "./.open-next/cloudflare-templates/shims/empty.js"
+
+# ============================================
 # 可选配置
 # ============================================
 

@@ -220,7 +220,7 @@ export interface GenerationResult {
  */
 export const SubscriptionPlan = {
   FREE: "free",
-  BASIC: "basic",
+  STARTER: "starter",
   PRO: "pro",
   ENTERPRISE: "enterprise",
 } as const;
@@ -241,7 +241,7 @@ export const subscriptions = sqliteTable("subscriptions", {
     .unique(),
   // 订阅计划
   plan: text("plan", {
-    enum: ["free", "basic", "pro", "enterprise"],
+    enum: ["free", "starter", "pro", "enterprise"],
   })
     .notNull()
     .default("free"),

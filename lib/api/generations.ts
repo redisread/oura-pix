@@ -2,11 +2,13 @@
  * Generations API Service
  *
  * 提供生成历史的 CRUD 操作
+ * 统一使用 Drizzle ORM 进行数据库操作
  */
 
-import { getCloudflareContext } from "@/lib/cloudflare-context";
-import { generations, images } from "@/db/schema";
+import { getDb } from "@/lib/db-utils";
+import { generations, images, subscriptions, usageLogs } from "@/db/schema";
 import type { GenerationSettings, GenerationResult } from "@/db/schema";
+import { eq, and, gte, desc, sql, count, inArray } from "drizzle-orm";
 
 // 时间筛选类型
 export type TimeFilter = "all" | "today" | "week" | "month";
@@ -106,66 +108,59 @@ function transformRecord(
 export async function getGenerationsList(
   params: GenerationListParams
 ): Promise<GenerationListResponse> {
-  const { env } = await getCloudflareContext();
+  const db = await getDb();
   const { page = 1, pageSize = 10, filter = "all", userId } = params;
 
   // 构建查询条件
   const startDate = getFilterStartDate(filter);
 
+  // 构建基础查询条件
+  const baseCondition = startDate
+    ? and(
+        eq(generations.userId, userId),
+        gte(generations.createdAt, startDate)
+      )
+    : eq(generations.userId, userId);
+
   // 查询总数
-  const countQuery = startDate
-    ? `SELECT COUNT(*) as count FROM generations WHERE user_id = ? AND created_at >= ?`
-    : `SELECT COUNT(*) as count FROM generations WHERE user_id = ?`;
+  const countResult = await db
+    .select({ count: count() })
+    .from(generations)
+    .where(baseCondition);
 
-  const countParams = startDate ? [userId, startDate.getTime()] : [userId];
-  const allRecords = await env.DB.prepare(countQuery)
-    .bind(...countParams)
-    .first<{ count: number }>();
-
-  const total = allRecords?.count || 0;
+  const total = countResult[0]?.count || 0;
   const totalPages = Math.ceil(total / pageSize);
 
   // 分页查询
   const offset = (page - 1) * pageSize;
-  const listQuery = startDate
-    ? `SELECT * FROM generations WHERE user_id = ? AND created_at >= ? ORDER BY created_at DESC LIMIT ? OFFSET ?`
-    : `SELECT * FROM generations WHERE user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`;
-
-  const listParams = startDate
-    ? [userId, startDate.getTime(), pageSize, offset]
-    : [userId, pageSize, offset];
-
-  const records = await env.DB.prepare(listQuery)
-    .bind(...listParams)
-    .all<typeof generations.$inferSelect>();
+  const records = await db.query.generations.findMany({
+    where: baseCondition,
+    orderBy: [desc(generations.createdAt)],
+    limit: pageSize,
+    offset: offset,
+  });
 
   // 获取关联的图片信息
   const transformedData: GenerationRecord[] = [];
 
-  for (const record of records.results) {
+  for (const record of records) {
     let productImage: typeof images.$inferSelect | null = null;
     let referenceImages: (typeof images.$inferSelect)[] = [];
 
     // 获取商品图片
     if (record.productImageId) {
-      const imgResult = await env.DB.prepare(
-        "SELECT * FROM images WHERE id = ?"
-      )
-        .bind(record.productImageId)
-        .first<typeof images.$inferSelect>();
-      productImage = imgResult;
+      const result = await db.query.images.findFirst({
+        where: eq(images.id, record.productImageId),
+      });
+      productImage = result ?? null;
     }
 
     // 获取参考图片
     const refIds = record.referenceImageIds as string[] | null;
     if (refIds && refIds.length > 0) {
-      const placeholders = refIds.map(() => "?").join(",");
-      const refResults = await env.DB.prepare(
-        `SELECT * FROM images WHERE id IN (${placeholders})`
-      )
-        .bind(...refIds)
-        .all<typeof images.$inferSelect>();
-      referenceImages = refResults.results;
+      referenceImages = await db.query.images.findMany({
+        where: inArray(images.id, refIds),
+      });
     }
 
     transformedData.push(transformRecord(record, productImage, referenceImages));
@@ -189,13 +184,14 @@ export async function getGenerationById(
   id: string,
   userId: string
 ): Promise<GenerationRecord | null> {
-  const { env } = await getCloudflareContext();
+  const db = await getDb();
 
-  const record = await env.DB.prepare(
-    "SELECT * FROM generations WHERE id = ? AND user_id = ?"
-  )
-    .bind(id, userId)
-    .first<typeof generations.$inferSelect>();
+  const record = await db.query.generations.findFirst({
+    where: and(
+      eq(generations.id, id),
+      eq(generations.userId, userId)
+    ),
+  });
 
   if (!record) {
     return null;
@@ -206,24 +202,18 @@ export async function getGenerationById(
 
   // 获取商品图片
   if (record.productImageId) {
-    const imgResult = await env.DB.prepare(
-      "SELECT * FROM images WHERE id = ?"
-    )
-      .bind(record.productImageId)
-      .first<typeof images.$inferSelect>();
-    productImage = imgResult;
+    const result = await db.query.images.findFirst({
+      where: eq(images.id, record.productImageId),
+    });
+    productImage = result ?? null;
   }
 
   // 获取参考图片
   const refIds = record.referenceImageIds as string[] | null;
   if (refIds && refIds.length > 0) {
-    const placeholders = refIds.map(() => "?").join(",");
-    const refResults = await env.DB.prepare(
-      `SELECT * FROM images WHERE id IN (${placeholders})`
-    )
-      .bind(...refIds)
-      .all<typeof images.$inferSelect>();
-    referenceImages = refResults.results;
+    referenceImages = await db.query.images.findMany({
+      where: inArray(images.id, refIds),
+    });
   }
 
   return transformRecord(record, productImage, referenceImages);
@@ -236,23 +226,23 @@ export async function deleteGeneration(
   id: string,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const { env } = await getCloudflareContext();
+  const db = await getDb();
 
   // 验证记录是否存在且属于当前用户
-  const record = await env.DB.prepare(
-    "SELECT id FROM generations WHERE id = ? AND user_id = ?"
-  )
-    .bind(id, userId)
-    .first();
+  const record = await db.query.generations.findFirst({
+    where: and(
+      eq(generations.id, id),
+      eq(generations.userId, userId)
+    ),
+    columns: { id: true },
+  });
 
   if (!record) {
     return { success: false, error: "Record not found" };
   }
 
   // 删除记录
-  await env.DB.prepare("DELETE FROM generations WHERE id = ?")
-    .bind(id)
-    .run();
+  await db.delete(generations).where(eq(generations.id, id));
 
   return { success: true };
 }
@@ -266,45 +256,51 @@ export async function getUserStats(userId: string): Promise<{
   remainingCredits: number;
   favoriteStyle: string;
 }> {
-  const { env } = await getCloudflareContext();
+  const db = await getDb();
 
   // 总生成数
-  const totalResult = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM generations WHERE user_id = ?"
-  )
-    .bind(userId)
-    .first<{ count: number }>();
+  const totalResult = await db
+    .select({ count: count() })
+    .from(generations)
+    .where(eq(generations.userId, userId));
 
   // 本月生成数
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthResult = await env.DB.prepare(
-    "SELECT COUNT(*) as count FROM generations WHERE user_id = ? AND created_at >= ?"
-  )
-    .bind(userId, monthStart.getTime())
-    .first<{ count: number }>();
+  const monthResult = await db
+    .select({ count: count() })
+    .from(generations)
+    .where(and(
+      eq(generations.userId, userId),
+      gte(generations.createdAt, monthStart)
+    ));
 
-  // 获取最常用的风格
-  const styleResult = await env.DB.prepare(
-    `SELECT json_extract(settings, '$.style') as style, COUNT(*) as count
-     FROM generations
-     WHERE user_id = ? AND settings IS NOT NULL
-     GROUP BY style
-     ORDER BY count DESC
-     LIMIT 1`
-  )
-    .bind(userId)
-    .first<{ style: string; count: number }>();
+  // 获取最常用的风格 - 使用 SQL 片段处理 JSON 提取
+  const styleResult = await db
+    .select({
+      style: sql<string>`json_extract(${generations.settings}, '$.style')`,
+      count: count(),
+    })
+    .from(generations)
+    .where(and(
+      eq(generations.userId, userId),
+      sql`${generations.settings} IS NOT NULL`
+    ))
+    .groupBy(sql`json_extract(${generations.settings}, '$.style')`)
+    .orderBy(desc(sql`count(*)`))
+    .limit(1);
 
   // 获取订阅信息中的剩余额度
-  const subResult = await env.DB.prepare(
-    "SELECT generation_limit, used_generations FROM subscriptions WHERE user_id = ?"
-  )
-    .bind(userId)
-    .first<{ generation_limit: number; used_generations: number }>();
+  const subResult = await db.query.subscriptions.findFirst({
+    where: eq(subscriptions.userId, userId),
+    columns: {
+      generationLimit: true,
+      usedGenerations: true,
+    },
+  });
 
-  const limit = subResult?.generation_limit || 10;
-  const used = subResult?.used_generations || 0;
+  const limit = subResult?.generationLimit || 10;
+  const used = subResult?.usedGenerations || 0;
 
   const styleNames: Record<string, string> = {
     professional: "专业风格",
@@ -314,9 +310,9 @@ export async function getUserStats(userId: string): Promise<{
   };
 
   return {
-    totalGenerations: totalResult?.count || 0,
-    thisMonth: monthResult?.count || 0,
+    totalGenerations: totalResult[0]?.count || 0,
+    thisMonth: monthResult[0]?.count || 0,
     remainingCredits: limit - used,
-    favoriteStyle: styleNames[styleResult?.style || "professional"] || "专业风格",
+    favoriteStyle: styleNames[styleResult[0]?.style || "professional"] || "专业风格",
   };
 }
