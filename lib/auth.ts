@@ -20,9 +20,6 @@ export function createAuth(d1Database: D1Database) {
     database: drizzleAdapter(db, {
       provider: "sqlite",
       camelCase: true, // 使用 camelCase 字段名映射
-      debugLogs: {
-        isRunningEnvironment: true,
-      },
       schema: {
         user: schema.users,
         account: schema.accounts,
