@@ -1,4 +1,11 @@
 
+## 开发参考
+
+遵守使用 OpenNext 的最佳实践，可以参考 ：
+- https://opennext.js.org/cloudflare/get-started
+- https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/
+
+Cloudflare 适配器提供了一个 opennextjs-cloudflare 命令行界面 (CLI)，用于开发、构建和部署应用程序。除非另有文档说明或您清楚自己在做什么，否则不应直接使用 wrangler 命令。可以参考 https://opennext.js.org/cloudflare/cli
 
 
 ## 项目迭代规范

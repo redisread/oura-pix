@@ -1,15 +1,15 @@
 "use client";
 
-export const runtime = "edge";
-
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function RegisterPage() {
   const t = useTranslations("auth.signUp");
   const router = useRouter();
+  const { register, isLoading: authLoading } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,20 +38,15 @@ export default function RegisterPage() {
       return;
     }
 
-    try {
-      // 模拟注册 API 调用
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    const result = await register(name, email, password);
 
-      // 存储登录状态到 cookie
-      document.cookie = "auth-token=demo-token; path=/; max-age=604800"; // 7天
-
-      // 注册成功，跳转到首页
+    if (result.success) {
       router.push("/");
-    } catch (err) {
-      setError(t("error"));
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError(result.error || t("error"));
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -183,10 +178,10 @@ export default function RegisterPage() {
             <div>
               <button
                 type="submit"
-                disabled={isLoading || !agreeTerms}
+                disabled={isLoading || authLoading || !agreeTerms}
                 className="flex w-full justify-center rounded-md border border-transparent bg-slate-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? t("loading") : t("submit")}
+                {isLoading || authLoading ? t("loading") : t("submit")}
               </button>
             </div>
           </form>

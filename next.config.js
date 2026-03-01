@@ -35,19 +35,28 @@ const nextConfig = {
 
   // Webpack configuration for Cloudflare Workers compatibility
   webpack: (config, { isServer, nextRuntime }) => {
-    if (isServer && nextRuntime === 'edge') {
-      // Handle Cloudflare Workers specific configurations
-      config.resolve = {
-        ...config.resolve,
-        fallback: {
-          ...config.resolve?.fallback,
-          // Disable Node.js specific modules in edge runtime
-          fs: false,
-          net: false,
-          tls: false,
-          crypto: false,
-        },
-      };
+    if (isServer) {
+      // Mark wrangler as external to avoid bundling it with the server code
+      // wrangler contains Node.js native modules that can't be bundled
+      config.externals = config.externals || [];
+      if (Array.isArray(config.externals)) {
+        config.externals.push('wrangler');
+      }
+
+      if (nextRuntime === 'edge') {
+        // Handle Cloudflare Workers specific configurations
+        config.resolve = {
+          ...config.resolve,
+          fallback: {
+            ...config.resolve?.fallback,
+            // Disable Node.js specific modules in edge runtime
+            fs: false,
+            net: false,
+            tls: false,
+            crypto: false,
+          },
+        };
+      }
     }
     return config;
   },

@@ -2,7 +2,9 @@ import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createAuth } from "@/lib/auth";
 import { NextRequest } from "next/server";
 
-export const runtime = "edge";
+// 使用 Node.js runtime，因为 wrangler 的 getPlatformProxy 需要 Node.js 环境
+// 生产环境部署到 Cloudflare Workers 时，OpenNext 会处理 Edge Runtime 的转换
+export const runtime = "nodejs";
 
 /**
  * 处理 GET 认证请求

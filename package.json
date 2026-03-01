@@ -4,7 +4,7 @@
   "private": true,
   "description": "AI-powered cross-border e-commerce product detail page generator",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4001",
     "build": "next build",
     "build:cf": "npx @opennextjs/cloudflare",
     "deploy": "npm run build:cf && wrangler pages deploy",
@@ -12,6 +12,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply oura-pix-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db",
