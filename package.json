@@ -8,6 +8,7 @@
     "dev:check": "npm run setup && npm run db:migrate && npm run dev",
     "build": "next build",
     "build:cf": "npx @opennextjs/cloudflare",
+    "cf:build": "npx @opennextjs/cloudflare",
     "deploy": "npm run predeploy && npm run build:cf && wrangler pages deploy",
     "deploy:prod": "npm run predeploy && npm run build:cf && wrangler pages deploy --env production",
     "preview": "npm run build:cf && wrangler pages dev .open-next/worker.js",
