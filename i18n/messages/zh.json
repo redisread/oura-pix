@@ -68,7 +68,7 @@
         "next": "下一页",
         "page": "第",
         "of": "页，共",
-        "total": "共 {{count}} 条记录"
+        "total": "共 {count} 条记录"
       },
       "detailModal": {
         "title": "生成详情",
@@ -467,7 +467,9 @@
     "images": "张",
     "preview": "预览",
     "download": "下载",
-    "downloadAll": "下载全部"
+    "downloadAll": "下载全部",
+    "viewAll": "查看全部",
+    "filter": "筛选"
   },
   "auth": {
     "signIn": {

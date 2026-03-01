@@ -68,7 +68,7 @@
         "next": "Next",
         "page": "Page",
         "of": "of",
-        "total": "Total {{count}} records"
+        "total": "Total {count} records"
       },
       "detailModal": {
         "title": "Generation Details",
@@ -467,7 +467,9 @@
     "images": "images",
     "preview": "Preview",
     "download": "Download",
-    "downloadAll": "Download All"
+    "downloadAll": "Download All",
+    "viewAll": "View All",
+    "filter": "Filter"
   },
   "auth": {
     "signIn": {
