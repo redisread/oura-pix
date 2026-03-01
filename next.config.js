@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Note: output: 'standalone' is not needed for OpenNext Cloudflare
-  // OpenNext handles the build output separately
+  // OpenNext for Cloudflare 需要 standalone 输出模式
+  output: 'standalone',
 
   // Image optimization configuration
   images: {
@@ -41,6 +41,10 @@ const nextConfig = {
       config.externals = config.externals || [];
       if (Array.isArray(config.externals)) {
         config.externals.push('wrangler');
+        // Prevent node:sqlite from being bundled - it's not supported in Cloudflare Workers
+        // and causes deployment failures. The project uses D1 via Drizzle ORM instead.
+        config.externals.push('node:sqlite');
+        config.externals.push('sqlite');
       }
 
       if (nextRuntime === 'edge') {

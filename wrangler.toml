@@ -9,7 +9,8 @@ main = ".open-next/worker.js"
 pages_build_output_dir = ".open-next"
 compatibility_date = "2026-02-26"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
-logpush = false
+# OpenNext 已经完成了打包，跳过 wrangler 的内部打包步骤
+no_bundle = true
 
 # ============================================
 # Cloudflare D1 数据库绑定
