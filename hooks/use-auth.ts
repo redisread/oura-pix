@@ -11,6 +11,7 @@ export interface User {
   email: string;
   name?: string | null;
   image?: string | null;
+  createdAt?: Date | string | null;
 }
 
 /**

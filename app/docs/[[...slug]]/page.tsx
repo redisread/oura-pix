@@ -1,5 +1,3 @@
-export const runtime = "edge";
-
 import { notFound } from "next/navigation";
 import { getPage } from "@/lib/source";
 import DocPageClient from "./DocPageClient";

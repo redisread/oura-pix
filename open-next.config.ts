@@ -7,14 +7,13 @@
  * @see https://opennext.js.org/cloudflare
  */
 
-import type { OpenNextConfig } from "@opennextjs/cloudflare";
+import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
-const config: OpenNextConfig = {
-  default: {
-    override: {
-      wrapper: "cloudflare-node",
-    },
-  },
-};
-
-export default config;
+export default defineCloudflareConfig({
+  // 使用 "dummy" 增量缓存（适用于静态站点或无 ISR 需求）
+  // 如需启用 R2 增量缓存，参考：
+  // https://opennext.js.org/cloudflare/caching/incremental-cache
+  incrementalCache: "dummy",
+  tagCache: "dummy",
+  queue: "direct",
+});

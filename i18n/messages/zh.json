@@ -35,10 +35,13 @@
       "favoriteStyle": "常用风格"
     },
     "userInfo": {
+      "title": "用户信息",
       "username": "用户名",
       "email": "邮箱",
       "memberSince": "注册时间",
-      "plan": "当前套餐"
+      "plan": "当前套餐",
+      "proPlan": "专业版",
+      "emailDisabled": "邮箱不可修改"
     },
     "history": {
       "title": "生成历史",
@@ -55,8 +58,12 @@
       "viewDetails": "查看详情",
       "regenerate": "重新生成",
       "delete": "删除",
-      "deleteConfirm": "确定要删除这条记录吗？",
-      "deleteSuccess": "记录删除成功",
+      "deleteConfirmTitle": "确认删除",
+      "deleteConfirm": "确定要删除这条记录吗？此操作无法撤销。",
+      "deleteSuccess": "删除成功",
+      "deleteSuccessDesc": "记录已成功删除",
+      "deleteFailed": "删除失败",
+      "deleteFailedDesc": "无法删除记录，请稍后重试",
       "filter": {
         "all": "全部",
         "today": "今天",
@@ -76,7 +83,8 @@
         "status": "状态",
         "originalImages": "原始图片",
         "generatedResults": "生成结果",
-        "promptUsed": "使用的提示词"
+        "promptUsed": "使用的提示词",
+        "error": "错误信息"
       }
     },
     "editProfile": "编辑资料",
@@ -469,7 +477,8 @@
     "download": "下载",
     "downloadAll": "下载全部",
     "viewAll": "查看全部",
-    "filter": "筛选"
+    "filter": "筛选",
+    "start": "开始生成"
   },
   "auth": {
     "signIn": {

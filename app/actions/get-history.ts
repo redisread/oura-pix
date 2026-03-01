@@ -408,7 +408,7 @@ export async function exportHistory(
     });
 
     // 生成 CSV
-    const headers = [
+    const csvHeaders = [
       "ID",
       "Status",
       "Product Image",
@@ -430,7 +430,7 @@ export async function exportHistory(
       gen.completedAt?.toISOString() || "",
     ]);
 
-    const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csv = [csvHeaders.join(","), ...rows.map((r) => r.join(","))].join("\n");
 
     const filename = `ourapix-history-${new Date().toISOString().split("T")[0]}.csv`;
 

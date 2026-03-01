@@ -35,10 +35,13 @@
       "favoriteStyle": "Favorite Style"
     },
     "userInfo": {
+      "title": "User Information",
       "username": "Username",
       "email": "Email",
       "memberSince": "Member Since",
-      "plan": "Current Plan"
+      "plan": "Current Plan",
+      "proPlan": "Pro",
+      "emailDisabled": "Email cannot be changed"
     },
     "history": {
       "title": "Generation History",
@@ -55,8 +58,12 @@
       "viewDetails": "View Details",
       "regenerate": "Regenerate",
       "delete": "Delete",
-      "deleteConfirm": "Are you sure you want to delete this record?",
-      "deleteSuccess": "Record deleted successfully",
+      "deleteConfirmTitle": "Confirm Delete",
+      "deleteConfirm": "Are you sure you want to delete this record? This action cannot be undone.",
+      "deleteSuccess": "Deleted Successfully",
+      "deleteSuccessDesc": "Record has been deleted",
+      "deleteFailed": "Delete Failed",
+      "deleteFailedDesc": "Unable to delete record, please try again later",
       "filter": {
         "all": "All Time",
         "today": "Today",
@@ -76,7 +83,8 @@
         "status": "Status",
         "originalImages": "Original Images",
         "generatedResults": "Generated Results",
-        "promptUsed": "Prompt Used"
+        "promptUsed": "Prompt Used",
+        "error": "Error Message"
       }
     },
     "editProfile": "Edit Profile",
@@ -469,7 +477,8 @@
     "download": "Download",
     "downloadAll": "Download All",
     "viewAll": "View All",
-    "filter": "Filter"
+    "filter": "Filter",
+    "start": "Get Started"
   },
   "auth": {
     "signIn": {

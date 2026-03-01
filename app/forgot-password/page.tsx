@@ -1,7 +1,5 @@
 "use client";
 
-export const runtime = "edge";
-
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
