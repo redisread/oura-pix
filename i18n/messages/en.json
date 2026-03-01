@@ -506,8 +506,7 @@
       "loading": "Signing up...",
       "success": "Sign up successful",
       "error": "Sign up failed",
-      "passwordMismatch": "Passwords do not match",
-      "passwordRequirements": "Password must contain uppercase, lowercase, number and special character"
+      "passwordMismatch": "Passwords do not match"
     },
     "forgotPassword": {
       "title": "Forgot Password",

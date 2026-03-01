@@ -19,15 +19,15 @@ export const users = sqliteTable("user", {
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").unique().notNull(),
-  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+  emailVerified: text("emailVerified"),
   image: text("image"),
   password: text("password"), // 邮箱/密码登录用
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  createdAt: text("createdAt")
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .default(sql`(datetime('now'))`),
+  updatedAt: text("updatedAt")
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(datetime('now'))`),
 });
 
 /**
@@ -65,18 +65,18 @@ export const sessions = sqliteTable("session", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   token: text("token").notNull().unique(),
-  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }).notNull(),
+  expiresAt: text("expiresAt").notNull(),
   ipAddress: text("ipAddress"),
   userAgent: text("userAgent"),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  createdAt: text("createdAt")
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .default(sql`(datetime('now'))`),
+  updatedAt: text("updatedAt")
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(datetime('now'))`),
 });
 
 /**
@@ -87,7 +87,7 @@ export const verificationTokens = sqliteTable(
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+    expires: text("expires").notNull(),
   },
   (verToken) => ({
     compoundKey: primaryKey({ columns: [verToken.identifier, verToken.token] }),
@@ -121,13 +121,13 @@ export const images = sqliteTable("images", {
   // 是否已删除
   isDeleted: integer("isDeleted", { mode: "boolean" }).default(false),
   // 删除时间
-  deletedAt: integer("deletedAt", { mode: "timestamp_ms" }),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  deletedAt: text("deletedAt"),
+  createdAt: text("createdAt")
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .default(sql`(datetime('now'))`),
+  updatedAt: text("updatedAt")
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(datetime('now'))`),
 });
 
 /**
@@ -173,13 +173,13 @@ export const generations = sqliteTable("generations", {
   // 错误信息
   errorMessage: text("errorMessage"),
   // 完成时间
-  completedAt: integer("completedAt", { mode: "timestamp_ms" }),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  completedAt: text("completedAt"),
+  createdAt: text("createdAt")
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .default(sql`(datetime('now'))`),
+  updatedAt: text("updatedAt")
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(datetime('now'))`),
 });
 
 /**
@@ -255,11 +255,9 @@ export const subscriptions = sqliteTable("subscriptions", {
     .notNull()
     .default("active"),
   // 当前周期开始时间
-  currentPeriodStart: integer("currentPeriodStart", {
-    mode: "timestamp_ms",
-  }),
+  currentPeriodStart: text("currentPeriodStart"),
   // 当前周期结束时间
-  currentPeriodEnd: integer("currentPeriodEnd", { mode: "timestamp_ms" }),
+  currentPeriodEnd: text("currentPeriodEnd"),
   // 已使用生成次数
   usedGenerations: integer("usedGenerations").notNull().default(0),
   // 月度生成限额
@@ -269,13 +267,13 @@ export const subscriptions = sqliteTable("subscriptions", {
   // 订阅ID(外部支付系统)
   externalSubscriptionId: text("externalSubscriptionId"),
   // 取消时间
-  canceledAt: integer("canceledAt", { mode: "timestamp_ms" }),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  canceledAt: text("canceledAt"),
+  createdAt: text("createdAt")
     .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .default(sql`(datetime('now'))`),
+  updatedAt: text("updatedAt")
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(datetime('now'))`),
 });
 
 /**
@@ -298,7 +296,7 @@ export const usageLogs = sqliteTable("usage_logs", {
   details: text("details").$type<Record<string, unknown>>(),
   // 消耗额度
   creditsUsed: integer("creditsUsed").default(1),
-  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+  createdAt: text("createdAt")
     .notNull()
-    .$defaultFn(() => new Date()),
+    .default(sql`(datetime('now'))`),
 });

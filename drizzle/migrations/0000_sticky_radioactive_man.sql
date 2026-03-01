@@ -24,9 +24,9 @@ CREATE TABLE `generations` (
 	`settings` text,
 	`results` text,
 	`errorMessage` text,
-	`completedAt` integer,
-	`createdAt` integer NOT NULL,
-	`updatedAt` integer NOT NULL,
+	`completedAt` text,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`productImageId`) REFERENCES `images`(`id`) ON UPDATE no action ON DELETE set null
 );
@@ -42,21 +42,21 @@ CREATE TABLE `images` (
 	`width` integer,
 	`height` integer,
 	`isDeleted` integer DEFAULT false,
-	`deletedAt` integer,
-	`createdAt` integer NOT NULL,
-	`updatedAt` integer NOT NULL,
+	`deletedAt` text,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `session` (
 	`id` text PRIMARY KEY NOT NULL,
 	`token` text NOT NULL,
-	`expiresAt` integer NOT NULL,
+	`expiresAt` text NOT NULL,
 	`ipAddress` text,
 	`userAgent` text,
 	`userId` text NOT NULL,
-	`createdAt` integer NOT NULL,
-	`updatedAt` integer NOT NULL,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -66,15 +66,15 @@ CREATE TABLE `subscriptions` (
 	`userId` text NOT NULL,
 	`plan` text DEFAULT 'free' NOT NULL,
 	`status` text DEFAULT 'active' NOT NULL,
-	`currentPeriodStart` integer,
-	`currentPeriodEnd` integer,
+	`currentPeriodStart` text,
+	`currentPeriodEnd` text,
 	`usedGenerations` integer DEFAULT 0 NOT NULL,
 	`generationLimit` integer DEFAULT 10 NOT NULL,
 	`paymentMethodId` text,
 	`externalSubscriptionId` text,
-	`canceledAt` integer,
-	`createdAt` integer NOT NULL,
-	`updatedAt` integer NOT NULL,
+	`canceledAt` text,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -86,7 +86,7 @@ CREATE TABLE `usage_logs` (
 	`generationId` text,
 	`details` text,
 	`creditsUsed` integer DEFAULT 1,
-	`createdAt` integer NOT NULL,
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`generationId`) REFERENCES `generations`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -95,17 +95,17 @@ CREATE TABLE `user` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text,
 	`email` text NOT NULL,
-	`emailVerified` integer,
+	`emailVerified` text,
 	`image` text,
 	`password` text,
-	`createdAt` integer NOT NULL,
-	`updatedAt` integer NOT NULL
+	`createdAt` text DEFAULT (datetime('now')) NOT NULL,
+	`updatedAt` text DEFAULT (datetime('now')) NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
 CREATE TABLE `verificationToken` (
 	`identifier` text NOT NULL,
 	`token` text NOT NULL,
-	`expires` integer NOT NULL,
+	`expires` text NOT NULL,
 	PRIMARY KEY(`identifier`, `token`)
 );

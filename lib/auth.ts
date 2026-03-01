@@ -12,7 +12,7 @@ export function createAuth(d1Database: D1Database) {
 
   return betterAuth({
     // 基础配置
-    baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:4001",
     secret: process.env.AUTH_SECRET,
 
     // 数据库适配器配置
@@ -45,29 +45,38 @@ export function createAuth(d1Database: D1Database) {
     cookies: {
       sessionToken: {
         name: "ourapix.session",
-        secure: true,
+        // 开发环境使用 HTTP，生产环境使用 HTTPS
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         sameSite: "lax",
         path: "/",
       },
     },
 
-    // 社交登录配置(可选)
+    // 社交登录配置(可选) - 只在配置了环境变量时启用
     socialProviders: {
-      google: {
-        clientId: process.env.GOOGLE_CLIENT_ID || "",
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      },
-      github: {
-        clientId: process.env.GITHUB_CLIENT_ID || "",
-        clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-      },
+      ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+        ? {
+            google: {
+              clientId: process.env.AUTH_GOOGLE_ID,
+              clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            },
+          }
+        : {}),
+      ...(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
+        ? {
+            github: {
+              clientId: process.env.AUTH_GITHUB_ID,
+              clientSecret: process.env.AUTH_GITHUB_SECRET,
+            },
+          }
+        : {}),
     },
 
     // 高级配置
     advanced: {
-      // 使用安全头部
-      useSecureCookies: true,
+      // 开发环境使用 HTTP，生产环境使用 HTTPS
+      useSecureCookies: process.env.NODE_ENV === "production",
     },
 
   });

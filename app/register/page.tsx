@@ -30,14 +30,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // 验证密码强度
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      setError(t("passwordRequirements"));
-      setIsLoading(false);
-      return;
-    }
-
     const result = await register(name, email, password);
 
     if (result.success) {

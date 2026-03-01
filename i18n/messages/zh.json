@@ -506,8 +506,7 @@
       "loading": "注册中...",
       "success": "注册成功",
       "error": "注册失败",
-      "passwordMismatch": "两次输入的密码不一致",
-      "passwordRequirements": "密码需包含大小写字母、数字和特殊字符"
+      "passwordMismatch": "两次输入的密码不一致"
     },
     "forgotPassword": {
       "title": "忘记密码",

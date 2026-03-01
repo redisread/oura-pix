@@ -5,21 +5,14 @@
   "description": "AI-powered cross-border e-commerce product detail page generator",
   "scripts": {
     "dev": "next dev -p 4001",
-    "dev:check": "npm run setup && npm run dev",
     "build": "next build",
     "build:cf": "npx @opennextjs/cloudflare",
-    "deploy": "npm run predeploy && npm run build:cf && wrangler pages deploy",
-    "deploy:prod": "npm run predeploy && npm run build:cf && wrangler pages deploy --env production",
+    "deploy": "npm run build:cf && wrangler pages deploy",
     "preview": "npm run build:cf && wrangler pages dev .open-next/worker.js",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "setup": "bash scripts/setup-dev.sh",
-    "predeploy": "bash scripts/pre-deploy.sh",
-    "postinstall": "patch-package",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "cf:init": "bash scripts/init-cloudflare.sh",
-    "cf:check": "bash scripts/check-cloudflare.sh",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply oura-pix-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db",
@@ -82,22 +75,14 @@
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.9",
-    "esbuild": "^0.27.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.18",
-    "patch-package": "^8.0.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
-    "wrangler": "^4.69.0"
+    "wrangler": "^3.87.0"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "overrides": {
-    "@noble/ciphers": "^1.0.0"
-  },
-  "resolutions": {
-    "@noble/ciphers": "^1.0.0"
   }
 }

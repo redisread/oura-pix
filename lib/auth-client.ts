@@ -7,7 +7,7 @@ import { createAuthClient } from "better-auth/react";
  * 用于客户端组件中的认证操作
  */
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:4001",
 });
 
 /**

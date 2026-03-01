@@ -1,49 +1,102 @@
+# ============================================
 # Cloudflare Pages Configuration for OuraPix
-# Documentation: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+# ============================================
+# 文档: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+# OpenNext 文档: https://opennext.js.org/cloudflare/get-started
 
 name = "oura-pix"
-compatibility_date = "2024-11-12"
-compatibility_flags = ["nodejs_compat"]
+main = ".open-next/worker.js"
+compatibility_date = "2026-02-26"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+logpush = false
 
-# Build output directory (Next.js + @cloudflare/next-on-pages)
-pages_build_output_dir = ".vercel/output/static"
-
-# Cloudflare D1 Database
+# ============================================
+# Cloudflare D1 数据库绑定
+# ============================================
 [[d1_databases]]
 binding = "DB"
 database_name = "oura-pix-db"
-database_id = "your-database-id-here"
-migrations_dir = "drizzle/migrations"
 
-# Cloudflare R2 Storage for images
+
+# ============================================
+# Cloudflare R2 存储绑定
+# ============================================
 [[r2_buckets]]
 binding = "R2"
-bucket_name = "oura-pix-images"
+bucket_name = "oura-pix-r2"
 
-# Environment Variables (non-secret)
+# ============================================
+# 环境变量（非敏感信息）
+# ============================================
 [vars]
-NEXT_PUBLIC_APP_URL = "https://oura-pix.your-subdomain.workers.dev"
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_test_your_stripe_publishable_key"
-CLOUDFLARE_R2_PUBLIC_URL = "https://your-r2-public-url.com"
+# 应用基础 URL（开发环境）
+NEXT_PUBLIC_APP_URL = "http://localhost:4001"
 
-# Secrets (use `wrangler pages secret put` to set these)
-# AUTH_SECRET - Better Auth secret key
-# AUTH_GOOGLE_ID - Google OAuth Client ID
-# AUTH_GOOGLE_SECRET - Google OAuth Client Secret
-# STRIPE_SECRET_KEY - Stripe Secret Key
-# STRIPE_WEBHOOK_SECRET - Stripe Webhook Secret
-# GEMINI_API_KEY - Google Gemini API Key
+# Stripe 公钥（测试环境 - 待配置）
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = ""
 
-# KV Namespace for caching (optional)
+# R2 公开访问 URL（开发环境）
+CLOUDFLARE_R2_PUBLIC_URL = "http://localhost:4001"
+
+# Stripe 价格 ID（非敏感，可公开）
+# 从 Stripe Dashboard 获取后填入
+STRIPE_STARTER_PRICE_ID = ""
+STRIPE_PRO_PRICE_ID = ""
+STRIPE_ENTERPRISE_PRICE_ID = ""
+STRIPE_CREDITS_SMALL_PRICE_ID = ""
+STRIPE_CREDITS_MEDIUM_PRICE_ID = ""
+STRIPE_CREDITS_LARGE_PRICE_ID = ""
+
+# ============================================
+# 生产环境配置
+# ============================================
+# 使用 wrangler pages deploy --env production 部署到生产环境
+[env.production]
+[env.production.vars]
+NEXT_PUBLIC_APP_URL = "http://ourapix.jiahongw.com"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = ""
+CLOUDFLARE_R2_PUBLIC_URL = "https://ourapix.cos.jiahongw.com"
+
+# 生产环境的价格 ID
+STRIPE_STARTER_PRICE_ID = ""
+STRIPE_PRO_PRICE_ID = ""
+STRIPE_ENTERPRISE_PRICE_ID = ""
+STRIPE_CREDITS_SMALL_PRICE_ID = ""
+STRIPE_CREDITS_MEDIUM_PRICE_ID = ""
+STRIPE_CREDITS_LARGE_PRICE_ID = ""
+
+# ============================================
+# Secrets 管理
+# ============================================
+# 敏感信息必须通过 Cloudflare Secrets 管理，不要在此文件中配置
+# 使用以下命令设置 secrets:
+#
+# wrangler pages secret put AUTH_SECRET
+# wrangler pages secret put STRIPE_SECRET_KEY
+# wrangler pages secret put STRIPE_WEBHOOK_SECRET
+# wrangler pages secret put GEMINI_API_KEY
+# wrangler pages secret put AUTH_GOOGLE_ID
+# wrangler pages secret put AUTH_GOOGLE_SECRET
+# wrangler pages secret put AUTH_GITHUB_ID
+# wrangler pages secret put AUTH_GITHUB_SECRET
+#
+# 查看已配置的 secrets:
+# wrangler pages secret list
+
+# ============================================
+# 可选配置
+# ============================================
+
+# KV 命名空间（用于缓存）
 # [[kv_namespaces]]
 # binding = "CACHE"
-# id = "your-kv-namespace-id"
+# id = ""
 
-# Analytics (optional)
+# 分析
 # [analytics]
 # enabled = true
 
-# Logging (optional)
+# 日志和可观测性
 # [observability]
 # enabled = true
 # head_sampling_rate = 1
