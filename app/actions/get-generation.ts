@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { type GenerationResult, type GenerationSettings } from "@/db/schema";
@@ -47,9 +48,12 @@ export async function getGeneration(
   try {
     const { env } = await getCloudflareContext();
 
-    // 验证用户
+    // 验证用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const request = new Request("http://localhost", {
-      headers: { cookie: "" }, // Cookie should be passed from client
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);
@@ -201,9 +205,12 @@ export async function retryGeneration(
   try {
     const { env } = await getCloudflareContext();
 
-    // 验证用户
+    // 验证用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const request = new Request("http://localhost", {
-      headers: { cookie: "" }, // Cookie should be passed from client
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);
@@ -263,9 +270,12 @@ export async function cancelGeneration(
   try {
     const { env } = await getCloudflareContext();
 
-    // 验证用户
+    // 验证用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const request = new Request("http://localhost", {
-      headers: { cookie: "" }, // Cookie should be passed from client
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);

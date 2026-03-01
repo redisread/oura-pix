@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
@@ -96,11 +97,12 @@ export async function uploadImage(
   try {
     const { env } = await getCloudflareContext();
 
-    // 获取当前用户
+    // 获取当前用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const request = new Request("http://localhost", {
-      headers: {
-        cookie: formData.get("cookie") as string,
-      },
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);
@@ -201,10 +203,12 @@ export async function deleteImage(
   try {
     const { env } = await getCloudflareContext();
 
+    // 获取当前用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const request = new Request("http://localhost", {
-      headers: {
-        cookie: "", // Cookie should be passed from client
-      },
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);
@@ -270,10 +274,12 @@ export async function getUserImages(
   try {
     const { env } = await getCloudflareContext();
 
+    // 获取当前用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const request = new Request("http://localhost", {
-      headers: {
-        cookie: "", // Cookie should be passed from client
-      },
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);

@@ -5,7 +5,7 @@
   "description": "AI-powered cross-border e-commerce product detail page generator",
   "scripts": {
     "dev": "next dev -p 4001",
-    "dev:check": "npm run setup && npm run dev",
+    "dev:check": "npm run setup && npm run db:migrate && npm run dev",
     "build": "next build",
     "build:cf": "npx @opennextjs/cloudflare",
     "deploy": "npm run predeploy && npm run build:cf && wrangler pages deploy",
@@ -23,7 +23,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply oura-pix-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:check": "bash scripts/check-db.sh"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.0.0",

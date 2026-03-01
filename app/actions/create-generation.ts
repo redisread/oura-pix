@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
@@ -89,9 +90,12 @@ export async function createGeneration(
   try {
     const { env } = await getCloudflareContext();
 
-    // 验证用户
+    // 验证用户 - 使用真实的请求头
+    const headersList = await headers();
+    const cookie = headersList.get("cookie") || "";
+
     const httpRequest = new Request("http://localhost", {
-      headers: { cookie: "" }, // Cookie should be passed from client
+      headers: { cookie },
     });
 
     const auth = createAuth(env.DB);

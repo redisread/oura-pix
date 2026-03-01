@@ -83,10 +83,13 @@ npm install
 # 3. 初始化 Cloudflare 本地环境
 npm run cf:init
 
-# 4. 配置第三方服务密钥（编辑 .env.local）
+# 4. 应用数据库迁移
+npm run db:migrate
+
+# 5. 配置第三方服务密钥（编辑 .env.local）
 # 详见下方"环境配置"章节
 
-# 5. 启动开发服务器
+# 6. 启动开发服务器
 npm run dev
 ```
 

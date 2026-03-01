@@ -6,6 +6,7 @@
 
 name = "oura-pix"
 main = ".open-next/worker.js"
+pages_build_output_dir = ".open-next"
 compatibility_date = "2026-02-26"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 logpush = false
@@ -16,6 +17,8 @@ logpush = false
 [[d1_databases]]
 binding = "DB"
 database_name = "oura-pix-db"
+database_id = "0f79f5d4-d714-4ffc-8747-f52a4461fecb"
+migrations_dir = "drizzle/migrations"
 
 
 # ============================================

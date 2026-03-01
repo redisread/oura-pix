@@ -1,5 +1,17 @@
 # TODO 待办事项
 
+## ✅ 最近完成
+
+- [x] 修复认证逻辑缺陷（2026-03-01）
+  - 修复了所有Server Actions中使用伪造请求对象的问题
+  - 现在正确使用`headers()`函数获取真实的cookie
+  - 影响的文件：
+    - `app/actions/create-generation.ts`
+    - `app/actions/upload-image.ts`
+    - `app/actions/get-generation.ts`
+    - `app/actions/get-history.ts`
+  - 详细说明见：`SECURITY_FIX.md`
+
 ## 🔴 核心功能待配置
 
 ### Stripe 支付集成
