@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 interface DocPageClientProps {
@@ -29,12 +30,12 @@ export default function DocPageClient({ page }: DocPageClientProps) {
       </div>
 
       <div className="mt-12 pt-8 border-t border-border">
-        <a
+        <Link
           href="/docs"
           className="text-primary hover:underline"
         >
           ← {t("backToHome")}
-        </a>
+        </Link>
       </div>
     </div>
   );

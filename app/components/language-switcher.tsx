@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 /**
  * 语言切换器组件
@@ -12,40 +12,59 @@ const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
 ];
 
+// 获取初始语言的辅助函数
+function getInitialLang(): string {
+  if (typeof document === 'undefined') return 'zh';
+  const cookies = document.cookie.split(';');
+  const langCookie = cookies.find(c => c.trim().startsWith('language='));
+  if (langCookie) {
+    return langCookie.split('=')[1];
+  }
+  // 检测浏览器语言
+  const browserLang = navigator.language.toLowerCase();
+  return browserLang.startsWith('zh') ? 'zh' : 'en';
+}
+
 export default function LanguageSwitcher() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // 从 cookie 中读取语言设置
+  // 初始化语言设置
   useEffect(() => {
-    const cookies = document.cookie.split(';');
-    const langCookie = cookies.find(c => c.trim().startsWith('language='));
-    if (langCookie) {
-      const lang = langCookie.split('=')[1];
-      setCurrentLang(lang);
-    } else {
-      // 检测浏览器语言
-      const browserLang = navigator.language.toLowerCase();
-      if (browserLang.startsWith('zh')) {
-        setCurrentLang('zh');
-      } else {
-        setCurrentLang('en');
-      }
-    }
+    setCurrentLang(getInitialLang());
+    setMounted(true);
   }, []);
 
   // 切换语言
-  const handleLanguageChange = (langCode: string) => {
+  const handleLanguageChange = useCallback((langCode: string) => {
     setCurrentLang(langCode);
-    document.cookie = `language=${langCode}; path=/; max-age=31536000`; // 1年有效期
     setIsOpen(false);
 
+    // 设置 cookie 并刷新页面
+    const expires = new Date();
+    expires.setFullYear(expires.getFullYear() + 1);
+    document.cookie = `language=${langCode}; path=/; expires=${expires.toUTCString()}`;
+
     // 刷新页面以应用新语言
-    // 实际项目中这里应该使用更优雅的方式，比如重新加载翻译文件
     window.location.reload();
-  };
+  }, []);
 
   const currentLanguage = languages.find(l => l.code === currentLang) || languages[0];
+
+  if (!mounted) {
+    return (
+      <div className="relative">
+        <button
+          type="button"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+        >
+          <span className="text-base">🇨🇳</span>
+          <span className="hidden sm:inline">中文</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

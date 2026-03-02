@@ -1,0 +1,93 @@
+diff --git a/node_modules/eciesjs/dist/index.js b/node_modules/eciesjs/dist/index.js
+index 562a7ff..a1d0312 100644
+--- a/node_modules/eciesjs/dist/index.js
++++ b/node_modules/eciesjs/dist/index.js
+@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.utils = exports.PublicKey = exports.PrivateKey = exports.ECIES_CONFIG = void 0;
+ exports.encrypt = encrypt;
+ exports.decrypt = decrypt;
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var config_js_1 = require("./config.js");
+ var index_js_1 = require("./keys/index.js");
+ var index_js_2 = require("./utils/index.js");
+diff --git a/node_modules/eciesjs/dist/keys/PrivateKey.js b/node_modules/eciesjs/dist/keys/PrivateKey.js
+index 8b52b20..0fe868d 100644
+--- a/node_modules/eciesjs/dist/keys/PrivateKey.js
++++ b/node_modules/eciesjs/dist/keys/PrivateKey.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.PrivateKey = void 0;
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var index_js_1 = require("../utils/index.js");
+ var PublicKey_js_1 = require("./PublicKey.js");
+ var PrivateKey = /** @class */ (function () {
+diff --git a/node_modules/eciesjs/dist/keys/PublicKey.js b/node_modules/eciesjs/dist/keys/PublicKey.js
+index ba71719..807e31c 100644
+--- a/node_modules/eciesjs/dist/keys/PublicKey.js
++++ b/node_modules/eciesjs/dist/keys/PublicKey.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.PublicKey = void 0;
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var index_js_1 = require("../utils/index.js");
+ var PublicKey = /** @class */ (function () {
+     function PublicKey(data, curve) {
+diff --git a/node_modules/eciesjs/dist/utils/elliptic.js b/node_modules/eciesjs/dist/utils/elliptic.js
+index f878e62..6246035 100644
+--- a/node_modules/eciesjs/dist/utils/elliptic.js
++++ b/node_modules/eciesjs/dist/utils/elliptic.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.hexToPublicKey = exports.convertPublicKeyFormat = exports.getSharedPoint = exports.getPublicKey = exports.isValidPrivateKey = exports.getValidSecret = void 0;
+-var webcrypto_1 = require("@noble/ciphers/webcrypto");
++var webcrypto_1 = require("@noble/ciphers/webcrypto.js");
+ var ed25519_1 = require("@noble/curves/ed25519");
+ var secp256k1_1 = require("@noble/curves/secp256k1");
+ var config_js_1 = require("../config.js");
+diff --git a/node_modules/eciesjs/dist/utils/hash.js b/node_modules/eciesjs/dist/utils/hash.js
+index fe0b531..2fddc2a 100644
+--- a/node_modules/eciesjs/dist/utils/hash.js
++++ b/node_modules/eciesjs/dist/utils/hash.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getSharedKey = exports.deriveKey = void 0;
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var hkdf_1 = require("@noble/hashes/hkdf");
+ var sha2_1 = require("@noble/hashes/sha2");
+ var deriveKey = function (master, salt, info) {
+diff --git a/node_modules/eciesjs/dist/utils/hex.js b/node_modules/eciesjs/dist/utils/hex.js
+index 83ba846..f911751 100644
+--- a/node_modules/eciesjs/dist/utils/hex.js
++++ b/node_modules/eciesjs/dist/utils/hex.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.decodeHex = exports.remove0x = void 0;
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var remove0x = function (hex) {
+     return hex.startsWith("0x") || hex.startsWith("0X") ? hex.slice(2) : hex;
+ };
+diff --git a/node_modules/eciesjs/dist/utils/symmetric.js b/node_modules/eciesjs/dist/utils/symmetric.js
+index 9ba3402..8f12838 100644
+--- a/node_modules/eciesjs/dist/utils/symmetric.js
++++ b/node_modules/eciesjs/dist/utils/symmetric.js
+@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.aesDecrypt = exports.aesEncrypt = exports.symDecrypt = exports.symEncrypt = void 0;
+ var aes_1 = require("@ecies/ciphers/aes");
+ var chacha_1 = require("@ecies/ciphers/chacha");
+-var utils_1 = require("@noble/ciphers/utils");
+-var webcrypto_1 = require("@noble/ciphers/webcrypto");
++var utils_1 = require("@noble/ciphers/utils.js");
++var webcrypto_1 = require("@noble/ciphers/webcrypto.js");
+ var config_js_1 = require("../config.js");
+ var consts_js_1 = require("../consts.js");
+ var symEncrypt = function (key, plainText, AAD) {

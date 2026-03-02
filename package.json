@@ -4,6 +4,7 @@
   "private": true,
   "description": "AI-powered cross-border e-commerce product detail page generator",
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "next dev --turbopack -p 4001",
     "build": "next build",
     "start": "next start",

@@ -1,0 +1,26 @@
+diff --git a/node_modules/@ecies/ciphers/dist/_node/compat.js b/node_modules/@ecies/ciphers/dist/_node/compat.js
+index 65c171b..0d8f964 100644
+--- a/node_modules/@ecies/ciphers/dist/_node/compat.js
++++ b/node_modules/@ecies/ciphers/dist/_node/compat.js
+@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
+ exports._compat = void 0;
+ // biome-ignore-all lint/suspicious/noExplicitAny: hide type error
+ var node_crypto_1 = require("node:crypto");
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var AEAD_TAG_LENGTH = 16;
+ // @ts-expect-error: only necessary for deno
+ var IS_DENO = globalThis.Deno !== undefined;
+diff --git a/node_modules/@ecies/ciphers/dist/chacha/node.js b/node_modules/@ecies/ciphers/dist/chacha/node.js
+index 7e2a9e9..de88031 100644
+--- a/node_modules/@ecies/ciphers/dist/chacha/node.js
++++ b/node_modules/@ecies/ciphers/dist/chacha/node.js
+@@ -1,7 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.chacha20 = exports.xchacha20 = void 0;
+-var utils_1 = require("@noble/ciphers/utils");
++var utils_1 = require("@noble/ciphers/utils.js");
+ var compat_js_1 = require("../_node/compat.js");
+ var hchacha_js_1 = require("../_node/hchacha.js");
+ var xchacha20 = function (key, nonce, AAD) {
