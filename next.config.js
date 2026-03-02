@@ -53,6 +53,17 @@ const nextConfig = {
         config.externals.push('sqlite');
       }
 
+      // Optimize bundle size by replacing unnecessary modules with empty stubs
+      config.resolve = config.resolve || {};
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Next.js dev tools are not needed in production
+        'next/dist/compiled/next-devtools': false,
+        // Edge runtime is not used in this project (using Cloudflare Workers instead)
+        // These are kept for compatibility but can be stubbed to reduce size
+        // 'next/dist/compiled/@edge-runtime/cookies': false,
+      };
+
       if (nextRuntime === 'edge') {
         // Handle Cloudflare Workers specific configurations
         config.resolve = {
