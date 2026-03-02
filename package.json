@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack -p 4001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint app lib components",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -52,7 +52,7 @@
     "lucide-react": "^0.460.0",
     "next": "^15.5.12",
     "next-intl": "^3.25.0",
-    "next-mdx-remote": "^5.0.0",
+    "next-mdx-remote": "^6.0.0",
     "next-themes": "^0.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -70,8 +70,9 @@
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.9",
     "esbuild": "^0.27.3",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.18",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.0.0",
+    "@eslint/eslintrc": "^3.0.0",
     "patch-package": "^8.0.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
@@ -80,5 +81,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "overrides": {
+    "esbuild": "^0.27.3",
+    "fast-xml-parser": "^5.4.1"
   }
 }
