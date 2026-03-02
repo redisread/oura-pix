@@ -44,12 +44,29 @@ let localBindings: CloudflareEnv | null = null;
 /**
  * Initialize local development bindings using wrangler's getPlatformProxy
  * This provides local D1 and R2 emulation for `next dev`
+ *
+ * NOTE: This function should only be called in development mode.
+ * In production, OpenNext's getCloudflareContext is used instead.
  */
 async function initLocalBindings(): Promise<CloudflareEnv> {
   if (localBindings) return localBindings;
 
+  // Skip wrangler import in production to avoid bundling it
+  // This is critical for reducing the Worker bundle size
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      "Cloudflare bindings not available in production. " +
+      "Make sure you're using OpenNext's getCloudflareContext."
+    );
+  }
+
   try {
-    const { getPlatformProxy } = await import("wrangler");
+    // Dynamic import with webpackIgnore to prevent bundling in production
+    const { getPlatformProxy } = await import(
+      /* webpackIgnore: true */
+      /* @vite-ignore */
+      "wrangler"
+    );
     const platform = await getPlatformProxy({
       configPath: "./wrangler.toml",
     });
