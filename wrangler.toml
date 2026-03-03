@@ -6,7 +6,6 @@
 
 name = "oura-pix"
 main = ".open-next/worker.js"
-pages_build_output_dir = ".open-next"
 compatibility_date = "2026-02-26"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
@@ -107,3 +106,6 @@ STRIPE_CREDITS_LARGE_PRICE_ID = ""
 # [observability]
 # enabled = true
 # head_sampling_rate = 1
+
+[placement]
+mode = "smart"
