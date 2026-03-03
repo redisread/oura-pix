@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   description: "极简AI跨境商品详情页生成工具，一键生成Amazon、Shopify等平台商品详情页",
   keywords: ["AI", "商品详情页", "跨境电商", "Amazon", "Shopify", "图片生成"],
   authors: [{ name: "OuraPix" }],
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
   openGraph: {
     title: "OuraPix - AI跨境商品详情页生成",
     description: "极简AI跨境商品详情页生成工具",
