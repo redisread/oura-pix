@@ -4,14 +4,16 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./language-switcher";
+import UserMenu from "./user-menu";
 import { useAuth } from "@/hooks/use-auth";
+import { Menu, X } from "lucide-react";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = useTranslations("navigation");
   const tAuth = useTranslations("auth");
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
   // 监听滚动
   useEffect(() => {
@@ -27,6 +29,8 @@ export default function Navbar() {
     { href: "/generate", label: t("generate") || "开始生成" },
     { href: "/pricing", label: t("pricing") },
   ];
+
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <header
@@ -63,26 +67,8 @@ export default function Navbar() {
           <LanguageSwitcher />
 
           {isAuthenticated ? (
-            <div className="flex items-center gap-2 ml-2">
-              <Link
-                href="/profile"
-                className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-muted hover:bg-muted/80 transition-colors"
-              >
-                <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xs font-medium text-primary">
-                    {user?.name?.charAt(0).toUpperCase() || "U"}
-                  </span>
-                </div>
-                <span className="text-sm font-medium text-foreground truncate max-w-[100px]">
-                  {user?.name || user?.email}
-                </span>
-              </Link>
-              <button
-                onClick={logout}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-md hover:bg-muted transition-colors"
-              >
-                {tAuth("logout")}
-              </button>
+            <div className="ml-2">
+              <UserMenu />
             </div>
           ) : (
             <div className="flex items-center gap-2 ml-2">
@@ -109,28 +95,11 @@ export default function Navbar() {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
         >
-          <svg
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            {isMenuOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
+          {isMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
 
@@ -143,7 +112,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={closeMenu}
               >
                 {link.label}
               </Link>
@@ -163,14 +132,28 @@ export default function Navbar() {
                   <Link
                     href="/profile"
                     className="block rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-muted transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={closeMenu}
                   >
                     {t("profile")}
+                  </Link>
+                  <Link
+                    href="/profile?tab=settings"
+                    className="block rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-muted transition-colors"
+                    onClick={closeMenu}
+                  >
+                    {t("accountSettings")}
+                  </Link>
+                  <Link
+                    href="/profile?tab=history"
+                    className="block rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-muted transition-colors"
+                    onClick={closeMenu}
+                  >
+                    {t("generationHistory")}
                   </Link>
                   <button
                     onClick={() => {
                       logout();
-                      setIsMenuOpen(false);
+                      closeMenu();
                     }}
                     className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
                   >
@@ -182,14 +165,14 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     className="block rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={closeMenu}
                   >
                     {t("login")}
                   </Link>
                   <Link
                     href="/register"
                     className="mt-2 block rounded-lg bg-primary px-3 py-2 text-center text-base font-medium text-primary-foreground hover:bg-slate-800 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={closeMenu}
                   >
                     {t("getStarted") || "立即开始"}
                   </Link>

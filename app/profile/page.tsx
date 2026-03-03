@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
 import { useGenerationHistory } from "./hooks/use-generation-history";
@@ -29,11 +29,17 @@ import type { GenerationRecord, ProfileTab } from "./types";
 export default function ProfilePage() {
   const t = useTranslations("profile");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
 
+  // 从 URL 参数读取初始 tab
+  const tabParam = searchParams.get("tab");
+
   // 状态
-  const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
+  const [activeTab, setActiveTab] = useState<ProfileTab>(
+    (tabParam as ProfileTab) || "overview"
+  );
   const [selectedRecord, setSelectedRecord] = useState<GenerationRecord | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -54,8 +60,30 @@ export default function ProfilePage() {
   } = useGenerationHistory({ isAuthenticated });
 
   // 未登录时重定向到登录页
-  if (!isAuthLoading && !isAuthenticated) {
-    router.push("/login");
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthLoading, isAuthenticated, router]);
+
+  // 当 URL 参数变化时同步更新 tab
+  useEffect(() => {
+    if (tabParam && ["overview", "history", "settings"].includes(tabParam)) {
+      setActiveTab(tabParam as ProfileTab);
+    }
+  }, [tabParam]);
+
+  // 加载中状态
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-500">Loading...</div>
+      </div>
+    );
+  }
+
+  // 未登录时不渲染内容
+  if (!isAuthenticated) {
     return null;
   }
 

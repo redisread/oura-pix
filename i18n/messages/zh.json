@@ -18,7 +18,9 @@
     "generate": "开始生成",
     "getStarted": "立即开始",
     "signIn": "登录",
-    "history": "生成历史"
+    "history": "生成历史",
+    "accountSettings": "账号设置",
+    "generationHistory": "生成历史"
   },
   "profile": {
     "title": "个人资料",
@@ -381,7 +383,7 @@
     "styleDesc": "选择适合您品牌的视觉风格",
     "outputLang": "生成语言",
     "outputLangDesc": "选择详情页的输出语言",
-    "generating": "正在生成...",
+    "generatingBtn": "正在生成...",
     "generateBtn": "开始生成",
     "preview": "预览区域",
     "previewDesc": "生成的详情页将在此显示",
@@ -494,7 +496,11 @@
       "submit": "登录",
       "loading": "登录中...",
       "success": "登录成功",
-      "error": "登录失败，请检查邮箱和密码"
+      "error": "登录失败，请检查邮箱和密码",
+      "orContinueWith": "或使用以下方式登录",
+      "rememberMe": "记住我",
+      "successTitle": "欢迎回来！",
+      "successDesc": "登录成功"
     },
     "signUp": {
       "title": "创建账号",

@@ -1,9 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Check } from 'lucide-react';
 
 /**
  * 语言切换器组件
+ * 使用 Radix UI DropdownMenu 实现
  * 支持英语、中文切换
  */
 
@@ -27,7 +35,6 @@ function getInitialLang(): string {
 
 export default function LanguageSwitcher() {
   const [currentLang, setCurrentLang] = useState('zh');
-  const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // 初始化语言设置
@@ -39,7 +46,6 @@ export default function LanguageSwitcher() {
   // 切换语言
   const handleLanguageChange = useCallback((langCode: string) => {
     setCurrentLang(langCode);
-    setIsOpen(false);
 
     // 设置 cookie 并刷新页面
     const expires = new Date();
@@ -54,85 +60,58 @@ export default function LanguageSwitcher() {
 
   if (!mounted) {
     return (
-      <div className="relative">
-        <button
-          type="button"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-        >
-          <span className="text-base">🇨🇳</span>
-          <span className="hidden sm:inline">中文</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+      >
+        <span className="text-base">🇨🇳</span>
+        <span className="hidden sm:inline">中文</span>
+      </button>
     );
   }
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-      >
-        <span className="text-base" aria-hidden="true">
-          {currentLanguage.flag}
-        </span>
-        <span className="hidden sm:inline">{currentLanguage.name}</span>
-        <span className="sm:hidden uppercase">{currentLanguage.code}</span>
-        <svg
-          className={`w-4 h-4 ml-1 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          aria-label="Select language"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {isOpen && (
-        <>
-          {/* 点击外部关闭 */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-          {/* 下拉菜单 */}
-          <div className="absolute right-0 z-20 w-32 mt-2 origin-top-right bg-background border border-border rounded-md shadow-lg">
-            <div className="py-1">
-              {languages.map((language) => (
-                <button
-                  key={language.code}
-                  onClick={() => handleLanguageChange(language.code)}
-                  className={`flex items-center w-full px-4 py-2 text-sm text-left hover:bg-muted transition-colors ${
-                    language.code === currentLang
-                      ? 'bg-muted font-medium text-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  <span className="mr-2 text-base" aria-hidden="true">
-                    {language.flag}
-                  </span>
-                  {language.name}
-                  {language.code === currentLang && (
-                    <svg
-                      className="w-4 h-4 ml-auto text-primary"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </button>
-              ))}
+          <span className="text-base" aria-hidden="true">
+            {currentLanguage.flag}
+          </span>
+          <span className="hidden sm:inline">{currentLanguage.name}</span>
+          <span className="sm:hidden uppercase">{currentLanguage.code}</span>
+          <svg
+            className="w-4 h-4 ml-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        {languages.map((language) => (
+          <DropdownMenuItem
+            key={language.code}
+            onClick={() => handleLanguageChange(language.code)}
+            className="flex items-center justify-between cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base" aria-hidden="true">
+                {language.flag}
+              </span>
+              <span>{language.name}</span>
             </div>
-          </div>
-        </>
-      )}
-    </div>
+            {language.code === currentLang && (
+              <Check className="h-4 w-4 text-primary" />
+            )}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

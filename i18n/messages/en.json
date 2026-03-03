@@ -18,7 +18,9 @@
     "generate": "Generate",
     "getStarted": "Get Started",
     "signIn": "Sign In",
-    "history": "Generation History"
+    "history": "Generation History",
+    "accountSettings": "Account Settings",
+    "generationHistory": "Generation History"
   },
   "profile": {
     "title": "Profile",
@@ -381,7 +383,7 @@
     "styleDesc": "Choose a visual style that suits your brand",
     "outputLang": "Output Language",
     "outputLangDesc": "Select the output language for detail pages",
-    "generating": "Generating...",
+    "generatingBtn": "Generating...",
     "generateBtn": "Start Generation",
     "preview": "Preview Area",
     "previewDesc": "Generated detail pages will be displayed here",
@@ -494,7 +496,11 @@
       "submit": "Sign In",
       "loading": "Signing in...",
       "success": "Sign in successful",
-      "error": "Sign in failed, please check your email and password"
+      "error": "Sign in failed, please check your email and password",
+      "orContinueWith": "Or continue with",
+      "rememberMe": "Remember me",
+      "successTitle": "Welcome back!",
+      "successDesc": "You have successfully signed in."
     },
     "signUp": {
       "title": "Create Account",

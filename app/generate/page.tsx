@@ -273,7 +273,7 @@ export default function GeneratePage() {
                   }
                 `}
               >
-                {isGenerating ? t("generating") : t("generateBtn")}
+                {isGenerating ? t("generatingBtn") : t("generateBtn")}
               </button>
             </div>
 

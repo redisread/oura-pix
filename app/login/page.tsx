@@ -5,27 +5,50 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { PasswordInput } from "@/components/auth/password-input";
+import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
 export default function LoginPage() {
   const t = useTranslations("auth.signIn");
   const router = useRouter();
   const { login, isLoading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     const result = await login(email, password);
 
     if (result.success) {
+      toast({
+        title: t("successTitle"),
+        description: t("successDesc"),
+      });
       router.push("/");
     } else {
-      setError(result.error || t("error"));
+      toast({
+        variant: "destructive",
+        title: t("error"),
+        description: result.error || t("error"),
+      });
     }
 
     setIsLoading(false);
@@ -51,20 +74,20 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-sm sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="rounded-md bg-red-50 p-4">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-                {t("email")}
-              </label>
-              <div className="mt-1">
-                <input
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              {t("title")}
+            </CardTitle>
+            <CardDescription className="text-center">
+              {t("subtitle")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <Label htmlFor="email">{t("email")}</Label>
+                <Input
                   id="email"
                   name="email"
                   type="email"
@@ -72,72 +95,68 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full appearance-none rounded-md border border-slate-300 px-3 py-2 placeholder-slate-400 shadow-sm focus:border-slate-900 focus:outline-none focus:ring-slate-900 sm:text-sm"
                   placeholder={t("emailPlaceholder")}
                 />
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-                {t("password")}
-              </label>
-              <div className="mt-1">
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="password">{t("password")}</Label>
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full appearance-none rounded-md border border-slate-300 px-3 py-2 placeholder-slate-400 shadow-sm focus:border-slate-900 focus:outline-none focus:ring-slate-900 sm:text-sm"
                   placeholder={t("passwordPlaceholder")}
                 />
               </div>
-            </div>
 
-            <div className="flex items-center justify-end">
-              <div className="text-sm">
-                <Link href="/forgot-password" className="font-medium text-slate-900 hover:text-slate-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label
+                    htmlFor="remember"
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {t("rememberMe")}
+                  </Label>
+                </div>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   {t("forgotPassword")}
                 </Link>
               </div>
-            </div>
 
-            <div>
-              <button
+              <Button
                 type="submit"
+                className="w-full"
                 disabled={isLoading || authLoading}
-                className="flex w-full justify-center rounded-md border border-transparent bg-slate-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading || authLoading ? t("loading") : t("submit")}
-              </button>
-            </div>
-          </form>
+              </Button>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-slate-500">
-                  {t("noAccount")}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6 text-center">
+              <SocialLoginButtons />
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <div className="text-sm text-muted-foreground">
+              {t("noAccount")}{" "}
               <Link
                 href="/register"
-                className="font-medium text-slate-900 hover:text-slate-700"
+                className="font-medium text-primary hover:underline"
               >
                 {t("signUp")}
               </Link>
             </div>
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
