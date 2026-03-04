@@ -532,6 +532,7 @@
       "emailPlaceholder": "Enter your registered email",
       "submit": "Send Reset Link",
       "loading": "Sending...",
+      "successTitle": "Email Sent!",
       "success": "Reset link sent, please check your email",
       "error": "Failed to send, please check your email",
       "backToLogin": "Back to Sign In"
