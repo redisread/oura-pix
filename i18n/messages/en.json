@@ -34,7 +34,13 @@
       "totalGenerations": "Total Generations",
       "thisMonth": "This Month",
       "remainingCredits": "Remaining Credits",
-      "favoriteStyle": "Favorite Style"
+      "favoriteStyle": "Favorite Style",
+      "styles": {
+        "professional": "Professional",
+        "lifestyle": "Lifestyle",
+        "minimal": "Minimalist",
+        "luxury": "Luxury"
+      }
     },
     "userInfo": {
       "title": "User Information",
@@ -353,8 +359,11 @@
     "uploadTip1": "Use product images with white or transparent background",
     "uploadTip2": "Image resolution should be at least 800x800",
     "uploadTip3": "Supports JPG, PNG formats",
+    "uploadingBtn": "Uploading...",
     "errors": {
-      "noImage": "Please upload a main product image first"
+      "noImage": "Please upload a main product image first",
+      "uploadFailed": "Upload failed",
+      "generationFailed": "Generation failed"
     },
     "styles": {
       "minimal": {
@@ -482,7 +491,25 @@
     "filter": "Filter",
     "start": "Get Started"
   },
+  "upload": {
+    "singleFileOnly": "Only one file can be uploaded",
+    "maxFilesExceeded": "Maximum {max} files allowed",
+    "fileTooLarge": "File size cannot exceed {size}",
+    "invalidType": "Only {type} format files are supported",
+    "clickOrDrag": "Click or drag a file here",
+    "supportedFormats": "Supports {type}, max {size}",
+    "ariaUpload": "Upload {label}",
+    "ariaRemove": "Remove {filename}"
+  },
   "auth": {
+    "loginMarketing": {
+      "headline": "AI-Powered",
+      "headlineHighlight": "Smart Image Editing",
+      "description": "Unleash creativity, let AI breathe new life into your images.",
+      "featureFree": "Free trial",
+      "featureFast": "Fast processing",
+      "featureQuality": "Professional quality"
+    },
     "signIn": {
       "title": "Sign In",
       "subtitle": "Sign in to your OuraPix account",

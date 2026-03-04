@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface UploadDropzoneProps {
   accept?: string;
@@ -23,6 +24,7 @@ export default function UploadDropzone({
   description,
   required = false,
 }: UploadDropzoneProps) {
+  const t = useTranslations("upload");
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -40,24 +42,24 @@ export default function UploadDropzone({
     // Check max files
     const totalFiles = selectedFiles.length + fileArray.length;
     if (!multiple && fileArray.length > 1) {
-      setError("只能上传一个文件");
+      setError(t("singleFileOnly"));
       return [];
     }
     if (multiple && totalFiles > maxFiles) {
-      setError(`最多只能上传 ${maxFiles} 个文件`);
+      setError(t("maxFilesExceeded", { max: maxFiles }));
       return [];
     }
 
     for (const file of fileArray) {
       // Check file size
       if (file.size > maxSize) {
-        setError(`文件大小不能超过 ${formatFileSize(maxSize)}`);
+        setError(t("fileTooLarge", { size: formatFileSize(maxSize) }));
         continue;
       }
 
       // Check file type
       if (accept !== "*" && !file.type.match(accept.replace("/*", "/"))) {
-        setError(`只支持 ${accept} 格式的文件`);
+        setError(t("invalidType", { type: accept }));
         continue;
       }
 
@@ -165,7 +167,7 @@ export default function UploadDropzone({
           multiple={multiple}
           onChange={handleFileInput}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          aria-label={`上传 ${label}`}
+          aria-label={t("ariaUpload", { label })}
         />
 
         <div className="flex flex-col items-center justify-center p-6 text-center">
@@ -193,14 +195,14 @@ export default function UploadDropzone({
           </div>
 
           <p className="text-sm font-medium text-slate-900">
-            点击或拖拽文件到此处
+            {t("clickOrDrag")}
           </p>
           {description && (
             <p className="mt-1 text-xs text-slate-500">{description}</p>
           )}
           <p className="mt-1 text-xs text-slate-400">
-            支持 {accept.replace("/*", "")} 格式，最大 {formatFileSize(maxSize)}
-            {multiple && `，最多 ${maxFiles} 个文件`}
+            {t("supportedFormats", { type: accept.replace("/*", ""), size: formatFileSize(maxSize) })}
+            {multiple && ` (max ${maxFiles})`}
           </p>
         </div>
       </div>
@@ -277,7 +279,7 @@ export default function UploadDropzone({
                 type="button"
                 onClick={() => removeFile(index)}
                 className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
-                aria-label={`移除 ${file.name}`}
+                aria-label={t("ariaRemove", { filename: file.name })}
               >
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                   <path

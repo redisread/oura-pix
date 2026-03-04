@@ -343,7 +343,14 @@ export function handleCheckoutSessionCompleted(
   const userId = session.metadata?.userId || '';
   const isSubscription = session.mode === 'subscription';
 
-  const result: any = {
+  const result: {
+    customerId: string;
+    userId: string;
+    type: 'subscription' | 'credits';
+    subscriptionId?: string;
+    credits?: number;
+    planId?: string;
+  } = {
     customerId,
     userId,
     type: isSubscription ? 'subscription' : 'credits',

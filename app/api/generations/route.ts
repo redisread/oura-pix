@@ -54,10 +54,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ stats });
     }
 
-    // 获取分页参数
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const pageSize = parseInt(searchParams.get("pageSize") || "10", 10);
-    const filter = (searchParams.get("filter") || "all") as "all" | "today" | "week" | "month";
+    // 获取并验证分页参数
+    const rawPage = parseInt(searchParams.get("page") || "1", 10);
+    const rawPageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+    const rawFilter = searchParams.get("filter") || "all";
+
+    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+    const pageSize = Number.isNaN(rawPageSize) || rawPageSize < 1
+      ? 10 : rawPageSize > 100 ? 100 : rawPageSize;
+
+    const validFilters = ["all", "today", "week", "month"] as const;
+    const filter = validFilters.includes(rawFilter as typeof validFilters[number])
+      ? (rawFilter as typeof validFilters[number])
+      : "all";
 
     // 获取列表数据
     const result = await getGenerationsList({

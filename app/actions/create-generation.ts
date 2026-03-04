@@ -10,7 +10,7 @@ import {
   validateGenerationSettings,
   estimateGenerationCost,
 } from "@/lib/ai-generation";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and, gte, sql, count } from "drizzle-orm";
 
 /**
  * 创建生成任务请求
@@ -140,6 +140,20 @@ export async function createGeneration(
           error: `Invalid reference image IDs: ${invalidIds.join(", ")}`,
         };
       }
+    }
+
+    // 检查每分钟限流（基于 D1 usage_logs，适用于多实例部署）
+    const oneMinuteAgo = new Date(Date.now() - 60_000);
+    const recentCount = await db
+      .select({ count: count() })
+      .from(schema.usageLogs)
+      .where(and(
+        eq(schema.usageLogs.userId, user.id),
+        eq(schema.usageLogs.type, "generation"),
+        gte(schema.usageLogs.createdAt, oneMinuteAgo)
+      ));
+    if ((recentCount[0]?.count ?? 0) >= 10) {
+      return { success: false, error: "Rate limit exceeded. Please wait before generating again." };
     }
 
     // 验证并规范化设置

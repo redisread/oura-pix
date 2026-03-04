@@ -49,14 +49,14 @@ export default function GeneratePage() {
   const platforms: { value: Platform; label: string; icon: string }[] = [
     { value: "amazon", label: "Amazon", icon: "A" },
     { value: "shopify", label: "Shopify", icon: "S" },
-    { value: "custom", label: tCommon("custom") || "自定义", icon: "C" },
+    { value: "custom", label: tCommon("custom"), icon: "C" },
   ];
 
   const styles: { value: Style; label: string; description: string }[] = [
-    { value: "minimal", label: t("styles.minimal.label") || "极简风格", description: t("styles.minimal.desc") || "简洁干净，突出产品" },
-    { value: "luxury", label: t("styles.luxury.label") || "奢华风格", description: t("styles.luxury.desc") || "高端大气，彰显品质" },
-    { value: "lifestyle", label: t("styles.lifestyle.label") || "生活风格", description: t("styles.lifestyle.desc") || "场景融入，情感共鸣" },
-    { value: "tech", label: t("styles.tech.label") || "科技风格", description: t("styles.tech.desc") || "现代前卫，科技感强" },
+    { value: "minimal", label: t("styles.minimal.label"), description: t("styles.minimal.desc") },
+    { value: "luxury", label: t("styles.luxury.label"), description: t("styles.luxury.desc") },
+    { value: "lifestyle", label: t("styles.lifestyle.label"), description: t("styles.lifestyle.desc") },
+    { value: "tech", label: t("styles.tech.label"), description: t("styles.tech.desc") },
   ];
 
   // 清理轮询
@@ -78,7 +78,7 @@ export default function GeneratePage() {
     if (result.success && result.data) {
       return result.data.id;
     }
-    setError(result.error || "上传失败");
+    setError(result.error || t("errors.uploadFailed"));
     return null;
   };
 
@@ -124,7 +124,7 @@ export default function GeneratePage() {
         }
       } else if (status === "failed") {
         setIsGenerating(false);
-        setError(result.data.errorMessage || "生成失败");
+        setError(result.data.errorMessage || t("errors.generationFailed"));
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -179,7 +179,7 @@ export default function GeneratePage() {
       });
 
       if (!generationResult.success) {
-        setError(generationResult.error || "创建生成任务失败");
+        setError(generationResult.error || t("errors.generationFailed"));
         setIsGenerating(false);
         return;
       }
@@ -192,7 +192,7 @@ export default function GeneratePage() {
       }, 2000);
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : "生成失败");
+      setError(err instanceof Error ? err.message : t("errors.generationFailed"));
       setIsUploading(false);
       setIsGenerating(false);
     }
@@ -394,7 +394,7 @@ export default function GeneratePage() {
                   }
                 `}
               >
-                {isUploading ? (t("uploadingBtn") || "上传中...") : isGenerating ? t("generatingBtn") : t("generateBtn")}
+                {isUploading ? t("uploadingBtn") : isGenerating ? t("generatingBtn") : t("generateBtn")}
               </button>
             </div>
 

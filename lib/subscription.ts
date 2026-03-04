@@ -46,7 +46,7 @@ export interface CreditTransaction {
   amount: number; // Positive for credits added, negative for usage
   balance: number; // Balance after transaction
   description: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: Date;
 }
 
@@ -137,7 +137,7 @@ export async function deductCredits(
   userId: string,
   amount: number,
   description: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; remainingCredits: number; error?: string }> {
   const db = await getDb();
 
@@ -205,7 +205,7 @@ export async function addCredits(
   amount: number,
   type: CreditTransactionType,
   description: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
   if (amount <= 0) {
     return {
@@ -327,7 +327,7 @@ export async function updateSubscriptionFromStripe(
       .update(subscriptions)
       .set({
         plan: planId,
-        status: status as any,
+        status: status as "active" | "canceled" | "past_due" | "unpaid" | "trialing",
         currentPeriodStart: existing.currentPeriodStart || new Date(),
         currentPeriodEnd: currentPeriodEnd,
         externalSubscriptionId: stripeSubscriptionId,
@@ -342,7 +342,7 @@ export async function updateSubscriptionFromStripe(
     await db.insert(subscriptions).values({
       userId,
       plan: planId,
-      status: status as any,
+      status: status as "active" | "canceled" | "past_due" | "unpaid" | "trialing",
       currentPeriodStart: new Date(),
       currentPeriodEnd: currentPeriodEnd,
       externalSubscriptionId: stripeSubscriptionId,
@@ -386,10 +386,10 @@ export async function cancelUserSubscription(
     await stripe.subscriptions.cancel(status.stripeSubscriptionId);
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -433,11 +433,11 @@ export async function getCreditTransactions(
     return {
       id: log.id,
       userId: log.userId,
-      type: (log.details as any)?.transactionType || 'usage',
+      type: (log.details as Record<string, unknown>)?.transactionType as CreditTransactionType || 'usage',
       amount: amount,
       balance: runningBalance,
-      description: (log.details as any)?.description || 'Credit usage',
-      metadata: log.details as Record<string, any>,
+      description: (log.details as Record<string, unknown>)?.description as string || 'Credit usage',
+      metadata: log.details as Record<string, unknown>,
       createdAt: log.createdAt,
     };
   }).reverse();

@@ -5,6 +5,7 @@ import {
   sqliteTable,
   text,
   primaryKey,
+  index,
 } from "drizzle-orm/sqlite-core";
 
 /**
@@ -125,7 +126,9 @@ export const images = sqliteTable("images", {
   updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(strftime('%s', 'now') * 1000)`),
-});
+}, (table) => ({
+  userIdIsDeletedIdx: index("images_userId_isDeleted_idx").on(table.userId, table.isDeleted),
+}));
 
 /**
  * 生成任务状态枚举
@@ -177,7 +180,10 @@ export const generations = sqliteTable("generations", {
   updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(strftime('%s', 'now') * 1000)`),
-});
+}, (table) => ({
+  userIdCreatedAtIdx: index("generations_userId_createdAt_idx").on(table.userId, table.createdAt),
+  userIdStatusIdx: index("generations_userId_status_idx").on(table.userId, table.status),
+}));
 
 /**
  * 生成设置类型

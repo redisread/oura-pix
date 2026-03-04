@@ -140,28 +140,26 @@ export async function getGenerationsList(
     offset: offset,
   });
 
-  // 获取关联的图片信息
+  // 批量收集所有 image IDs，单次查询避免 N+1
+  const allProductImageIds = records.map(r => r.productImageId).filter(Boolean) as string[];
+  const allReferenceImageIds = records.flatMap(r => (r.referenceImageIds as string[] | null) ?? []);
+  const allImageIds = [...new Set([...allProductImageIds, ...allReferenceImageIds])];
+
+  const imageMap = new Map<string, typeof images.$inferSelect>();
+  if (allImageIds.length > 0) {
+    const allImages = await db.query.images.findMany({
+      where: inArray(images.id, allImageIds),
+    });
+    allImages.forEach(img => imageMap.set(img.id, img));
+  }
+
+  // 使用内存 map 做映射，循环内不再发 DB 请求
   const transformedData: GenerationRecord[] = [];
 
   for (const record of records) {
-    let productImage: typeof images.$inferSelect | null = null;
-    let referenceImages: (typeof images.$inferSelect)[] = [];
-
-    // 获取商品图片
-    if (record.productImageId) {
-      const result = await db.query.images.findFirst({
-        where: eq(images.id, record.productImageId),
-      });
-      productImage = result ?? null;
-    }
-
-    // 获取参考图片
+    const productImage = record.productImageId ? (imageMap.get(record.productImageId) ?? null) : null;
     const refIds = record.referenceImageIds as string[] | null;
-    if (refIds && refIds.length > 0) {
-      referenceImages = await db.query.images.findMany({
-        where: inArray(images.id, refIds),
-      });
-    }
+    const referenceImages = refIds ? refIds.map(id => imageMap.get(id)).filter(Boolean) as (typeof images.$inferSelect)[] : [];
 
     transformedData.push(transformRecord(record, productImage, referenceImages));
   }
@@ -302,17 +300,17 @@ export async function getUserStats(userId: string): Promise<{
   const limit = subResult?.generationLimit || 10;
   const used = subResult?.usedGenerations || 0;
 
-  const styleNames: Record<string, string> = {
-    professional: "专业风格",
-    lifestyle: "生活风格",
-    minimal: "极简风格",
-    luxury: "奢华风格",
-  };
+  // 返回 style key，由 UI 层调用 t(`profile.stats.styles.${key}`) 翻译
+  const validStyles = ["professional", "lifestyle", "minimal", "luxury"] as const;
+  const rawStyle = styleResult[0]?.style;
+  const favoriteStyle = validStyles.includes(rawStyle as typeof validStyles[number])
+    ? rawStyle
+    : "professional";
 
   return {
     totalGenerations: totalResult[0]?.count || 0,
     thisMonth: monthResult[0]?.count || 0,
     remainingCredits: limit - used,
-    favoriteStyle: styleNames[styleResult[0]?.style || "professional"] || "专业风格",
+    favoriteStyle,
   };
 }

@@ -34,7 +34,13 @@
       "totalGenerations": "总生成次数",
       "thisMonth": "本月生成",
       "remainingCredits": "剩余额度",
-      "favoriteStyle": "常用风格"
+      "favoriteStyle": "常用风格",
+      "styles": {
+        "professional": "专业风格",
+        "lifestyle": "生活风格",
+        "minimal": "极简风格",
+        "luxury": "奢华风格"
+      }
     },
     "userInfo": {
       "title": "用户信息",
@@ -353,8 +359,11 @@
     "uploadTip1": "建议使用白色或透明背景的商品图",
     "uploadTip2": "图片分辨率建议不低于 800x800",
     "uploadTip3": "支持 JPG、PNG 格式",
+    "uploadingBtn": "上传中...",
     "errors": {
-      "noImage": "请先上传主商品图片"
+      "noImage": "请先上传主商品图片",
+      "uploadFailed": "上传失败",
+      "generationFailed": "生成失败"
     },
     "styles": {
       "minimal": {
@@ -482,7 +491,25 @@
     "filter": "筛选",
     "start": "开始生成"
   },
+  "upload": {
+    "singleFileOnly": "只能上传一个文件",
+    "maxFilesExceeded": "最多只能上传 {max} 个文件",
+    "fileTooLarge": "文件大小不能超过 {size}",
+    "invalidType": "只支持 {type} 格式的文件",
+    "clickOrDrag": "点击或拖拽文件到此处",
+    "supportedFormats": "支持 {type} 格式，最大 {size}",
+    "ariaUpload": "上传 {label}",
+    "ariaRemove": "移除 {filename}"
+  },
   "auth": {
+    "loginMarketing": {
+      "headline": "AI 驱动的",
+      "headlineHighlight": "智能修图",
+      "description": "释放创意，让 AI 为您的图片赋予新生。",
+      "featureFree": "免费试用",
+      "featureFast": "快速处理",
+      "featureQuality": "专业品质"
+    },
     "signIn": {
       "title": "登录",
       "subtitle": "登录您的 OuraPix 账号",

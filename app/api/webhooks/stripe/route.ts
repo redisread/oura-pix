@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import Stripe from 'stripe';
 import {
   getStripe,
   constructWebhookEvent,
@@ -56,8 +57,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // Verify and construct the event
     event = constructWebhookEvent(payload, signature);
-  } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message);
+  } catch (err: unknown) {
+    console.error('Webhook signature verification failed:', err instanceof Error ? err.message : err);
     return NextResponse.json(
       { error: 'Invalid signature' },
       { status: 400 }
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error processing webhook:', error);
     return NextResponse.json(
       { error: 'Webhook processing failed' },
@@ -135,7 +136,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  * @param session - Checkout session object
  */
 async function handleCheckoutSessionCompleted(
-  session: any
+  session: Stripe.Checkout.Session
 ): Promise<void> {
   const result = processCheckoutSession(session);
 
@@ -171,7 +172,7 @@ async function handleCheckoutSessionCompleted(
  * Handle async payment succeeded
  * @param session - Checkout session object
  */
-async function handleAsyncPaymentSucceeded(session: any): Promise<void> {
+async function handleAsyncPaymentSucceeded(session: Stripe.Checkout.Session): Promise<void> {
   console.log(`Async payment succeeded for session ${session.id}`);
 
   // Similar to checkout.session.completed
@@ -182,7 +183,7 @@ async function handleAsyncPaymentSucceeded(session: any): Promise<void> {
  * Handle async payment failed
  * @param session - Checkout session object
  */
-async function handleAsyncPaymentFailed(session: any): Promise<void> {
+async function handleAsyncPaymentFailed(session: Stripe.Checkout.Session): Promise<void> {
   console.log(`Async payment failed for session ${session.id}`);
 
   // TODO: Notify user of payment failure
@@ -193,7 +194,7 @@ async function handleAsyncPaymentFailed(session: any): Promise<void> {
  * Handle invoice payment succeeded
  * @param invoice - Invoice object
  */
-async function handleInvoicePaymentSucceeded(invoice: any): Promise<void> {
+async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
   console.log(`Invoice ${invoice.id} payment succeeded`);
 
   // Subscription renewal - add monthly credits
@@ -222,7 +223,7 @@ async function handleInvoicePaymentSucceeded(invoice: any): Promise<void> {
  * Handle invoice payment failed webhook
  * @param invoice - Invoice object
  */
-async function handleInvoicePaymentFailedWebhook(invoice: any): Promise<void> {
+async function handleInvoicePaymentFailedWebhook(invoice: Stripe.Invoice): Promise<void> {
   const result = processInvoicePaymentFailed(invoice);
 
   console.log(`Invoice payment failed for customer ${result.customerId}`);
@@ -236,7 +237,7 @@ async function handleInvoicePaymentFailedWebhook(invoice: any): Promise<void> {
  * Handle subscription created
  * @param subscription - Subscription object
  */
-async function handleSubscriptionCreated(subscription: any): Promise<void> {
+async function handleSubscriptionCreated(subscription: Stripe.Subscription): Promise<void> {
   console.log(`Subscription ${subscription.id} created`);
 
   // This is typically handled by checkout.session.completed
@@ -247,7 +248,7 @@ async function handleSubscriptionCreated(subscription: any): Promise<void> {
  * Handle subscription updated webhook
  * @param subscription - Subscription object
  */
-async function handleSubscriptionUpdatedWebhook(subscription: any): Promise<void> {
+async function handleSubscriptionUpdatedWebhook(subscription: Stripe.Subscription): Promise<void> {
   const result = processSubscriptionUpdated(subscription);
 
   const userId = subscription.metadata?.userId;
@@ -272,7 +273,7 @@ async function handleSubscriptionUpdatedWebhook(subscription: any): Promise<void
  * Handle subscription deleted webhook
  * @param subscription - Subscription object
  */
-async function handleSubscriptionDeletedWebhook(subscription: any): Promise<void> {
+async function handleSubscriptionDeletedWebhook(subscription: Stripe.Subscription): Promise<void> {
   const result = processSubscriptionDeleted(subscription);
 
   const userId = subscription.metadata?.userId;
@@ -298,7 +299,7 @@ async function handleSubscriptionDeletedWebhook(subscription: any): Promise<void
  * Handle trial ending soon
  * @param subscription - Subscription object
  */
-async function handleTrialWillEnd(subscription: any): Promise<void> {
+async function handleTrialWillEnd(subscription: Stripe.Subscription): Promise<void> {
   console.log(`Trial ending soon for subscription ${subscription.id}`);
 
   const userId = subscription.metadata?.userId;

@@ -16,6 +16,7 @@ import { SocialLoginButtons } from "@/components/auth/social-login-buttons";
 
 export default function LoginPage() {
   const t = useTranslations("auth.signIn");
+  const tMarketing = useTranslations("auth.loginMarketing");
   const router = useRouter();
   const { login, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -78,14 +79,14 @@ export default function LoginPage() {
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-            AI 驱动的<br />
+            {tMarketing("headline")}<br />
             <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              智能修图
+              {tMarketing("headlineHighlight")}
             </span>
           </h1>
 
           <p className="text-lg text-slate-300 mb-8 max-w-md">
-            释放创意，让 AI 为您的图片赋予新生。一键美化，智能抠图，专业级效果触手可及。
+            {tMarketing("description")}
           </p>
 
           <div className="flex items-center gap-6 text-sm text-slate-400">
@@ -93,19 +94,19 @@ export default function LoginPage() {
               <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span>免费试用</span>
+              <span>{tMarketing("featureFree")}</span>
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span>快速处理</span>
+              <span>{tMarketing("featureFast")}</span>
             </div>
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span>专业品质</span>
+              <span>{tMarketing("featureQuality")}</span>
             </div>
           </div>
         </div>
