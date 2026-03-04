@@ -11,7 +11,9 @@ import { sendPasswordResetEmail } from "./mail";
  */
 export function createAuth(d1Database: D1Database) {
   const db = createDb(d1Database);
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:4001";
+  const baseUrl = process.env.BETTER_AUTH_URL
+    || process.env.NEXT_PUBLIC_APP_URL
+    || "http://localhost:4001";
 
   return betterAuth({
     // 基础配置
