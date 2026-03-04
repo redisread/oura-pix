@@ -10,7 +10,7 @@ import {
   validateGenerationSettings,
   estimateGenerationCost,
 } from "@/lib/ai-generation";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 /**
  * 创建生成任务请求
