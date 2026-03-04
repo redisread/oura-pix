@@ -151,7 +151,7 @@ export async function uploadImage(
     // 生成公开访问 URL
     let url: string;
     try {
-      url = getPublicUrl(key);
+      url = await getPublicUrl(key);
     } catch {
       // 如果没有配置公开 URL，使用 key 作为标识
       url = key;
