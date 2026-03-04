@@ -3,24 +3,20 @@ import {
   GenerationResult,
   GenerationStatus,
 } from "@/db/schema";
+import { getCloudflareContext } from "@/lib/cloudflare-context";
 
-/**
- * Gemini Banana API 配置
- */
-interface GeminiBananaConfig {
+interface GeminiConfig {
   apiKey: string;
   baseUrl: string;
   model: string;
 }
 
-/**
- * 获取 Gemini Banana API 配置
- */
-function getGeminiConfig(): GeminiBananaConfig {
+async function getGeminiConfig(): Promise<GeminiConfig> {
+  const { env } = await getCloudflareContext();
   return {
-    apiKey: process.env.GEMINI_BANANA_API_KEY || "",
-    baseUrl: process.env.GEMINI_BANANA_BASE_URL || "https://api.geminibanana.com/v1",
-    model: process.env.GEMINI_BANANA_MODEL || "gemini-pro-vision",
+    apiKey: env.GEMINI_API_KEY,
+    baseUrl: env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta",
+    model: "gemini-2.0-flash",
   };
 }
 
@@ -66,7 +62,7 @@ export interface GenerateRequest {
 export async function analyzeImage(
   imageUrl: string
 ): Promise<ImageAnalysisResult> {
-  const config = getGeminiConfig();
+  const config = await getGeminiConfig();
 
   const requestBody = {
     model: config.model,
@@ -129,7 +125,7 @@ export async function analyzeImage(
 export async function generateProductDetails(
   request: GenerateRequest
 ): Promise<GenerationResult[]> {
-  const config = getGeminiConfig();
+  const config = await getGeminiConfig();
   const { productImageUrl, referenceImageUrls = [], prompt, settings } = request;
 
   // 分析产品图片
