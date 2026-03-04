@@ -22,14 +22,6 @@ export async function initDevEnvironment(): Promise<void> {
     await initOpenNextCloudflareForDev({
       // 指定 wrangler.toml 路径
       configPath: "./wrangler.toml",
-
-      // 持久化本地数据（D1 SQLite 和 R2 文件系统）
-      persist: {
-        path: "./.wrangler/state/v3"
-      },
-
-      // 日志级别
-      logLevel: "info",
     });
 
     initialized = true;
