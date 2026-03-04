@@ -13,6 +13,11 @@
 # - 生产环境使用 Cloudflare Secrets 管理这些变量
 # ============================================
 
+# 开发环境基础 URL
+# 用于覆盖 wrangler.toml 中的生产环境配置
+BETTER_AUTH_URL=http://localhost:4001
+NEXT_PUBLIC_APP_URL=http://localhost:4001
+
 # 认证（Better Auth）
 AUTH_SECRET=
 

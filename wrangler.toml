@@ -21,7 +21,7 @@ run_worker_first = false
 binding = "DB"
 database_name = "oura-pix-db"
 database_id = "0f79f5d4-d714-4ffc-8747-f52a4461fecb"
-migrations_dir = "./drizzle/migrations"
+migrations_dir = "drizzle/migrations"
 
 
 # ============================================
@@ -30,6 +30,7 @@ migrations_dir = "./drizzle/migrations"
 [[r2_buckets]]
 binding = "R2"
 bucket_name = "oura-pix-r2"
+
 
 # ============================================
 # 环境变量（非敏感信息）
@@ -89,9 +90,11 @@ STRIPE_CREDITS_LARGE_PRICE_ID = ""
 # enabled = true
 
 # 日志和可观测性
-# [observability]
-# enabled = true
-# head_sampling_rate = 1
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 
 [placement]
 mode = "smart"

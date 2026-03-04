@@ -64,19 +64,12 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
       expiresIn: 604800, // 7天（秒）
       // 更新会话频率 - 1天 = 86400 秒
       updateAge: 86400, // 1天（秒）
-    },
-
-    // Cookie 配置
-    cookies: {
-      sessionToken: {
-        name: "ourapix.session",
-        // 开发环境使用 HTTP，生产环境使用 HTTPS
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        // Cookie 最大有效期：7天（不超过 400 天限制）
-        maxAge: 7 * 24 * 60 * 60,
+      // Cookie 名称
+      cookieName: "ourapix.session",
+      // Cookie 配置
+      cookieCache: {
+        enabled: true,
+        maxAge: 5 * 60, // 5分钟缓存
       },
     },
 
