@@ -8,8 +8,8 @@ import { uploadImage } from "../actions/upload-image";
 import { createGeneration } from "../actions/create-generation";
 import { getGeneration } from "../actions/get-generation";
 
-type Platform = "amazon" | "shopify" | "custom";
-type Style = "minimal" | "luxury" | "lifestyle" | "tech";
+type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
+type Style = "minimal" | "luxury" | "lifestyle" | "professional";
 
 interface UploadedImageInfo {
   id: string;
@@ -49,14 +49,16 @@ export default function GeneratePage() {
   const platforms: { value: Platform; label: string; icon: string }[] = [
     { value: "amazon", label: "Amazon", icon: "A" },
     { value: "shopify", label: "Shopify", icon: "S" },
-    { value: "custom", label: tCommon("custom"), icon: "C" },
+    { value: "ebay", label: "eBay", icon: "E" },
+    { value: "etsy", label: "Etsy", icon: "T" },
+    { value: "generic", label: tCommon("custom") || "自定义", icon: "C" },
   ];
 
   const styles: { value: Style; label: string; description: string }[] = [
-    { value: "minimal", label: t("styles.minimal.label"), description: t("styles.minimal.desc") },
-    { value: "luxury", label: t("styles.luxury.label"), description: t("styles.luxury.desc") },
-    { value: "lifestyle", label: t("styles.lifestyle.label"), description: t("styles.lifestyle.desc") },
-    { value: "tech", label: t("styles.tech.label"), description: t("styles.tech.desc") },
+    { value: "minimal", label: t("styles.minimal.label") || "极简风格", description: t("styles.minimal.desc") || "简洁干净，突出产品" },
+    { value: "luxury", label: t("styles.luxury.label") || "奢华风格", description: t("styles.luxury.desc") || "高端大气，彰显品质" },
+    { value: "lifestyle", label: t("styles.lifestyle.label") || "生活风格", description: t("styles.lifestyle.desc") || "场景融入，情感共鸣" },
+    { value: "professional", label: t("styles.tech.label") || "专业风格", description: t("styles.tech.desc") || "现代前卫，科技感强" },
   ];
 
   // 清理轮询
@@ -78,7 +80,7 @@ export default function GeneratePage() {
     if (result.success && result.data) {
       return result.data.id;
     }
-    setError(result.error || t("errors.uploadFailed"));
+    setError(result.error || "上传失败");
     return null;
   };
 
@@ -124,7 +126,7 @@ export default function GeneratePage() {
         }
       } else if (status === "failed") {
         setIsGenerating(false);
-        setError(result.data.errorMessage || t("errors.generationFailed"));
+        setError(result.data.errorMessage || "生成失败");
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -171,7 +173,7 @@ export default function GeneratePage() {
         productImageId: mainImageId,
         referenceImageIds: styleImageIds.length > 0 ? styleImageIds : undefined,
         settings: {
-          targetPlatform: settings.platform === "custom" ? "generic" : settings.platform,
+          targetPlatform: settings.platform,
           count: settings.count,
           style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
           language: settings.language,
@@ -179,7 +181,7 @@ export default function GeneratePage() {
       });
 
       if (!generationResult.success) {
-        setError(generationResult.error || t("errors.generationFailed"));
+        setError(generationResult.error || "创建生成任务失败");
         setIsGenerating(false);
         return;
       }
@@ -192,7 +194,7 @@ export default function GeneratePage() {
       }, 2000);
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.generationFailed"));
+      setError(err instanceof Error ? err.message : "生成失败");
       setIsUploading(false);
       setIsGenerating(false);
     }
@@ -394,7 +396,7 @@ export default function GeneratePage() {
                   }
                 `}
               >
-                {isUploading ? t("uploadingBtn") : isGenerating ? t("generatingBtn") : t("generateBtn")}
+                {isUploading ? (t("uploadingBtn") || "上传中...") : isGenerating ? t("generatingBtn") : t("generateBtn")}
               </button>
             </div>
 

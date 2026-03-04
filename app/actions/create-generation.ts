@@ -4,13 +4,13 @@ import { headers } from "next/headers";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
-import { type GenerationSettings, type GenerationResult } from "@/db/schema";
+import { type GenerationSettings } from "@/db/schema";
 import {
   generateProductDetails,
   validateGenerationSettings,
   estimateGenerationCost,
 } from "@/lib/ai-generation";
-import { eq, and, gte, sql, count } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
 
 /**
  * 创建生成任务请求
@@ -142,20 +142,6 @@ export async function createGeneration(
       }
     }
 
-    // 检查每分钟限流（基于 D1 usage_logs，适用于多实例部署）
-    const oneMinuteAgo = new Date(Date.now() - 60_000);
-    const recentCount = await db
-      .select({ count: count() })
-      .from(schema.usageLogs)
-      .where(and(
-        eq(schema.usageLogs.userId, user.id),
-        eq(schema.usageLogs.type, "generation"),
-        gte(schema.usageLogs.createdAt, oneMinuteAgo)
-      ));
-    if ((recentCount[0]?.count ?? 0) >= 10) {
-      return { success: false, error: "Rate limit exceeded. Please wait before generating again." };
-    }
-
     // 验证并规范化设置
     const settings = validateGenerationSettings(request.settings || {});
 
@@ -176,18 +162,19 @@ export async function createGeneration(
     await deductQuota(db, user.id, cost);
 
     // 创建生成任务
+    const generationData = {
+      userId: user.id,
+      status: "pending" as const,
+      productImageId: request.productImageId,
+      referenceImageIds: request.referenceImageIds || [],
+      prompt: request.prompt,
+      settings: settings,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
     const [generation] = await db
       .insert(schema.generations)
-      .values({
-        userId: user.id,
-        status: "pending" as const,
-        productImageId: request.productImageId,
-        referenceImageIds: JSON.stringify(request.referenceImageIds || []) as unknown as string[],
-        prompt: request.prompt,
-        settings: JSON.stringify(settings) as unknown as GenerationSettings,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
+      .values(generationData)
       .returning();
 
     // 记录使用日志
@@ -196,11 +183,11 @@ export async function createGeneration(
       type: "generation" as const,
       generationId: generation.id,
       creditsUsed: cost,
-      details: JSON.stringify({
+      details: {
         productImageId: request.productImageId,
         referenceImageCount: request.referenceImageIds?.length || 0,
         settings,
-      }) as unknown as Record<string, unknown>,
+      },
     });
 
     // 异步执行生成任务
@@ -249,7 +236,7 @@ async function processGeneration(
     await db
       .update(schema.generations)
       .set({
-        status: "processing" as const,
+        status: "processing",
         updatedAt: new Date(),
       })
       .where(eq(schema.generations.id, generationId));
@@ -307,8 +294,8 @@ async function processGeneration(
     await db
       .update(schema.generations)
       .set({
-        status: "completed" as const,
-        results: JSON.stringify(results) as unknown as GenerationResult[],
+        status: "completed",
+        results: results,
         completedAt: new Date(),
         updatedAt: new Date(),
       })
@@ -320,7 +307,7 @@ async function processGeneration(
     await db
       .update(schema.generations)
       .set({
-        status: "failed" as const,
+        status: "failed",
         errorMessage: error instanceof Error ? error.message : "Unknown error",
         updatedAt: new Date(),
       })
