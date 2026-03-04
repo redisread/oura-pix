@@ -549,6 +549,8 @@
       "submit": "Sign Up",
       "loading": "Signing up...",
       "success": "Sign up successful",
+      "successTitle": "Registration Successful!",
+      "successDesc": "Welcome to OuraPix",
       "error": "Sign up failed",
       "passwordMismatch": "Passwords do not match"
     },

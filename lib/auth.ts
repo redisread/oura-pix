@@ -20,6 +20,7 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
     // 基础配置
     baseURL: baseUrl,
     secret: env.AUTH_SECRET,
+    trustedOrigins: [baseUrl, "http://localhost:4001"],
 
     // 数据库适配器配置
     database: drizzleAdapter(db, {
@@ -29,7 +30,7 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
         user: schema.users,
         account: schema.accounts,
         session: schema.sessions,
-        verificationToken: schema.verificationTokens,
+        verification: schema.verificationTokens,
       },
     }),
 

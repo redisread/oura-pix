@@ -549,6 +549,8 @@
       "submit": "注册",
       "loading": "注册中...",
       "success": "注册成功",
+      "successTitle": "注册成功！",
+      "successDesc": "欢迎加入 OuraPix",
       "error": "注册失败",
       "passwordMismatch": "两次输入的密码不一致"
     },
