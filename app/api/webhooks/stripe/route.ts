@@ -200,7 +200,8 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<v
   // Subscription renewal - add monthly credits
   if (invoice.subscription) {
     const stripe = getStripe();
-    const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+    const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id;
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
     const userId = subscription.metadata?.userId;
     if (!userId) {
