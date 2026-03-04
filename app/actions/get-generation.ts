@@ -56,7 +56,7 @@ export async function getGeneration(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
@@ -213,7 +213,7 @@ export async function retryGeneration(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
@@ -278,7 +278,7 @@ export async function cancelGeneration(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {

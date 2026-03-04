@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   try {
     // 获取当前用户
     const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get("ourapix.session")?.value;
 

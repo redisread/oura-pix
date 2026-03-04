@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 async function getCurrentUserId(): Promise<string | null> {
   try {
     const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get("ourapix.session")?.value;
 

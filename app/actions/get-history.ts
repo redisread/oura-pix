@@ -83,7 +83,7 @@ export async function getHistory(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
@@ -310,7 +310,7 @@ export async function deleteGeneration(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
@@ -374,7 +374,7 @@ export async function exportHistory(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {

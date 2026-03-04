@@ -105,7 +105,7 @@ export async function uploadImage(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
@@ -211,7 +211,7 @@ export async function deleteImage(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
@@ -282,7 +282,7 @@ export async function getUserImages(
       headers: { cookie },
     });
 
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     const user = await getCurrentUser(auth, request);
 
     if (!user) {
