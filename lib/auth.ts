@@ -16,11 +16,19 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
     || env.NEXT_PUBLIC_APP_URL
     || "http://localhost:4001";
 
+  // 动态构建 trustedOrigins,而不是硬编码
+  const trustedOrigins = [baseUrl];
+
+  // 开发环境额外信任 localhost
+  if (process.env.NODE_ENV === 'development') {
+    trustedOrigins.push("http://localhost:4001", "http://127.0.0.1:4001");
+  }
+
   return betterAuth({
     // 基础配置
     baseURL: baseUrl,
     secret: env.AUTH_SECRET,
-    trustedOrigins: [baseUrl, "http://localhost:4001"],
+    trustedOrigins, // 使用动态构建的数组
 
     // 数据库适配器配置
     database: drizzleAdapter(db, {

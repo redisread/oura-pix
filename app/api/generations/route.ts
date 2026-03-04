@@ -3,8 +3,8 @@ import { getGenerationsList, getUserStats } from "@/lib/api/generations";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createAuth } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { withDevInit } from "@/lib/with-dev-init";
 
-// 使用 Node.js runtime，因为 wrangler 的 getPlatformProxy 需要 Node.js 环境
 export const runtime = "nodejs";
 
 /**
@@ -17,7 +17,7 @@ export const runtime = "nodejs";
  * - filter: 时间筛选 (all | today | week | month)
  * - stats: 是否只返回统计数据 (true/false)
  */
-export async function GET(request: NextRequest) {
+async function handleGenerationsGet(request: NextRequest) {
   try {
     // 获取当前用户
     const { env } = await getCloudflareContext();
@@ -85,3 +85,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withDevInit(handleGenerationsGet);

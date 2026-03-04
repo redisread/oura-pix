@@ -40,13 +40,8 @@ const nextConfig = {
       // These packages are only needed for local development and should not be in production
       config.externals = config.externals || [];
       if (Array.isArray(config.externals)) {
-        // wrangler contains Node.js native modules that can't be bundled
-        // It's only needed for local development with `next dev`
-        config.externals.push('wrangler');
         // esbuild is a build tool, not needed at runtime
         config.externals.push('esbuild');
-        // miniflare is a local development simulator
-        config.externals.push('miniflare');
         // Prevent node:sqlite from being bundled - it's not supported in Cloudflare Workers
         // and causes deployment failures. The project uses D1 via Drizzle ORM instead.
         config.externals.push('node:sqlite');

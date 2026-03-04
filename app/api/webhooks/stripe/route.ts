@@ -17,13 +17,14 @@ import {
 import { updateSubscriptionFromStripe, addCredits } from '@/lib/subscription';
 import { type PlanId } from '@/lib/stripe';
 import { sendGenerationCompleteEmail } from '@/lib/mail';
+import { withDevInit } from '@/lib/with-dev-init';
 
 /**
  * POST handler for Stripe webhooks
  * @param request - Next.js request
  * @returns Response
  */
-export async function POST(request: NextRequest): Promise<NextResponse> {
+async function handleStripeWebhook(request: NextRequest): Promise<NextResponse> {
   // Get the signature from headers
   const headersList = await headers();
   const signature = headersList.get('stripe-signature');
@@ -303,9 +304,12 @@ async function handleTrialWillEnd(subscription: Stripe.Subscription): Promise<vo
  * GET handler for webhook verification
  * @returns Status response
  */
-export async function GET(): Promise<NextResponse> {
+async function handleWebhookGet(): Promise<NextResponse> {
   return NextResponse.json({
     status: 'Stripe webhook endpoint is active',
     timestamp: new Date().toISOString(),
   });
 }
+
+export const POST = withDevInit(handleStripeWebhook);
+export const GET = withDevInit(handleWebhookGet);

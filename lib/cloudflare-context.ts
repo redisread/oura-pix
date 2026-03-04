@@ -1,11 +1,8 @@
 /**
- * Cloudflare Context Module
+ * Cloudflare Context Module (Refactored)
  *
- * Provides unified access to Cloudflare bindings (D1, R2) that works in both:
- * - Production: Uses OpenNext's getCloudflareContext
- * - Local development: Uses wrangler's getPlatformProxy for local emulation
- *
- * This enables `next dev` to work with D1 and R2 bindings without wrangler dev.
+ * 统一使用 OpenNext 的 getCloudflareContext,无论开发还是生产环境
+ * 开发环境依赖 initOpenNextCloudflareForDev 预初始化
  */
 
 import type { D1Database, R2Bucket } from "@cloudflare/workers-types";
@@ -44,9 +41,9 @@ export interface CloudflareEnv {
 }
 
 /**
- * Simplified execution context for local development
+ * Execution context interface
  */
-interface LocalExecutionContext {
+interface ExecutionContext {
   waitUntil(promise: Promise<unknown>): void;
   passThroughOnException(): void;
 }
@@ -56,72 +53,36 @@ interface LocalExecutionContext {
  */
 export interface CloudflareContext {
   env: CloudflareEnv;
-  ctx: LocalExecutionContext;
+  ctx: ExecutionContext;
   caches: CacheStorage;
 }
 
 /**
- * Local development bindings cache
- */
-let localBindings: CloudflareEnv | null = null;
-
-/**
- * Initialize local development bindings using wrangler's getPlatformProxy
- * This provides local D1 and R2 emulation for `next dev`
+ * Get Cloudflare Context (统一实现)
  *
- * NOTE: This function should only be called in development mode.
- * In production, OpenNext's getCloudflareContext is used instead.
- */
-async function initLocalBindings(): Promise<CloudflareEnv> {
-  if (localBindings) return localBindings;
-
-  // Skip wrangler import in production to avoid bundling it
-  // This is critical for reducing the Worker bundle size
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      "Cloudflare bindings not available in production. " +
-      "Make sure you're using OpenNext's getCloudflareContext."
-    );
-  }
-
-  try {
-    // Dynamic import with webpackIgnore to prevent bundling in production
-    const { getPlatformProxy } = await import(
-      /* webpackIgnore: true */
-      /* @vite-ignore */
-      "wrangler"
-    );
-    const platform = await getPlatformProxy({
-      configPath: "./wrangler.toml",
-    });
-
-    localBindings = platform.env as unknown as CloudflareEnv;
-
-    console.log("[cloudflare-context] Local bindings initialized from wrangler.toml");
-    return localBindings;
-  } catch (error) {
-    console.error("[cloudflare-context] Failed to initialize local bindings:", error);
-    throw new Error(
-      "Failed to initialize Cloudflare bindings. Make sure wrangler.toml exists and has valid D1/R2 bindings."
-    );
-  }
-}
-
-/**
- * Get Cloudflare Context
- *
- * - Production: Uses OpenNext's getCloudflareContext
- * - Local development: Uses wrangler getPlatformProxy for local emulation
+ * 开发和生产环境都使用 OpenNext 的 getCloudflareContext
+ * 开发环境需要先调用 initOpenNextCloudflareForDev
  *
  * @returns Cloudflare context with env, ctx, and caches
  */
 export async function getCloudflareContext(): Promise<CloudflareContext> {
-  // Try OpenNext's getCloudflareContext first (production environment)
   try {
-    const { getCloudflareContext: getCfContext } = await import("@opennextjs/cloudflare");
+    const { getCloudflareContext: getCfContext } = await import(
+      "@opennextjs/cloudflare"
+    );
+
     const ctx = getCfContext();
-    // Cast to our interface type
+
+    // 开发环境兜底检查
+    if (process.env.NODE_ENV === 'development' && !ctx.env.DB) {
+      throw new Error(
+        "Cloudflare context not initialized. " +
+        "Make sure initOpenNextCloudflareForDev() is called before accessing bindings."
+      );
+    }
+
     const env = ctx.env as unknown as CloudflareEnv;
+
     return {
       env,
       ctx: {
@@ -130,29 +91,18 @@ export async function getCloudflareContext(): Promise<CloudflareContext> {
       },
       caches: (globalThis as any).caches || ({} as CacheStorage),
     };
-  } catch {
-    // OpenNext context not available, fall back to local development mode
+  } catch (error) {
+    console.error("[cloudflare-context] Failed to get context:", error);
+    throw new Error(
+      "Failed to get Cloudflare context. " +
+      "In development, ensure initOpenNextCloudflareForDev() was called. " +
+      "In production, ensure OpenNext build was successful."
+    );
   }
-
-  // Local development mode: use wrangler to simulate bindings
-  const bindings = await initLocalBindings();
-
-  return {
-    env: bindings,
-    ctx: {
-      waitUntil: (_promise: Promise<unknown>) => {},
-      passThroughOnException: () => {},
-    },
-    caches: typeof globalThis !== "undefined" && "caches" in globalThis
-      ? (globalThis as any).caches
-      : ({} as CacheStorage),
-  };
 }
 
 /**
  * Get D1 database instance
- *
- * @returns D1 database binding
  */
 export async function getDB(): Promise<D1Database> {
   const { env } = await getCloudflareContext();
@@ -161,8 +111,6 @@ export async function getDB(): Promise<D1Database> {
 
 /**
  * Get R2 bucket instance
- *
- * @returns R2 bucket binding
  */
 export async function getR2(): Promise<R2Bucket> {
   const { env } = await getCloudflareContext();
@@ -171,9 +119,6 @@ export async function getR2(): Promise<R2Bucket> {
 
 /**
  * Get specific environment variable from Cloudflare bindings
- *
- * @param key - Environment variable key
- * @returns Environment variable value or undefined
  */
 export async function getEnvVar(key: string): Promise<string | undefined> {
   const { env } = await getCloudflareContext();
@@ -182,10 +127,7 @@ export async function getEnvVar(key: string): Promise<string | undefined> {
 
 /**
  * Check if running in Cloudflare Workers environment
- *
- * @returns True if in production Cloudflare environment
  */
 export function isCloudflareEnvironment(): boolean {
-  // Check if we're in a Cloudflare Worker by checking for global scope
   return typeof globalThis !== "undefined" && "caches" in globalThis && typeof (globalThis as any).caches !== "undefined";
 }

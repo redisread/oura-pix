@@ -3,8 +3,8 @@ import { getGenerationById, deleteGeneration } from "@/lib/api/generations";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createAuth } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { withDevInit } from "@/lib/with-dev-init";
 
-// 使用 Node.js runtime，因为 wrangler 的 getPlatformProxy 需要 Node.js 环境
 export const runtime = "nodejs";
 
 /**
@@ -37,7 +37,7 @@ async function getCurrentUserId(): Promise<string | null> {
  * GET /api/generations/[id]
  * 获取单个生成记录详情
  */
-export async function GET(
+async function handleGenerationGet(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -76,7 +76,7 @@ export async function GET(
  * DELETE /api/generations/[id]
  * 删除单个生成记录
  */
-export async function DELETE(
+async function handleGenerationDelete(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -110,3 +110,6 @@ export async function DELETE(
     );
   }
 }
+
+export const GET = withDevInit(handleGenerationGet);
+export const DELETE = withDevInit(handleGenerationDelete);
