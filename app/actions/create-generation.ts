@@ -168,9 +168,11 @@ export async function createGeneration(
         userId: user.id,
         status: "pending",
         productImageId: request.productImageId,
-        referenceImageIds: request.referenceImageIds || [],
+        referenceImageIds: JSON.stringify(request.referenceImageIds || []),
         prompt: request.prompt,
-        settings,
+        settings: JSON.stringify(settings),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .returning();
 
@@ -180,11 +182,11 @@ export async function createGeneration(
       type: "generation",
       generationId: generation.id,
       creditsUsed: cost,
-      details: {
+      details: JSON.stringify({
         productImageId: request.productImageId,
         referenceImageCount: request.referenceImageIds?.length || 0,
         settings,
-      },
+      }),
     });
 
     // 异步执行生成任务
@@ -260,7 +262,10 @@ async function processGeneration(
 
     // 获取参考图片URL
     let referenceImageUrls: string[] = [];
-    if (generation.referenceImageIds && generation.referenceImageIds.length > 0) {
+    const refImageIds = typeof generation.referenceImageIds === 'string'
+      ? JSON.parse(generation.referenceImageIds)
+      : generation.referenceImageIds;
+    if (refImageIds && refImageIds.length > 0) {
       const referenceImages = await db.query.images.findMany({
         where: and(
           eq(schema.images.userId, generation.userId),
@@ -269,16 +274,19 @@ async function processGeneration(
       });
 
       referenceImageUrls = referenceImages
-        .filter((img) => generation.referenceImageIds?.includes(img.id))
+        .filter((img) => refImageIds?.includes(img.id))
         .map((img) => img.url);
     }
 
     // 执行 AI 生成
+    const genSettings = typeof generation.settings === 'string'
+      ? JSON.parse(generation.settings)
+      : generation.settings;
     const results = await generateProductDetails({
       productImageUrl: productImage.url,
       referenceImageUrls,
       prompt: generation.prompt || undefined,
-      settings: generation.settings || {},
+      settings: genSettings || {},
     });
 
     // 更新任务为完成
@@ -286,7 +294,7 @@ async function processGeneration(
       .update(schema.generations)
       .set({
         status: "completed",
-        results,
+        results: JSON.stringify(results),
         completedAt: new Date(),
         updatedAt: new Date(),
       })

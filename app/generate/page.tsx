@@ -1,11 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import UploadDropzone from "../components/upload-dropzone";
+import { uploadImage } from "../actions/upload-image";
+import { createGeneration } from "../actions/create-generation";
+import { getGeneration } from "../actions/get-generation";
 
 type Platform = "amazon" | "shopify" | "custom";
 type Style = "minimal" | "luxury" | "lifestyle" | "tech";
+
+interface UploadedImageInfo {
+  id: string;
+  url: string;
+}
 
 interface GenerationSettings {
   platform: Platform;
@@ -17,9 +26,13 @@ interface GenerationSettings {
 export default function GeneratePage() {
   const t = useTranslations("generation");
   const tCommon = useTranslations("common");
+  const router = useRouter();
 
   const [mainImage, setMainImage] = useState<File[]>([]);
   const [styleImages, setStyleImages] = useState<File[]>([]);
+  const [uploadedMainImageId, setUploadedMainImageId] = useState<string | null>(null);
+  const [uploadedStyleImageIds, setUploadedStyleImageIds] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [settings, setSettings] = useState<GenerationSettings>({
     platform: "amazon",
     count: 5,
@@ -29,6 +42,9 @@ export default function GeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [generationId, setGenerationId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const platforms: { value: Platform; label: string; icon: string }[] = [
     { value: "amazon", label: "Amazon", icon: "A" },
@@ -43,48 +59,146 @@ export default function GeneratePage() {
     { value: "tech", label: t("styles.tech.label") || "科技风格", description: t("styles.tech.desc") || "现代前卫，科技感强" },
   ];
 
+  // 清理轮询
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
+  }, []);
+
+  // 上传主图片
+  const uploadMainImage = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", "product");
+
+    const result = await uploadImage(formData);
+    if (result.success && result.data) {
+      return result.data.id;
+    }
+    setError(result.error || "上传失败");
+    return null;
+  };
+
+  // 上传风格参考图
+  const uploadStyleImage = async (file: File): Promise<string | null> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", "reference");
+
+    const result = await uploadImage(formData);
+    if (result.success && result.data) {
+      return result.data.id;
+    }
+    return null;
+  };
+
   const handleMainImageSelect = useCallback((files: File[]) => {
     setMainImage(files);
+    setUploadedMainImageId(null);
+    setError(null);
   }, []);
 
   const handleStyleImagesSelect = useCallback((files: File[]) => {
     setStyleImages(files);
+    setUploadedStyleImageIds([]);
+    setError(null);
   }, []);
+
+  // 轮询生成状态
+  const pollGenerationStatus = async (genId: string) => {
+    const result = await getGeneration(genId);
+    if (result.success && result.data) {
+      const { status, progress: apiProgress, results } = result.data;
+
+      setProgress(apiProgress || 0);
+
+      if (status === "completed" && results) {
+        setIsGenerating(false);
+        setGeneratedImages(results.map(r => r.imageUrl || "").filter(Boolean));
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
+      } else if (status === "failed") {
+        setIsGenerating(false);
+        setError(result.data.errorMessage || "生成失败");
+        if (pollingRef.current) {
+          clearInterval(pollingRef.current);
+          pollingRef.current = null;
+        }
+      }
+    }
+  };
 
   const handleGenerate = async () => {
     if (mainImage.length === 0) {
-      alert(t("errors.noImage") || "请先上传主商品图片");
+      setError(t("errors.noImage") || "请先上传主商品图片");
       return;
     }
 
-    setIsGenerating(true);
+    setError(null);
+    setIsUploading(true);
     setProgress(0);
     setGeneratedImages([]);
 
-    // Simulate generation progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+    try {
+      // 1. 上传主商品图片
+      const mainImageId = await uploadMainImage(mainImage[0]);
+      if (!mainImageId) {
+        setIsUploading(false);
+        return;
+      }
+      setUploadedMainImageId(mainImageId);
 
-    // Simulate API call
-    setTimeout(() => {
-      clearInterval(interval);
-      setProgress(100);
+      // 2. 上传风格参考图
+      const styleImageIds: string[] = [];
+      for (const file of styleImages) {
+        const id = await uploadStyleImage(file);
+        if (id) {
+          styleImageIds.push(id);
+        }
+      }
+      setUploadedStyleImageIds(styleImageIds);
+
+      setIsUploading(false);
+      setIsGenerating(true);
+
+      // 3. 创建生成任务
+      const generationResult = await createGeneration({
+        productImageId: mainImageId,
+        referenceImageIds: styleImageIds.length > 0 ? styleImageIds : undefined,
+        settings: {
+          targetPlatform: settings.platform,
+          count: settings.count,
+          style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
+          language: settings.language,
+        },
+      });
+
+      if (!generationResult.success) {
+        setError(generationResult.error || "创建生成任务失败");
+        setIsGenerating(false);
+        return;
+      }
+
+      setGenerationId(generationResult.data!.id);
+
+      // 4. 开始轮询状态
+      pollingRef.current = setInterval(() => {
+        pollGenerationStatus(generationResult.data!.id);
+      }, 2000);
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "生成失败");
+      setIsUploading(false);
       setIsGenerating(false);
-      // Mock generated images
-      setGeneratedImages(
-        Array.from({ length: settings.count }, (_, i) => `/api/placeholder/400/600?text=Image${i + 1}`)
-      );
-    }, 5500);
+    }
   };
 
-  const canGenerate = mainImage.length > 0 && !isGenerating;
+  const canGenerate = mainImage.length > 0 && !isGenerating && !isUploading;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -260,6 +374,13 @@ export default function GeneratePage() {
                 </select>
               </div>
 
+              {/* Error Message */}
+              {error && (
+                <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
+
               {/* Generate Button */}
               <button
                 type="button"
@@ -273,7 +394,7 @@ export default function GeneratePage() {
                   }
                 `}
               >
-                {isGenerating ? t("generatingBtn") : t("generateBtn")}
+                {isUploading ? (t("uploadingBtn") || "上传中...") : isGenerating ? t("generatingBtn") : t("generateBtn")}
               </button>
             </div>
 
