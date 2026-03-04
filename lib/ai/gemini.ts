@@ -4,36 +4,17 @@
  */
 
 import { GoogleGenerativeAI, GenerativeModel, GenerationConfig } from '@google/generative-ai';
+import { getCloudflareContext } from '@/lib/cloudflare-context';
 
 /**
- * Gemini API configuration
+ * Get Gemini client from Cloudflare environment
  */
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_BASE_URL = process.env.GEMINI_BASE_URL || 'https://api.banana.dev';
-
-/**
- * Validate environment variables
- */
-function validateConfig(): void {
-  if (!GEMINI_API_KEY) {
+async function getGenAI(): Promise<GoogleGenerativeAI> {
+  const { env } = await getCloudflareContext();
+  if (!env.GEMINI_API_KEY) {
     throw new Error('Missing GEMINI_API_KEY environment variable');
   }
-}
-
-/**
- * Gemini client instance
- */
-let genAI: GoogleGenerativeAI | null = null;
-
-/**
- * Get or create Gemini client
- */
-function getGenAI(): GoogleGenerativeAI {
-  if (!genAI) {
-    validateConfig();
-    genAI = new GoogleGenerativeAI(GEMINI_API_KEY!);
-  }
-  return genAI;
+  return new GoogleGenerativeAI(env.GEMINI_API_KEY);
 }
 
 /**
@@ -151,7 +132,7 @@ export async function generateContent(
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const genAI = getGenAI();
+      const genAI = await getGenAI();
       const modelName = options.model || GEMINI_MODELS.PRO;
 
       const model: GenerativeModel = genAI.getGenerativeModel({
@@ -232,7 +213,7 @@ export async function generateFromImage(
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const genAI = getGenAI();
+      const genAI = await getGenAI();
       const modelName = options.model || GEMINI_MODELS.PRO;
 
       const model: GenerativeModel = genAI.getGenerativeModel({
@@ -451,7 +432,7 @@ export async function generateContentStream(
   options: GenerationOptions = {}
 ): Promise<GenerationResult<void>> {
   try {
-    const genAI = getGenAI();
+    const genAI = await getGenAI();
     const modelName = options.model || GEMINI_MODELS.PRO;
 
     const model: GenerativeModel = genAI.getGenerativeModel({

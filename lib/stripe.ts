@@ -4,44 +4,45 @@
  */
 
 import Stripe from 'stripe';
+import { getCloudflareContext } from './cloudflare-context';
 
 /**
- * Stripe API configuration
+ * Get Stripe runtime configuration from Cloudflare environment
  */
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+async function getStripeConfig() {
+  const { env } = await getCloudflareContext();
+  return {
+    secretKey: env.STRIPE_SECRET_KEY,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    planPriceIds: {
+      starter: env.STRIPE_STARTER_PRICE_ID,
+      pro: env.STRIPE_PRO_PRICE_ID,
+      enterprise: env.STRIPE_ENTERPRISE_PRICE_ID,
+    },
+    creditPriceIds: {
+      small: env.STRIPE_CREDITS_SMALL_PRICE_ID,
+      medium: env.STRIPE_CREDITS_MEDIUM_PRICE_ID,
+      large: env.STRIPE_CREDITS_LARGE_PRICE_ID,
+    },
+  };
+}
 
 /**
- * Validate environment variables
+ * Get Stripe client instance
  */
-function validateConfig(): void {
-  if (!STRIPE_SECRET_KEY) {
+export async function getStripe(): Promise<Stripe> {
+  const { secretKey } = await getStripeConfig();
+  if (!secretKey) {
     throw new Error('Missing STRIPE_SECRET_KEY environment variable');
   }
+  return new Stripe(secretKey, {
+    apiVersion: '2025-02-24.acacia',
+    typescript: true,
+  });
 }
 
 /**
- * Stripe client instance
- */
-let stripeClient: Stripe | null = null;
-
-/**
- * Get or create Stripe client instance
- */
-export function getStripe(): Stripe {
-  if (!stripeClient) {
-    validateConfig();
-    stripeClient = new Stripe(STRIPE_SECRET_KEY!, {
-      apiVersion: '2025-02-24.acacia',
-      typescript: true,
-    });
-  }
-  return stripeClient;
-}
-
-/**
- * Subscription plan definitions
+ * Subscription plan definitions (static metadata, price IDs fetched at runtime)
  */
 export const SUBSCRIPTION_PLANS = {
   FREE: {
@@ -54,7 +55,6 @@ export const SUBSCRIPTION_PLANS = {
   STARTER: {
     id: 'starter',
     name: 'Starter',
-    priceId: process.env.STRIPE_STARTER_PRICE_ID,
     price: 9.99,
     credits: 100,
     features: ['100 generations per month', 'All templates', 'High quality', 'Priority processing'],
@@ -62,7 +62,6 @@ export const SUBSCRIPTION_PLANS = {
   PRO: {
     id: 'pro',
     name: 'Pro',
-    priceId: process.env.STRIPE_PRO_PRICE_ID,
     price: 29.99,
     credits: 500,
     features: ['500 generations per month', 'All templates', 'Ultra quality', 'Priority processing', 'API access'],
@@ -70,7 +69,6 @@ export const SUBSCRIPTION_PLANS = {
   ENTERPRISE: {
     id: 'enterprise',
     name: 'Enterprise',
-    priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID,
     price: 99.99,
     credits: 2000,
     features: ['2000 generations per month', 'Custom templates', 'Ultra quality', 'Dedicated support', 'Full API access', 'White-label options'],
@@ -80,27 +78,24 @@ export const SUBSCRIPTION_PLANS = {
 export type PlanId = typeof SUBSCRIPTION_PLANS[keyof typeof SUBSCRIPTION_PLANS]['id'];
 
 /**
- * Credit pack definitions for one-time purchases
+ * Credit pack definitions (static metadata, price IDs fetched at runtime)
  */
 export const CREDIT_PACKS = {
   SMALL: {
     id: 'credits-small',
     name: '100 Credits',
-    priceId: process.env.STRIPE_CREDITS_SMALL_PRICE_ID,
     price: 4.99,
     credits: 100,
   },
   MEDIUM: {
     id: 'credits-medium',
     name: '500 Credits',
-    priceId: process.env.STRIPE_CREDITS_MEDIUM_PRICE_ID,
     price: 19.99,
     credits: 500,
   },
   LARGE: {
     id: 'credits-large',
     name: '2000 Credits',
-    priceId: process.env.STRIPE_CREDITS_LARGE_PRICE_ID,
     price: 69.99,
     credits: 2000,
   },
@@ -121,7 +116,7 @@ export interface CustomerData {
  * @returns Stripe customer
  */
 export async function createOrGetCustomer(data: CustomerData): Promise<Stripe.Customer> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   // Search for existing customer by email
   const existingCustomers = await stripe.customers.list({
@@ -168,7 +163,7 @@ export async function createSubscriptionCheckout(
   successUrl: string,
   cancelUrl: string
 ): Promise<Stripe.Checkout.Session> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   return stripe.checkout.sessions.create({
     customer: customerId,
@@ -204,7 +199,7 @@ export async function createCreditsCheckout(
   successUrl: string,
   cancelUrl: string
 ): Promise<Stripe.Checkout.Session> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   return stripe.checkout.sessions.create({
     customer: customerId,
@@ -235,7 +230,7 @@ export async function createCustomerPortalSession(
   customerId: string,
   returnUrl: string
 ): Promise<Stripe.BillingPortal.Session> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   return stripe.billingPortal.sessions.create({
     customer: customerId,
@@ -251,7 +246,7 @@ export async function createCustomerPortalSession(
 export async function cancelSubscription(
   subscriptionId: string
 ): Promise<Stripe.Subscription> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   return stripe.subscriptions.cancel(subscriptionId);
 }
@@ -264,7 +259,7 @@ export async function cancelSubscription(
 export async function getSubscription(
   subscriptionId: string
 ): Promise<Stripe.Subscription> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   return stripe.subscriptions.retrieve(subscriptionId);
 }
@@ -277,7 +272,7 @@ export async function getSubscription(
 export async function listCustomerSubscriptions(
   customerId: string
 ): Promise<Stripe.Subscription[]> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
@@ -296,7 +291,7 @@ export async function listCustomerSubscriptions(
 export async function getCustomerPaymentMethods(
   customerId: string
 ): Promise<Stripe.PaymentMethod[]> {
-  const stripe = getStripe();
+  const stripe = await getStripe();
 
   const methods = await stripe.paymentMethods.list({
     customer: customerId,
@@ -312,16 +307,17 @@ export async function getCustomerPaymentMethods(
  * @param signature - Stripe signature header
  * @returns Stripe event
  */
-export function constructWebhookEvent(
+export async function constructWebhookEvent(
   payload: string | Buffer,
   signature: string
-): Stripe.Event {
-  if (!STRIPE_WEBHOOK_SECRET) {
+): Promise<Stripe.Event> {
+  const { webhookSecret } = await getStripeConfig();
+  if (!webhookSecret) {
     throw new Error('Missing STRIPE_WEBHOOK_SECRET environment variable');
   }
 
-  const stripe = getStripe();
-  return stripe.webhooks.constructEvent(payload, signature, STRIPE_WEBHOOK_SECRET);
+  const stripe = await getStripe();
+  return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 }
 
 /**
@@ -329,16 +325,17 @@ export function constructWebhookEvent(
  * @param session - Checkout session
  * @returns Processed data
  */
-export function handleCheckoutSessionCompleted(
+export async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session
-): {
+): Promise<{
   customerId: string;
   userId: string;
   type: 'subscription' | 'credits';
   subscriptionId?: string;
   credits?: number;
   planId?: string;
-} {
+}> {
+  const config = await getStripeConfig();
   const customerId = session.customer as string;
   const userId = session.metadata?.userId || '';
   const isSubscription = session.mode === 'subscription';
@@ -359,12 +356,15 @@ export function handleCheckoutSessionCompleted(
   if (isSubscription) {
     result.subscriptionId = session.subscription as string;
 
-    // Determine plan from line items
+    // Determine plan from line items using runtime price IDs
     const priceId = session.line_items?.data[0]?.price?.id;
     if (priceId) {
-      const plan = Object.values(SUBSCRIPTION_PLANS).find(
-        (p) => 'priceId' in p && p.priceId === priceId
-      );
+      const planEntries: Array<{ id: string; credits: number; priceId?: string }> = [
+        { ...SUBSCRIPTION_PLANS.STARTER, priceId: config.planPriceIds.starter },
+        { ...SUBSCRIPTION_PLANS.PRO, priceId: config.planPriceIds.pro },
+        { ...SUBSCRIPTION_PLANS.ENTERPRISE, priceId: config.planPriceIds.enterprise },
+      ];
+      const plan = planEntries.find((p) => p.priceId === priceId);
       if (plan) {
         result.planId = plan.id;
         result.credits = plan.credits;
@@ -374,7 +374,12 @@ export function handleCheckoutSessionCompleted(
     // Credits purchase
     const priceId = session.line_items?.data[0]?.price?.id;
     if (priceId) {
-      const pack = Object.values(CREDIT_PACKS).find((p) => p.priceId === priceId);
+      const creditEntries: Array<{ id: string; credits: number; priceId?: string }> = [
+        { ...CREDIT_PACKS.SMALL, priceId: config.creditPriceIds.small },
+        { ...CREDIT_PACKS.MEDIUM, priceId: config.creditPriceIds.medium },
+        { ...CREDIT_PACKS.LARGE, priceId: config.creditPriceIds.large },
+      ];
+      const pack = creditEntries.find((p) => p.priceId === priceId);
       if (pack) {
         result.credits = pack.credits;
       }
@@ -389,20 +394,24 @@ export function handleCheckoutSessionCompleted(
  * @param subscription - Subscription object
  * @returns Processed data
  */
-export function handleSubscriptionUpdated(
+export async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription
-): {
+): Promise<{
   subscriptionId: string;
   customerId: string;
   status: Stripe.Subscription.Status;
   planId?: string;
   currentPeriodEnd: Date;
   cancelAtPeriodEnd: boolean;
-} {
+}> {
+  const config = await getStripeConfig();
   const priceId = subscription.items.data[0]?.price.id;
-  const plan = Object.values(SUBSCRIPTION_PLANS).find(
-    (p) => 'priceId' in p && p.priceId === priceId
-  );
+  const planEntries: Array<{ id: string; priceId?: string }> = [
+    { id: 'starter', priceId: config.planPriceIds.starter },
+    { id: 'pro', priceId: config.planPriceIds.pro },
+    { id: 'enterprise', priceId: config.planPriceIds.enterprise },
+  ];
+  const plan = planEntries.find((p) => p.priceId === priceId);
 
   return {
     subscriptionId: subscription.id,
@@ -456,9 +465,10 @@ export function handleInvoicePaymentFailed(
  * Get publishable key for client-side
  * @returns Publishable key
  */
-export function getPublishableKey(): string {
-  if (!STRIPE_PUBLISHABLE_KEY) {
+export async function getPublishableKey(): Promise<string> {
+  const { env } = await getCloudflareContext();
+  if (!env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
     throw new Error('Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY environment variable');
   }
-  return STRIPE_PUBLISHABLE_KEY;
+  return env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 }

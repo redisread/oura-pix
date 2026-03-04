@@ -19,25 +19,11 @@ import { type PlanId } from '@/lib/stripe';
 import { sendGenerationCompleteEmail } from '@/lib/mail';
 
 /**
- * Webhook secret from environment
- */
-const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-
-/**
  * POST handler for Stripe webhooks
  * @param request - Next.js request
  * @returns Response
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Verify webhook secret is configured
-  if (!WEBHOOK_SECRET) {
-    console.error('STRIPE_WEBHOOK_SECRET is not configured');
-    return NextResponse.json(
-      { error: 'Webhook secret not configured' },
-      { status: 500 }
-    );
-  }
-
   // Get the signature from headers
   const headersList = await headers();
   const signature = headersList.get('stripe-signature');
@@ -55,8 +41,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let event;
 
   try {
-    // Verify and construct the event
-    event = constructWebhookEvent(payload, signature);
+    // Verify and construct the event (reads webhook secret from Cloudflare env)
+    event = await constructWebhookEvent(payload, signature);
   } catch (err: unknown) {
     console.error('Webhook signature verification failed:', err instanceof Error ? err.message : err);
     return NextResponse.json(
@@ -138,7 +124,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session
 ): Promise<void> {
-  const result = processCheckoutSession(session);
+  const result = await processCheckoutSession(session);
 
   if (result.type === 'subscription') {
     // Handle subscription signup
@@ -199,7 +185,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<v
 
   // Subscription renewal - add monthly credits
   if (invoice.subscription) {
-    const stripe = getStripe();
+    const stripe = await getStripe();
     const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription.id;
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
@@ -250,7 +236,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription): Pro
  * @param subscription - Subscription object
  */
 async function handleSubscriptionUpdatedWebhook(subscription: Stripe.Subscription): Promise<void> {
-  const result = processSubscriptionUpdated(subscription);
+  const result = await processSubscriptionUpdated(subscription);
 
   const userId = subscription.metadata?.userId;
   if (!userId) {

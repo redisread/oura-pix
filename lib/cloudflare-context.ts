@@ -14,9 +14,33 @@ import type { D1Database, R2Bucket } from "@cloudflare/workers-types";
  * Cloudflare environment bindings interface
  */
 export interface CloudflareEnv {
+  // Cloudflare bindings
   DB: D1Database;
   R2: R2Bucket;
-  [key: string]: unknown;
+  // App config (wrangler.toml [vars])
+  NEXT_PUBLIC_APP_URL: string;
+  BETTER_AUTH_URL: string;
+  CLOUDFLARE_R2_PUBLIC_URL: string;
+  FROM_EMAIL: string;
+  FROM_NAME: string;
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
+  STRIPE_STARTER_PRICE_ID: string;
+  STRIPE_PRO_PRICE_ID: string;
+  STRIPE_ENTERPRISE_PRICE_ID: string;
+  STRIPE_CREDITS_SMALL_PRICE_ID: string;
+  STRIPE_CREDITS_MEDIUM_PRICE_ID: string;
+  STRIPE_CREDITS_LARGE_PRICE_ID: string;
+  // Secrets (.dev.vars local / Cloudflare Secrets production)
+  AUTH_SECRET: string;
+  RESEND_API_KEY: string;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+  GEMINI_API_KEY: string;
+  GEMINI_BASE_URL?: string;
+  AUTH_GOOGLE_ID?: string;
+  AUTH_GOOGLE_SECRET?: string;
+  AUTH_GITHUB_ID?: string;
+  AUTH_GITHUB_SECRET?: string;
 }
 
 /**
@@ -71,10 +95,7 @@ async function initLocalBindings(): Promise<CloudflareEnv> {
       configPath: "./wrangler.toml",
     });
 
-    localBindings = {
-      DB: platform.env.DB as D1Database,
-      R2: platform.env.R2 as R2Bucket,
-    };
+    localBindings = platform.env as unknown as CloudflareEnv;
 
     console.log("[cloudflare-context] Local bindings initialized from wrangler.toml");
     return localBindings;

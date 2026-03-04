@@ -5,14 +5,8 @@
  * Works in both production (Cloudflare Workers) and local development (wrangler).
  */
 
-import { getR2 } from "./cloudflare-context";
+import { getCloudflareContext, getR2 } from "./cloudflare-context";
 import type { R2Bucket, R2ObjectBody } from "@cloudflare/workers-types";
-
-/**
- * R2 public access URL
- * Used for generating public URLs for stored files
- */
-const R2_PUBLIC_URL = process.env.CLOUDFLARE_R2_PUBLIC_URL;
 
 /**
  * File upload options
@@ -60,7 +54,9 @@ export async function uploadFile(
   originalName: string,
   options: UploadOptions = {}
 ): Promise<UploadResult> {
-  const bucket = (await getR2()) as R2Bucket;
+  const { env } = await getCloudflareContext();
+  const bucket = env.R2 as R2Bucket;
+  const r2PublicUrl = env.CLOUDFLARE_R2_PUBLIC_URL || '';
   const key = generateFileKey(originalName, options.folder);
 
   // Prepare upload options
@@ -84,7 +80,7 @@ export async function uploadFile(
   }
 
   // Generate public URL
-  const publicUrl = R2_PUBLIC_URL ? `${R2_PUBLIC_URL}/${key}` : key;
+  const publicUrl = r2PublicUrl ? `${r2PublicUrl}/${key}` : key;
 
   return {
     key,
@@ -220,11 +216,12 @@ export async function getFileMetadata(key: string): Promise<{
  * @param key - File key
  * @returns Public URL
  */
-export function getPublicUrl(key: string): string {
-  if (!R2_PUBLIC_URL) {
+export async function getPublicUrl(key: string): Promise<string> {
+  const { env } = await getCloudflareContext();
+  if (!env.CLOUDFLARE_R2_PUBLIC_URL) {
     throw new Error("CLOUDFLARE_R2_PUBLIC_URL is not configured");
   }
-  return `${R2_PUBLIC_URL}/${key}`;
+  return `${env.CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
 }
 
 /**

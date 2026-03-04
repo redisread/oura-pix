@@ -3,22 +3,23 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createDb, schema } from "@/db";
 import { sendPasswordResetEmail } from "./mail";
+import type { CloudflareEnv } from "./cloudflare-context";
 
 /**
  * Better Auth 配置
  * 支持邮箱/密码登录和会话管理
  * 使用 Drizzle 的 integer mode: 'timestamp_ms' 自动处理 Date 对象转换
  */
-export function createAuth(d1Database: D1Database) {
+export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
   const db = createDb(d1Database);
-  const baseUrl = process.env.BETTER_AUTH_URL
-    || process.env.NEXT_PUBLIC_APP_URL
+  const baseUrl = env.BETTER_AUTH_URL
+    || env.NEXT_PUBLIC_APP_URL
     || "http://localhost:4001";
 
   return betterAuth({
     // 基础配置
     baseURL: baseUrl,
-    secret: process.env.AUTH_SECRET,
+    secret: env.AUTH_SECRET,
 
     // 数据库适配器配置
     database: drizzleAdapter(db, {
@@ -71,19 +72,19 @@ export function createAuth(d1Database: D1Database) {
 
     // 社交登录配置(可选) - 只在配置了环境变量时启用
     socialProviders: {
-      ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+      ...(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET
         ? {
             google: {
-              clientId: process.env.AUTH_GOOGLE_ID,
-              clientSecret: process.env.AUTH_GOOGLE_SECRET,
+              clientId: env.AUTH_GOOGLE_ID,
+              clientSecret: env.AUTH_GOOGLE_SECRET,
             },
           }
         : {}),
-      ...(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
+      ...(env.AUTH_GITHUB_ID && env.AUTH_GITHUB_SECRET
         ? {
             github: {
-              clientId: process.env.AUTH_GITHUB_ID,
-              clientSecret: process.env.AUTH_GITHUB_SECRET,
+              clientId: env.AUTH_GITHUB_ID,
+              clientSecret: env.AUTH_GITHUB_SECRET,
             },
           }
         : {}),

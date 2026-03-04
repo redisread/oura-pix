@@ -41,6 +41,7 @@ yarn-error.log*
 .wrangler
 wrangler.toml.bak
 .open-next
+.dev.vars
 
 # IDE
 .idea

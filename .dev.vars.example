@@ -1,0 +1,33 @@
+# ============================================
+# Cloudflare 本地开发 Secrets 配置
+# ============================================
+#
+# 使用说明:
+# 1. 复制此文件为 .dev.vars: cp .dev.vars.example .dev.vars
+# 2. 填入真实的 API Keys（参考 .env.example 中的获取方式）
+# 3. 运行 npm run cf:dev 启动本地开发服务器
+#
+# 注意:
+# - .dev.vars 不会被提交到 Git（已在 .gitignore 中忽略）
+# - 非敏感变量已在 wrangler.toml [vars] 中配置，无需重复
+# - 生产环境使用 Cloudflare Secrets 管理这些变量
+# ============================================
+
+# 认证（Better Auth）
+AUTH_SECRET=
+
+# 邮件发送（Resend）
+RESEND_API_KEY=re_
+
+# Stripe 服务端密钥
+STRIPE_SECRET_KEY=sk_test_
+STRIPE_WEBHOOK_SECRET=whsec_
+
+# AI 生成（Google Gemini）
+GEMINI_API_KEY=
+
+# OAuth 提供商（可选）
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+AUTH_GITHUB_ID=
+AUTH_GITHUB_SECRET=

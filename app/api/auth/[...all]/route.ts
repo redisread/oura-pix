@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 export async function GET(request: NextRequest) {
   try {
     const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     return auth.handler(request);
   } catch (error) {
     console.error("Auth GET error:", error);
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB);
+    const auth = createAuth(env.DB, env);
     return auth.handler(request);
   } catch (error) {
     console.error("Auth POST error:", error);

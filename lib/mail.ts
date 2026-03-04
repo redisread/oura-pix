@@ -3,16 +3,18 @@
  * Handles email sending and templates
  */
 import { Resend } from 'resend';
+import { getCloudflareContext } from './cloudflare-context';
 
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@ourapix.jiahongw.com';
-const FROM_NAME = process.env.FROM_NAME || 'OuraPix';
-
-function getResend(): Resend {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
+async function getResend(): Promise<{ resend: Resend; fromEmail: string; fromName: string }> {
+  const { env } = await getCloudflareContext();
+  if (!env.RESEND_API_KEY) {
     throw new Error('Missing RESEND_API_KEY environment variable');
   }
-  return new Resend(apiKey);
+  return {
+    resend: new Resend(env.RESEND_API_KEY),
+    fromEmail: env.FROM_EMAIL || 'noreply@ourapix.jiahongw.com',
+    fromName: env.FROM_NAME || 'OuraPix',
+  };
 }
 
 /**
@@ -53,11 +55,11 @@ export async function sendEmail(options: SendEmailOptions): Promise<{
   messageId?: string;
   error?: string;
 }> {
-  const resend = getResend();
+  const { resend, fromEmail: defaultFromEmail, fromName: defaultFromName } = await getResend();
 
   const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
-  const fromEmail = options.from?.email || FROM_EMAIL;
-  const fromName = options.from?.name || FROM_NAME;
+  const fromEmail = options.from?.email || defaultFromEmail;
+  const fromName = options.from?.name || defaultFromName;
 
   try {
     const { data, error } = await resend.emails.send({
