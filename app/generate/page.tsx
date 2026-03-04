@@ -171,7 +171,7 @@ export default function GeneratePage() {
         productImageId: mainImageId,
         referenceImageIds: styleImageIds.length > 0 ? styleImageIds : undefined,
         settings: {
-          targetPlatform: settings.platform,
+          targetPlatform: settings.platform === "custom" ? "generic" : settings.platform,
           count: settings.count,
           style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
           language: settings.language,

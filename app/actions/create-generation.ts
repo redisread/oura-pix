@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
-import { type GenerationSettings } from "@/db/schema";
+import { type GenerationSettings, type GenerationResult } from "@/db/schema";
 import {
   generateProductDetails,
   validateGenerationSettings,
@@ -166,11 +166,11 @@ export async function createGeneration(
       .insert(schema.generations)
       .values({
         userId: user.id,
-        status: "pending",
+        status: "pending" as const,
         productImageId: request.productImageId,
-        referenceImageIds: JSON.stringify(request.referenceImageIds || []),
+        referenceImageIds: JSON.stringify(request.referenceImageIds || []) as unknown as string[],
         prompt: request.prompt,
-        settings: JSON.stringify(settings),
+        settings: JSON.stringify(settings) as unknown as GenerationSettings,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -179,14 +179,14 @@ export async function createGeneration(
     // 记录使用日志
     await db.insert(schema.usageLogs).values({
       userId: user.id,
-      type: "generation",
+      type: "generation" as const,
       generationId: generation.id,
       creditsUsed: cost,
       details: JSON.stringify({
         productImageId: request.productImageId,
         referenceImageCount: request.referenceImageIds?.length || 0,
         settings,
-      }),
+      }) as unknown as Record<string, unknown>,
     });
 
     // 异步执行生成任务
@@ -235,7 +235,7 @@ async function processGeneration(
     await db
       .update(schema.generations)
       .set({
-        status: "processing",
+        status: "processing" as const,
         updatedAt: new Date(),
       })
       .where(eq(schema.generations.id, generationId));
@@ -293,8 +293,8 @@ async function processGeneration(
     await db
       .update(schema.generations)
       .set({
-        status: "completed",
-        results: JSON.stringify(results),
+        status: "completed" as const,
+        results: JSON.stringify(results) as unknown as GenerationResult[],
         completedAt: new Date(),
         updatedAt: new Date(),
       })
@@ -306,7 +306,7 @@ async function processGeneration(
     await db
       .update(schema.generations)
       .set({
-        status: "failed",
+        status: "failed" as const,
         errorMessage: error instanceof Error ? error.message : "Unknown error",
         updatedAt: new Date(),
       })
