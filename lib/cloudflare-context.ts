@@ -177,7 +177,7 @@ export async function getR2(): Promise<R2Bucket> {
  */
 export async function getEnvVar(key: string): Promise<string | undefined> {
   const { env } = await getCloudflareContext();
-  return (env as Record<string, unknown>)[key] as string | undefined;
+  return (env as unknown as Record<string, unknown>)[key] as string | undefined;
 }
 
 /**
