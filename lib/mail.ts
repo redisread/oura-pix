@@ -1,26 +1,18 @@
 /**
- * Cloudflare Email Integration
+ * Resend Email Integration
  * Handles email sending and templates
  */
+import { Resend } from 'resend';
 
-/**
- * Email configuration
- */
-const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@ourapix.com';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@ourapix.jiahongw.com';
 const FROM_NAME = process.env.FROM_NAME || 'OuraPix';
 
-/**
- * Validate environment variables
- */
-function validateConfig(): void {
-  if (!CLOUDFLARE_API_TOKEN) {
-    throw new Error('Missing CLOUDFLARE_API_TOKEN environment variable');
+function getResend(): Resend {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing RESEND_API_KEY environment variable');
   }
-  if (!CLOUDFLARE_ACCOUNT_ID) {
-    throw new Error('Missing CLOUDFLARE_ACCOUNT_ID environment variable');
-  }
+  return new Resend(apiKey);
 }
 
 /**
@@ -54,94 +46,48 @@ export interface SendEmailOptions {
 }
 
 /**
- * Send email using Cloudflare Email API
- * @param options - Email options
- * @returns Send result
+ * Send email using Resend
  */
 export async function sendEmail(options: SendEmailOptions): Promise<{
   success: boolean;
   messageId?: string;
   error?: string;
 }> {
-  validateConfig();
+  const resend = getResend();
 
   const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
-
-  const payload = {
-    personalizations: [
-      {
-        to: toAddresses.map((r) => ({ email: r.email, name: r.name })),
-      },
-    ],
-    from: {
-      email: options.from?.email || FROM_EMAIL,
-      name: options.from?.name || FROM_NAME,
-    },
-    subject: options.subject,
-    content: [
-      {
-        type: 'text/html',
-        value: options.html,
-      },
-      ...(options.text
-        ? [
-            {
-              type: 'text/plain',
-              value: options.text,
-            },
-          ]
-        : []),
-    ],
-    ...(options.replyTo && {
-      reply_to: {
-        email: options.replyTo.email,
-        name: options.replyTo.name,
-      },
-    }),
-    ...(options.attachments && {
-      attachments: options.attachments.map((att) => ({
-        filename: att.filename,
-        content: att.content,
-        type: att.type,
-        disposition: 'attachment',
-      })),
-    }),
-  };
+  const fromEmail = options.from?.email || FROM_EMAIL;
+  const fromName = options.from?.name || FROM_NAME;
 
   try {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/email/routes/send`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const { data, error } = await resend.emails.send({
+      from: `${fromName} <${fromEmail}>`,
+      to: toAddresses.map((r) => r.name ? `${r.name} <${r.email}>` : r.email),
+      subject: options.subject,
+      html: options.html,
+      ...(options.text && { text: options.text }),
+      ...(options.replyTo && {
+        replyTo: options.replyTo.name
+          ? `${options.replyTo.name} <${options.replyTo.email}>`
+          : options.replyTo.email,
+      }),
+      ...(options.attachments && {
+        attachments: options.attachments.map((att) => ({
+          filename: att.filename,
+          content: att.content,
+        })),
+      }),
+    });
 
-    const data = await response.json() as {
-      success: boolean;
-      errors?: { message: string }[];
-      result?: { messageId: string };
-    };
-
-    if (!response.ok || !data.success) {
-      return {
-        success: false,
-        error: data.errors?.[0]?.message || 'Failed to send email',
-      };
+    if (error) {
+      return { success: false, error: error.message };
     }
 
-    return {
-      success: true,
-      messageId: data.result?.messageId,
-    };
-  } catch (error: any) {
+    return { success: true, messageId: data?.id };
+  } catch (err: unknown) {
     return {
       success: false,
-      error: error.message || 'Unknown error',
+      error: err instanceof Error ? err.message : 'Unknown error',
     };
   }
 }
@@ -160,8 +106,6 @@ export interface GenerationCompleteData {
 
 /**
  * Generation complete notification template
- * @param data - Template data
- * @returns HTML content
  */
 export function generateCompleteTemplate(data: GenerationCompleteData): string {
   const formattedDate = data.createdAt.toLocaleDateString('en-US', {
@@ -312,9 +256,9 @@ export function generateCompleteTemplate(data: GenerationCompleteData): string {
     <div class="footer">
       <p>OuraPix - AI-Powered Product Content Generation</p>
       <p>
-        <a href="https://ourapix.com/dashboard">Dashboard</a> |
-        <a href="https://ourapix.com/help">Help Center</a> |
-        <a href="https://ourapix.com/contact">Contact Us</a>
+        <a href="https://ourapix.jiahongw.com/dashboard">Dashboard</a> |
+        <a href="https://ourapix.jiahongw.com/help">Help Center</a> |
+        <a href="https://ourapix.jiahongw.com/contact">Contact Us</a>
       </p>
       <p style="font-size: 12px; color: #999; margin-top: 15px;">
         You're receiving this email because you requested a product detail page generation on OuraPix.
@@ -328,9 +272,6 @@ export function generateCompleteTemplate(data: GenerationCompleteData): string {
 
 /**
  * Send generation complete notification
- * @param to - Recipient email
- * @param data - Template data
- * @returns Send result
  */
 export async function sendGenerationCompleteEmail(
   to: EmailRecipient,
@@ -342,7 +283,7 @@ export async function sendGenerationCompleteEmail(
     to,
     subject: `Your product detail page for "${data.productName}" is ready!`,
     html,
-    text: `Hi ${data.userName},\n\nYour product detail page for "${data.productName}" has been successfully generated.\n\nView it here: ${data.previewUrl || 'https://ourapix.com/dashboard'}\n\nThanks,\nThe OuraPix Team`,
+    text: `Hi ${data.userName},\n\nYour product detail page for "${data.productName}" has been successfully generated.\n\nView it here: ${data.previewUrl || 'https://ourapix.jiahongw.com/dashboard'}\n\nThanks,\nThe OuraPix Team`,
   });
 }
 
@@ -356,8 +297,6 @@ export interface WelcomeData {
 
 /**
  * Welcome email template
- * @param data - Template data
- * @returns HTML content
  */
 export function welcomeTemplate(data: WelcomeData): string {
   return `
@@ -442,9 +381,6 @@ export function welcomeTemplate(data: WelcomeData): string {
 
 /**
  * Send welcome email
- * @param to - Recipient email
- * @param data - Template data
- * @returns Send result
  */
 export async function sendWelcomeEmail(
   to: EmailRecipient,
@@ -462,11 +398,8 @@ export async function sendWelcomeEmail(
 
 /**
  * Escape HTML special characters
- * @param text - Input text
- * @returns Escaped text
  */
 function escapeHtml(text: string): string {
-  const div = { toString: () => text };
   const map: Record<string, string> = {
     '&': '&amp;',
     '<': '&lt;',
@@ -487,8 +420,6 @@ export interface PasswordResetData {
 
 /**
  * Password reset email template
- * @param data - Template data
- * @returns HTML content
  */
 export function passwordResetTemplate(data: PasswordResetData): string {
   return `
@@ -586,8 +517,8 @@ export function passwordResetTemplate(data: PasswordResetData): string {
     <div class="footer">
       <p>OuraPix - AI-Powered Product Content Generation</p>
       <p>
-        <a href="https://ourapix.com/help">Help Center</a> |
-        <a href="https://ourapix.com/contact">Contact Us</a>
+        <a href="https://ourapix.jiahongw.com/help">Help Center</a> |
+        <a href="https://ourapix.jiahongw.com/contact">Contact Us</a>
       </p>
       <p style="font-size: 12px; color: #999; margin-top: 15px;">
         If you didn't request this email, please ignore it or contact support if you have concerns.
@@ -601,9 +532,6 @@ export function passwordResetTemplate(data: PasswordResetData): string {
 
 /**
  * Send password reset email
- * @param to - Recipient email
- * @param data - Template data
- * @returns Send result
  */
 export async function sendPasswordResetEmail(
   to: EmailRecipient,

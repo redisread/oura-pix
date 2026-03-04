@@ -41,6 +41,10 @@ NEXT_PUBLIC_APP_URL = "http://localhost:4001"
 # Stripe 公钥（测试环境 - 待配置）
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = ""
 
+# 邮件发送（Resend）
+FROM_EMAIL = "noreply@ourapix.jiahongw.com"
+FROM_NAME = "OuraPix"
+
 # R2 公开访问 URL（开发环境）
 CLOUDFLARE_R2_PUBLIC_URL = "http://localhost:4001"
 
@@ -62,6 +66,8 @@ STRIPE_CREDITS_LARGE_PRICE_ID = ""
 NEXT_PUBLIC_APP_URL = "https://ourapix.jiahongw.com"
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = ""
 CLOUDFLARE_R2_PUBLIC_URL = "https://ourapix.cos.jiahongw.com"
+FROM_EMAIL = "noreply@ourapix.jiahongw.com"
+FROM_NAME = "OuraPix"
 
 # 生产环境的价格 ID
 STRIPE_STARTER_PRICE_ID = ""
