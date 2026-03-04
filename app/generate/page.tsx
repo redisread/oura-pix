@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import UploadDropzone from "../components/upload-dropzone";
 import { uploadImage } from "../actions/upload-image";
 import { createGeneration } from "../actions/create-generation";
@@ -10,11 +9,6 @@ import { getGeneration } from "../actions/get-generation";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
 type Style = "minimal" | "luxury" | "lifestyle" | "professional";
-
-interface UploadedImageInfo {
-  id: string;
-  url: string;
-}
 
 interface GenerationSettings {
   platform: Platform;
@@ -26,12 +20,9 @@ interface GenerationSettings {
 export default function GeneratePage() {
   const t = useTranslations("generation");
   const tCommon = useTranslations("common");
-  const router = useRouter();
 
   const [mainImage, setMainImage] = useState<File[]>([]);
   const [styleImages, setStyleImages] = useState<File[]>([]);
-  const [uploadedMainImageId, setUploadedMainImageId] = useState<string | null>(null);
-  const [uploadedStyleImageIds, setUploadedStyleImageIds] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [settings, setSettings] = useState<GenerationSettings>({
     platform: "amazon",
@@ -42,7 +33,6 @@ export default function GeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [generationId, setGenerationId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 

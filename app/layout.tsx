@@ -35,7 +35,7 @@ async function getMessages(locale: string) {
   try {
     const messages = (await import(`@/i18n/messages/${locale}.json`)).default;
     return messages;
-  } catch (error) {
+  } catch {
     // 如果加载失败，返回默认英文
     const defaultMessages = (await import(`@/i18n/messages/en.json`)).default;
     return defaultMessages;

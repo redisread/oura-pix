@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsSent(true);
-    } catch (err) {
+    } catch {
       setError(t("error"));
     } finally {
       setIsLoading(false);
