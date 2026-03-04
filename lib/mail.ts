@@ -3,17 +3,17 @@
  * Handles email sending and templates
  */
 import { Resend } from 'resend';
-import { getCloudflareContext } from './cloudflare-context';
+import { getCloudflareContext, type CloudflareEnv } from './cloudflare-context';
 
-async function getResend(): Promise<{ resend: Resend; fromEmail: string; fromName: string }> {
-  const { env } = await getCloudflareContext();
-  if (!env.RESEND_API_KEY) {
+async function getResend(env?: CloudflareEnv): Promise<{ resend: Resend; fromEmail: string; fromName: string }> {
+  const resolvedEnv = env ?? (await getCloudflareContext()).env;
+  if (!resolvedEnv.RESEND_API_KEY) {
     throw new Error('Missing RESEND_API_KEY environment variable');
   }
   return {
-    resend: new Resend(env.RESEND_API_KEY),
-    fromEmail: env.FROM_EMAIL || 'noreply@ourapix.jiahongw.com',
-    fromName: env.FROM_NAME || 'OuraPix',
+    resend: new Resend(resolvedEnv.RESEND_API_KEY),
+    fromEmail: resolvedEnv.FROM_EMAIL || 'noreply@ourapix.jiahongw.com',
+    fromName: resolvedEnv.FROM_NAME || 'OuraPix',
   };
 }
 
@@ -50,12 +50,12 @@ export interface SendEmailOptions {
 /**
  * Send email using Resend
  */
-export async function sendEmail(options: SendEmailOptions): Promise<{
+export async function sendEmail(options: SendEmailOptions, env?: CloudflareEnv): Promise<{
   success: boolean;
   messageId?: string;
   error?: string;
 }> {
-  const { resend, fromEmail: defaultFromEmail, fromName: defaultFromName } = await getResend();
+  const { resend, fromEmail: defaultFromEmail, fromName: defaultFromName } = await getResend(env);
 
   const toAddresses = Array.isArray(options.to) ? options.to : [options.to];
   const fromEmail = options.from?.email || defaultFromEmail;
@@ -537,7 +537,8 @@ export function passwordResetTemplate(data: PasswordResetData): string {
  */
 export async function sendPasswordResetEmail(
   to: EmailRecipient,
-  data: PasswordResetData
+  data: PasswordResetData,
+  env?: CloudflareEnv
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   const html = passwordResetTemplate(data);
 
@@ -546,5 +547,5 @@ export async function sendPasswordResetEmail(
     subject: 'Reset Your OuraPix Password',
     html,
     text: `Hi ${data.userName},\n\nWe received a request to reset your password. Click the link below to create a new password:\n\n${data.resetUrl}\n\nThis link will expire in 1 hour. If you didn't request this, you can safely ignore this email.\n\nThanks,\nThe OuraPix Team`,
-  });
+  }, env);
 }

@@ -39,10 +39,11 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
       minPasswordLength: 8,
       requireEmailVerification: false,
       sendResetPassword: async ({ user, url }) => {
-        // 发送密码重置邮件
+        // 发送密码重置邮件，直接传入 env 避免在深层回调中重新获取 Cloudflare 上下文
         await sendPasswordResetEmail(
           { email: user.email, name: user.name || undefined },
-          { resetUrl: url, userName: user.name || user.email }
+          { resetUrl: url, userName: user.name || user.email },
+          env
         );
       },
     },
