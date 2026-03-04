@@ -27,7 +27,7 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
   return betterAuth({
     // 基础配置
     baseURL: baseUrl,
-    secret: env.AUTH_SECRET,
+    secret: env.BETTER_AUTH_SECRET,
     trustedOrigins, // 使用动态构建的数组
 
     // 数据库适配器配置

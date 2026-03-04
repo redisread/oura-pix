@@ -28,7 +28,7 @@ export interface CloudflareEnv {
   STRIPE_CREDITS_MEDIUM_PRICE_ID: string;
   STRIPE_CREDITS_LARGE_PRICE_ID: string;
   // Secrets (.dev.vars local / Cloudflare Secrets production)
-  AUTH_SECRET: string;
+  BETTER_AUTH_SECRET: string;
   RESEND_API_KEY: string;
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;

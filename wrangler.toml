@@ -64,7 +64,7 @@ STRIPE_CREDITS_LARGE_PRICE_ID = ""
 # 敏感信息必须通过 Cloudflare Secrets 管理，不要在此文件中配置
 # 使用以下命令设置 secrets:
 #
-# wrangler pages secret put AUTH_SECRET
+# wrangler pages secret put BETTER_AUTH_SECRET
 # wrangler pages secret put STRIPE_SECRET_KEY
 # wrangler pages secret put STRIPE_WEBHOOK_SECRET
 # wrangler pages secret put GEMINI_API_KEY
