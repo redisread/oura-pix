@@ -382,7 +382,7 @@ export async function cancelUserSubscription(
   }
 
   try {
-    const stripe = getStripe();
+    const stripe = await getStripe();
     await stripe.subscriptions.cancel(status.stripeSubscriptionId);
 
     return { success: true };
