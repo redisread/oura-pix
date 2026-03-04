@@ -568,12 +568,21 @@
       "title": "Reset Password",
       "subtitle": "Enter your new password to reset your account",
       "newPassword": "New Password",
+      "passwordPlaceholder": "Enter new password (at least 8 characters)",
       "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Enter new password again",
       "submit": "Reset Password",
       "loading": "Resetting...",
-      "success": "Password reset successful",
+      "successTitle": "Password Reset Successful!",
+      "successDesc": "Your password has been reset, redirecting to login page",
       "error": "Reset failed, link may have expired",
-      "backToLogin": "Back to Sign In"
+      "backToLogin": "Back to Sign In",
+      "invalidLink": "Invalid Link",
+      "invalidLinkDesc": "This reset link is invalid or has expired, please request a new one",
+      "requestNewLink": "Request New Reset Link",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "invalidToken": "Reset link is invalid or has expired"
     },
     "logout": "Sign Out",
     "logoutSuccess": "Successfully signed out"

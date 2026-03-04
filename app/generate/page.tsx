@@ -89,13 +89,11 @@ export default function GeneratePage() {
 
   const handleMainImageSelect = useCallback((files: File[]) => {
     setMainImage(files);
-    setUploadedMainImageId(null);
     setError(null);
   }, []);
 
   const handleStyleImagesSelect = useCallback((files: File[]) => {
     setStyleImages(files);
-    setUploadedStyleImageIds([]);
     setError(null);
   }, []);
 
@@ -143,7 +141,6 @@ export default function GeneratePage() {
         setIsUploading(false);
         return;
       }
-      setUploadedMainImageId(mainImageId);
 
       // 2. 上传风格参考图
       const styleImageIds: string[] = [];
@@ -153,7 +150,6 @@ export default function GeneratePage() {
           styleImageIds.push(id);
         }
       }
-      setUploadedStyleImageIds(styleImageIds);
 
       setIsUploading(false);
       setIsGenerating(true);
@@ -175,8 +171,6 @@ export default function GeneratePage() {
         setIsGenerating(false);
         return;
       }
-
-      setGenerationId(generationResult.data!.id);
 
       // 4. 开始轮询状态
       pollingRef.current = setInterval(() => {

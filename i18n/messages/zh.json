@@ -568,12 +568,21 @@
       "title": "重置密码",
       "subtitle": "输入新密码重置您的账号",
       "newPassword": "新密码",
+      "passwordPlaceholder": "请输入新密码（至少8位）",
       "confirmPassword": "确认密码",
+      "confirmPasswordPlaceholder": "请再次输入新密码",
       "submit": "重置密码",
       "loading": "重置中...",
-      "success": "密码重置成功",
+      "successTitle": "密码重置成功！",
+      "successDesc": "您的密码已成功重置，即将跳转到登录页面",
       "error": "重置失败，链接可能已过期",
-      "backToLogin": "返回登录"
+      "backToLogin": "返回登录",
+      "invalidLink": "链接无效",
+      "invalidLinkDesc": "该重置链接无效或已过期，请重新申请",
+      "requestNewLink": "重新申请重置链接",
+      "passwordMismatch": "两次输入的密码不一致",
+      "passwordTooShort": "密码长度至少8位",
+      "invalidToken": "重置链接无效或已过期"
     },
     "logout": "退出登录",
     "logoutSuccess": "已成功退出登录"

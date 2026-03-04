@@ -476,3 +476,145 @@ function escapeHtml(text: string): string {
   };
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
+
+/**
+ * Password reset email template data
+ */
+export interface PasswordResetData {
+  userName: string;
+  resetUrl: string;
+}
+
+/**
+ * Password reset email template
+ * @param data - Template data
+ * @returns HTML content
+ */
+export function passwordResetTemplate(data: PasswordResetData): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your Password</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #ffffff;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .warning {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+    .footer a {
+      color: #f59e0b;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Reset Your Password</h1>
+    </div>
+    <div class="content">
+      <p class="greeting">Hi ${escapeHtml(data.userName)},</p>
+      <p>We received a request to reset your password for your OuraPix account. Click the button below to create a new password:</p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.resetUrl}" class="button">Reset Password</a>
+      </div>
+
+      <div class="warning">
+        <p style="margin: 0;"><strong>Security Notice:</strong> This link will expire in 1 hour. If you didn't request a password reset, you can safely ignore this email.</p>
+      </div>
+
+      <p style="color: #666; font-size: 14px;">Or copy and paste this URL into your browser:</p>
+      <p style="color: #f59e0b; word-break: break-all; font-size: 14px;">${data.resetUrl}</p>
+    </div>
+    <div class="footer">
+      <p>OuraPix - AI-Powered Product Content Generation</p>
+      <p>
+        <a href="https://ourapix.com/help">Help Center</a> |
+        <a href="https://ourapix.com/contact">Contact Us</a>
+      </p>
+      <p style="font-size: 12px; color: #999; margin-top: 15px;">
+        If you didn't request this email, please ignore it or contact support if you have concerns.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Send password reset email
+ * @param to - Recipient email
+ * @param data - Template data
+ * @returns Send result
+ */
+export async function sendPasswordResetEmail(
+  to: EmailRecipient,
+  data: PasswordResetData
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const html = passwordResetTemplate(data);
+
+  return sendEmail({
+    to,
+    subject: 'Reset Your OuraPix Password',
+    html,
+    text: `Hi ${data.userName},\n\nWe received a request to reset your password. Click the link below to create a new password:\n\n${data.resetUrl}\n\nThis link will expire in 1 hour. If you didn't request this, you can safely ignore this email.\n\nThanks,\nThe OuraPix Team`,
+  });
+}

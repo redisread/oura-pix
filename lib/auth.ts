@@ -2,6 +2,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createDb, schema } from "@/db";
+import { sendPasswordResetEmail } from "./mail";
 
 /**
  * Better Auth 配置
@@ -10,10 +11,11 @@ import { createDb, schema } from "@/db";
  */
 export function createAuth(d1Database: D1Database) {
   const db = createDb(d1Database);
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:4001";
 
   return betterAuth({
     // 基础配置
-    baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:4001",
+    baseURL: baseUrl,
     secret: process.env.AUTH_SECRET,
 
     // 数据库适配器配置
@@ -33,6 +35,13 @@ export function createAuth(d1Database: D1Database) {
       enabled: true,
       minPasswordLength: 8,
       requireEmailVerification: false,
+      sendResetPassword: async ({ user, url }) => {
+        // 发送密码重置邮件
+        await sendPasswordResetEmail(
+          { email: user.email, name: user.name || undefined },
+          { resetUrl: url, userName: user.name || user.email }
+        );
+      },
     },
 
     // 会话配置
