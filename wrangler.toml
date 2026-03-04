@@ -59,7 +59,7 @@ STRIPE_CREDITS_LARGE_PRICE_ID = ""
 # 使用 wrangler pages deploy --env production 部署到生产环境
 [env.production]
 [env.production.vars]
-NEXT_PUBLIC_APP_URL = "http://ourapix.jiahongw.com"
+NEXT_PUBLIC_APP_URL = "https://ourapix.jiahongw.com"
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = ""
 CLOUDFLARE_R2_PUBLIC_URL = "https://ourapix.cos.jiahongw.com"
 
