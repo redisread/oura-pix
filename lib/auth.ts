@@ -89,6 +89,16 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
             maxAge: 7 * 24 * 60 * 60, // 7天
           },
         },
+        session_data: {
+          name: "ourapix.session_data",
+          attributes: {
+            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            sameSite: "lax" as const,
+            path: "/",
+            maxAge: 5 * 60, // 5分钟缓存
+          },
+        },
       },
     },
 
