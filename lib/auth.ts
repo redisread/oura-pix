@@ -64,12 +64,25 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
       expiresIn: 604800, // 7天（秒）
       // 更新会话频率 - 1天 = 86400 秒
       updateAge: 86400, // 1天（秒）
-      // Cookie 名称
-      cookieName: "ourapix.session",
       // Cookie 配置
       cookieCache: {
         enabled: true,
         maxAge: 5 * 60, // 5分钟缓存
+      },
+    },
+
+    // Cookie 配置
+    cookies: {
+      sessionToken: {
+        name: "ourapix.session",
+        // 生产环境使用 Secure 前缀
+        attributes: {
+          secure: process.env.NODE_ENV === "production",
+          httpOnly: true,
+          sameSite: "lax" as const,
+          path: "/",
+          maxAge: 7 * 24 * 60 * 60, // 7天
+        },
       },
     },
 
@@ -97,6 +110,8 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
     advanced: {
       // 开发环境使用 HTTP，生产环境使用 HTTPS
       useSecureCookies: process.env.NODE_ENV === "production",
+      // 禁用自动添加 __Secure- 前缀，使用自定义 cookie 名称
+      cookiePrefix: "",
     },
 
   });
