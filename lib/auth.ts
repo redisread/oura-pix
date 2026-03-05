@@ -71,17 +71,23 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
       },
     },
 
-    // Cookie 配置
-    cookies: {
-      sessionToken: {
-        name: "ourapix.session",
-        // 生产环境使用 Secure 前缀
-        attributes: {
-          secure: process.env.NODE_ENV === "production",
-          httpOnly: true,
-          sameSite: "lax" as const,
-          path: "/",
-          maxAge: 7 * 24 * 60 * 60, // 7天
+    // 高级配置
+    advanced: {
+      // 开发环境使用 HTTP，生产环境使用 HTTPS
+      useSecureCookies: process.env.NODE_ENV === "production",
+      // 禁用自动添加 __Secure- 前缀
+      cookiePrefix: "",
+      // Cookie 配置 (key 必须使用下划线格式: session_token, session_data 等)
+      cookies: {
+        session_token: {
+          name: "ourapix.session",
+          attributes: {
+            secure: process.env.NODE_ENV === "production",
+            httpOnly: true,
+            sameSite: "lax" as const,
+            path: "/",
+            maxAge: 7 * 24 * 60 * 60, // 7天
+          },
         },
       },
     },
@@ -104,14 +110,6 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
             },
           }
         : {}),
-    },
-
-    // 高级配置
-    advanced: {
-      // 开发环境使用 HTTP，生产环境使用 HTTPS
-      useSecureCookies: process.env.NODE_ENV === "production",
-      // 禁用自动添加 __Secure- 前缀，使用自定义 cookie 名称
-      cookiePrefix: "",
     },
 
   });
