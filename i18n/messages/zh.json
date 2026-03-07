@@ -398,6 +398,42 @@
     "previewDesc": "生成的详情页将在此显示",
     "progress": "生成进度",
     "eta": "预计剩余时间",
+    "imageGeneration": {
+      "title": "场景图生成",
+      "enable": "生成场景图",
+      "enableDesc": "自动生成多张不同角度和场景的商品展示图",
+      "count": "生成数量",
+      "countDesc": "选择需要生成的场景图数量（3-10张）",
+      "aspectRatio": "图片比例",
+      "aspectRatioDesc": "选择生成图片的宽高比",
+      "allowPersons": "允许人物",
+      "allowPersonsDesc": "是否允许在场景图中出现人物",
+      "ratios": {
+        "1:1": "正方形 (1:1)",
+        "3:4": "竖版 (3:4)",
+        "4:3": "横版 (4:3)",
+        "9:16": "手机竖屏 (9:16)",
+        "16:9": "手机横屏 (16:9)"
+      },
+      "stages": {
+        "analyzing": "正在分析商品图片...",
+        "generatingText": "正在生成文案内容...",
+        "generatingImages": "正在生成场景图 ({current}/{total})...",
+        "uploading": "正在上传生成结果...",
+        "completed": "生成完成！"
+      },
+      "results": {
+        "sceneImages": "生成的场景图",
+        "downloadImage": "下载图片",
+        "viewLarge": "查看大图",
+        "promptUsed": "使用的提示词",
+        "variation": "变体 {number}"
+      },
+      "errors": {
+        "failed": "场景图生成失败",
+        "partialSuccess": "部分场景图生成失败，已返回成功的图片"
+      }
+    },
     "steps": {
       "upload": "上传",
       "configure": "配置",

@@ -4,6 +4,11 @@ import {
   GenerationStatus,
 } from "@/db/schema";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
+import { arrayBufferToBase64 } from "@/lib/utils/base64";
+import type {
+  ImageAnalysisResult,
+  GenerateRequest,
+} from "@/types/ai";
 
 interface GeminiConfig {
   apiKey: string;
@@ -15,44 +20,12 @@ async function getGeminiConfig(): Promise<GeminiConfig> {
   const { env } = await getCloudflareContext();
   return {
     apiKey: env.GEMINI_API_KEY,
-    baseUrl: env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta",
-    model: "gemini-2.0-flash",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    model: "gemini-2.5-flash",
   };
 }
 
-/**
- * 图片分析结果
- */
-export interface ImageAnalysisResult {
-  // 检测到的产品类别
-  category: string;
-  // 产品特征描述
-  features: string[];
-  // 颜色信息
-  colors: string[];
-  // 材质信息
-  materials: string[];
-  // 检测到的文字
-  detectedText: string[];
-  // 整体描述
-  description: string;
-  // 置信度
-  confidence: number;
-}
-
-/**
- * 生成请求参数
- */
-export interface GenerateRequest {
-  // 产品图片 URL
-  productImageUrl: string;
-  // 参考图片 URL 列表
-  referenceImageUrls?: string[];
-  // 用户提示词
-  prompt?: string;
-  // 生成设置
-  settings: GenerationSettings;
-}
+export type { ImageAnalysisResult, GenerateRequest };
 
 /**
  * 分析图片内容
@@ -64,51 +37,63 @@ export async function analyzeImage(
 ): Promise<ImageAnalysisResult> {
   const config = await getGeminiConfig();
 
+  // 获取图片内容并转为 base64
+  const imageResponse = await fetch(imageUrl);
+  if (!imageResponse.ok) {
+    throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
+  }
+  const imageBuffer = await imageResponse.arrayBuffer();
+  const base64Image = arrayBufferToBase64(imageBuffer);
+  const mimeType = imageResponse.headers.get("content-type") || "image/jpeg";
+
   const requestBody = {
-    model: config.model,
-    messages: [
+    contents: [
       {
-        role: "user",
-        content: [
+        parts: [
           {
-            type: "text",
-            text: `Analyze this product image and provide detailed information in the following JSON format:
+            text: `Analyze this product image and provide detailed information in the following JSON format (respond with JSON only, no markdown):
 {
   "category": "product category",
-  "features": ["feature1", "feature2", ...],
-  "colors": ["color1", "color2", ...],
-  "materials": ["material1", "material2", ...],
-  "detectedText": ["text1", "text2", ...],
+  "features": ["feature1", "feature2"],
+  "colors": ["color1", "color2"],
+  "materials": ["material1", "material2"],
+  "detectedText": ["text1", "text2"],
   "description": "detailed description",
   "confidence": 0.95
 }`,
           },
           {
-            type: "image_url",
-            image_url: { url: imageUrl },
+            inlineData: {
+              mimeType,
+              data: base64Image,
+            },
           },
         ],
       },
     ],
-    response_format: { type: "json_object" },
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
   };
 
-  const response = await fetch(`${config.baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify(requestBody),
-  });
+  const response = await fetch(
+    `${config.baseUrl}/models/${config.model}:generateContent?key=${config.apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    }
+  );
 
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`Image analysis failed: ${error}`);
   }
 
-  const data = await response.json() as { choices: { message: { content: string } }[] };
-  const content = data.choices[0]?.message?.content;
+  const data = await response.json() as {
+    candidates: Array<{ content: { parts: Array<{ text: string }> } }>;
+  };
+  const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!content) {
     throw new Error("Empty response from image analysis");
@@ -150,15 +135,37 @@ export async function generateProductDetails(
     settings
   );
 
-  // 准备消息内容
-  const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
-    { type: "text", text: generationPrompt },
-    { type: "image_url", image_url: { url: productImageUrl } },
-  ];
+  // 将图片 URL 转换为 Gemini inlineData 格式
+  async function urlToInlinePart(url: string) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch image: ${url}`);
+    const buf = await res.arrayBuffer();
+    const mime = res.headers.get("content-type") || "image/jpeg";
+    return {
+      inlineData: {
+        mimeType: mime,
+        data: arrayBufferToBase64(buf),
+      },
+    };
+  }
 
-  // 添加参考图片
+  // 准备消息内容（Gemini parts 格式）
+  type GeminiPart =
+    | { text: string }
+    | { inlineData: { mimeType: string; data: string } };
+
+  const parts: GeminiPart[] = [{ text: generationPrompt }];
+
+  // 主图片
+  parts.push(await urlToInlinePart(productImageUrl));
+
+  // 添加参考图片（最多 3 张）
   for (const refUrl of referenceImageUrls.slice(0, 3)) {
-    content.push({ type: "image_url", image_url: { url: refUrl } });
+    try {
+      parts.push(await urlToInlinePart(refUrl));
+    } catch (err) {
+      console.warn(`Skipping reference image: ${refUrl}`, err);
+    }
   }
 
   // 生成数量
@@ -167,33 +174,35 @@ export async function generateProductDetails(
 
   for (let i = 0; i < count; i++) {
     const requestBody = {
-      model: config.model,
-      messages: [
+      contents: [
         {
-          role: "user",
-          content,
+          parts,
         },
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.7 + i * 0.1, // 略微变化以获得不同结果
+      generationConfig: {
+        responseMimeType: "application/json" as string,
+        temperature: 0.7 + i * 0.1, // 略微变化以获得不同结果
+      },
     };
 
-    const response = await fetch(`${config.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.apiKey}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
+    const response = await fetch(
+      `${config.baseUrl}/models/${config.model}:generateContent?key=${config.apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.text();
       throw new Error(`Generation failed: ${error}`);
     }
 
-    const data = await response.json() as { choices: { message: { content: string } }[] };
-    const generatedContent = data.choices[0]?.message?.content;
+    const data = await response.json() as {
+      candidates: Array<{ content: { parts: Array<{ text: string }> } }>;
+    };
+    const generatedContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!generatedContent) {
       throw new Error("Empty response from generation");
@@ -209,7 +218,7 @@ export async function generateProductDetails(
       confidenceScore: parsedResult.confidenceScore || 0.8,
       metadata: {
         variation: i + 1,
-        temperature: requestBody.temperature,
+        temperature: requestBody.generationConfig.temperature,
         ...parsedResult.metadata,
       },
     });
@@ -314,6 +323,7 @@ export function validateGenerationSettings(
 ): GenerationSettings {
   const validPlatforms = ["amazon", "ebay", "shopify", "etsy", "generic"];
   const validStyles = ["professional", "lifestyle", "minimal", "luxury"];
+  const validAspectRatios = ["1:1", "3:4", "4:3", "9:16", "16:9"];
 
   return {
     targetPlatform: validPlatforms.includes(settings.targetPlatform || "")
@@ -324,6 +334,12 @@ export function validateGenerationSettings(
     style: validStyles.includes(settings.style || "")
       ? settings.style
       : "professional",
+    generateImages: settings.generateImages ?? true,
+    imageCount: Math.min(Math.max(settings.imageCount || 5, 3), 10),
+    aspectRatio: validAspectRatios.includes(settings.aspectRatio || "")
+      ? settings.aspectRatio as "1:1" | "3:4" | "4:3" | "9:16" | "16:9"
+      : "1:1",
+    allowPersons: settings.allowPersons ?? false,
     extra: settings.extra || {},
   };
 }
@@ -332,15 +348,25 @@ export function validateGenerationSettings(
  * 估算生成成本(用于配额检查)
  * @param imageCount 图片数量
  * @param generationCount 生成数量
+ * @param includeImageGen 是否包含图像生成
+ * @param imageGenCount 图像生成数量
  * @returns 估算的信用点消耗
  */
 export function estimateGenerationCost(
   imageCount: number,
-  generationCount: number
+  generationCount: number,
+  includeImageGen: boolean = false,
+  imageGenCount: number = 0
 ): number {
-  // 基础成本 + 图片分析成本 + 生成成本
+  // 基础成本 + 图片分析成本 + 文本生成成本
   const baseCost = 1;
   const imageAnalysisCost = imageCount * 2;
-  const generationCost = generationCount * 3;
-  return baseCost + imageAnalysisCost + generationCost;
+  const textGenerationCost = generationCount * 3;
+
+  // 图像生成成本 (每张图片 10 个信用点)
+  const imageGenCost = includeImageGen
+    ? generationCount * imageGenCount * 10
+    : 0;
+
+  return baseCost + imageAnalysisCost + textGenerationCost + imageGenCost;
 }

@@ -549,3 +549,302 @@ export async function sendPasswordResetEmail(
     text: `Hi ${data.userName},\n\nWe received a request to reset your password. Click the link below to create a new password:\n\n${data.resetUrl}\n\nThis link will expire in 1 hour. If you didn't request this, you can safely ignore this email.\n\nThanks,\nThe OuraPix Team`,
   }, env);
 }
+
+/**
+ * Trial ending email template data
+ */
+export interface TrialEndingData {
+  userName: string;
+  planName: string;
+  endDate: string;
+  updatePaymentUrl: string;
+}
+
+/**
+ * Trial ending email template
+ */
+export function trialEndingTemplate(data: TrialEndingData): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Trial is Ending Soon</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #ffffff;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .highlight {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Your Trial is Ending Soon</h1>
+    </div>
+    <div class="content">
+      <p class="greeting">Hi ${escapeHtml(data.userName)},</p>
+      <p>This is a friendly reminder that your <strong>${escapeHtml(data.planName)}</strong> trial will end on <strong>${data.endDate}</strong>.</p>
+
+      <div class="highlight">
+        <p style="margin: 0;"><strong>Keep Your Access:</strong> To continue enjoying all the premium features, please update your payment method before your trial ends.</p>
+      </div>
+
+      <p>After the trial ends, you'll still have access to:</p>
+      <ul>
+        <li>All your generated content</li>
+        <li>Free plan features (10 generations/month)</li>
+        <li>Your account settings and history</li>
+      </ul>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.updatePaymentUrl}" class="button">Update Payment Method</a>
+      </div>
+
+      <p style="color: #666; font-size: 14px; margin-top: 30px;">
+        If you have any questions about your subscription, feel free to contact our support team.
+      </p>
+    </div>
+    <div class="footer">
+      <p>OuraPix - AI-Powered Product Content Generation</p>
+      <p>
+        <a href="https://ourapix.jiahongw.com/dashboard">Dashboard</a> |
+        <a href="https://ourapix.jiahongw.com/help">Help Center</a> |
+        <a href="https://ourapix.jiahongw.com/contact">Contact Us</a>
+      </p>
+      <p style="font-size: 12px; color: #999; margin-top: 15px;">
+        You're receiving this email because you started a trial on OuraPix.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Send trial ending notification email
+ */
+export async function sendTrialEndingEmail(
+  to: EmailRecipient,
+  data: TrialEndingData,
+  env?: CloudflareEnv
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const html = trialEndingTemplate(data);
+
+  return sendEmail({
+    to,
+    subject: `Your OuraPix ${data.planName} trial ends on ${data.endDate}`,
+    html,
+    text: `Hi ${data.userName},\n\nThis is a friendly reminder that your ${data.planName} trial will end on ${data.endDate}.\n\nTo continue enjoying all premium features, please update your payment method:\n${data.updatePaymentUrl}\n\nAfter the trial ends, you'll be downgraded to the Free plan (10 generations/month).\n\nThanks,\nThe OuraPix Team`,
+  }, env);
+}
+
+/**
+ * Payment failed email template data
+ */
+export interface PaymentFailedData {
+  userName: string;
+  amount: string;
+  invoiceDate: string;
+  retryUrl: string;
+}
+
+/**
+ * Payment failed email template
+ */
+export function paymentFailedTemplate(data: PaymentFailedData): string {
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Failed</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .header h1 {
+      color: #ffffff;
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    .greeting {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .warning {
+      background-color: #fef2f2;
+      border-left: 4px solid #ef4444;
+      padding: 15px 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      text-decoration: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Payment Failed</h1>
+    </div>
+    <div class="content">
+      <p class="greeting">Hi ${escapeHtml(data.userName)},</p>
+      <p>We were unable to process your payment of <strong>${data.amount}</strong> on ${data.invoiceDate}.</p>
+
+      <div class="warning">
+        <p style="margin: 0;"><strong>Action Required:</strong> Please update your payment method to avoid interruption to your service. We'll automatically retry the payment in a few days.</p>
+      </div>
+
+      <p>This could be due to:</p>
+      <ul>
+        <li>Expired credit card</li>
+        <li>Insufficient funds</li>
+        <li>Bank declined the transaction</li>
+        <li>Incorrect billing information</li>
+      </ul>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${data.retryUrl}" class="button">Update Payment Method</a>
+      </div>
+
+      <p style="color: #666; font-size: 14px; margin-top: 30px;">
+        If you continue to experience issues, please contact our support team for assistance.
+      </p>
+    </div>
+    <div class="footer">
+      <p>OuraPix - AI-Powered Product Content Generation</p>
+      <p>
+        <a href="https://ourapix.jiahongw.com/dashboard">Dashboard</a> |
+        <a href="https://ourapix.jiahongw.com/help">Help Center</a> |
+        <a href="https://ourapix.jiahongw.com/contact">Contact Us</a>
+      </p>
+      <p style="font-size: 12px; color: #999; margin-top: 15px;">
+        You're receiving this email because a payment on your OuraPix account failed.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+}
+
+/**
+ * Send payment failed notification email
+ */
+export async function sendPaymentFailedEmail(
+  to: EmailRecipient,
+  data: PaymentFailedData,
+  env?: CloudflareEnv
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const html = paymentFailedTemplate(data);
+
+  return sendEmail({
+    to,
+    subject: 'Payment Failed - Update Your Payment Method',
+    html,
+    text: `Hi ${data.userName},\n\nWe were unable to process your payment of ${data.amount} on ${data.invoiceDate}.\n\nPlease update your payment method to avoid service interruption:\n${data.retryUrl}\n\nWe'll automatically retry the payment in a few days.\n\nThanks,\nThe OuraPix Team`,
+  }, env);
+}

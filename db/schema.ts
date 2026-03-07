@@ -4,6 +4,7 @@ import {
   real,
   sqliteTable,
   text,
+  json,
   primaryKey,
   index,
 } from "drizzle-orm/sqlite-core";
@@ -106,8 +107,8 @@ export const images = sqliteTable("images", {
   originalName: text("originalName").notNull(),
   // 存储路径/URL
   url: text("url").notNull(),
-  // 图片类型: product(商品图), reference(参考图)
-  type: text("type", { enum: ["product", "reference"] }).notNull(),
+  // 图片类型: product(商品图), reference(参考图), generated_scene(生成的场景图)
+  type: text("type", { enum: ["product", "reference", "generated_scene"] }).notNull(),
   // 文件大小(字节)
   size: integer("size").notNull(),
   // MIME类型
@@ -116,6 +117,10 @@ export const images = sqliteTable("images", {
   width: integer("width"),
   // 图片高度
   height: integer("height"),
+  // 关联的生成任务ID (仅用于 generated_scene 类型)
+  generationId: text("generationId").references(() => generations.id, { onDelete: "set null" }),
+  // 生成此图片使用的提示词 (仅用于 generated_scene 类型)
+  promptUsed: text("promptUsed"),
   // 是否已删除
   isDeleted: integer("isDeleted", { mode: "boolean" }).default(false),
   // 删除时间
@@ -144,6 +149,20 @@ export type GenerationStatusType =
   typeof GenerationStatus[keyof typeof GenerationStatus];
 
 /**
+ * 处理阶段枚举
+ */
+export const ProcessingStage = {
+  ANALYZING: "analyzing",
+  GENERATING_TEXT: "generating_text",
+  GENERATING_IMAGES: "generating_images",
+  UPLOADING: "uploading",
+  COMPLETED: "completed",
+} as const;
+
+export type ProcessingStageType =
+  typeof ProcessingStage[keyof typeof ProcessingStage];
+
+/**
  * AI 生成任务表
  */
 export const generations = sqliteTable("generations", {
@@ -163,15 +182,29 @@ export const generations = sqliteTable("generations", {
   productImageId: text("productImageId")
     .references(() => images.id, { onDelete: "set null" }),
   // 关联的参考图片ID列表(JSON数组)
-  referenceImageIds: text("referenceImageIds").$type<string[]>(),
+  referenceImageIds: json("reference_image_ids").$type<string[]>().default([]),
   // 用户输入的提示词
   prompt: text("prompt"),
   // 生成设置(JSON)
-  settings: text("settings").$type<GenerationSettings>(),
+  settings: json("settings").$type<GenerationSettings>().notNull().default({}),
   // 生成结果(JSON数组)
-  results: text("results").$type<GenerationResult[]>(),
+  results: json("results").$type<GenerationResult[]>(),
+  // 生成的场景图数量
+  generatedImageCount: integer("generatedImageCount").default(0),
+  // 图像生成状态
+  imageGenerationStatus: text("imageGenerationStatus", {
+    enum: ["pending", "processing", "completed", "failed", "skipped"],
+  }),
+  // 图像生成错误信息
+  imageGenerationError: text("imageGenerationError"),
   // 错误信息
   errorMessage: text("errorMessage"),
+  // 处理阶段: analyzing | generating_text | generating_images | uploading | completed
+  processingStage: text("processingStage", {
+    enum: ["analyzing", "generating_text", "generating_images", "uploading", "completed"],
+  }),
+  // 当前阶段开始时间(用于检测超时)
+  stageStartedAt: integer("stageStartedAt", { mode: "timestamp_ms" }),
   // 完成时间
   completedAt: integer("completedAt", { mode: "timestamp_ms" }),
   createdAt: integer("createdAt", { mode: "timestamp_ms" })
@@ -183,6 +216,7 @@ export const generations = sqliteTable("generations", {
 }, (table) => ({
   userIdCreatedAtIdx: index("generations_userId_createdAt_idx").on(table.userId, table.createdAt),
   userIdStatusIdx: index("generations_userId_status_idx").on(table.userId, table.status),
+  statusStageStartedAtIdx: index("generations_status_stageStartedAt_idx").on(table.status, table.stageStartedAt),
 }));
 
 /**
@@ -197,6 +231,14 @@ export interface GenerationSettings {
   count?: number;
   // 风格偏好
   style?: "professional" | "lifestyle" | "minimal" | "luxury";
+  // 是否生成场景图
+  generateImages?: boolean;
+  // 场景图生成数量
+  imageCount?: number;
+  // 图片宽高比
+  aspectRatio?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
+  // 是否允许生成人物
+  allowPersons?: boolean;
   // 额外配置
   extra?: Record<string, unknown>;
 }
@@ -217,6 +259,16 @@ export interface GenerationResult {
   imageUrl?: string;
   // 置信度分数
   confidenceScore?: number;
+  // 生成的场景图列表
+  sceneImages?: Array<{
+    imageId: string;
+    url: string;
+    aspectRatio: string;
+    width: number;
+    height: number;
+    promptUsed: string;
+    variation: number;
+  }>;
   // 元数据
   metadata?: Record<string, unknown>;
 }

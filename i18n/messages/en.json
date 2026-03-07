@@ -398,6 +398,42 @@
     "previewDesc": "Generated detail pages will be displayed here",
     "progress": "Generation Progress",
     "eta": "Estimated remaining time",
+    "imageGeneration": {
+      "title": "Scene Image Generation",
+      "enable": "Generate Scene Images",
+      "enableDesc": "Automatically generate multiple product display images from different angles and scenes",
+      "count": "Number of Images",
+      "countDesc": "Select the number of scene images to generate (3-10)",
+      "aspectRatio": "Aspect Ratio",
+      "aspectRatioDesc": "Choose the aspect ratio for generated images",
+      "allowPersons": "Allow Persons",
+      "allowPersonsDesc": "Whether to allow people in scene images",
+      "ratios": {
+        "1:1": "Square (1:1)",
+        "3:4": "Portrait (3:4)",
+        "4:3": "Landscape (4:3)",
+        "9:16": "Mobile Portrait (9:16)",
+        "16:9": "Mobile Landscape (16:9)"
+      },
+      "stages": {
+        "analyzing": "Analyzing product image...",
+        "generatingText": "Generating text content...",
+        "generatingImages": "Generating scene images ({current}/{total})...",
+        "uploading": "Uploading results...",
+        "completed": "Generation completed!"
+      },
+      "results": {
+        "sceneImages": "Generated Scene Images",
+        "downloadImage": "Download Image",
+        "viewLarge": "View Large",
+        "promptUsed": "Prompt Used",
+        "variation": "Variation {number}"
+      },
+      "errors": {
+        "failed": "Scene image generation failed",
+        "partialSuccess": "Some scene images failed to generate, returning successful ones"
+      }
+    },
     "steps": {
       "upload": "Upload",
       "configure": "Configure",

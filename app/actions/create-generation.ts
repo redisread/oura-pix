@@ -8,8 +8,13 @@ import { type GenerationSettings } from "@/db/schema";
 import {
   generateProductDetails,
   validateGenerationSettings,
-  estimateGenerationCost,
+  analyzeImage,
 } from "@/lib/ai-generation";
+import { generateSceneImages } from "@/lib/ai/imagen";
+import { uploadGeneratedImagesToR2 } from "@/lib/r2-image-upload";
+import { calculateGenerationCost } from "@/lib/quota";
+import { logger } from "@/lib/logger";
+import { updateProcessingStage } from "@/lib/task-queue";
 import { eq, and, sql } from "drizzle-orm";
 
 /**
@@ -147,7 +152,12 @@ export async function createGeneration(
 
     // 计算预估消耗
     const imageCount = 1 + (request.referenceImageIds?.length || 0);
-    const cost = estimateGenerationCost(imageCount, settings.count || 3);
+    const cost = calculateGenerationCost({
+      imageCount,
+      generationCount: settings.count || 3,
+      includeImageGen: settings.generateImages,
+      imageGenCount: settings.imageCount || 5,
+    });
 
     // 检查配额
     const quotaCheck = await checkQuota(db, user.id, cost);
@@ -191,7 +201,9 @@ export async function createGeneration(
     });
 
     // 异步执行生成任务
-    processGeneration(generation.id, env.DB).catch(console.error);
+    processGeneration(generation.id, env.DB).catch((err) => {
+      logger.error("Process generation failed", err);
+    });
 
     return {
       success: true,
@@ -202,7 +214,7 @@ export async function createGeneration(
       },
     };
   } catch (error) {
-    console.error("Create generation error:", error);
+    logger.error("Create generation error", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create generation",
@@ -232,7 +244,7 @@ async function processGeneration(
   const db = createDb(d1Database);
 
   try {
-    // 更新状态为处理中
+    // 更新状态为处理中 - 分析阶段
     await db
       .update(schema.generations)
       .set({
@@ -241,7 +253,8 @@ async function processGeneration(
       })
       .where(eq(schema.generations.id, generationId));
 
-    // 获取任务详情
+    // 阶段 1: 分析产品图片
+    await updateProcessingStage(db, generationId, "analyzing");
     const generation = await db.query.generations.findFirst({
       where: eq(schema.generations.id, generationId),
     });
@@ -263,10 +276,8 @@ async function processGeneration(
 
     // 获取参考图片URL
     let referenceImageUrls: string[] = [];
-    const refImageIds = typeof generation.referenceImageIds === 'string'
-      ? JSON.parse(generation.referenceImageIds)
-      : generation.referenceImageIds;
-    if (refImageIds && refImageIds.length > 0) {
+    const refImageIds = generation.referenceImageIds || [];
+    if (refImageIds.length > 0) {
       const referenceImages = await db.query.images.findMany({
         where: and(
           eq(schema.images.userId, generation.userId),
@@ -275,14 +286,17 @@ async function processGeneration(
       });
 
       referenceImageUrls = referenceImages
-        .filter((img) => refImageIds?.includes(img.id))
+        .filter((img) => refImageIds.includes(img.id))
         .map((img) => img.url);
     }
 
-    // 执行 AI 生成
-    const genSettings = typeof generation.settings === 'string'
-      ? JSON.parse(generation.settings)
-      : generation.settings;
+    const genSettings = generation.settings || {};
+
+    // 阶段 1: 分析产品图片
+    const analysis = await analyzeImage(productImage.url);
+
+    // 阶段 2: 生成文本内容
+    await updateProcessingStage(db, generationId, "generating_text");
     const results = await generateProductDetails({
       productImageUrl: productImage.url,
       referenceImageUrls,
@@ -290,7 +304,86 @@ async function processGeneration(
       settings: genSettings || {},
     });
 
+    // 阶段 3: 生成场景图 (如果启用)
+    if (genSettings?.generateImages) {
+      try {
+        // 更新图像生成状态
+        await updateProcessingStage(db, generationId, "generating_images");
+        await db
+          .update(schema.generations)
+          .set({
+            imageGenerationStatus: "processing",
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.generations.id, generationId));
+
+        // 生成场景图
+        const sceneImages = await generateSceneImages({
+          productAnalysis: analysis,
+          settings: genSettings,
+          count: genSettings.imageCount || 5,
+          userPrompt: generation.prompt || undefined,
+          options: {
+            aspectRatio: genSettings.aspectRatio,
+            allowPersons: genSettings.allowPersons,
+          },
+        });
+
+        // 上传到 R2
+        await updateProcessingStage(db, generationId, "uploading");
+        const uploadedImages = await uploadGeneratedImagesToR2(
+          sceneImages,
+          generationId,
+          generation.userId,
+          genSettings.aspectRatio || "1:1"
+        );
+
+        // 将场景图关联到每个生成结果
+        const imagesPerResult = Math.ceil(uploadedImages.length / results.length);
+        results.forEach((result, index) => {
+          const startIdx = index * imagesPerResult;
+          const endIdx = Math.min(startIdx + imagesPerResult, uploadedImages.length);
+          result.sceneImages = uploadedImages.slice(startIdx, endIdx);
+        });
+
+        // 更新图像生成状态为完成
+        await db
+          .update(schema.generations)
+          .set({
+            imageGenerationStatus: "completed",
+            generatedImageCount: uploadedImages.length,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.generations.id, generationId));
+
+      } catch (imageError) {
+        logger.error("Image generation failed", imageError);
+
+        // 图像生成失败,但不影响整体任务
+        await db
+          .update(schema.generations)
+          .set({
+            imageGenerationStatus: "failed",
+            imageGenerationError: imageError instanceof Error ? imageError.message : "Unknown error",
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.generations.id, generationId));
+
+        // 继续完成任务,只是没有场景图
+      }
+    } else {
+      // 未启用图像生成
+      await db
+        .update(schema.generations)
+        .set({
+          imageGenerationStatus: "skipped",
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.generations.id, generationId));
+    }
+
     // 更新任务为完成
+    await updateProcessingStage(db, generationId, "completed");
     await db
       .update(schema.generations)
       .set({
@@ -300,8 +393,9 @@ async function processGeneration(
         updatedAt: new Date(),
       })
       .where(eq(schema.generations.id, generationId));
+
   } catch (error) {
-    console.error("Generation processing error:", error);
+    logger.error("Generation processing error", error);
 
     // 更新任务为失败
     await db

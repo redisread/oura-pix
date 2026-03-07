@@ -58,4 +58,75 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
 // ❌ 错误：服务端直接使用 process.env 获取 Secrets
 const secret = process.env.BETTER_AUTH_SECRET; // 这在 Cloudflare Workers 中不工作
-``` 
+```
+
+## 本地测试规范
+
+### Cloudflare 组件本地测试
+
+本地测试时使用 Cloudflare D1 数据库、R2 存储等组件，需通过 Wrangler CLI 的 local 模式运行。
+
+#### 启动命令
+
+```bash
+# 使用 Wrangler 本地模式启动开发服务器
+npx wrangler dev --local
+
+# 或使用 opennextjs-cloudflare 的本地模式
+npx opennextjs-cloudflare dev --local
+```
+
+#### 组件访问方式
+
+| 组件 | 本地访问方式 | 说明 |
+|------|-------------|------|
+| **D1 数据库** | `env.DB` | 使用 Wrangler 本地 D1 模拟 |
+| **R2 存储** | `env.R2` | 使用 Wrangler 本地 R2 模拟 |
+| **KV 存储** | `env.KV` | 使用 Wrangler 本地 KV 模拟 |
+
+#### 配置要求
+
+1. **wrangler.toml** 需配置本地绑定的组件：
+
+```toml
+[[d1_databases]]
+binding = "DB"
+database_name = "oura-pix-db"
+database_id = "your-database-id"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "oura-pix-images"
+```
+
+2. **本地环境变量文件** `.dev.vars`：
+
+```bash
+# 本地测试用的 Secrets
+BETTER_AUTH_SECRET=your-local-secret
+GEMINI_API_KEY=your-local-api-key
+```
+
+#### 代码示例
+
+```typescript
+// ✅ 正确：本地测试时统一使用 getCloudflareContext
+import { getCloudflareContext } from '@/lib/cloudflare-context';
+
+export async function testFunction() {
+  const { env } = await getCloudflareContext();
+
+  // 访问 D1 数据库
+  const result = await env.DB.prepare('SELECT * FROM users').all();
+
+  // 访问 R2 存储
+  const object = await env.R2.get('image-key');
+}
+```
+
+#### 注意事项
+
+- 本地测试时 D1 使用 SQLite 本地文件存储，位于 `.wrangler/state/v3/d1/`
+- 本地测试时 R2 使用本地文件系统模拟，位于 `.wrangler/state/v3/r2/`
+- 首次运行前需执行数据库迁移：`npx wrangler d1 migrations apply DB --local`
+- 不要在本地上产环境配置 `.dev.vars` 文件，该文件已被添加到 `.gitignore`

@@ -15,8 +15,11 @@ import {
   handleInvoicePaymentFailed as processInvoicePaymentFailed,
 } from '@/lib/stripe';
 import { updateSubscriptionFromStripe, addCredits } from '@/lib/subscription';
-import { type PlanId } from '@/lib/stripe';
-import { sendGenerationCompleteEmail } from '@/lib/mail';
+import { type PlanId, SUBSCRIPTION_PLANS } from '@/lib/stripe';
+import { sendTrialEndingEmail, sendPaymentFailedEmail } from '@/lib/mail';
+import { getCloudflareContext } from '@/lib/cloudflare-context';
+import { createDb, schema } from '@/db';
+import { eq } from 'drizzle-orm';
 import { withDevInit } from '@/lib/with-dev-init';
 
 /**
@@ -173,8 +176,42 @@ async function handleAsyncPaymentSucceeded(session: Stripe.Checkout.Session): Pr
 async function handleAsyncPaymentFailed(session: Stripe.Checkout.Session): Promise<void> {
   console.log(`Async payment failed for session ${session.id}`);
 
-  // TODO: Notify user of payment failure
-  // TODO: Update order/payment status in database
+  const userId = session.metadata?.userId;
+  if (!userId) {
+    console.error('No userId found in session metadata');
+    return;
+  }
+
+  try {
+    const { env } = await getCloudflareContext();
+    const db = createDb(env.DB);
+
+    // Get user email for notification
+    const user = await db.query.users.findFirst({
+      where: eq(schema.users.id, userId),
+    });
+
+    if (user?.email) {
+      // Send payment failure notification
+      await sendPaymentFailedEmail(
+        { email: user.email, name: user.name || undefined },
+        {
+          userName: user.name || 'Valued Customer',
+          amount: session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : 'N/A',
+          invoiceDate: new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          retryUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ourapix.jiahongw.com'}/billing`,
+        },
+        env
+      );
+      console.log(`Payment failure notification sent to user ${userId}`);
+    }
+  } catch (error) {
+    console.error('Failed to send payment failure notification:', error);
+  }
 }
 
 /**
@@ -196,14 +233,44 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice): Promise<v
       return;
     }
 
-    // Determine plan and credits
+    // Determine plan and credits from price ID
     const priceId = subscription.items.data[0]?.price.id;
-    // TODO: Map priceId to plan and credits
+    if (!priceId) {
+      console.error('No priceId found in subscription');
+      return;
+    }
 
-    // Add monthly credits
-    // await addCredits(userId, monthlyCredits, 'subscription_renewal', ...);
+    // Get Stripe config to map priceId to plan
+    const { env } = await getCloudflareContext();
 
-    console.log(`Subscription renewed for user ${userId}`);
+    // Map priceId to plan and credits
+    const priceIdToPlan: Record<string, { planId: PlanId; credits: number }> = {
+      [env.STRIPE_STARTER_PRICE_ID!]: { planId: 'starter', credits: SUBSCRIPTION_PLANS.STARTER.credits },
+      [env.STRIPE_PRO_PRICE_ID!]: { planId: 'pro', credits: SUBSCRIPTION_PLANS.PRO.credits },
+      [env.STRIPE_ENTERPRISE_PRICE_ID!]: { planId: 'enterprise', credits: SUBSCRIPTION_PLANS.ENTERPRISE.credits },
+    };
+
+    const planMapping = priceIdToPlan[priceId];
+    if (!planMapping) {
+      console.error(`Unknown priceId: ${priceId}`);
+      return;
+    }
+
+    // Add monthly credits for subscription renewal
+    await addCredits(
+      userId,
+      planMapping.credits,
+      'subscription_renewal',
+      `Monthly renewal - ${planMapping.planId} plan`,
+      {
+        invoiceId: invoice.id,
+        subscriptionId,
+        planId: planMapping.planId,
+        priceId,
+      }
+    );
+
+    console.log(`Subscription renewed for user ${userId}, added ${planMapping.credits} credits`);
   }
 }
 
@@ -216,9 +283,54 @@ async function handleInvoicePaymentFailedWebhook(invoice: Stripe.Invoice): Promi
 
   console.log(`Invoice payment failed for customer ${result.customerId}`);
 
-  // TODO: Send payment failure notification to user
-  // TODO: Update subscription status
-  // TODO: Grace period handling
+  if (result.subscriptionId) {
+    try {
+      const stripe = await getStripe();
+      const subscription = await stripe.subscriptions.retrieve(result.subscriptionId);
+      const userId = subscription.metadata?.userId;
+
+      if (userId) {
+        // Update subscription status to past_due
+        await updateSubscriptionFromStripe(
+          userId,
+          result.customerId,
+          result.subscriptionId,
+          'free' as PlanId, // Keep current plan but mark as past_due
+          'past_due',
+          new Date(subscription.current_period_end * 1000)
+        );
+        console.log(`Subscription ${result.subscriptionId} marked as past_due for user ${userId}`);
+
+        // Get user email for notification
+        const { env } = await getCloudflareContext();
+        const db = createDb(env.DB);
+        const user = await db.query.users.findFirst({
+          where: eq(schema.users.id, userId),
+        });
+
+        if (user?.email) {
+          // Send payment failure notification
+          await sendPaymentFailedEmail(
+            { email: user.email, name: user.name || undefined },
+            {
+              userName: user.name || 'Valued Customer',
+              amount: result.amountDue ? `$${(result.amountDue / 100).toFixed(2)}` : 'N/A',
+              invoiceDate: new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              }),
+              retryUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ourapix.jiahongw.com'}/billing`,
+            },
+            env
+          );
+          console.log(`Payment failure notification sent to user ${userId}`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to handle invoice payment failure:', error);
+    }
+  }
 }
 
 /**
@@ -296,8 +408,55 @@ async function handleTrialWillEnd(subscription: Stripe.Subscription): Promise<vo
     return;
   }
 
-  // TODO: Send trial ending notification to user
-  // TODO: Include payment method update link
+  try {
+    const { env } = await getCloudflareContext();
+    const db = createDb(env.DB);
+
+    // Get user email for notification
+    const user = await db.query.users.findFirst({
+      where: eq(schema.users.id, userId),
+    });
+
+    if (user?.email) {
+      // Get plan name from price ID
+      const priceId = subscription.items.data[0]?.price.id;
+      let planName = 'Premium';
+
+      if (priceId) {
+        if (priceId === env.STRIPE_STARTER_PRICE_ID) {
+          planName = SUBSCRIPTION_PLANS.STARTER.name;
+        } else if (priceId === env.STRIPE_PRO_PRICE_ID) {
+          planName = SUBSCRIPTION_PLANS.PRO.name;
+        } else if (priceId === env.STRIPE_ENTERPRISE_PRICE_ID) {
+          planName = SUBSCRIPTION_PLANS.ENTERPRISE.name;
+        }
+      }
+
+      // Calculate trial end date
+      const trialEndDate = subscription.trial_end
+        ? new Date(subscription.trial_end * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
+        : 'soon';
+
+      // Send trial ending notification
+      await sendTrialEndingEmail(
+        { email: user.email, name: user.name || undefined },
+        {
+          userName: user.name || 'Valued Customer',
+          planName,
+          endDate: trialEndDate,
+          updatePaymentUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ourapix.jiahongw.com'}/billing`,
+        },
+        env
+      );
+      console.log(`Trial ending notification sent to user ${userId}`);
+    }
+  } catch (error) {
+    console.error('Failed to send trial ending notification:', error);
+  }
 }
 
 /**

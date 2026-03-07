@@ -5,6 +5,8 @@ import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { type GenerationResult, type GenerationSettings } from "@/db/schema";
 import { getCurrentUser, createAuth } from "@/lib/auth";
+import { calculateRefundCost } from "@/lib/quota";
+import { logger } from "@/lib/logger";
 import { eq, and, sql } from "drizzle-orm";
 
 /**
@@ -15,6 +17,8 @@ export interface GetGenerationResponse {
   data?: {
     id: string;
     status: "pending" | "processing" | "completed" | "failed";
+    imageGenerationStatus?: "pending" | "processing" | "completed" | "failed" | "skipped";
+    generatedImageCount?: number;
     productImage: {
       id: string;
       url: string;
@@ -29,6 +33,7 @@ export interface GetGenerationResponse {
     settings: GenerationSettings;
     results?: GenerationResult[];
     errorMessage?: string;
+    imageGenerationError?: string;
     progress?: number;
     createdAt: Date;
     updatedAt: Date;
@@ -128,6 +133,14 @@ export async function getGeneration(
           | "processing"
           | "completed"
           | "failed",
+        imageGenerationStatus: generation.imageGenerationStatus as
+          | "pending"
+          | "processing"
+          | "completed"
+          | "failed"
+          | "skipped"
+          | undefined,
+        generatedImageCount: generation.generatedImageCount || undefined,
         productImage: {
           id: productImage.id,
           url: productImage.url,
@@ -139,6 +152,7 @@ export async function getGeneration(
         settings: generation.settings || {},
         results: generation.results || undefined,
         errorMessage: generation.errorMessage || undefined,
+        imageGenerationError: generation.imageGenerationError || undefined,
         progress,
         createdAt: generation.createdAt,
         updatedAt: generation.updatedAt,
@@ -146,7 +160,7 @@ export async function getGeneration(
       },
     };
   } catch (error) {
-    console.error("Get generation error:", error);
+    logger.error("Get generation error", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to get generation",
@@ -251,7 +265,7 @@ export async function retryGeneration(
       settings: generation.settings || {},
     });
   } catch (error) {
-    console.error("Retry generation error:", error);
+    logger.error("Retry generation error", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to retry generation",
@@ -318,9 +332,10 @@ export async function cancelGeneration(
       .where(eq(schema.generations.id, generationId));
 
     // 退还可以额度
-    const cost =
-      (generation.settings?.count || 3) *
-      (1 + (generation.referenceImageIds?.length || 0));
+    const cost = calculateRefundCost({
+      settings: generation.settings || {},
+      referenceImageIds: generation.referenceImageIds || [],
+    });
 
     await db
       .update(schema.subscriptions)
@@ -332,7 +347,7 @@ export async function cancelGeneration(
 
     return { success: true };
   } catch (error) {
-    console.error("Cancel generation error:", error);
+    logger.error("Cancel generation error", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to cancel generation",

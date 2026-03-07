@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { getCloudflareContext } from "@/lib/cloudflare-context";
 import { createDb, schema } from "@/db";
 import { getCurrentUser, createAuth } from "@/lib/auth";
-import { uploadArrayBuffer, R2Folders, getPublicUrl } from "@/lib/r2";
+import { uploadArrayBuffer, R2Folders } from "@/lib/r2";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -135,27 +135,13 @@ export async function uploadImage(
     const arrayBuffer = await file.arrayBuffer();
     const dimensions = await getImageDimensions(arrayBuffer);
 
-    // 生成文件路径
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const extension = file.name.split(".").pop() || "jpg";
-    const filename = `${timestamp}-${randomString}.${extension}`;
-    const key = `${R2Folders.USER_UPLOADS}/${user.id}/${filename}`;
-
     // 上传到 R2（使用 binding）
-    await uploadArrayBuffer(arrayBuffer, file.name, {
-      folder: R2Folders.USER_UPLOADS,
+    const uploadResult = await uploadArrayBuffer(arrayBuffer, file.name, {
+      folder: `${R2Folders.USER_UPLOADS}/${user.id}`,
       contentType: file.type,
     });
 
-    // 生成公开访问 URL
-    let url: string;
-    try {
-      url = await getPublicUrl(key);
-    } catch {
-      // 如果没有配置公开 URL，使用 key 作为标识
-      url = key;
-    }
+    const url = uploadResult.publicUrl;
 
     // 保存到数据库
     const db = createDb(env.DB);
