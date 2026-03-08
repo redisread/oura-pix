@@ -1,3 +1,10 @@
+const { initOpenNextCloudflareForDev } = require('@opennextjs/cloudflare');
+
+// 开发环境初始化 OpenNext Cloudflare
+if (process.env.NODE_ENV === 'development') {
+  initOpenNextCloudflareForDev();
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // OpenNext for Cloudflare 需要 standalone 输出模式

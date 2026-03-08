@@ -71,6 +71,11 @@ logs
 # Contentlayer
 .contentlayer
 
+# Project temp files
+memory/
+project-structure.txt
+scripts/output/
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
