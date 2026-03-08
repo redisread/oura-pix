@@ -21,7 +21,7 @@ export function createAuth(d1Database: D1Database, env: CloudflareEnv) {
 
   // 开发环境额外信任 localhost
   if (process.env.NODE_ENV === 'development') {
-    trustedOrigins.push("http://localhost:4001", "http://127.0.0.1:4001");
+    trustedOrigins.push("http://localhost:4001", "http://127.0.0.1:4001", "http://localhost:8787", "http://127.0.0.1:8787");
   }
 
   return betterAuth({
