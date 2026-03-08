@@ -183,7 +183,7 @@ export const generations = sqliteTable("generations", {
   productImageId: text("productImageId")
     .references(() => images.id, { onDelete: "set null" }),
   // 关联的参考图片ID列表(JSON数组)
-  referenceImageIds: text("reference_image_ids", { mode: "json" }).$type<string[]>().default([]),
+  referenceImageIds: text("referenceImageIds", { mode: "json" }).$type<string[]>().default([]),
   // 用户输入的提示词
   prompt: text("prompt"),
   // 生成设置(JSON)
