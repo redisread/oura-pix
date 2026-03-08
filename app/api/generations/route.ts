@@ -51,7 +51,16 @@ async function handleGenerationsGet(request: NextRequest) {
     // 只返回统计数据
     if (statsOnly) {
       const stats = await getUserStats(session.user.id);
-      return NextResponse.json({ stats });
+      return NextResponse.json(
+        { stats },
+        {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          },
+        }
+      );
     }
 
     // 获取并验证分页参数

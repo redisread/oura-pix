@@ -297,8 +297,8 @@ export async function getUserStats(userId: string): Promise<{
     },
   });
 
-  const limit = subResult?.generationLimit || 10;
-  const used = subResult?.usedGenerations || 0;
+  const limit = subResult?.generationLimit ?? 10;
+  const used = subResult?.usedGenerations ?? 0;
 
   // 返回 style key，由 UI 层调用 t(`profile.stats.styles.${key}`) 翻译
   const validStyles = ["professional", "lifestyle", "minimal", "luxury"] as const;
