@@ -72,18 +72,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// 加载翻译文件
-async function getMessages(locale: string) {
-  try {
-    const messages = (await import(`@/i18n/messages/${locale}.json`)).default;
-    return messages;
-  } catch {
-    // 如果加载失败，返回默认英文
-    const defaultMessages = (await import(`@/i18n/messages/en.json`)).default;
-    return defaultMessages;
-  }
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{

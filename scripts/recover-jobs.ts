@@ -15,6 +15,7 @@ import {
   getQueueStats,
 } from "../lib/task-queue";
 import { logger } from "../lib/logger";
+import { eq } from "drizzle-orm";
 
 /**
  * 恢复任务配置
@@ -47,7 +48,7 @@ async function getJobRetryCount(
 ): Promise<number> {
   try {
     const logs = await db.query.usageLogs.findMany({
-      where: (logs) => logs.generationId === generationId,
+      where: eq(schema.usageLogs.generationId, generationId),
     });
     return logs.length;
   } catch {

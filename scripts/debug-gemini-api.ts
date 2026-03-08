@@ -140,7 +140,7 @@ async function listModels() {
       return false;
     }
 
-    const data = await response.json();
+    const data = await response.json() as { models?: Array<{ name: string }> };
     console.log('✅ 成功获取模型列表');
 
     if (data.models && Array.isArray(data.models)) {

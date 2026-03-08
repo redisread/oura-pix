@@ -1,10 +1,10 @@
-import { sql } from "drizzle-orm";
+import { sql, type InferSelectModel } from "drizzle-orm";
+import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import {
   integer,
   real,
   sqliteTable,
   text,
-  json,
   primaryKey,
   index,
 } from "drizzle-orm/sqlite-core";
@@ -118,7 +118,8 @@ export const images = sqliteTable("images", {
   // 图片高度
   height: integer("height"),
   // 关联的生成任务ID (仅用于 generated_scene 类型)
-  generationId: text("generationId").references(() => generations.id, { onDelete: "set null" }),
+  // 注意：不在数据库层设置外键约束，避免循环引用问题
+  generationId: text("generationId"),
   // 生成此图片使用的提示词 (仅用于 generated_scene 类型)
   promptUsed: text("promptUsed"),
   // 是否已删除
@@ -182,13 +183,13 @@ export const generations = sqliteTable("generations", {
   productImageId: text("productImageId")
     .references(() => images.id, { onDelete: "set null" }),
   // 关联的参考图片ID列表(JSON数组)
-  referenceImageIds: json("reference_image_ids").$type<string[]>().default([]),
+  referenceImageIds: text("reference_image_ids", { mode: "json" }).$type<string[]>().default([]),
   // 用户输入的提示词
   prompt: text("prompt"),
   // 生成设置(JSON)
-  settings: json("settings").$type<GenerationSettings>().notNull().default({}),
+  settings: text("settings", { mode: "json" }).$type<GenerationSettings>().notNull().default({}),
   // 生成结果(JSON数组)
-  results: json("results").$type<GenerationResult[]>(),
+  results: text("results", { mode: "json" }).$type<GenerationResult[]>(),
   // 生成的场景图数量
   generatedImageCount: integer("generatedImageCount").default(0),
   // 图像生成状态

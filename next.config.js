@@ -104,6 +104,20 @@ const nextConfig = {
     ];
   },
 
+  // ESLint configuration
+  eslint: {
+    // 构建时忽略 ESLint 错误
+    ignoreDuringBuilds: false,
+    // 只检查特定目录，排除 scripts
+    dirs: ['app', 'lib', 'components', 'db'],
+  },
+
+  // TypeScript configuration
+  typescript: {
+    // 构建时忽略类型错误（临时解决 scripts 目录的问题）
+    ignoreBuildErrors: false,
+  },
+
   // Powered by header
   poweredByHeader: false,
 

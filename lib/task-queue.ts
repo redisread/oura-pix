@@ -91,7 +91,7 @@ export async function getJobStatus(
       id: generation.id,
       status: generation.status as JobStatus["status"],
       processingStage: generation.processingStage as ProcessingStageType | undefined,
-      stageStartedAt: generation.stageStartedAt,
+      stageStartedAt: generation.stageStartedAt ?? undefined,
       errorMessage: generation.errorMessage || undefined,
       updatedAt: generation.updatedAt,
     };

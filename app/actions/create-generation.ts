@@ -155,7 +155,7 @@ export async function createGeneration(
     const cost = calculateGenerationCost({
       imageCount,
       generationCount: settings.count || 3,
-      includeImageGen: settings.generateImages,
+      includeImageGen: settings.generateImages ?? false,
       imageGenCount: settings.imageCount || 5,
     });
 
