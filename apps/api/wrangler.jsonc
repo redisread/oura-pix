@@ -1,0 +1,30 @@
+{
+  "name": "oura-pix-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-02-26",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "oura-pix-db",
+      "database_id": "0f79f5d4-d714-4ffc-8747-f52a4461fecb",
+      "migrations_dir": "../../drizzle/migrations"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "oura-pix-r2"
+    }
+  ],
+
+  "vars": {
+    "BETTER_AUTH_URL": "https://api.ourapix.jiahongw.com",
+    "NEXT_PUBLIC_APP_URL": "https://ourapix.jiahongw.com",
+    "FROM_EMAIL": "noreply@ourapix.jiahongw.com",
+    "FROM_NAME": "OuraPix",
+    "CLOUDFLARE_R2_PUBLIC_URL": "https://ourapix.cos.jiahongw.com"
+  }
+}

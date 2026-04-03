@@ -1,0 +1,33 @@
+{
+  "name": "@oura-pix/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "echo 'Build is handled by wrangler deploy'",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev --local",
+    "typegen": "wrangler types",
+    "lint": "eslint src/",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.0",
+    "@oura-pix/database": "workspace:*",
+    "better-auth": "^1.5.1",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.6.0",
+    "resend": "^6.9.3",
+    "stripe": "^17.4.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241112.0",
+    "@oura-pix/api-client": "workspace:*",
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3",
+    "vitest": "^3.0.0",
+    "wrangler": "^4.69.0"
+  }
+}

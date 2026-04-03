@@ -80,5 +80,13 @@ scripts/output/
 *.tsbuildinfo
 next-env.d.ts
 
-# Optional: Uncomment if using Turbopack
-# .turbo
+# Turborepo
+.turbo
+turbo.log
+
+#pnpm
+pnpm-workspace.yaml.local
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
