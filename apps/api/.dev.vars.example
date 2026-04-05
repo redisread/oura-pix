@@ -11,8 +11,11 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 # Stripe Webhook Secret
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
-# Gemini API Key
+# Gemini API Key (deprecated, use DASHSCOPE_API_KEY instead)
 GEMINI_API_KEY=your_gemini_api_key
+
+# DashScope API Key (阿里百炼)
+DASHSCOPE_API_KEY=sk-your-dashscope-api-key
 
 # Resend API Key
 RESEND_API_KEY=re_your_resend_api_key

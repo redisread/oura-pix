@@ -167,11 +167,17 @@
 
 ---
 
-## 历史代码清理 (新建 2026-04-03)
+## 历史代码清理 (已完成 2026-04-05)
 
-### Phase 5: 根目录无用代码清理 (已完成 2026-04-03)
+### Phase 5: 根目录无用代码清理 (已完成 2026-04-05) ✅
 
-**清理角色已创建**:
+**清理工具已创建**:
+- [x] 创建 `scripts/cleanup-unused-code.sh` - 主清理脚本
+- [x] 创建 `scripts/analyze-unused.js` - 分析工具
+- [x] 创建 `knip.config.js` - Knip 配置
+- [x] 创建 `docs/cleanup-guide.md` - 使用指南
+
+**清理角色已创建** (2026-04-03):
 - [x] 创建 `scripts/cleanup-master.sh` - 清理总控脚本
 - [x] 创建 `scripts/cleanup-roles/` - 清理角色目录
   - [x] `01-api-routes-cleaner.sh` - API 路由清理者
@@ -182,7 +188,32 @@
   - [x] `06-final-app-cleaner.sh` - 最终 App 清理者
 - [x] 创建 `scripts/cleanup-roles/README.md` - 使用文档
 
-**已执行清理**:
+**已执行清理** (2026-04-05):
+- [x] 删除根目录废弃的 lib 文件 (11 个文件) → 备份至 `.cleanup-backup/unused-*`
+  - [x] `lib/ai-generation.ts`
+  - [x] `lib/ai/gemini.ts`
+  - [x] `lib/ai/imagen.ts`
+  - [x] `lib/api/generations.ts`
+  - [x] `lib/blog.ts`
+  - [x] `lib/auth-client.ts`
+  - [x] `instrumentation.ts`
+  - [x] `i18n/config.ts`
+  - [x] `db/index.ts`
+  - [x] `db/schema.ts`
+  - [x] `drizzle.config.ts`
+- [x] 删除子项目中的废弃文件 (4 个文件)
+  - [x] `apps/web/src/lib/api.ts`
+  - [x] `apps/api/src/lib/cloudflare.ts`
+  - [x] `apps/api/src/services/dashscope.ts`
+  - [x] `apps/web/.astro/`
+- [x] 清理构建缓存
+  - [x] `apps/api/.wrangler/tmp/`
+  - [x] `apps/web/.astro/`
+  - [x] `.turbo/`
+- [x] 清理临时文件 (*.log, *.tmp, *.bak, *.old)
+- [x] 保留共享 lib 文件 (18 个文件保留在根目录)
+
+**历史清理** (2026-04-03):
 - [x] 删除 `app/api/` → 备份至 `.cleanup-backup/api-routes-*`
 - [x] 删除 `app/actions/` → 备份至 `.cleanup-backup/server-actions-*`
 - [x] 删除 `lib/auth.ts` 和 `lib/source.ts` (其他文件保留)
@@ -200,6 +231,16 @@
 - [x] 删除根目录 `app/` → 备份至 `.cleanup-backup/app-final-*`
 
 **备份位置**: `.cleanup-backup/` 目录下
+
+**验证结果**:
+- [x] 构建测试通过 (`pnpm build` - 1m28s)
+- [x] 所有子项目构建成功 (api-client, api, web)
+
+**文档**:
+- [x] `CLEANUP_SUMMARY.md` - 总结报告
+- [x] `CLEANUP_COMPLETE.md` - 详细报告
+- [x] `CLEANUP_README.md` - 快速参考
+- [x] `docs/cleanup-guide.md` - 使用指南
 
 ---
 
