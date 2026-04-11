@@ -11,6 +11,7 @@ import { timing } from "hono/timing";
 import { secureHeaders } from "hono/secure-headers";
 
 import { authRoutes } from "./routes/auth";
+import { userRoutes } from "./routes/user";
 import { generationRoutes } from "./routes/generations";
 import { uploadRoutes } from "./routes/upload";
 import { subscriptionRoutes } from "./routes/subscription";
@@ -33,6 +34,10 @@ const app = new Hono<{
     FROM_EMAIL: string;
     FROM_NAME: string;
     CLOUDFLARE_R2_PUBLIC_URL: string;
+    AUTH_GOOGLE_ID?: string;
+    AUTH_GOOGLE_SECRET?: string;
+    AUTH_GITHUB_ID?: string;
+    AUTH_GITHUB_SECRET?: string;
   };
 }>();
 
@@ -86,6 +91,7 @@ app.use("/api/*", async (c, next) => {
 });
 
 // Protected API routes
+app.route("/api/user", userRoutes);
 app.route("/api/generations", generationRoutes);
 app.route("/api/upload", uploadRoutes);
 app.route("/api/subscription", subscriptionRoutes);

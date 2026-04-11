@@ -45,12 +45,22 @@
     "userInfo": {
       "title": "User Information",
       "username": "Username",
+      "usernamePlaceholder": "Enter your display name",
       "email": "Email",
       "memberSince": "Member Since",
       "plan": "Current Plan",
       "proPlan": "Pro",
       "emailDisabled": "Email cannot be changed"
     },
+    "settings": {
+      "description": "Manage your account settings and preferences",
+      "saved": "Profile Updated",
+      "savedDesc": "Your profile has been updated successfully.",
+      "saveFailed": "Update Failed",
+      "saveFailedDesc": "Unable to update profile, please try again later.",
+      "nameRequired": "Display name is required."
+    },
+    "saving": "Saving...",
     "history": {
       "title": "Generation History",
       "subtitle": "View all your generation records",

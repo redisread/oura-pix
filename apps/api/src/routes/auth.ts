@@ -9,6 +9,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { google, github } from "better-auth/social-providers";
 import { createDb, schema } from "@oura-pix/database";
 import { sendPasswordResetEmail } from "../lib/mail";
 
@@ -22,6 +23,10 @@ function createAuth(
     FROM_NAME: string;
     NEXT_PUBLIC_APP_URL?: string;
     RESEND_API_KEY: string;
+    AUTH_GOOGLE_ID?: string;
+    AUTH_GOOGLE_SECRET?: string;
+    AUTH_GITHUB_ID?: string;
+    AUTH_GITHUB_SECRET?: string;
   },
   isLocalDevOverride?: boolean,
   baseUrlOverride?: string
@@ -48,6 +53,18 @@ function createAuth(
       "http://localhost:4001",
       "http://localhost:8787",
     ],
+    socialProviders: {
+      google: {
+        enabled: !!(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET),
+        clientId: env.AUTH_GOOGLE_ID || "",
+        clientSecret: env.AUTH_GOOGLE_SECRET || "",
+      },
+      github: {
+        enabled: !!(env.AUTH_GITHUB_ID && env.AUTH_GITHUB_SECRET),
+        clientId: env.AUTH_GITHUB_ID || "",
+        clientSecret: env.AUTH_GITHUB_SECRET || "",
+      },
+    },
     database: drizzleAdapter(db, {
       provider: "sqlite",
       camelCase: true,
@@ -95,6 +112,10 @@ const router = new Hono<{
     FROM_EMAIL: string;
     FROM_NAME: string;
     RESEND_API_KEY: string;
+    AUTH_GOOGLE_ID?: string;
+    AUTH_GOOGLE_SECRET?: string;
+    AUTH_GITHUB_ID?: string;
+    AUTH_GITHUB_SECRET?: string;
   };
 }>();
 

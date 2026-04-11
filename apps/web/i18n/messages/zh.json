@@ -45,12 +45,22 @@
     "userInfo": {
       "title": "用户信息",
       "username": "用户名",
+      "usernamePlaceholder": "输入您的显示名称",
       "email": "邮箱",
       "memberSince": "注册时间",
       "plan": "当前套餐",
       "proPlan": "专业版",
       "emailDisabled": "邮箱不可修改"
     },
+    "settings": {
+      "description": "管理您的账号设置和偏好",
+      "saved": "个人资料已更新",
+      "savedDesc": "您的个人资料已成功更新。",
+      "saveFailed": "更新失败",
+      "saveFailedDesc": "无法更新个人资料，请稍后重试。",
+      "nameRequired": "显示名称不能为空。"
+    },
+    "saving": "保存中...",
     "history": {
       "title": "生成历史",
       "subtitle": "查看您所有的生成记录",
