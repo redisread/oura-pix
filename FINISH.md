@@ -295,3 +295,50 @@
 4. 生产环境部署
 
 **项目状态**: ✅ 核心功能 100% 完成,待测试和部署
+
+---
+
+## 2026-04-11
+
+### ✅ 清理无用文档和代码
+
+**任务描述**: 清理历史性项目报告文档、临时测试脚本和调试文档
+
+**完成内容**:
+1. ✅ 删除根目录过时文档 (22 个文件)
+   - API_CONFIG_STATUS.md
+   - CLEANUP_*.md (5 个文件)
+   - COMPLETION_SUMMARY.md
+   - CONFIG_COMPLETE.md
+   - DEBUG_REPORT.md
+   - DEPLOYMENT_GUIDE.md
+   - GEMINI_API_SETUP.md
+   - IMAGEN_*.md (2 个文件)
+   - IMPLEMENTATION_COMPLETE.md
+   - MIGRATION.md
+   - PHASE*.md (3 个文件)
+   - QUICK_START_GUIDE.md
+   - STATUS_REPORT.md
+   - TEST_*.md (2 个文件)
+   - VERIFICATION_REPORT.md
+
+2. ✅ 删除 docs/ 目录临时文档 (3 个文件)
+   - DEBUG-CHEATSHEET.md
+   - LOCAL-DEBUG.md
+   - dev-environment-refactor.md
+
+3. ✅ 删除 scripts/ 目录临时脚本 (4 个文件)
+   - debug-gemini-api.ts
+   - simple-api-test.ts
+   - test-generation-api.ts
+   - update-user-quota.sql
+
+4. ✅ 构建验证通过 (`pnpm build`)
+
+**相关文件**:
+- Git 分支：`cleanup/remove-unused-files`
+- Git 提交：`a9d32de`
+
+**统计**:
+- 删除文件：29 个
+- 减少代码行数：约 12,000 行
