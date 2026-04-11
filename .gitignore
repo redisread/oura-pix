@@ -90,3 +90,9 @@ pnpm-workspace.yaml.local
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+
+ 
+.claude/
+.opencode/
+openspec/
