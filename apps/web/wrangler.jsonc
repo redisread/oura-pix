@@ -5,6 +5,6 @@
   "compatibility_date": "2024-09-23",
   "compatibility_flags": ["nodejs_compat"],
   "vars": {
-    "PUBLIC_API_URL": "http://localhost:8787"
+    "PUBLIC_API_URL": "http://localhost:8989"
   }
 }

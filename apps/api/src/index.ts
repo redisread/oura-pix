@@ -46,7 +46,7 @@ app.use("*", secureHeaders());
 
 // CORS configuration
 app.use("/api/*", cors({
-  origin: ["https://ourapix.jiahongw.com", "http://localhost:4001"],
+  origin: ["https://ourapix.jiahongw.com", "http://localhost:4001", "http://localhost:4545"],
   credentials: true,
   allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"],

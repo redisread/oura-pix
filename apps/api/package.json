@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8989",
     "build": "echo 'Build is handled by wrangler deploy'",
     "deploy": "wrangler deploy",
     "preview": "wrangler dev --local",

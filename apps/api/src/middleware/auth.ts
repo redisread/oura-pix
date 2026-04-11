@@ -68,7 +68,9 @@ export const authMiddleware = createMiddleware<{
     if (!sessionToken) {
       const cookie = c.req.header("Cookie");
       if (cookie) {
-        const match = cookie.match(/ourapix\.session=([^;]+)/);
+        // Try both cookie names: Better Auth's default and our custom name
+        const match = cookie.match(/better-auth\.session_token=([^;]+)/) ||
+                      cookie.match(/ourapix\.session=([^;]+)/);
         if (match) {
           sessionToken = match[1];
         }
@@ -91,7 +93,7 @@ export const authMiddleware = createMiddleware<{
     // Validate session using Better Auth API
     const session = await auth.api.getSession({
       headers: new Headers({
-        cookie: `ourapix.session=${sessionToken}`,
+        cookie: `better-auth.session_token=${sessionToken}`,
       }),
     });
 
@@ -149,7 +151,9 @@ export const optionalAuthMiddleware = createMiddleware<{
     if (!sessionToken) {
       const cookie = c.req.header("Cookie");
       if (cookie) {
-        const match = cookie.match(/ourapix\.session=([^;]+)/);
+        // Try both cookie names: Better Auth's default and our custom name
+        const match = cookie.match(/better-auth\.session_token=([^;]+)/) ||
+                      cookie.match(/ourapix\.session=([^;]+)/);
         if (match) {
           sessionToken = match[1];
         }
@@ -159,7 +163,7 @@ export const optionalAuthMiddleware = createMiddleware<{
     if (sessionToken) {
       const session = await auth.api.getSession({
         headers: new Headers({
-          cookie: `ourapix.session=${sessionToken}`,
+          cookie: `better-auth.session_token=${sessionToken}`,
         }),
       });
 
