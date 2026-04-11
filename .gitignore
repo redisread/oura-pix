@@ -96,3 +96,5 @@ next-env.d.ts
 .claude/
 .opencode/
 openspec/
+.agents/
+.specify/
