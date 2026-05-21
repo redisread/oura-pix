@@ -1,16 +1,6 @@
 import { getSession, signIn, signUp, signOut } from "@/lib/auth";
-import { useCallback, useState, useEffect } from "react";
-
-/**
- * User type definition
- */
-export interface User {
-  id: string;
-  email: string;
-  name?: string | null;
-  image?: string | null;
-  createdAt?: Date | string | null;
-}
+import { useCallback, useEffect } from "react";
+import { useAuthStore, type User } from "@/stores/auth";
 
 /**
  * Auth operation result
@@ -25,25 +15,25 @@ interface AuthResult {
  * Provides user state and auth operation methods
  */
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, isLoading, isAuthenticated, setUser, setLoading, logout: storeLogout } = useAuthStore();
 
   useEffect(() => {
     loadSession();
   }, []);
 
   const loadSession = async () => {
+    setLoading(true);
     try {
       const session = await getSession();
       if (session?.user) {
         setUser(session.user as User);
-        setIsAuthenticated(true);
+      } else {
+        setUser(null);
       }
     } catch {
-      // Ignore errors
+      setUser(null);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -81,8 +71,7 @@ export function useAuth() {
    */
   const logout = useCallback(async (): Promise<void> => {
     await signOut();
-    setUser(null);
-    setIsAuthenticated(false);
+    storeLogout();
   }, []);
 
   return {
