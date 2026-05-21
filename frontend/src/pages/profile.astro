@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ProfilePage from '../components/ProfilePage';
+
+const title = "Profile - OuraPix";
+const description = "Manage your account and generation history";
+---
+
+<Layout title={title} description={description}>
+  <ProfilePage client:load />
+</Layout>
