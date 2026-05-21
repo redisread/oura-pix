@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PricingPage from '../components/PricingPage';
+
+const title = "Pricing - OuraPix";
+const description = "Choose the right plan for your needs";
+---
+
+<Layout title={title} description={description}>
+  <PricingPage client:visible />
+</Layout>

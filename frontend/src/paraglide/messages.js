@@ -52,3 +52,69 @@ export const registerMarketing_description = () => "加入数千名创作者，�
 export const registerMarketing_feature1 = () => "AI 智能处理，效率提升 10 倍";
 export const registerMarketing_feature2 = () => "支持多种图片格式，批量上传";
 export const registerMarketing_feature3 = () => "数据安全加密，隐私有保障";
+
+// Pricing
+export const pricing_title = () => "定价";
+export const pricing_subtitle = () => "选择适合您的方案";
+export const pricing_mostPopular = () => "最受欢迎";
+export const pricing_comparison = () => "功能对比";
+export const pricing_comparisonSubtitle = () => "详细对比各方案功能";
+export const pricing_faq = () => "常见问题";
+export const pricing_ctaTitle = () => "准备好开始了吗？";
+export const pricing_ctaSubtitle = () => "立即体验 OuraPix 的强大功能";
+export const pricing_ctaFree = () => "免费试用";
+export const pricing_ctaContact = () => "联系我们";
+
+// Plans
+export const pricing_free_name = () => "免费版";
+export const pricing_free_description = () => "适合个人试用";
+export const pricing_free_period = () => "/月";
+export const pricing_free_cta = () => "开始使用";
+
+export const pricing_pro_name = () => "专业版";
+export const pricing_pro_description = () => "适合小型团队";
+export const pricing_pro_period = () => "/月";
+export const pricing_pro_cta = () => "立即升级";
+
+export const pricing_enterprise_name = () => "企业版";
+export const pricing_enterprise_description = () => "适合大型企业";
+export const pricing_enterprise_period = () => "/月";
+export const pricing_enterprise_cta = () => "联系销售";
+
+// Features
+export const pricingFeatures_generationsPerMonth = () => "每月生成次数";
+export const pricingFeatures_templates = () => "模板";
+export const pricingFeatures_resolution = () => "分辨率";
+export const pricingFeatures_platforms = () => "平台支持";
+export const pricingFeatures_batchGeneration = () => "批量生成";
+export const pricingFeatures_apiAccess = () => "API 访问";
+export const pricingFeatures_support = () => "技术支持";
+export const pricingFeatures_basicTemplates = () => "基础模板";
+export const pricingFeatures_allTemplates = () => "全部模板";
+export const pricingFeatures_customTemplates = () => "自定义模板";
+export const pricingFeatures_standard = () => "标准";
+export const pricingFeatures_hd = () => "高清";
+export const pricingFeatures_4k = () => "4K";
+export const pricingFeatures_amazon = () => "亚马逊";
+export const pricingFeatures_multiPlatform = () => "多平台";
+export const pricingFeatures_allPlatforms = () => "全平台";
+export const pricingFeatures_notAvailable = () => "不可用";
+export const pricingFeatures_batch10 = () => "10个/批";
+export const pricingFeatures_unlimited = () => "无限";
+export const pricingFeatures_standardSpeed = () => "标准速度";
+export const pricingFeatures_priority = () => "优先";
+export const pricingFeatures_highestPriority = () => "最高优先";
+export const pricingFeatures_community = () => "社区支持";
+export const pricingFeatures_prioritySupport = () => "优先支持";
+export const pricingFeatures_dedicatedManager = () => "专属客户经理";
+export const pricingFeatures_feature = () => "功能";
+
+// FAQ
+export const pricing_faq1_question = () => "如何升级或降级方案？";
+export const pricing_faq1_answer = () => "您可以随时在账户设置中更改方案，费用将按比例计算。";
+export const pricing_faq2_question = () => "是否支持退款？";
+export const pricing_faq2_answer = () => "我们提供 7 天无理由退款保证。";
+export const pricing_faq3_question = () => "企业版包含哪些定制服务？";
+export const pricing_faq3_answer = () => "企业版提供自定义模板、API 集成和专属客户经理支持。";
+export const pricing_faq4_question = () => "如何获得技术支持？";
+export const pricing_faq4_answer = () => "免费版用户可通过社区论坛获得支持，付费用户可通过邮件获得优先支持。";
