@@ -42,11 +42,11 @@ OuraPix is a minimalist AI-powered tool designed for cross-border e-commerce sel
 ## Tech Stack
 
 ### Frontend
-- **Framework**: [Next.js 14+](https://nextjs.org/) with App Router
+- **Framework**: [Astro 5](https://astro.build/) with React Islands
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
 - **Forms**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
-- **Internationalization**: [next-intl](https://next-intl-docs.vercel.app/)
+- **Internationalization**: [paraglide-js](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) (类型安全 + tree-shaking)
 
 ### Backend
 - **Runtime**: [Cloudflare Workers](https://workers.cloudflare.com/)

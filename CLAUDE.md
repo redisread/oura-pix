@@ -104,6 +104,82 @@ chore:   构建/工具
 | 阶段 | 状态 | 负责人 |
 |------|------|--------|
 | Phase 1 | ✅ 完成 | @Jeff |
-| Phase 2 | ⏳ 进行中 | @Alex |
-| Phase 3 | ⏳ 等待 | @Wen |
-| Phase 4 | ⏳ 等待 | @Wen |
+| Phase 2 | ✅ 完成 | @Alex |
+| Phase 3 | ✅ 完成 | @Jeff |
+| Phase 4 | ✅ 完成 | @Wen |
+
+**状态：全部完成 ✅**
+
+---
+
+## 本地测试步骤
+
+### 1. 环境准备
+
+```bash
+# 安装依赖
+pnpm install
+
+# 配置环境变量
+cp .env.example .env.local
+# 编辑 .env.local 添加必要配置
+```
+
+### 2. 构建测试
+
+```bash
+cd frontend
+pnpm build
+```
+
+**预期结果：**
+- ✓ built in ~2-5s
+- ✓ Server built successfully
+- ✓ Complete!
+
+### 3. 开发服务器测试
+
+```bash
+# 根目录
+pnpm dev
+
+# 或分别启动
+cd api && pnpm dev      # localhost:8989
+cd frontend && pnpm dev  # localhost:4321
+```
+
+### 4. 页面功能检查清单
+
+| 页面 | 路径 | 检查项 |
+|------|------|--------|
+| 首页 | `/` | 渲染正常、i18n 切换 |
+| 登录 | `/login` | 表单显示、社交登录按钮 |
+| 注册 | `/register` | 表单验证、条款勾选 |
+| 忘记密码 | `/forgot-password` | 邮箱输入、提交反馈 |
+| 重置密码 | `/reset-password` | 密码输入、确认匹配 |
+| 定价 | `/pricing` | 三档方案、功能对比 |
+| 生成 | `/generate` | 表单交互、图片上传 |
+| 个人中心 | `/profile` | 标签切换、数据展示 |
+
+### 5. API 连接测试
+
+```bash
+# 检查 API 健康
+curl http://localhost:8989/health
+
+# 测试认证流程 (需前端配合)
+# 1. 注册账号
+# 2. 登录验证
+# 3. 检查 session cookie
+```
+
+### 6. 构建产物验证
+
+```bash
+ls frontend/dist/
+# 应包含:
+# - _astro/ (js/css assets)
+# - index.html
+# - login/index.html
+# - ...其他页面
+```
