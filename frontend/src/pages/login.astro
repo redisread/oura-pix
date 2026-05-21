@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LoginPage from '../components/LoginPage';
+
+const title = "Sign In - OuraPix";
+const description = "Sign in to your OuraPix account";
+---
+
+<Layout title={title} description={description}>
+  <LoginPage client:load />
+</Layout>
