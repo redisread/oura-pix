@@ -118,3 +118,56 @@ export const pricing_faq3_question = () => "企业版包含哪些定制服务？
 export const pricing_faq3_answer = () => "企业版提供自定义模板、API 集成和专属客户经理支持。";
 export const pricing_faq4_question = () => "如何获得技术支持？";
 export const pricing_faq4_answer = () => "免费版用户可通过社区论坛获得支持，付费用户可通过邮件获得优先支持。";
+
+// Profile
+export const profile_title = () => "个人中心";
+export const profile_subtitle = () => "管理您的账户和生成历史";
+export const profile_tabs_overview = () => "概览";
+export const profile_tabs_history = () => "生成历史";
+export const profile_tabs_settings = () => "设置";
+
+// Profile stats
+export const profile_stats_totalGenerations = () => "总生成次数";
+export const profile_stats_thisMonth = () => "本月生成";
+export const profile_stats_remainingCredits = () => "剩余额度";
+export const profile_stats_favoriteStyle = () => "常用风格";
+
+// User info
+export const profile_userInfo_title = () => "用户信息";
+export const profile_userInfo_username = () => "用户名";
+export const profile_userInfo_email = () => "邮箱";
+export const profile_userInfo_memberSince = () => "注册时间";
+export const profile_userInfo_plan = () => "当前方案";
+export const profile_userInfo_proPlan = () => "专业版";
+
+// History
+export const profile_history_title = () => "生成历史";
+export const profile_history_subtitle = () => "查看您的所有生成记录";
+export const profile_history_empty = () => "暂无生成记录";
+export const profile_history_emptyDesc = () => "开始使用 OuraPix 生成您的第一个商品详情页";
+export const profile_history_startGenerating = () => "开始生成";
+export const profile_history_status_completed = () => "已完成";
+export const profile_history_status_processing = () => "处理中";
+export const profile_history_status_failed = () => "失败";
+export const profile_history_viewDetail = () => "查看详情";
+export const profile_history_delete = () => "删除";
+export const profile_history_deleteConfirmTitle = () => "确认删除";
+export const profile_history_deleteConfirm = () => "确定要删除这条生成记录吗？此操作无法撤销。";
+export const profile_history_deleteSuccess = () => "删除成功";
+export const profile_history_deleteSuccessDesc = () => "生成记录已删除";
+export const profile_history_deleteFailed = () => "删除失败";
+export const profile_history_deleteFailedDesc = () => "请稍后重试";
+
+// Settings
+export const profile_settings_title = () => "账户设置";
+export const profile_settings_profile = () => "个人资料";
+export const profile_settings_password = () => "修改密码";
+export const profile_settings_notifications = () => "通知设置";
+export const profile_settings_save = () => "保存设置";
+export const profile_settings_saving = () => "保存中...";
+export const profile_settings_saveSuccess = () => "设置已保存";
+
+// Common
+export const profile_cancel = () => "取消";
+export const profile_confirm = () => "确认";
+export const profile_loading = () => "加载中...";

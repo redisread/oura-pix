@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GeneratePage from '../components/GeneratePage';
+
+const title = "Generate - OuraPix";
+const description = "Generate stunning product detail pages with AI";
+---
+
+<Layout title={title} description={description}>
+  <GeneratePage client:load />
+</Layout>
