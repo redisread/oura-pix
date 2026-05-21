@@ -1,22 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import HomePage from '../components/HomePage';
+
+// Page metadata
+const title = "OuraPix - AI Product Detail Page Generator";
+const description = "Generate stunning product detail pages with AI";
 ---
 
-<Layout title="Welcome to OuraPix">
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold text-center mb-8">
-      Welcome to <span class="text-gradient">OuraPix</span>
-    </h1>
-    <p class="text-center text-lg text-gray-600">
-      AI-powered cross-border e-commerce product detail page generator
-    </p>
-  </main>
+<Layout title={title} description={description}>
+  <Navbar client:load />
+  <HomePage client:load />
+  <Footer />
 </Layout>
-
-<style>
-  .text-gradient {
-    background: linear-gradient(45deg, #f59e0b, #d97706);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-</style>
