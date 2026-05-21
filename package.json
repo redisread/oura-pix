@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=api",
-    "dev:web": "turbo run dev --filter=web",
+    "dev:web": "turbo run dev --filter=frontend",
     "build": "turbo run build",
     "build:api": "turbo run build --filter=api",
-    "build:web": "turbo run build --filter=web",
+    "build:web": "turbo run build --filter=frontend",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "clean:state": "rm -rf .wrangler/state",
@@ -19,12 +19,12 @@
     "db:studio": "pnpm --filter=database db:studio",
     "api:dev": "pnpm --filter=api dev",
     "api:deploy": "pnpm --filter=api deploy",
-    "web:dev": "pnpm --filter=web dev",
-    "web:preview": "pnpm --filter=web preview",
-    "web:deploy": "pnpm --filter=web deploy",
-    "debug:setup": "echo 'Please copy apps/api/.dev.vars.example to apps/api/.dev.vars and apps/web/.env.local.example to apps/web/.env.local'",
+    "web:dev": "pnpm --filter=frontend dev",
+    "web:preview": "pnpm --filter=frontend preview",
+    "web:deploy": "pnpm --filter=frontend deploy",
+    "debug:setup": "echo 'Please copy api/.dev.vars.example to api/.dev.vars and frontend/.env.local.example to frontend/.env.local'",
     "debug:check": "node scripts/check-local-dev.js",
-    "debug:full": "pnpm db:migrate:local && turbo run dev --filter=api --filter=web"
+    "debug:full": "pnpm db:migrate:local && turbo run dev --filter=api --filter=frontend"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
