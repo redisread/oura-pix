@@ -1,0 +1,9 @@
+{
+  "$schema": "https://inlang.com/schema/project-settings",
+  "baseLocale": "zh-CN",
+  "locales": ["zh-CN", "en", "ja"],
+  "modules": ["@inlang/message-lint-rule-empty-pattern@1", "@inlang/plugin-message-conv@1"],
+  "plugin.inlang.messageConv": {
+    "pathPattern": "./messages/{locale}.json"
+  }
+}

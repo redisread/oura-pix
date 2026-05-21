@@ -1,0 +1,12 @@
+{
+  "welcome": "欢迎使用 OuraPix",
+  "description": "AI 驱动的跨境电商商品详情页生成器",
+  "login": "登录",
+  "register": "注册",
+  "logout": "退出",
+  "profile": "个人中心",
+  "settings": "设置",
+  "generate": "生成",
+  "pricing": "定价",
+  "home": "首页"
+}

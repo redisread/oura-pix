@@ -1,3 +1,4 @@
+import { createParaglideAstroIntegration } from "@inlang/paraglide-astro"
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import react from '@astrojs/react';
@@ -10,6 +11,10 @@ export default defineConfig({
     react(),
     tailwind({
       applyBaseStyles: false,
+    }),
+    createParaglideAstroIntegration({
+      project: "./project.inlang",
+      outdir: "./src/paraglide",
     }),
   ],
   vite: {

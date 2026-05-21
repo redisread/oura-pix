@@ -1,0 +1,12 @@
+{
+  "welcome": "Welcome to OuraPix",
+  "description": "AI-powered cross-border e-commerce product detail page generator",
+  "login": "Login",
+  "register": "Register",
+  "logout": "Logout",
+  "profile": "Profile",
+  "settings": "Settings",
+  "generate": "Generate",
+  "pricing": "Pricing",
+  "home": "Home"
+}

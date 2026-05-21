@@ -1,0 +1,12 @@
+{
+  "welcome": "OuraPixへようこそ",
+  "description": "AI駆動の越境EC商品詳細ページジェネレーター",
+  "login": "ログイン",
+  "register": "登録",
+  "logout": "ログアウト",
+  "profile": "プロフィール",
+  "settings": "設定",
+  "generate": "生成",
+  "pricing": "料金",
+  "home": "ホーム"
+}
