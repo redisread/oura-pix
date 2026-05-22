@@ -321,49 +321,48 @@ npm run deploy
 npx wrangler pages deployment tail
 ```
 
+## Documentation
+
+| 文档 | 路径 | 说明 |
+|------|------|------|
+| **开发指南** | [CLAUDE.md](./CLAUDE.md) | 开发规范、命令、故障排查 |
+| **部署指南** | [docs/guides/deployment.md](./docs/guides/deployment.md) | Cloudflare 部署详细步骤 |
+| **代码清理** | [docs/guides/cleanup.md](./docs/guides/cleanup.md) | 项目清理指南 |
+| **数据库迁移** | [docs/reference/database.md](./docs/reference/database.md) | Drizzle ORM 使用 |
+| **设计文档** | [docs/reference/design.md](./docs/reference/design.md) | 系统架构设计 |
+| **测试文档** | [frontend/TESTING.md](./frontend/TESTING.md) | 本地测试指南 |
+
 ## Project Structure
 
 ```
 oura-pix/
-├── app/                      # Next.js App Router
-│   ├── (auth)/              # Auth routes group
-│   │   ├── login/
-│   │   └── register/
-│   ├── (dashboard)/         # Dashboard routes group
-│   │   ├── dashboard/
-│   │   ├── projects/
-│   │   └── settings/
-│   ├── api/                 # API routes
-│   │   ├── auth/           # Better Auth endpoints
-│   │   ├── generate/       # AI generation API
-│   │   ├── stripe/         # Payment webhooks
-│   │   └── upload/         # Image upload handlers
-│   ├── layout.tsx          # Root layout
-│   └── page.tsx            # Landing page
-├── components/              # React components
-│   ├── ui/                 # Shadcn UI components
-│   ├── auth/               # Authentication components
-│   ├── generate/           # Generation workflow components
-│   └── layout/             # Layout components
-├── lib/                     # Utility libraries
-│   ├── auth.ts             # Better Auth configuration
-│   ├── db/                 # Database configuration
-│   │   ├── schema.ts       # Drizzle schema
-│   │   └── index.ts        # Database client
-│   ├── stripe.ts           # Stripe configuration
-│   └── utils.ts            # Helper utilities
-├── hooks/                   # Custom React hooks
-├── types/                   # TypeScript type definitions
-├── public/                  # Static assets
-├── styles/                  # Global styles
-├── messages/                # i18n translation files
-│   ├── en.json
-│   ├── zh.json
-│   └── ja.json
-├── drizzle.config.ts        # Drizzle ORM configuration
-├── next.config.js           # Next.js configuration
-├── wrangler.toml            # Cloudflare Workers configuration
-└── package.json
+├── frontend/                 # Astro 前端
+│   ├── src/
+│   │   ├── components/      # React 组件
+│   │   ├── pages/          # Astro 页面
+│   │   ├── layouts/        # 布局模板
+│   │   ├── stores/          # Zustand 状态
+│   │   └── lib/             # 工具函数
+│   ├── messages/            # i18n 翻译文件
+│   └── dist/                # 构建输出
+├── api/                      # Cloudflare Workers API
+│   ├── src/
+│   │   ├── routes/          # API 路由
+│   │   ├── lib/             # 工具库
+│   │   └── db/              # Drizzle 数据库
+│   └── wrangler.jsonc       # Workers 配置
+├── docs/                     # 文档
+│   ├── guides/               # 使用指南
+│   ├── reference/            # 技术参考
+│   └── archive/              # 归档文档
+├── packages/                 # 共享包
+├── public/                   # 静态资源
+├── .github/
+│   └── workflows/
+│       └── deploy.yml       # CI/CD 流水线
+├── CLAUDE.md                 # 开发指南
+├── README.md                 # 项目说明
+└── package.json              # 根配置
 ```
 
 ## Architecture
