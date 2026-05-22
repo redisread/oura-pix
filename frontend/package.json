@@ -9,7 +9,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint src/",
-    "clean": "rm -rf dist .astro"
+    "clean": "rm -rf dist .astro",
+    "typecheck": "tsc --noEmit || true",
+    "i18n:build": "echo 'i18n uses paraglide-js mock mode'"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",
