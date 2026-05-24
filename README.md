@@ -1,7 +1,7 @@
 # OuraPix
 
 <p align="center">
-  <img src="public/favicon.svg" alt="OuraPix" width="120" />
+  <img src="public/logo.svg" alt="OuraPix" width="120" />
 </p>
 
 <p align="center">

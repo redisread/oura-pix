@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Background rounded square -->
+  <rect width="120" height="120" rx="24" fill="#0f172a"/>
+
+  <!-- Image/photo frame -->
+  <rect x="20" y="28" width="80" height="64" rx="8" fill="#fff" fill-opacity="0.95"/>
+
+  <!-- Mountain/landscape shape -->
+  <path d="M20 78 L42 52 L58 68 L74 48 L96 78 L96 92 L20 92 Z" fill="#64748b"/>
+
+  <!-- Sun circle -->
+  <circle cx="38" cy="44" r="12" fill="#facc15"/>
+
+  <!-- AI sparkle star -->
+  <path d="M88 16 L92 24 L100 28 L92 32 L88 40 L84 32 L76 28 L84 24 Z" fill="#38bdf8"/>
+  <path d="M88 20 L89.5 24 L92 26 L89.5 28 L88 32 L86.5 28 L84 26 L86.5 24 Z" fill="#7dd3fc"/>
+</svg>
