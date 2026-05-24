@@ -1,76 +1,76 @@
 # OuraPix
 
 <p align="center">
-  <img src="public/logo.svg" alt="OuraPix Logo" width="120" />
+  <img src="public/logo.svg" alt="OuraPix 徽标" width="120" />
 </p>
 
 <p align="center">
-  <strong>AI-Powered Cross-Border E-commerce Product Detail Page Generator</strong>
+  <strong>AI 驱动的跨境电商商品详情页生成器</strong>
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#deployment">Deployment</a> •
-  <a href="#architecture">Architecture</a>
+  <a href="#特性">特性</a> •
+  <a href="#技术栈">技术栈</a> •
+  <a href="#快速开始">快速开始</a> •
+  <a href="#部署">部署</a> •
+  <a href="#架构">架构</a>
 </p>
 
 ---
 
-## Features
+## 特性
 
-OuraPix is a minimalist AI-powered tool designed for cross-border e-commerce sellers to generate professional product detail pages effortlessly.
+OuraPix 是一款极简的 AI 驱动工具，专为跨境电商卖家设计，轻松生成专业级商品详情页。
 
-### Core Capabilities
+### 核心能力
 
-- **Smart Product Analysis**: Upload your product main image and let AI automatically analyze features, selling points, and optimal page structure
-- **Batch Image Generation**: Generate 5-10 high-quality e-commerce detail images in one click
-- **Style Reference Support**: Optionally upload style reference images to maintain brand consistency
-- **Platform-Optimized Sizes**: Built-in presets for Amazon, Shopify, and other major platforms
-- **4K HD Output**: Crystal clear images ready for professional use
+- **智能商品分析**：上传商品主图，AI 自动分析特性、卖点和最佳页面结构
+- **批量图片生成**：一键生成 5-10 张高质量电商详情图
+- **风格参考支持**：可选上传风格参考图，保持品牌一致性
+- **平台优化尺寸**：内置 Amazon、Shopify 等主流平台预设尺寸
+- **4K 高清输出**：输出清晰专业的图片，可直接商用
 
-### Supported Platforms
+### 支持平台
 
-| Platform | Dimensions | Status |
-|----------|-----------|--------|
-| Amazon | 2000x2000px | Supported |
-| Shopify | 2048x2048px | Supported |
-| eBay | 1600x1600px | Supported |
-| Custom | Flexible | Supported |
+| 平台 | 尺寸 | 状态 |
+|------|------|------|
+| Amazon | 2000x2000px | 已支持 |
+| Shopify | 2048x2048px | 已支持 |
+| eBay | 1600x1600px | 已支持 |
+| 自定义 | 灵活 | 已支持 |
 
-## Tech Stack
+## 技术栈
 
-### Frontend
-- **Framework**: [Astro 5](https://astro.build/) with React Islands
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
-- **State Management**: [Zustand](https://github.com/pmndrs/zustand)
-- **Forms**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
-- **Internationalization**: [paraglide-js](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) (类型安全 + tree-shaking)
+### 前端
+- **框架**：[Astro 5](https://astro.build/) + React Islands
+- **样式**：[Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
+- **状态管理**：[Zustand](https://github.com/pmndrs/zustand)
+- **表单**：[React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
+- **国际化**：[paraglide-js](https://inlang.com/m/gerre34r/library-inlang-paraglideJs)（类型安全 + tree-shaking）
 
-### Backend
-- **Runtime**: [Cloudflare Workers](https://workers.cloudflare.com/)
-- **Database**: [Cloudflare D1](https://developers.cloudflare.com/d1/) + [Drizzle ORM](https://orm.drizzle.team/)
-- **Storage**: [Cloudflare R2](https://developers.cloudflare.com/r2/)
-- **Authentication**: [Better Auth](https://www.better-auth.com/)
+### 后端
+- **运行时**：[Cloudflare Workers](https://workers.cloudflare.com/)
+- **数据库**：[Cloudflare D1](https://developers.cloudflare.com/d1/) + [Drizzle ORM](https://orm.drizzle.team/)
+- **存储**：[Cloudflare R2](https://developers.cloudflare.com/r2/)
+- **认证**：[Better Auth](https://www.better-auth.com/)
 
-### AI & APIs
-- **Image Generation**: Google Gemini Banana
-- **Payments**: [Stripe](https://stripe.com/)
+### AI 与 API
+- **图片生成**：Google Gemini
+- **支付**：[Stripe](https://stripe.com/)
 
-## Getting Started
+## 快速开始
 
-### Prerequisites
+### 前置条件
 
 - Node.js 18+
-- npm or yarn
-- Cloudflare account
-- Stripe account (for payments)
-- Google AI Studio account (for Gemini API)
+- npm 或 yarn
+- Cloudflare 账号
+- Stripe 账号（支付功能）
+- Google AI Studio 账号（Gemini API）
 
 ### 快速开始
 
-使用一键初始化脚本快速设置开发环境:
+使用一键初始化脚本快速设置开发环境：
 
 ```bash
 # 1. 克隆仓库
@@ -97,13 +97,13 @@ npm run dev
 
 ### 环境状态检查
 
-随时使用以下命令检查本地 Cloudflare 环境状态:
+随时使用以下命令检查本地 Cloudflare 环境状态：
 
 ```bash
 npm run cf:check
 ```
 
-这将显示:
+这将显示：
 - Wrangler 版本
 - D1 数据库状态（表结构、文件大小）
 - R2 存储状态
@@ -113,7 +113,7 @@ npm run cf:check
 
 ### 手动安装
 
-如果您偏好手动设置,可以按照以下步骤:
+如果你偏好手动设置，可以按照以下步骤：
 
 <details>
 <summary>点击展开手动安装步骤</summary>
@@ -142,12 +142,12 @@ npm run cf:check
 
 5. **配置第三方服务**
 
-   编辑 `.env.local` 文件,配置以下服务:
+   编辑 `.env.local` 文件，配置以下服务：
 
-   - **Stripe**: https://dashboard.stripe.com/apikeys
-   - **Google OAuth**: https://console.cloud.google.com/apis/credentials
-   - **GitHub OAuth**: https://github.com/settings/developers
-   - **Gemini AI**: https://aistudio.google.com/app/apikey
+   - **Stripe**：[https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
+   - **Google OAuth**：[https://console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials)
+   - **GitHub OAuth**：[https://github.com/settings/developers](https://github.com/settings/developers)
+   - **Gemini AI**：[https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 
 6. **启动开发服务器**
    ```bash
@@ -162,29 +162,29 @@ npm run cf:check
 
 本地开发需要配置 `.env.local` 文件（不会被提交到 Git）。
 
-**必需配置:**
+**必需配置：**
 
 | 变量名 | 说明 | 获取方式 |
 |--------|------|----------|
 | `AUTH_SECRET` | 认证加密密钥 | `openssl rand -base64 32` |
 | `NEXT_PUBLIC_APP_URL` | 应用基础 URL | `http://localhost:4001` |
 
-**功能配置（按需启用）:**
+**功能配置（按需启用）：**
 
 | 功能 | 必需变量 | 获取链接 |
 |------|----------|----------|
-| **支付功能** | `STRIPE_SECRET_KEY`<br>`STRIPE_WEBHOOK_SECRET`<br>`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | [Stripe Dashboard](https://dashboard.stripe.com/apikeys) |
+| **支付功能** | `STRIPE_SECRET_KEY`<br>`STRIPE_WEBHOOK_SECRET`<br>`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | [Stripe 控制台](https://dashboard.stripe.com/apikeys) |
 | **AI 生成** | `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/app/apikey) |
-| **Google 登录** | `AUTH_GOOGLE_ID`<br>`AUTH_GOOGLE_SECRET` | [Google Console](https://console.cloud.google.com/apis/credentials) |
-| **GitHub 登录** | `AUTH_GITHUB_ID`<br>`AUTH_GITHUB_SECRET` | [GitHub Settings](https://github.com/settings/developers) |
+| **Google 登录** | `AUTH_GOOGLE_ID`<br>`AUTH_GOOGLE_SECRET` | [Google 控制台](https://console.cloud.google.com/apis/credentials) |
+| **GitHub 登录** | `AUTH_GITHUB_ID`<br>`AUTH_GITHUB_SECRET` | [GitHub 设置](https://github.com/settings/developers) |
 
-**Cloudflare 配置:**
+**Cloudflare 配置：**
 
-本地开发时,D1 数据库和 R2 存储通过 `wrangler` 自动配置,无需额外环境变量。
+本地开发时，D1 数据库和 R2 存储通过 `wrangler` 自动配置，无需额外环境变量。
 
 #### 生产环境
 
-生产环境的敏感信息通过 Cloudflare Secrets 管理,不使用 `.env` 文件。
+生产环境的敏感信息通过 Cloudflare Secrets 管理，不使用 `.env` 文件。
 
 详见下方"部署"章节。
 
@@ -194,28 +194,28 @@ npm run cf:check
 
 #### 1. 准备工作
 
-**登录 Cloudflare:**
+**登录 Cloudflare：**
 ```bash
 npx wrangler login
 ```
 
-**创建生产环境数据库:**
+**创建生产环境数据库：**
 ```bash
 # 创建 D1 数据库
 npx wrangler d1 create oura-pix-db
 
 # 将返回的 database_id 填入 wrangler.toml
-# 找到 [[d1_databases]] 部分,取消注释并填入 database_id
+# 找到 [[d1_databases]] 部分，取消注释并填入 database_id
 ```
 
-**创建 R2 存储桶:**
+**创建 R2 存储桶：**
 ```bash
 npx wrangler r2 bucket create oura-pix-images
 ```
 
 #### 2. 配置 Secrets
 
-所有敏感信息必须通过 Cloudflare Secrets 管理:
+所有敏感信息必须通过 Cloudflare Secrets 管理：
 
 ```bash
 # 必需的 secrets
@@ -231,14 +231,14 @@ npx wrangler pages secret put AUTH_GITHUB_ID
 npx wrangler pages secret put AUTH_GITHUB_SECRET
 ```
 
-**查看已配置的 secrets:**
+**查看已配置的 secrets：**
 ```bash
 npx wrangler pages secret list
 ```
 
 #### 3. 配置环境变量
 
-编辑 `wrangler.toml` 文件,在 `[env.production.vars]` 部分配置:
+编辑 `wrangler.toml` 文件，在 `[env.production.vars]` 部分配置：
 
 ```toml
 [env.production.vars]
@@ -261,7 +261,7 @@ npm run db:migrate:prod
 
 #### 5. 部署
 
-**自动部署（推荐）:**
+**自动部署（推荐）：**
 ```bash
 # 部署到默认环境（包含部署前检查）
 npm run deploy
@@ -270,7 +270,7 @@ npm run deploy
 npm run deploy:prod
 ```
 
-**手动部署:**
+**手动部署：**
 ```bash
 # 构建
 npm run build:cf
@@ -284,7 +284,7 @@ npx wrangler pages deploy --env production
 
 #### 6. 验证部署
 
-部署完成后,访问您的应用 URL 并测试:
+部署完成后，访问你的应用 URL 并测试：
 
 - ✅ 用户注册/登录
 - ✅ OAuth 登录（如已配置）
@@ -294,34 +294,34 @@ npx wrangler pages deploy --env production
 
 ### 故障排查
 
-**部署前检查失败?**
+**部署前检查失败？**
 
-运行部署前检查脚本查看详细错误:
+运行部署前检查脚本查看详细错误：
 ```bash
 npm run predeploy
 ```
 
-**数据库连接失败?**
+**数据库连接失败？**
 
-确保 `wrangler.toml` 中的 `database_id` 正确配置:
+确保 `wrangler.toml` 中的 `database_id` 正确配置：
 ```bash
 # 列出所有 D1 数据库
 npx wrangler d1 list
 ```
 
-**Secrets 未生效?**
+**Secrets 未生效？**
 
-Secrets 更新后需要重新部署:
+Secrets 更新后需要重新部署：
 ```bash
 npm run deploy
 ```
 
-**查看部署日志:**
+**查看部署日志：**
 ```bash
 npx wrangler pages deployment tail
 ```
 
-## Documentation
+## 文档
 
 | 文档 | 路径 | 说明 |
 |------|------|------|
@@ -332,7 +332,7 @@ npx wrangler pages deployment tail
 | **设计文档** | [docs/reference/design.md](./docs/reference/design.md) | 系统架构设计 |
 | **测试文档** | [frontend/TESTING.md](./frontend/TESTING.md) | 本地测试指南 |
 
-## Project Structure
+## 项目结构
 
 ```
 oura-pix/
@@ -365,29 +365,29 @@ oura-pix/
 └── package.json              # 根配置
 ```
 
-## Architecture
+## 架构
 
-For detailed architecture documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+详细架构文档请参见 [ARCHITECTURE.md](./ARCHITECTURE.md)。
 
-## Contributing
+## 贡献
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+欢迎贡献！详情请参阅我们的 [贡献指南](./CONTRIBUTING.md)。
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交你的更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 创建 Pull Request
 
-## License
+## 开源协议
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+本项目采用 MIT 协议开源 - 详情请参阅 [LICENSE](./LICENSE) 文件。
 
-## Support
+## 支持
 
-- Documentation: [https://docs.oura-pix.com](https://docs.oura-pix.com)
-- Issues: [GitHub Issues](https://github.com/yourusername/oura-pix/issues)
-- Email: support@oura-pix.com
+- 文档：[https://docs.oura-pix.com](https://docs.oura-pix.com)
+- 问题反馈：[GitHub Issues](https://github.com/yourusername/oura-pix/issues)
+- 邮箱：support@oura-pix.com
 
 ---
 
