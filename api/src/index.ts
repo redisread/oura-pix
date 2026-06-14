@@ -87,7 +87,9 @@ app.use("/api/*", async (c, next) => {
   if (c.req.path.startsWith("/api/auth")) {
     return await next();
   }
-  return await authMiddleware(c, next);
+  // Cast context to match middleware's expected type
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return await authMiddleware(c as any, next);
 });
 
 // Protected API routes
