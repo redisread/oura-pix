@@ -1,14 +1,15 @@
 /**
- * @oura-pix/database - Shared database package
+ * @oura-pix/database — Shared database utilities
  *
- * Provides Drizzle ORM schema and database utilities for OuraPix
+ * Re-exports types from @oura-pix/types and provides Drizzle ORM
+ * database utilities for the OuraPix monorepo.
  */
 
 import { drizzle } from "drizzle-orm/d1";
 import type { D1Database } from "@cloudflare/workers-types";
-import * as schema from "./schema";
+import * as schema from "@oura-pix/types";
 
-export * from "./schema";
+export * from "@oura-pix/types";
 export { schema };
 
 // Re-export drizzle-orm operators
@@ -16,21 +17,13 @@ export { eq, and, or, gt, gte, lt, lte, desc, asc, inArray, notInArray, like, sq
 
 /**
  * 创建 Drizzle ORM 实例
- * @param d1Database Cloudflare D1 数据库实例
- * @returns Drizzle ORM 实例
  */
 export function createDb(d1Database: D1Database) {
   return drizzle(d1Database, { schema });
 }
 
-/**
- * 数据库类型导出
- */
 export type DB = ReturnType<typeof createDb>;
 
-/**
- * 表类型导出
- */
 export type User = typeof schema.users.$inferSelect;
 export type NewUser = typeof schema.users.$inferInsert;
 
