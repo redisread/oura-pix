@@ -36,7 +36,7 @@ export default function UploadDropzone({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const validateFiles = (files: FileList | null): File[] => {
+  const validateFiles = useCallback((files: FileList | null): File[] => {
     setError(null);
 
     if (!files || files.length === 0) {
@@ -74,7 +74,7 @@ export default function UploadDropzone({
     }
 
     return validFiles;
-  };
+  }, [selectedFiles.length, multiple, maxFiles, maxSize, accept]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -103,7 +103,7 @@ export default function UploadDropzone({
         onFilesSelected(newFiles);
       }
     },
-    [multiple, onFilesSelected, selectedFiles]
+    [multiple, onFilesSelected, selectedFiles, validateFiles]
   );
 
   const handleFileSelect = useCallback(
@@ -120,7 +120,7 @@ export default function UploadDropzone({
       // Reset input value to allow selecting the same file again
       e.target.value = "";
     },
-    [multiple, onFilesSelected, selectedFiles]
+    [multiple, onFilesSelected, selectedFiles, validateFiles]
   );
 
   const removeFile = useCallback(

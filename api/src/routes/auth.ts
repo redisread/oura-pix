@@ -5,11 +5,8 @@
  */
 
 import { Hono } from "hono";
-import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { google, github } from "better-auth/social-providers";
 import { createDb, schema } from "@oura-pix/database";
 import { sendPasswordResetEmail } from "../lib/mail";
 
@@ -164,7 +161,7 @@ router.post("/sign-in", async (c) => {
   const text = await response.text();
 
   const data = text ? JSON.parse(text) : { success: true, status: response.status };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Sign up (maps to Better Auth's /sign-up/email endpoint)
@@ -211,13 +208,13 @@ router.post("/sign-up", async (c) => {
   let data;
   try {
     data = text ? JSON.parse(text) : { success: true };
-  } catch (e) {
+  } catch {
     data = { success: false, error: "Invalid response" };
   }
 
   // Use 200 status code if Better Auth returns success
   const statusCode = response.status >= 200 && response.status < 300 ? response.status : 200;
-  return c.json(data, statusCode as any);
+  return c.json(data, statusCode as never);
 });
 
 // Sign out
@@ -250,7 +247,7 @@ router.post("/sign-out", async (c) => {
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : { success: true };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Get session
@@ -282,7 +279,7 @@ router.get("/session", async (c) => {
   const text = await response.text();
 
   const data = text ? JSON.parse(text) : { user: null, session: null };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Forgot password (maps to Better Auth's /request-password-reset endpoint)
@@ -311,7 +308,7 @@ router.post("/forgot-password", async (c) => {
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : { success: true };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Reset password
@@ -333,7 +330,7 @@ router.post("/reset-password", async (c) => {
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : { success: true };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 export { router as authRoutes };

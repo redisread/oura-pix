@@ -6,7 +6,6 @@
 
 import { eq, and, gte, desc, sql, count, inArray } from "drizzle-orm";
 import { createDb, schema, type GenerationSettings, type GenerationResult } from "@oura-pix/database";
-import type { D1Database } from "@cloudflare/workers-types";
 
 export type TimeFilter = "all" | "today" | "week" | "month";
 

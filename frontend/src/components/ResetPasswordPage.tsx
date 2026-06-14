@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import * as m from "@/paraglide/messages.js";
 import { resetPassword } from "@/lib/auth";
 
 // PasswordInput sub-component

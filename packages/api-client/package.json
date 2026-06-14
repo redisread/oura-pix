@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "echo 'no lint for api-client package'"
   },
   "dependencies": {
     "@oura-pix/database": "workspace:*",

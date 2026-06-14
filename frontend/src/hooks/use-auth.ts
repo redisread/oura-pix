@@ -17,11 +17,7 @@ interface AuthResult {
 export function useAuth() {
   const { user, isLoading, isAuthenticated, setUser, setLoading, logout: storeLogout } = useAuthStore();
 
-  useEffect(() => {
-    loadSession();
-  }, []);
-
-  const loadSession = async () => {
+  const loadSession = useCallback(async () => {
     setLoading(true);
     try {
       const session = await getSession();
@@ -35,7 +31,11 @@ export function useAuth() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setUser, setLoading]);
+
+  useEffect(() => {
+    loadSession();
+  }, [loadSession]);
 
   /**
    * User login
@@ -49,7 +49,7 @@ export function useAuth() {
       await loadSession();
     }
     return result;
-  }, []);
+  }, [loadSession]);
 
   /**
    * User register
@@ -64,7 +64,7 @@ export function useAuth() {
       await loadSession();
     }
     return result;
-  }, []);
+  }, [loadSession]);
 
   /**
    * User logout
@@ -72,7 +72,7 @@ export function useAuth() {
   const logout = useCallback(async (): Promise<void> => {
     await signOut();
     storeLogout();
-  }, []);
+  }, [storeLogout]);
 
   return {
     user,

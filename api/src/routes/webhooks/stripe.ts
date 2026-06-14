@@ -158,7 +158,8 @@ router.post("/stripe", async (c) => {
         const invoice = event.data.object as Stripe.Invoice;
         const subscriptionId = invoice.subscription as string;
 
-        const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
+        // Retrieve subscription to verify it exists (validation)
+        await stripe.subscriptions.retrieve(subscriptionId);
 
         const existing = await db.query.subscriptions.findFirst({
           where: eq(schema.subscriptions.externalSubscriptionId, subscriptionId),
