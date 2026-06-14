@@ -108,6 +108,7 @@ export const pricingFeatures_community = () => "社区支持";
 export const pricingFeatures_prioritySupport = () => "优先支持";
 export const pricingFeatures_dedicatedManager = () => "专属客户经理";
 export const pricingFeatures_feature = () => "功能";
+export const pricingFeatures_generationSpeed = () => "生成速度";
 
 // FAQ
 export const pricing_faq1_question = () => "如何升级或降级方案？";
@@ -171,3 +172,80 @@ export const profile_settings_saveSuccess = () => "设置已保存";
 export const profile_cancel = () => "取消";
 export const profile_confirm = () => "确认";
 export const profile_loading = () => "加载中...";
+
+// Generation page
+export const generation_title = () => "生成商品详情页";
+export const generation_subtitle = () => "上传商品图片，选择设置，AI 将为您生成专业的商品详情页";
+export const generation_uploadSection = () => "上传图片";
+export const generation_mainImage = () => "商品主图";
+export const generation_mainImageDesc = () => "上传您的商品主图，这将成为详情页的核心";
+export const generation_styleImage = () => "风格参考（可选）";
+export const generation_styleImageDesc = () => "上传参考风格图片，帮助 AI 理解您的偏好";
+export const generation_uploadTips = () => "上传提示";
+export const generation_uploadTip1 = () => "使用白色或透明背景的商品图片";
+export const generation_uploadTip2 = () => "图片分辨率建议 800x800 以上";
+export const generation_uploadTip3 = () => "支持 JPG、PNG 格式";
+export const generation_uploadingBtn = () => "上传中...";
+export const generation_settings = () => "生成设置";
+export const generation_platform = () => "选择平台";
+export const generation_count = () => "生成数量";
+export const generation_countDesc = () => "选择要生成的详情页数量（5-10）";
+export const generation_style = () => "风格偏好";
+export const generation_outputLang = () => "输出语言";
+export const generation_generatingBtn = () => "生成中...";
+export const generation_generateBtn = () => "开始生成";
+export const generation_preview = () => "预览区域";
+export const generation_previewDesc = () => "生成的详情页将显示在这里";
+export const generation_sceneImages = () => "生成的场景图";
+export const generation_viewLarge = () => "查看大图";
+export const generation_downloadImage = () => "下载图片";
+export const generation_aiCreatingImages = () => "AI 正在创建图片...";
+export const generation_generatingSceneImages = () => "正在生成场景图...";
+export const generation_failed = () => "生成失败";
+
+// Generation image generation settings
+export const generation_imageGen_title = () => "场景图生成";
+export const generation_imageGen_count = () => "图片数量";
+export const generation_imageGen_desc = () => "选择要生成的场景图数量（3-10）";
+export const generation_imageGen_aspectRatio = () => "宽高比";
+
+// Generation errors
+export const generation_error_noImage = () => "请先上传商品主图";
+export const generation_error_uploadFailed = () => "上传失败";
+export const generation_error_createFailed = () => "创建失败";
+export const generation_error_failed = () => "生成失败";
+
+// Generation stages
+export const generation_stage_analyzing = () => "分析商品图片中...";
+export const generation_stage_generatingText = () => "生成文案内容中...";
+export const generation_stage_generatingImages = ({ current, total }) => `生成场景图中 (${current}/${total})...`;
+export const generation_stage_uploading = () => "上传结果中...";
+export const generation_stage_completed = () => "生成完成！";
+
+// Generation stage labels
+export const generation_stageLabel_analyzing = () => "分析图片";
+export const generation_stageLabel_generatingText = () => "生成文案";
+export const generation_stageLabel_generatingImages = () => "生成场景图";
+export const generation_stageLabel_uploading = () => "上传结果";
+
+// Style labels
+export const style_minimal_label = () => "简约";
+export const style_minimal_desc = () => "简洁清爽，突出商品本身";
+export const style_luxury_label = () => "奢华";
+export const style_luxury_desc = () => "高端大气，展现品质感";
+export const style_lifestyle_label = () => "生活场景";
+export const style_lifestyle_desc = () => "场景融合，情感连接";
+export const style_professional_label = () => "专业";
+export const style_professional_desc = () => "专业商务风格";
+
+// Upload component
+export const upload_singleFileOnly = () => "只能上传一个文件";
+export const upload_maxFilesExceeded = ({ max }) => `最多只能上传 ${max} 个文件`;
+export const upload_fileTooLarge = ({ size }) => `文件大小不能超过 ${size}`;
+export const upload_invalidType = ({ type }) => `仅支持 ${type} 格式文件`;
+export const upload_filesSelected = ({ count }) => `已选择 ${count} 个文件`;
+export const upload_clickOrDrag = () => "点击或拖拽文件到此处";
+export const upload_supportedFormats = ({ type, size }) => `支持 ${type}，最大 ${size}`;
+
+// Common
+export const common_custom = () => "自定义";

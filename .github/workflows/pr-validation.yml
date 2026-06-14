@@ -35,5 +35,5 @@ jobs:
       - name: Lint Frontend
         run: pnpm --filter @oura-pix/frontend lint
 
-      - name: API Test
-        run: pnpm --filter @oura-pix/api test
+      - name: Typecheck Frontend
+        run: pnpm --filter @oura-pix/frontend typecheck

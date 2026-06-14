@@ -10,7 +10,7 @@
     "astro": "astro",
     "lint": "eslint src/",
     "clean": "rm -rf dist .astro",
-    "typecheck": "tsc --noEmit || true",
+    "typecheck": "tsc --noEmit",
     "i18n:build": "echo 'i18n uses paraglide-js mock mode'"
   },
   "dependencies": {
