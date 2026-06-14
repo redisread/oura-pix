@@ -29,8 +29,11 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Lint
-        run: pnpm lint || echo "lint skipped"
+      - name: Lint API
+        run: pnpm --filter @oura-pix/api lint
+
+      - name: Lint Frontend
+        run: pnpm --filter @oura-pix/frontend lint
 
       - name: API Test
-        run: pnpm --filter @oura-pix/api test || echo "api test skipped"
+        run: pnpm --filter @oura-pix/api test
