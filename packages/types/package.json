@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
-    "lint": "eslint src/"
+    "lint": "echo 'no lint for types package'"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241112.0",

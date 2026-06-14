@@ -39,7 +39,7 @@ export default function GeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState<GenerationStage>("analyzing");
-  const [generatedResults, setGeneratedResults] = useState<any[]>([]);
+  const [generatedResults, setGeneratedResults] = useState<Record<string, unknown>[]>([]);
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -80,7 +80,7 @@ export default function GeneratePage() {
   const pollGenerationStatus = async (genId: string) => {
     const result = await getGeneration(genId);
     if (result.success && result.data) {
-      const { status, imageGenerationStatus, results, generatedImageCount } = result.data;
+      const { status, imageGenerationStatus, results } = result.data;
 
       if (status === "processing") {
         if (imageGenerationStatus === "processing") {
@@ -504,7 +504,7 @@ export default function GeneratePage() {
                             {m.generation_sceneImages?.() || "场景图"} ({result.sceneImages.length})
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
-                            {result.sceneImages.map((img: any, imgIndex: number) => (
+                            {result.sceneImages.map((img: { imageId?: string; url: string; variation?: number }, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
                                 className="group relative aspect-square rounded-lg border border-slate-200 bg-slate-50 overflow-hidden"
