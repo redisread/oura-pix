@@ -43,7 +43,7 @@ function createAuth(env: {
 /**
  * Helper to extract session token from request
  */
-function getSessionToken(c: Hono.Context): string | null {
+function getSessionToken(c: { req: { header: (name: string) => string | undefined } }): string | null {
   const cookie = c.req.header("Cookie");
   if (cookie) {
     const match = cookie.match(/better-auth\.session_token=([^;]+)/);
@@ -98,7 +98,7 @@ router.put("/profile", async (c) => {
       headers: new Headers({
         cookie: `better-auth.session_token=${sessionToken}`,
       }),
-      data: { name: name.trim() },
+      body: { name: name.trim() },
     });
 
     return c.json({ success: true, data: result });
@@ -147,7 +147,7 @@ router.put("/avatar", async (c) => {
       headers: new Headers({
         cookie: `better-auth.session_token=${sessionToken}`,
       }),
-      data: { image },
+      body: { image },
     });
 
     return c.json({ success: true, data: result });

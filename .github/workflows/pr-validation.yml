@@ -32,6 +32,9 @@ jobs:
       - name: Lint API
         run: pnpm --filter @oura-pix/api lint
 
+      - name: Typecheck API
+        run: pnpm --filter @oura-pix/api typecheck
+
       - name: Lint Frontend
         run: pnpm --filter @oura-pix/frontend lint
 
