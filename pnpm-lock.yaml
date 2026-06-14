@@ -141,8 +141,13 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
+  packages/config: {}
+
   packages/database:
     dependencies:
+      '@oura-pix/types':
+        specifier: workspace:*
+        version: link:../types
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.1(@cloudflare/workers-types@4.20260313.1)(kysely@0.28.12)
@@ -162,6 +167,19 @@ importers:
       wrangler:
         specifier: ^4.69.0
         version: 4.73.0(@cloudflare/workers-types@4.20260313.1)
+
+  packages/types:
+    dependencies:
+      drizzle-orm:
+        specifier: ^0.45.1
+        version: 0.45.1(@cloudflare/workers-types@4.20260313.1)(kysely@0.28.12)
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20241112.0
+        version: 4.20260313.1
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
 
 packages:
 

@@ -1,17 +1,18 @@
-name: Deploy Frontend
+name: Deploy API
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'frontend/**'
+      - 'api/**'
       - 'packages/**'
+      - 'drizzle/**'
       - '.github/workflows/**'
 
 jobs:
-  deploy-frontend:
-    name: Deploy Frontend to Cloudflare Workers
+  deploy-api:
+    name: Deploy API to Cloudflare Workers
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,18 +31,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Type check
-        run: pnpm --filter @oura-pix/frontend typecheck || echo "typecheck skipped"
+      - name: Lint
+        run: pnpm --filter @oura-pix/api lint
 
-      - name: Build frontend
-        run: pnpm --filter @oura-pix/frontend build
-        env:
-          PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
+      - name: Test
+        run: pnpm --filter @oura-pix/api test
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: frontend
+          workingDirectory: api
           command: deploy

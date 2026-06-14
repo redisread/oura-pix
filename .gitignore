@@ -6,12 +6,7 @@ node_modules
 # Testing
 coverage
 
-# Next.js
-.next
-out
-
-# Production
-build
+# Build output
 dist
 
 # Misc
@@ -40,7 +35,6 @@ yarn-error.log*
 # Cloudflare
 .wrangler
 wrangler.toml.bak
-.open-next
 .dev.vars
 
 # IDE
@@ -84,17 +78,14 @@ next-env.d.ts
 .turbo
 turbo.log
 
-#pnpm
+# pnpm
 pnpm-workspace.yaml.local
 
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-
- 
-# .claude/
-# .opencode/
-# openspec/
-# .agents/
+# Spec Kit
 .specify/
+
+# Build artifacts (wrangler build)
+.open-next
+
+# Astro
+.astro
