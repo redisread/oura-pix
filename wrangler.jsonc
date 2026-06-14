@@ -6,12 +6,12 @@
   // OpenNext 文档: https://opennext.js.org/cloudflare/get-started
 
   "name": "oura-pix",
-  "main": ".open-next/worker.js",
+  "main": "frontend/dist/_worker.js",
   "compatibility_date": "2026-02-26",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 
   "assets": {
-    "directory": ".open-next/assets",
+    "directory": "frontend/dist",
     "binding": "ASSETS",
     "run_worker_first": false
   },
