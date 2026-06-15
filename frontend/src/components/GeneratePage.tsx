@@ -8,6 +8,27 @@ import { uploadImage } from "@/lib/api";
 import { createGeneration, getGeneration } from "@/lib/generation";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
+
+interface SceneImage {
+  imageId?: string;
+  url: string;
+  aspectRatio?: string;
+  width?: number;
+  height?: number;
+  promptUsed?: string;
+  variation?: number;
+}
+
+interface GeneratedResult {
+  id?: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
+  imageUrl?: string;
+  confidenceScore?: number;
+  sceneImages?: SceneImage[];
+  metadata?: Record<string, unknown>;
+}
 type Style = "minimal" | "luxury" | "lifestyle" | "professional";
 type AspectRatio = "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
 
@@ -39,7 +60,7 @@ export default function GeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState<GenerationStage>("analyzing");
-  const [generatedResults, setGeneratedResults] = useState<Record<string, unknown>[]>([]);
+  const [generatedResults, setGeneratedResults] = useState<GeneratedResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -504,7 +525,7 @@ export default function GeneratePage() {
                             {m.generation_sceneImages?.() || "场景图"} ({result.sceneImages.length})
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
-                            {result.sceneImages.map((img: { imageId?: string; url: string; variation?: number }, imgIndex: number) => (
+                            {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
                                 className="group relative aspect-square rounded-lg border border-slate-200 bg-slate-50 overflow-hidden"
