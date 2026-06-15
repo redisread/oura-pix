@@ -31,7 +31,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: pnpm --filter @oura-pix/frontend typecheck || echo "typecheck skipped"
+        run: pnpm --filter @oura-pix/frontend typecheck
 
       - name: Build frontend
         run: pnpm --filter @oura-pix/frontend build
@@ -39,9 +39,14 @@ jobs:
           PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
 
       - name: Deploy to Cloudflare Workers
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: frontend
           command: deploy
+
+      - name: Skip deploy (no secrets)
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
+        run: echo "Skipping deploy - CLOUDFLARE_API_TOKEN not configured"

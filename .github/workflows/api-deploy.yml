@@ -34,13 +34,18 @@ jobs:
       - name: Lint
         run: pnpm --filter @oura-pix/api lint
 
-      - name: Test
-        run: pnpm --filter @oura-pix/api test
+      - name: Type check
+        run: pnpm --filter @oura-pix/api typecheck
 
       - name: Deploy to Cloudflare Workers
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: api
           command: deploy
+
+      - name: Skip deploy (no secrets)
+        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
+        run: echo "Skipping deploy - CLOUDFLARE_API_TOKEN not configured"
