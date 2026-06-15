@@ -522,10 +522,10 @@ export default function GeneratePage() {
                       {result.sceneImages && result.sceneImages.length > 0 && (
                         <div>
                           <h4 className="text-xs font-medium text-slate-700 mb-2">
-                            {"场景图"} ({result.sceneImages.length})
+                            {m.generation_sceneImages?.() || "场景图"} ({result.sceneImages.length})
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
-                            {result.sceneImages.map((img: { imageId?: string; url: string; variation?: number }, imgIndex: number) => (
+                            {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
                                 className="group relative aspect-square rounded-lg border border-slate-200 bg-slate-50 overflow-hidden"
