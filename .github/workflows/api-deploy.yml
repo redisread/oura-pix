@@ -14,6 +14,8 @@ jobs:
   deploy-api:
     name: Deploy API to Cloudflare Workers
     runs-on: ubuntu-latest
+    env:
+      HAS_CLOUDFLARE_SECRETS: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,7 +40,7 @@ jobs:
         run: pnpm --filter @oura-pix/api typecheck
 
       - name: Deploy to Cloudflare Workers
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        if: env.HAS_CLOUDFLARE_SECRETS == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -47,5 +49,5 @@ jobs:
           command: deploy
 
       - name: Skip deploy (no secrets)
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
-        run: echo "Skipping deploy - CLOUDFLARE_API_TOKEN not configured"
+        if: env.HAS_CLOUDFLARE_SECRETS != 'true'
+        run: echo "Skipping deploy - Cloudflare secrets not configured"
