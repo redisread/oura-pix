@@ -588,3 +588,36 @@ export const metrics = sqliteTable("metrics", {
   nameRecordedAtIdx: index("metrics_name_recordedAt_idx").on(table.name, table.recordedAt),
 }));
 
+/**
+ * API 密钥表
+ *
+ * 存储用户生成的 API Key 哈希值，永不存明文。
+ * 完整 key 仅在创建时返回一次。
+ */
+export const apiKeys = sqliteTable("api_keys", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 用户自定义名称
+  name: text("name").notNull(),
+  // 展示用前缀，例如 "op_a1b2c3"
+  keyPrefix: text("keyPrefix").notNull(),
+  // 完整 key 的 SHA-256 哈希
+  keyHash: text("keyHash").notNull().unique(),
+  // 最后使用时间
+  lastUsedAt: integer("lastUsedAt", { mode: "timestamp_ms" }),
+  // 过期时间（可选）
+  expiresAt: integer("expiresAt", { mode: "timestamp_ms" }),
+  // 是否已吊销
+  isRevoked: integer("isRevoked", { mode: "boolean" }).notNull().default(false),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("api_keys_userId_idx").on(table.userId),
+  keyHashIdx: index("api_keys_keyHash_idx").on(table.keyHash),
+}));
+
