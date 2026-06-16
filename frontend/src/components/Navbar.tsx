@@ -24,6 +24,7 @@ export default function Navbar() {
     { href: "/history", label: m.history_title?.() || "生成历史" },
     { href: "/favorites", label: m.favorites_title?.() || "我的收藏" },
     { href: "/stats", label: m.stats_title?.() || "统计" },
+    { href: "/errors", label: "错误追踪" },
     { href: "/pricing", label: m.pricing() },
   ];
 

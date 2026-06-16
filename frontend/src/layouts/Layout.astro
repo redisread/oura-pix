@@ -27,6 +27,14 @@ const {
   </head>
   <body class="font-sans antialiased min-h-screen bg-white text-slate-900">
     <slot />
+    <script>
+      // Install the global error reporter as early as possible on every page.
+      import("/src/lib/errorReporter.ts")
+        .then((m) => m.installErrorReporter())
+        .catch(() => {
+          /* never let the reporter itself block the app */
+        });
+    </script>
   </body>
 </html>
 

@@ -440,3 +440,95 @@ export const notifications = sqliteTable("notifications", {
   createdAtIdx: index("notifications_createdAt_idx").on(table.createdAt),
 }));
 
+/**
+ * 错误严重程度枚举
+ */
+export const ErrorSeverity = {
+  CRITICAL: "critical",
+  HIGH: "high",
+  MEDIUM: "medium",
+  LOW: "low",
+} as const;
+
+export type ErrorSeverityType = typeof ErrorSeverity[keyof typeof ErrorSeverity];
+
+/**
+ * 错误类型枚举
+ */
+export const ErrorType = {
+  NETWORK: "network",
+  VALIDATION: "validation",
+  AUTHENTICATION: "authentication",
+  BUSINESS_LOGIC: "business_logic",
+  RUNTIME: "runtime",
+  UNKNOWN: "unknown",
+} as const;
+
+export type ErrorTypeType = typeof ErrorType[keyof typeof ErrorType];
+
+/**
+ * 错误模块枚举
+ */
+export const ErrorModule = {
+  API: "api",
+  FRONTEND: "frontend",
+  WORKER: "worker",
+  DATABASE: "database",
+} as const;
+
+export type ErrorModuleType = typeof ErrorModule[keyof typeof ErrorModule];
+
+/**
+ * 错误追踪表
+ *
+ * 记录前端和后端错误，用于问题定位和稳定性监控
+ */
+export const errors = sqliteTable("errors", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // 错误消息
+  message: text("message").notNull(),
+  // 堆栈信息
+  stack: text("stack"),
+  // 严重程度
+  severity: text("severity", {
+    enum: ["critical", "high", "medium", "low"],
+  })
+    .notNull()
+    .default("medium"),
+  // 错误类型
+  type: text("type", {
+    enum: ["network", "validation", "authentication", "business_logic", "runtime", "unknown"],
+  })
+    .notNull()
+    .default("unknown"),
+  // 来源模块
+  module: text("module", {
+    enum: ["api", "frontend", "worker", "database"],
+  })
+    .notNull()
+    .default("frontend"),
+  // 上下文信息（URL、用户代理、用户 ID、操作历史等 JSON 字符串）
+  context: text("context"),
+  // 用于去重的错误指纹（message + stack[:3] 的 hash）
+  hash: text("hash").notNull(),
+  // 出现次数
+  occurrences: integer("occurrences").notNull().default(1),
+  // 最后一次出现时间
+  lastSeenAt: integer("lastSeenAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  // 首次出现时间
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  hashIdx: index("errors_hash_idx").on(table.hash),
+  severityIdx: index("errors_severity_idx").on(table.severity),
+  typeIdx: index("errors_type_idx").on(table.type),
+  moduleIdx: index("errors_module_idx").on(table.module),
+  lastSeenAtIdx: index("errors_lastSeenAt_idx").on(table.lastSeenAt),
+  createdAtIdx: index("errors_createdAt_idx").on(table.createdAt),
+}));
+
