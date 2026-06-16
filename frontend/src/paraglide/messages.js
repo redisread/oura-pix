@@ -321,6 +321,30 @@ export const compare_helpZoom = () => "+/- 缩放";
 export const compare_helpFullscreen = () => "F 全屏";
 export const compare_helpEsc = () => "ESC 关闭";
 
+// Stats
+export const stats_title = () => "统计";
+export const stats_description = () => "查看您的生成历史数据分析";
+export const stats_totalGenerations = () => "总生成次数";
+export const stats_totalGenerationsSubtitle = () => "AI 生成任务总数";
+export const stats_totalImages = () => "总图片数";
+export const stats_totalImagesSubtitle = () => "生成的图片总数";
+export const stats_avgGenerationTime = () => "平均生成时间";
+export const stats_avgGenerationTimeSubtitle = () => "每次生成的平均耗时";
+export const stats_favoriteRate = () => "收藏率";
+export const stats_favoriteRateSubtitle = () => "收藏图片占比";
+export const stats_platformDistribution = () => "平台分布";
+export const stats_styleDistribution = () => "风格分布";
+export const stats_generationTrend = () => "生成趋势";
+export const stats_noData = () => "暂无数据";
+export const stats_total = () => "总计";
+export const stats_average = () => "平均";
+export const stats_times = () => "次";
+export const stats_timesPerDay = () => "次/天";
+export const stats_range7d = () => "近7天";
+export const stats_range30d = () => "近30天";
+export const stats_range90d = () => "近90天";
+export const stats_rangeAll = () => "全部";
+
 // Language selector
 export const language_selector = () => "语言";
 export const language_zh = () => "中文";

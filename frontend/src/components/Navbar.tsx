@@ -22,6 +22,7 @@ export default function Navbar() {
     { href: "/generate", label: m.generate() },
     { href: "/history", label: m.history_title?.() || "生成历史" },
     { href: "/favorites", label: m.favorites_title?.() || "我的收藏" },
+    { href: "/stats", label: m.stats_title?.() || "统计" },
     { href: "/pricing", label: m.pricing() },
   ];
 
