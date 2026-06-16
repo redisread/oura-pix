@@ -18,6 +18,7 @@ import { subscriptionRoutes } from "./routes/subscription";
 import { favoriteRoutes } from "./routes/favorites";
 import statsRoutes from "./routes/stats";
 import notificationRoutes from "./routes/notifications";
+import errorRoutes from "./routes/errors";
 import { stripeWebhookRoutes } from "./routes/webhooks/stripe";
 import { authMiddleware } from "./middleware/auth";
 
@@ -103,6 +104,7 @@ app.route("/api/subscription", subscriptionRoutes);
 app.route("/api/favorites", favoriteRoutes);
 app.route("/api/stats", statsRoutes);
 app.route("/api/notifications", notificationRoutes);
+app.route("/api/errors", errorRoutes);
 app.route("/api/webhooks", stripeWebhookRoutes);
 
 // ============================================
