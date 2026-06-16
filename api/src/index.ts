@@ -15,6 +15,7 @@ import { userRoutes } from "./routes/user";
 import { generationRoutes } from "./routes/generations";
 import { uploadRoutes } from "./routes/upload";
 import { subscriptionRoutes } from "./routes/subscription";
+import { favoriteRoutes } from "./routes/favorites";
 import { stripeWebhookRoutes } from "./routes/webhooks/stripe";
 import { authMiddleware } from "./middleware/auth";
 
@@ -97,6 +98,7 @@ app.route("/api/user", userRoutes);
 app.route("/api/generations", generationRoutes);
 app.route("/api/upload", uploadRoutes);
 app.route("/api/subscription", subscriptionRoutes);
+app.route("/api/favorites", favoriteRoutes);
 app.route("/api/webhooks", stripeWebhookRoutes);
 
 // ============================================

@@ -38,6 +38,14 @@ export const ENDPOINTS = {
     portal: "/api/subscription/portal",
     cancel: "/api/subscription/cancel",
   },
+  // 收藏
+  favorites: {
+    list: "/api/favorites",
+    add: "/api/favorites",
+    remove: (id: string) => `/api/favorites/${id}`,
+    batchDelete: "/api/favorites/batch-delete",
+    check: (imageUrl: string) => `/api/favorites/check/${encodeURIComponent(imageUrl)}`,
+  },
   // Webhooks
   webhooks: {
     stripe: "/api/webhooks/stripe",

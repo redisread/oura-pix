@@ -280,3 +280,20 @@ export const history_previousPage = () => "上一页";
 export const history_nextPage = () => "下一页";
 export const history_retry = () => "重试";
 export const history_noImage = () => "无图片";
+
+// Favorites page
+export const favorites_title = () => "我的收藏";
+export const favorites_subtitle = () => "您收藏的所有图片";
+export const favorites_empty = () => "暂无收藏";
+export const favorites_emptyDescription = () => "浏览生成结果，收藏您喜欢的图片";
+export const favorites_goGenerate = () => "去生成图片";
+export const favorites_batchManage = () => "批量管理";
+export const favorites_selectAll = () => "全选";
+export const favorites_deselectAll = () => "取消全选";
+export const favorites_unfavorite = () => "取消收藏";
+export const favorites_cancel = () => "取消";
+export const favorites_total = ({ count }) => `共 ${count} 张收藏`;
+export const favorites_confirmBatchUnfavorite = ({ count }) => `确定要取消收藏 ${count} 张图片吗？`;
+export const favorites_download = () => "下载";
+export const favorites_today = () => "今天";
+export const favorites_daysAgo = ({ count }) => `${count}天前`;
