@@ -41,3 +41,6 @@ export type NewSubscription = typeof schema.subscriptions.$inferInsert;
 
 export type UsageLog = typeof schema.usageLogs.$inferSelect;
 export type NewUsageLog = typeof schema.usageLogs.$inferInsert;
+
+export type Favorite = typeof schema.favorites.$inferSelect;
+export type NewFavorite = typeof schema.favorites.$inferInsert;

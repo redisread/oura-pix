@@ -221,6 +221,34 @@ export const generations = sqliteTable("generations", {
 }));
 
 /**
+ * 图片收藏表
+ */
+export const favorites = sqliteTable("favorites", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 关联的生成任务 ID
+  generationId: text("generationId")
+    .notNull()
+    .references(() => generations.id, { onDelete: "cascade" }),
+  // 收藏的图片 URL
+  imageUrl: text("imageUrl").notNull(),
+  // 图片在生成结果中的索引
+  imageIndex: integer("imageIndex"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("favorites_userId_idx").on(table.userId),
+  userIdGenerationIdx: index("favorites_userId_generationId_idx").on(table.userId, table.generationId),
+  // 确保同一用户不会重复收藏同一张图片
+  uniqueFavorite: index("favorites_unique_idx").on(table.userId, table.imageUrl),
+}));
+
+/**
  * 生成设置类型
  */
 export interface GenerationSettings {
