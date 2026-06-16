@@ -384,3 +384,59 @@ export const usageLogs = sqliteTable("usage_logs", {
     .notNull()
     .default(sql`(strftime('%s', 'now') * 1000)`),
 });
+
+/**
+ * 通知类型枚举
+ */
+export const NotificationType = {
+  GENERATION_COMPLETE: "generation_complete",
+  GENERATION_FAILED: "generation_failed",
+  SYSTEM_ANNOUNCEMENT: "system_announcement",
+  ACCOUNT_UPDATE: "account_update",
+  SUBSCRIPTION_RENEWAL: "subscription_renewal",
+  SUBSCRIPTION_EXPIRING: "subscription_expiring",
+} as const;
+
+export type NotificationTypeType =
+  typeof NotificationType[keyof typeof NotificationType];
+
+/**
+ * 通知表
+ */
+export const notifications = sqliteTable("notifications", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 通知类型
+  type: text("type", {
+    enum: [
+      "generation_complete",
+      "generation_failed",
+      "system_announcement",
+      "account_update",
+      "subscription_renewal",
+      "subscription_expiring",
+    ],
+  }).notNull(),
+  // 通知标题
+  title: text("title").notNull(),
+  // 通知内容
+  message: text("message").notNull(),
+  // 跳转链接（可选）
+  link: text("link"),
+  // 关联的资源 ID（如 generationId）
+  resourceId: text("resourceId"),
+  // 是否已读
+  isRead: integer("isRead", { mode: "boolean" }).notNull().default(false),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("notifications_userId_idx").on(table.userId),
+  userIdIsReadIdx: index("notifications_userId_isRead_idx").on(table.userId, table.isRead),
+  createdAtIdx: index("notifications_createdAt_idx").on(table.createdAt),
+}));
+

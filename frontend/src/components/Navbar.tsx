@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import LanguageSelector from "./LanguageSelector";
+import NotificationBell from "./notifications/NotificationBell";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -58,6 +59,7 @@ export default function Navbar() {
 
         {/* Right Side: Language & Auth */}
         <div className="hidden md:flex items-center gap-2">
+          <NotificationBell />
           <LanguageSelector />
           <a
             href="/login"
