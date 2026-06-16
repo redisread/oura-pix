@@ -19,6 +19,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/", label: m.home() },
     { href: "/generate", label: m.generate() },
+    { href: "/history", label: m.history_title?.() || "生成历史" },
     { href: "/pricing", label: m.pricing() },
   ];
 

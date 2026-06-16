@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro";
+import HistoryPage from "../components/HistoryPage";
+import * as m from "@/paraglide/messages.js";
+
+const isLoggedIn = true; // TODO: Check session
+---
+
+<Layout title={m.history_title?.() || "生成历史"}>
+  <HistoryPage client:load />
+</Layout>
