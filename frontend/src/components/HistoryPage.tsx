@@ -4,10 +4,11 @@
  * Main page component for generation history
  */
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useGenerations } from "@/hooks/useGenerations";
 import FilterBar from "./FilterBar";
 import GenerationCard from "./GenerationCard";
+import ImageEditor from "./editor/ImageEditor";
 import { deleteGeneration } from "@/lib/api";
 
 function SkeletonCard() {
@@ -75,12 +76,18 @@ export default function HistoryPage() {
     refresh,
   } = useGenerations();
 
+  const [editingImage, setEditingImage] = useState<string | null>(null);
+
   const handleViewDetail = useCallback((id: string) => {
     window.location.href = `/generate?history=${id}`;
   }, []);
 
   const handleRegenerate = useCallback((id: string) => {
     window.location.href = `/generate?regenerate=${id}`;
+  }, []);
+
+  const handleEdit = useCallback((imageUrl: string) => {
+    setEditingImage(imageUrl);
   }, []);
 
   const handleDelete = useCallback(
@@ -164,6 +171,7 @@ export default function HistoryPage() {
                     generation={gen}
                     onViewDetail={handleViewDetail}
                     onRegenerate={handleRegenerate}
+                    onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
                 ))}
@@ -195,6 +203,19 @@ export default function HistoryPage() {
           )}
         </div>
       </div>
+
+      {/* Image Editor Modal */}
+      {editingImage && (
+        <ImageEditor
+          imageUrl={editingImage}
+          onClose={() => setEditingImage(null)}
+          onSave={async (blob) => {
+            // TODO: Implement save to backend
+            console.log("Saving edited image:", blob);
+            setEditingImage(null);
+          }}
+        />
+      )}
     </div>
   );
 }
