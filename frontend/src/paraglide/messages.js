@@ -320,3 +320,13 @@ export const compare_helpArrow = () => "← → 切换图片";
 export const compare_helpZoom = () => "+/- 缩放";
 export const compare_helpFullscreen = () => "F 全屏";
 export const compare_helpEsc = () => "ESC 关闭";
+
+// Language selector
+export const language_selector = () => "语言";
+export const language_zh = () => "中文";
+export const language_en = () => "English";
+export const language_ja = () => "日本語";
+
+// Nav links
+export const history = () => "生成历史";
+export const favorites = () => "我的收藏";
