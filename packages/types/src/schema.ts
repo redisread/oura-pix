@@ -532,3 +532,59 @@ export const errors = sqliteTable("errors", {
   createdAtIdx: index("errors_createdAt_idx").on(table.createdAt),
 }));
 
+/**
+ * 性能指标名枚举（对应 web-vitals）
+ */
+export const MetricName = {
+  // Core Web Vitals
+  LCP: "LCP",         // Largest Contentful Paint
+  INP: "INP",         // Interaction to Next Paint
+  CLS: "CLS",         // Cumulative Layout Shift
+  FCP: "FCP",         // First Contentful Paint
+  TTFB: "TTFB",       // Time to First Byte
+  // Navigation timing
+  NAV_DOM: "navigation.domContentLoaded",
+  NAV_LOAD: "navigation.load",
+} as const;
+
+export type MetricNameType = typeof MetricName[keyof typeof MetricName];
+
+/**
+ * 性能指标表
+ *
+ * 记录前端 Web Vitals 和导航时序指标，用于性能监控
+ */
+export const metrics = sqliteTable("metrics", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // 指标名
+  name: text("name").notNull(),
+  // 指标值（CLS 等无单位指标保留原始数值；时间类指标为毫秒）
+  value: real("value").notNull(),
+  // 评分（good / needs-improvement / poor），可选
+  rating: text("rating", {
+    enum: ["good", "needs-improvement", "poor"],
+  }),
+  // 当前页面 URL
+  url: text("url"),
+  // 用户代理
+  userAgent: text("userAgent"),
+  // 设备类型（mobile / tablet / desktop），基于 viewport 宽度
+  deviceType: text("deviceType", {
+    enum: ["mobile", "tablet", "desktop"],
+  }),
+  // 网络类型（effectiveType，来自 navigator.connection）
+  connectionType: text("connectionType"),
+  // 附加上下文 JSON
+  context: text("context"),
+  recordedAt: integer("recordedAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  nameIdx: index("metrics_name_idx").on(table.name),
+  ratingIdx: index("metrics_rating_idx").on(table.rating),
+  recordedAtIdx: index("metrics_recordedAt_idx").on(table.recordedAt),
+  nameRecordedAtIdx: index("metrics_name_recordedAt_idx").on(table.name, table.recordedAt),
+}));
+

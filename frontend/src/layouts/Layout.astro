@@ -28,12 +28,13 @@ const {
   <body class="font-sans antialiased min-h-screen bg-white text-slate-900">
     <slot />
     <script>
-      // Install the global error reporter as early as possible on every page.
-      import("/src/lib/errorReporter.ts")
-        .then((m) => m.installErrorReporter())
-        .catch(() => {
-          /* never let the reporter itself block the app */
-        });
+      // Install the global error and metric reporters as early as possible on every page.
+      Promise.all([
+        import("/src/lib/errorReporter.ts").then((m) => m.installErrorReporter()),
+        import("/src/lib/metricReporter.ts").then((m) => m.installMetricReporter()),
+      ]).catch(() => {
+        /* never let the reporters themselves block the app */
+      });
     </script>
   </body>
 </html>
