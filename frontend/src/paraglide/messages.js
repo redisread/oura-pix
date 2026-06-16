@@ -297,3 +297,26 @@ export const favorites_confirmBatchUnfavorite = ({ count }) => `确定要取消�
 export const favorites_download = () => "下载";
 export const favorites_today = () => "今天";
 export const favorites_daysAgo = ({ count }) => `${count}天前`;
+
+// Compare view
+export const compare_title = () => "图片对比";
+export const compare_button = () => "对比视图";
+export const compare_buttonDesc = () => "对比视图（查看所有生成的图片）";
+export const compare_layout2x2 = () => "2×2";
+export const compare_layout1x4 = () => "1×4";
+export const compare_layout4x1 = () => "4×1";
+export const compare_layoutSingle = () => "单图";
+export const compare_zoomIn = () => "放大";
+export const compare_zoomOut = () => "缩小";
+export const compare_reset = () => "重置";
+export const compare_fullscreen = () => "全屏";
+export const compare_exitFullscreen = () => "退出全屏";
+export const compare_prev = () => "上一张";
+export const compare_next = () => "下一张";
+export const compare_close = () => "关闭";
+export const compare_helpWheel = () => "滚轮缩放";
+export const compare_helpDrag = () => "拖拽平移";
+export const compare_helpArrow = () => "← → 切换图片";
+export const compare_helpZoom = () => "+/- 缩放";
+export const compare_helpFullscreen = () => "F 全屏";
+export const compare_helpEsc = () => "ESC 关闭";

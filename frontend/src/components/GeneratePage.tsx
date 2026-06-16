@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import * as m from "@/paraglide/messages.js";
 import UploadDropzone from "./UploadDropzone";
 import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
+import CompareView from "./compare/CompareView";
 import { uploadImage } from "@/lib/api";
 import { createGeneration, getGeneration } from "@/lib/generation";
 
@@ -62,6 +63,7 @@ export default function GeneratePage() {
   const [currentStage, setCurrentStage] = useState<GenerationStage>("analyzing");
   const [generatedResults, setGeneratedResults] = useState<GeneratedResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showCompare, setShowCompare] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const platforms: { value: Platform; label: string; icon: string }[] = [
@@ -496,6 +498,19 @@ export default function GeneratePage() {
               {/* Results Display */}
               {generatedResults.length > 0 ? (
                 <div className="space-y-6">
+                  {/* Compare Button */}
+                  {generatedResults.some(r => r.sceneImages && r.sceneImages.length > 1) && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCompare(true)}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 p-3 text-sm font-medium text-slate-600 hover:border-amber-500 hover:text-amber-600 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                      </svg>
+                      对比视图（查看所有生成的图片）
+                    </button>
+                  )}
                   {generatedResults.map((result, resultIndex) => (
                     <div key={result.id || resultIndex} className="rounded-lg border border-slate-200 p-4">
                       <div className="mb-4">
@@ -574,6 +589,21 @@ export default function GeneratePage() {
           </div>
         </div>
       </main>
+
+      {/* Compare View Modal */}
+      {showCompare && (
+        <CompareView
+          images={generatedResults.flatMap((result, resultIndex) =>
+            (result.sceneImages || []).map((img, imgIndex) => ({
+              id: img.imageId || `${resultIndex}-${imgIndex}`,
+              url: img.url,
+              title: result.title,
+              generationId: result.id || `${resultIndex}`,
+            }))
+          )}
+          onClose={() => setShowCompare(false)}
+        />
+      )}
     </div>
   );
 }
