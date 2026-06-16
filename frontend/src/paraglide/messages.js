@@ -249,3 +249,34 @@ export const upload_supportedFormats = ({ type, size }) => `支持 ${type}，最
 
 // Common
 export const common_custom = () => "自定义";
+
+// History page
+export const history_title = () => "生成历史";
+export const history_subtitle = () => "查看您的所有生成记录";
+export const history_empty = () => "暂无生成记录";
+export const history_emptyDescription = () => "开始使用 AI 生成精美的商品详情页图片吧";
+export const history_startGenerate = () => "开始生成";
+export const history_newGenerate = () => "新建生成";
+export const history_totalRecords = ({ count }) => `共 ${count} 条记录`;
+export const history_filterAll = () => "全部";
+export const history_filterToday = () => "今天";
+export const history_filterWeek = () => "本周";
+export const history_filterMonth = () => "本月";
+export const history_filterAllPlatforms = () => "全部平台";
+export const history_filterAllStatus = () => "全部状态";
+export const history_statusSuccess = () => "已完成";
+export const history_statusPending = () => "处理中";
+export const history_statusFailed = () => "失败";
+export const history_viewDetail = () => "查看详情";
+export const history_regenerate = () => "重新生成";
+export const history_delete = () => "删除";
+export const history_deleteConfirm = () => "再次点击确认删除";
+export const history_images = ({ count }) => `${count} 张`;
+export const history_minutesAgo = ({ count }) => `${count}分钟前`;
+export const history_hoursAgo = ({ count }) => `${count}小时前`;
+export const history_daysAgo = ({ count }) => `${count}天前`;
+export const history_justNow = () => "刚刚";
+export const history_previousPage = () => "上一页";
+export const history_nextPage = () => "下一页";
+export const history_retry = () => "重试";
+export const history_noImage = () => "无图片";
