@@ -22,6 +22,7 @@ import errorRoutes from "./routes/errors";
 import metricRoutes from "./routes/metrics";
 import apiKeyRoutes from "./routes/keys";
 import teamRoutes from "./routes/teams";
+import competitorRoutes from "./routes/competitors";
 import v1Routes from "./routes/v1";
 import { stripeWebhookRoutes } from "./routes/webhooks/stripe";
 import { authMiddleware } from "./middleware/auth";
@@ -112,6 +113,7 @@ app.route("/api/errors", errorRoutes);
 app.route("/api/metrics", metricRoutes);
 app.route("/api/keys", apiKeyRoutes);
 app.route("/api/teams", teamRoutes);
+app.route("/api/competitors", competitorRoutes);
 app.route("/api/v1", v1Routes);
 app.route("/api/webhooks", stripeWebhookRoutes);
 

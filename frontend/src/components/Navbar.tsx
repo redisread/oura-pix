@@ -24,6 +24,7 @@ export default function Navbar() {
     { href: "/history", label: m.history_title?.() || "生成历史" },
     { href: "/favorites", label: m.favorites_title?.() || "我的收藏" },
     { href: "/teams", label: "团队" },
+    { href: "/competitors", label: "竞品" },
     { href: "/stats", label: m.stats_title?.() || "统计" },
     { href: "/api-keys", label: "API Keys" },
     { href: "/metrics", label: "性能监控" },
