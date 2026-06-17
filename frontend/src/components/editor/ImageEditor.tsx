@@ -19,9 +19,13 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
     rotateRight,
     toggleFlipHorizontal,
     toggleFlipVertical,
+    setCropPreset,
     setBrightness,
     setContrast,
     setSaturation,
+    setColorTemp,
+    setTint,
+    setSharpen,
     setWatermark,
     reset,
     undo,
@@ -134,9 +138,13 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
               onRotateRight={rotateRight}
               onFlipHorizontal={toggleFlipHorizontal}
               onFlipVertical={toggleFlipVertical}
+              onCropPresetChange={setCropPreset}
               onBrightnessChange={setBrightness}
               onContrastChange={setContrast}
               onSaturationChange={setSaturation}
+              onColorTempChange={setColorTemp}
+              onTintChange={setTint}
+              onSharpenChange={setSharpen}
               onWatermarkChange={setWatermark}
               onReset={reset}
               onUndo={undo}

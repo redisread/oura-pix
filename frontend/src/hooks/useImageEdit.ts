@@ -4,7 +4,17 @@
  * State management for image editing operations
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, type CSSProperties } from "react";
+
+export type CropPreset = "free" | "1:1" | "3:4" | "4:3" | "16:9";
+
+export const CROP_PRESETS: Array<{ value: CropPreset; label: string; ratio: number | null }> = [
+  { value: "free", label: "自由", ratio: null },
+  { value: "1:1", label: "1:1", ratio: 1 },
+  { value: "3:4", label: "3:4", ratio: 3 / 4 },
+  { value: "4:3", label: "4:3", ratio: 4 / 3 },
+  { value: "16:9", label: "16:9", ratio: 16 / 9 },
+];
 
 export interface EditState {
   // Crop
@@ -12,6 +22,7 @@ export interface EditState {
   cropY: number;
   cropWidth: number;
   cropHeight: number;
+  cropPreset: CropPreset;
 
   // Rotation
   rotation: number;
@@ -24,6 +35,12 @@ export interface EditState {
   brightness: number;
   contrast: number;
   saturation: number;
+  // 色温（暖/冷）：-100 冷色，0 中性，+100 暖色
+  colorTemp: number;
+  // 色调：-100 绿，0 中性，+100 紫红
+  tint: number;
+  // 锐化 0-100 (CSS filter: contrast + brightness 微调模拟)
+  sharpen: number;
 
   // Watermark
   watermarkText: string;
@@ -40,12 +57,16 @@ const DEFAULT_STATE: EditState = {
   cropY: 0,
   cropWidth: 100,
   cropHeight: 100,
+  cropPreset: "free",
   rotation: 0,
   flipHorizontal: false,
   flipVertical: false,
   brightness: 100,
   contrast: 100,
   saturation: 100,
+  colorTemp: 0,
+  tint: 0,
+  sharpen: 0,
   watermarkText: "",
   watermarkEnabled: false,
 };
@@ -56,6 +77,7 @@ interface UseImageEditReturn {
   canUndo: boolean;
   canRedo: boolean;
   setCrop: (x: number, y: number, width: number, height: number) => void;
+  setCropPreset: (preset: CropPreset) => void;
   setRotation: (degrees: number) => void;
   rotateLeft: () => void;
   rotateRight: () => void;
@@ -64,20 +86,20 @@ interface UseImageEditReturn {
   setBrightness: (value: number) => void;
   setContrast: (value: number) => void;
   setSaturation: (value: number) => void;
+  setColorTemp: (value: number) => void;
+  setTint: (value: number) => void;
+  setSharpen: (value: number) => void;
   setWatermark: (text: string, enabled: boolean) => void;
   reset: () => void;
   undo: () => void;
   redo: () => void;
   getTransformStyle: () => string;
   getFilterStyle: () => string;
+  getCropStyle: () => CSSProperties;
 }
 
 export function useImageEdit(_initialImageWidth = 800, _initialImageHeight = 600): UseImageEditReturn {
-  const [state, setState] = useState<EditState>({
-    ...DEFAULT_STATE,
-    cropWidth: 100,
-    cropHeight: 100,
-  });
+  const [state, setState] = useState<EditState>({ ...DEFAULT_STATE });
 
   const [history, setHistory] = useState<EditHistory>({
     past: [],
@@ -94,6 +116,10 @@ export function useImageEdit(_initialImageWidth = 800, _initialImageHeight = 600
 
   const setCrop = useCallback((x: number, y: number, width: number, height: number) => {
     pushHistory({ ...state, cropX: x, cropY: y, cropWidth: width, cropHeight: height });
+  }, [state, pushHistory]);
+
+  const setCropPreset = useCallback((preset: CropPreset) => {
+    pushHistory({ ...state, cropPreset: preset });
   }, [state, pushHistory]);
 
   const setRotation = useCallback((degrees: number) => {
@@ -126,6 +152,18 @@ export function useImageEdit(_initialImageWidth = 800, _initialImageHeight = 600
 
   const setSaturation = useCallback((value: number) => {
     pushHistory({ ...state, saturation: value });
+  }, [state, pushHistory]);
+
+  const setColorTemp = useCallback((value: number) => {
+    pushHistory({ ...state, colorTemp: value });
+  }, [state, pushHistory]);
+
+  const setTint = useCallback((value: number) => {
+    pushHistory({ ...state, tint: value });
+  }, [state, pushHistory]);
+
+  const setSharpen = useCallback((value: number) => {
+    pushHistory({ ...state, sharpen: value });
   }, [state, pushHistory]);
 
   const setWatermark = useCallback((text: string, enabled: boolean) => {
@@ -167,10 +205,35 @@ export function useImageEdit(_initialImageWidth = 800, _initialImageHeight = 600
   const getFilterStyle = useCallback(() => {
     const filters = [];
     if (state.brightness !== 100) filters.push(`brightness(${state.brightness}%)`);
-    if (state.contrast !== 100) filters.push(`contrast(${state.contrast}%)`);
+    if (state.contrast !== 100 || state.sharpen > 0) {
+      // Sharpen 0-100: 映射到 contrast 100-160
+      const contrastValue = state.contrast + state.sharpen * 0.6;
+      filters.push(`contrast(${contrastValue}%)`);
+    }
     if (state.saturation !== 100) filters.push(`saturate(${state.saturation}%)`);
+    // 色温：用 sepia (warm) 或 hue-rotate (cool) 模拟
+    if (state.colorTemp !== 0) {
+      // warm: sepia; cool: hue-rotate 180
+      if (state.colorTemp > 0) {
+        filters.push(`sepia(${Math.min(state.colorTemp, 100) / 100})`);
+      } else {
+        filters.push(`hue-rotate(${state.colorTemp}deg)`);
+      }
+    }
+    // 色调：hue-rotate 模拟
+    if (state.tint !== 0) {
+      filters.push(`hue-rotate(${state.tint * 0.3}deg)`);
+    }
     return filters.join(" ");
   }, [state]);
+
+  const getCropStyle = useCallback(() => {
+    // Returns inline style for cropping: use object-position with object-fit cover
+    return {
+      objectFit: "cover" as const,
+      objectPosition: `${state.cropX + state.cropWidth / 2}% ${state.cropY + state.cropHeight / 2}%`,
+    };
+  }, [state.cropX, state.cropY, state.cropWidth, state.cropHeight]);
 
   return {
     state,
@@ -178,6 +241,7 @@ export function useImageEdit(_initialImageWidth = 800, _initialImageHeight = 600
     canUndo: history.past.length > 0,
     canRedo: history.future.length > 0,
     setCrop,
+    setCropPreset,
     setRotation,
     rotateLeft,
     rotateRight,
@@ -186,11 +250,15 @@ export function useImageEdit(_initialImageWidth = 800, _initialImageHeight = 600
     setBrightness,
     setContrast,
     setSaturation,
+    setColorTemp,
+    setTint,
+    setSharpen,
     setWatermark,
     reset,
     undo,
     redo,
     getTransformStyle,
     getFilterStyle,
+    getCropStyle,
   };
 }

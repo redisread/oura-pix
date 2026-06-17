@@ -4,7 +4,8 @@
  * Toolbar for image editing operations
  */
 
-import type { EditState } from "@/hooks/useImageEdit";
+import type { EditState, CropPreset } from "@/hooks/useImageEdit";
+import { CROP_PRESETS } from "@/hooks/useImageEdit";
 
 interface EditorToolbarProps {
   state: EditState;
@@ -14,13 +15,54 @@ interface EditorToolbarProps {
   onRotateRight: () => void;
   onFlipHorizontal: () => void;
   onFlipVertical: () => void;
+  onCropPresetChange: (preset: CropPreset) => void;
   onBrightnessChange: (value: number) => void;
   onContrastChange: (value: number) => void;
   onSaturationChange: (value: number) => void;
+  onColorTempChange: (value: number) => void;
+  onTintChange: (value: number) => void;
+  onSharpenChange: (value: number) => void;
   onWatermarkChange: (text: string, enabled: boolean) => void;
   onReset: () => void;
   onUndo: () => void;
   onRedo: () => void;
+}
+
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  unit,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  unit?: string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <label className="flex items-center justify-between text-xs text-stone-400 mb-1">
+        <span>{label}</span>
+        <span>
+          {value > 0 ? "+" : ""}
+          {value}
+          {unit ?? ""}
+        </span>
+      </label>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
+      />
+    </div>
+  );
 }
 
 export default function EditorToolbar({
@@ -31,9 +73,13 @@ export default function EditorToolbar({
   onRotateRight,
   onFlipHorizontal,
   onFlipVertical,
+  onCropPresetChange,
   onBrightnessChange,
   onContrastChange,
   onSaturationChange,
+  onColorTempChange,
+  onTintChange,
+  onSharpenChange,
   onWatermarkChange,
   onReset,
   onUndo,
@@ -75,6 +121,26 @@ export default function EditorToolbar({
           </svg>
           <span className="text-sm">重置</span>
         </button>
+      </div>
+
+      {/* Crop Preset */}
+      <div>
+        <h3 className="text-sm font-medium text-stone-300 mb-2">裁剪比例</h3>
+        <div className="grid grid-cols-5 gap-1.5">
+          {CROP_PRESETS.map((preset) => (
+            <button
+              key={preset.value}
+              onClick={() => onCropPresetChange(preset.value)}
+              className={`px-2 py-1.5 text-xs rounded transition-colors ${
+                state.cropPreset === preset.value
+                  ? "bg-amber-600 text-white"
+                  : "bg-stone-700 hover:bg-stone-600 text-stone-300"
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Transform */}
@@ -126,51 +192,27 @@ export default function EditorToolbar({
 
       {/* Adjustments */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">调整</h3>
+        <h3 className="text-sm font-medium text-stone-300 mb-2">基础调整</h3>
         <div className="space-y-3">
-          <div>
-            <label className="flex items-center justify-between text-xs text-stone-400 mb-1">
-              <span>亮度</span>
-              <span>{state.brightness}%</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="200"
-              value={state.brightness}
-              onChange={(e) => onBrightnessChange(Number(e.target.value))}
-              className="w-full h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
-            />
-          </div>
-          <div>
-            <label className="flex items-center justify-between text-xs text-stone-400 mb-1">
-              <span>对比度</span>
-              <span>{state.contrast}%</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="200"
-              value={state.contrast}
-              onChange={(e) => onContrastChange(Number(e.target.value))}
-              className="w-full h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
-            />
-          </div>
-          <div>
-            <label className="flex items-center justify-between text-xs text-stone-400 mb-1">
-              <span>饱和度</span>
-              <span>{state.saturation}%</span>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="200"
-              value={state.saturation}
-              onChange={(e) => onSaturationChange(Number(e.target.value))}
-              className="w-full h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
-            />
-          </div>
+          <Slider label="亮度" value={state.brightness} min={0} max={200} unit="%" onChange={onBrightnessChange} />
+          <Slider label="对比度" value={state.contrast} min={0} max={200} unit="%" onChange={onContrastChange} />
+          <Slider label="饱和度" value={state.saturation} min={0} max={200} unit="%" onChange={onSaturationChange} />
         </div>
+      </div>
+
+      {/* Color */}
+      <div>
+        <h3 className="text-sm font-medium text-stone-300 mb-2">色彩</h3>
+        <div className="space-y-3">
+          <Slider label="色温" value={state.colorTemp} min={-100} max={100} onChange={onColorTempChange} />
+          <Slider label="色调" value={state.tint} min={-100} max={100} onChange={onTintChange} />
+        </div>
+      </div>
+
+      {/* Sharpen */}
+      <div>
+        <h3 className="text-sm font-medium text-stone-300 mb-2">细节</h3>
+        <Slider label="锐化" value={state.sharpen} min={0} max={100} unit="%" onChange={onSharpenChange} />
       </div>
 
       {/* Watermark */}
