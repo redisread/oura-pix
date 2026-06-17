@@ -18,6 +18,7 @@
     "@astrojs/react": "^4.0.0",
     "@astrojs/tailwind": "^6.0.0",
     "@auth/core": "^0.37.4",
+    "@imgly/background-removal": "^1.7.0",
     "@oura-pix/api-client": "workspace:*",
     "astro": "^5.0.0",
     "auth-astro": "^4.2.0",
