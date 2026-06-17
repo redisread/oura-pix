@@ -740,3 +740,55 @@ export const feedback = sqliteTable("feedback", {
   ratingIdx: index("feedback_rating_idx").on(table.rating),
 }));
 
+/**
+ * 商品类目表
+ */
+export const categories = sqliteTable("categories", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(),
+  bestPractices: text("bestPractices"),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+});
+
+/**
+ * 模板表
+ */
+export const templates = sqliteTable("templates", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  categoryId: text("categoryId")
+    .notNull()
+    .references(() => categories.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description"),
+  settings: text("settings", { mode: "json" }).$type<TemplateSettings>().notNull().default({}),
+  isPreset: integer("isPreset", { mode: "boolean" }).notNull().default(false),
+  createdBy: text("createdBy").references(() => users.id, { onDelete: "set null" }),
+  usageCount: integer("usageCount").notNull().default(0),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  categoryIdIdx: index("templates_categoryId_idx").on(table.categoryId),
+  isPresetIdx: index("templates_isPreset_idx").on(table.isPreset),
+  createdByIdx: index("templates_createdBy_idx").on(table.createdBy),
+}));
+
+export interface TemplateSettings {
+  targetPlatform?: "amazon" | "ebay" | "shopify" | "etsy" | "generic";
+  language?: string;
+  style?: "professional" | "lifestyle" | "minimal" | "luxury";
+  count?: number;
+  aspectRatio?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
+  allowPersons?: boolean;
+  imageCount?: number;
+}
+
