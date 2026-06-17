@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TeamDetailPage from '../../components/teams/TeamDetailPage';
+
+export const prerender = false;
+
+const { id } = Astro.params;
+---
+
+<Layout title="团队详情">
+  <TeamDetailPage teamId={id ?? ''} client:load />
+</Layout>

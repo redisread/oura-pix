@@ -621,3 +621,65 @@ export const apiKeys = sqliteTable("api_keys", {
   keyHashIdx: index("api_keys_keyHash_idx").on(table.keyHash),
 }));
 
+/**
+ * 团队角色枚举
+ */
+export const TeamRole = {
+  OWNER: "owner",
+  ADMIN: "admin",
+  MEMBER: "member",
+} as const;
+
+export type TeamRoleType = typeof TeamRole[keyof typeof TeamRole];
+
+/**
+ * 团队表
+ */
+export const teams = sqliteTable("teams", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // 团队名称
+  name: text("name").notNull(),
+  // 团队所有者（创建者）
+  ownerId: text("ownerId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 邀请码（如 "TEAM-A1B2C3"）
+  inviteCode: text("inviteCode").notNull().unique(),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  ownerIdIdx: index("teams_ownerId_idx").on(table.ownerId),
+  inviteCodeIdx: index("teams_inviteCode_idx").on(table.inviteCode),
+}));
+
+/**
+ * 团队成员表
+ */
+export const teamMembers = sqliteTable("team_members", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  teamId: text("teamId")
+    .notNull()
+    .references(() => teams.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  role: text("role", {
+    enum: ["owner", "admin", "member"],
+  })
+    .notNull()
+    .default("member"),
+  joinedAt: integer("joinedAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  teamIdIdx: index("team_members_teamId_idx").on(table.teamId),
+  userIdIdx: index("team_members_userId_idx").on(table.userId),
+  // Unique constraint on (teamId, userId) is implicit via primary keys? No — must add explicit unique index
+  teamUserUniqueIdx: index("team_members_teamId_userId_unique_idx").on(table.teamId, table.userId),
+}));
+
