@@ -710,3 +710,33 @@ export const competitors = sqliteTable("competitors", {
   createdAtIdx: index("competitors_createdAt_idx").on(table.createdAt),
 }));
 
+/**
+ * 用户反馈表
+ *
+ * 用户对生成结果的评分和评论。用于改进生成质量。
+ */
+export const feedback = sqliteTable("feedback", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // 关联的生成记录
+  generationId: text("generationId")
+    .notNull()
+    .references(() => generations.id, { onDelete: "cascade" }),
+  // 反馈用户
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 评分 1-5
+  rating: integer("rating").notNull(),
+  // 评论
+  comment: text("comment"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  generationIdIdx: index("feedback_generationId_idx").on(table.generationId),
+  userIdIdx: index("feedback_userId_idx").on(table.userId),
+  ratingIdx: index("feedback_rating_idx").on(table.rating),
+}));
+
