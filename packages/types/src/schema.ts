@@ -683,3 +683,30 @@ export const teamMembers = sqliteTable("team_members", {
   teamUserUniqueIdx: index("team_members_teamId_userId_unique_idx").on(table.teamId, table.userId),
 }));
 
+/**
+ * 竞品表
+ *
+ * 记录用户关注的竞品链接、平台、截图和笔记。
+ * P0 范围：手动添加 + 列表 + 删除。不做抓取和 AI 分析。
+ */
+export const competitors = sqliteTable("competitors", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  platform: text("platform").notNull().default("other"),
+  url: text("url").notNull(),
+  screenshots: text("screenshots").notNull().default("[]"),
+  notes: text("notes"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("competitors_userId_idx").on(table.userId),
+  platformIdx: index("competitors_platform_idx").on(table.platform),
+  createdAtIdx: index("competitors_createdAt_idx").on(table.createdAt),
+}));
+
