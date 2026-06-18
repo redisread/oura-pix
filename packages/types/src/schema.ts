@@ -238,6 +238,8 @@ export const favorites = sqliteTable("favorites", {
   imageUrl: text("imageUrl").notNull(),
   // 图片在生成结果中的索引
   imageIndex: integer("imageIndex"),
+  // 所属收藏夹（可空 = 未分类）
+  collectionId: text("collectionId").references((): any => collections.id, { onDelete: "set null" }),
   createdAt: integer("createdAt", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(strftime('%s', 'now') * 1000)`),
@@ -246,6 +248,30 @@ export const favorites = sqliteTable("favorites", {
   userIdGenerationIdx: index("favorites_userId_generationId_idx").on(table.userId, table.generationId),
   // 确保同一用户不会重复收藏同一张图片
   uniqueFavorite: index("favorites_unique_idx").on(table.userId, table.imageUrl),
+  collectionIdx: index("favorites_collectionId_idx").on(table.collectionId),
+}));
+
+/**
+ * 收藏夹表
+ */
+export const collections = sqliteTable("collections", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 收藏夹名称
+  name: text("name").notNull(),
+  // 颜色标签（hex）
+  color: text("color").notNull().default("#3b82f6"),
+  // 描述（可选）
+  description: text("description"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("collections_userId_idx").on(table.userId),
 }));
 
 /**
