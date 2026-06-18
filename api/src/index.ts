@@ -25,6 +25,7 @@ import teamRoutes from "./routes/teams";
 import competitorRoutes from "./routes/competitors";
 import feedbackRoutes from "./routes/feedback";
 import categoryRoutes from "./routes/categories";
+import collectionRoutes from "./routes/collections";
 import v1Routes from "./routes/v1";
 import { stripeWebhookRoutes } from "./routes/webhooks/stripe";
 import { authMiddleware } from "./middleware/auth";
@@ -118,6 +119,7 @@ app.route("/api/teams", teamRoutes);
 app.route("/api/competitors", competitorRoutes);
 app.route("/api/feedback", feedbackRoutes);
 app.route("/api/categories", categoryRoutes);
+app.route("/api/collections", collectionRoutes);
 app.route("/api/v1", v1Routes);
 app.route("/api/webhooks", stripeWebhookRoutes);
 
