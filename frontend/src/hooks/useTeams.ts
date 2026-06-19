@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export type TeamRole = "owner" | "admin" | "member";
 
@@ -33,17 +34,6 @@ export interface TeamDetail extends Team {
   members: TeamMember[];
 }
 
-async function api<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { credentials: "include", ...init });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error ?? `Request failed: ${res.status}`);
-  }
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error ?? "Request failed");
-  return json.data as T;
-}
-
 export function useTeams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
@@ -53,7 +43,7 @@ export function useTeams() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<Team[]>("/api/teams");
+      const data = await apiJson<Team[]>("/api/teams");
       setTeams(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load teams");
@@ -69,7 +59,7 @@ export function useTeams() {
   const createTeam = useCallback(
     async (name: string): Promise<Team | null> => {
       try {
-        const team = await api<Team>("/api/teams", {
+        const team = await apiJson<Team>("/api/teams", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
@@ -87,7 +77,7 @@ export function useTeams() {
   const joinTeam = useCallback(
     async (inviteCode: string): Promise<boolean> => {
       try {
-        await api(`/api/teams/any/join`, {
+        await apiJson(`/api/teams/any/join`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ inviteCode }),
@@ -115,7 +105,7 @@ export function useTeam(teamId: string | null) {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<TeamDetail>(`/api/teams/${teamId}`);
+      const data = await apiJson<TeamDetail>(`/api/teams/${teamId}`);
       setTeam(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load team");
@@ -132,7 +122,7 @@ export function useTeam(teamId: string | null) {
     async (name: string): Promise<boolean> => {
       if (!teamId) return false;
       try {
-        await api(`/api/teams/${teamId}`, {
+        await apiJson(`/api/teams/${teamId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name }),
@@ -151,7 +141,7 @@ export function useTeam(teamId: string | null) {
     async (userId: string, role: "admin" | "member"): Promise<boolean> => {
       if (!teamId) return false;
       try {
-        await api(`/api/teams/${teamId}/members/${userId}/role`, {
+        await apiJson(`/api/teams/${teamId}/members/${userId}/role`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ role }),
@@ -170,7 +160,7 @@ export function useTeam(teamId: string | null) {
     async (userId: string): Promise<boolean> => {
       if (!teamId) return false;
       try {
-        await api(`/api/teams/${teamId}/members/${userId}`, { method: "DELETE" });
+        await apiJson(`/api/teams/${teamId}/members/${userId}`, { method: "DELETE" });
         await fetchTeam();
         return true;
       } catch (err) {
@@ -184,7 +174,7 @@ export function useTeam(teamId: string | null) {
   const leaveTeam = useCallback(async (): Promise<boolean> => {
     if (!teamId) return false;
     try {
-      await api(`/api/teams/${teamId}/leave`, { method: "POST" });
+      await apiJson(`/api/teams/${teamId}/leave`, { method: "POST" });
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to leave");
@@ -195,7 +185,7 @@ export function useTeam(teamId: string | null) {
   const deleteTeam = useCallback(async (): Promise<boolean> => {
     if (!teamId) return false;
     try {
-      await api(`/api/teams/${teamId}`, { method: "DELETE" });
+      await apiJson(`/api/teams/${teamId}`, { method: "DELETE" });
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");

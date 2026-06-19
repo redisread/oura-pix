@@ -5,6 +5,7 @@ import {
   sqliteTable,
   text,
   index,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 import type {
   GenerationResult,
@@ -176,6 +177,7 @@ export const generations = sqliteTable("generations", {
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  teamId: text("teamId").references((): any => teams.id, { onDelete: "set null" }),
   // 任务状态
   status: text("status", {
     enum: ["pending", "processing", "completed", "failed"],
@@ -220,6 +222,7 @@ export const generations = sqliteTable("generations", {
 }, (table) => ({
   userIdCreatedAtIdx: index("generations_userId_createdAt_idx").on(table.userId, table.createdAt),
   userIdStatusIdx: index("generations_userId_status_idx").on(table.userId, table.status),
+  teamIdCreatedAtIdx: index("generations_teamId_createdAt_idx").on(table.teamId, table.createdAt),
   statusStageStartedAtIdx: index("generations_status_stageStartedAt_idx").on(table.status, table.stageStartedAt),
 }));
 
@@ -250,7 +253,7 @@ export const favorites = sqliteTable("favorites", {
   userIdIdx: index("favorites_userId_idx").on(table.userId),
   userIdGenerationIdx: index("favorites_userId_generationId_idx").on(table.userId, table.generationId),
   // 确保同一用户不会重复收藏同一张图片
-  uniqueFavorite: index("favorites_unique_idx").on(table.userId, table.imageUrl),
+  uniqueFavorite: uniqueIndex("favorites_unique_idx").on(table.userId, table.imageUrl),
   collectionIdx: index("favorites_collectionId_idx").on(table.collectionId),
 }));
 
@@ -654,8 +657,7 @@ export const teamMembers = sqliteTable("team_members", {
 }, (table) => ({
   teamIdIdx: index("team_members_teamId_idx").on(table.teamId),
   userIdIdx: index("team_members_userId_idx").on(table.userId),
-  // Unique constraint on (teamId, userId) is implicit via primary keys? No — must add explicit unique index
-  teamUserUniqueIdx: index("team_members_teamId_userId_unique_idx").on(table.teamId, table.userId),
+  teamUserUniqueIdx: uniqueIndex("team_members_teamId_userId_unique_idx").on(table.teamId, table.userId),
 }));
 
 /**

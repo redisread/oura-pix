@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { apiJson } from "@/lib/api";
 
 export type TimeRange = '7d' | '30d' | '90d' | 'all';
 
@@ -30,21 +31,7 @@ export function useStats(initialRange: TimeRange = '30d') {
       setError(null);
 
       try {
-        const response = await fetch(`/api/stats?range=${range}`, {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch statistics');
-        }
-
-        const result = await response.json();
-
-        if (result.success) {
-          setData(result.data);
-        } else {
-          throw new Error(result.error || 'Failed to fetch statistics');
-        }
+        setData(await apiJson<StatsData>(`/api/stats?range=${range}`));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch statistics');
       } finally {

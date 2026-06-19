@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export interface Category {
   id: string;
@@ -27,17 +28,6 @@ export interface Template {
   createdAt: string;
 }
 
-async function api<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { credentials: "include", ...init });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error ?? `Request failed: ${res.status}`);
-  }
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error ?? "Request failed");
-  return json.data as T;
-}
-
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,7 +37,7 @@ export function useCategories() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<Category[]>("/api/categories");
+      const data = await apiJson<Category[]>("/api/categories");
       setCategories(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load categories");
@@ -67,7 +57,7 @@ export function useCategoryTemplates(categoryId: string | null) {
     if (!categoryId) return;
     setLoading(true); setError(null);
     try {
-      const data = await api<Template[]>(`/api/categories/${categoryId}/templates`);
+      const data = await apiJson<Template[]>(`/api/categories/${categoryId}/templates`);
       setTemplates(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load templates");

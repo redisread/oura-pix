@@ -20,28 +20,41 @@ module.exports = {
     '**/*.example',
     'types/**',
     'content/**',
-    'packages/database/**',
   ],
   ignoreDependencies: [
     'turbo',
     'wrangler',
   ],
   workspaces: {
-    'apps/web': {
+    'frontend': {
       entry: [
         'src/pages/**/*.astro',
         'src/components/**/*.tsx',
         'src/lib/**/*.ts',
+        'src/hooks/**/*.ts',
         'env.d.ts',
       ],
     },
-    'apps/api': {
+    'api': {
       entry: [
         'src/index.ts',
         'src/routes/**/*.ts',
         'src/lib/**/*.ts',
         'src/services/**/*.ts',
       ],
+    },
+    'packages/database': {
+      entry: [
+        'src/index.ts',
+        'src/schema.ts',
+        'drizzle.config.ts',
+      ],
+    },
+    'packages/api-client': {
+      entry: ['src/index.ts'],
+    },
+    'packages/types': {
+      entry: ['src/index.ts'],
     },
   },
 };

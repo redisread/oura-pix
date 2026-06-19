@@ -107,6 +107,7 @@ export interface UpdateProfileInput {
 export interface CreateGenerationInput {
   productImageId: string;
   referenceImageIds?: string[];
+  teamId?: string;
   prompt?: string;
   settings: GenerationSettings;
 }

@@ -8,7 +8,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb, schema } from "@oura-pix/database";
-import { inArray, desc, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { getUser } from "../middleware/auth";
 import {
   createTeam,
@@ -21,7 +21,6 @@ import {
   updateMemberRole,
   removeMember,
   leaveTeam,
-  getTeamMemberIds,
   isRoleAtLeast,
 } from "../services/teamService";
 
@@ -285,21 +284,16 @@ teams.get("/:id/generations", async (c) => {
     const team = await getTeamForUser(db, teamId, user.id);
     if (!team) return c.json({ error: "Team not found" }, 404);
 
-    const memberIds = await getTeamMemberIds(db, teamId);
-    if (memberIds.length === 0) {
-      return c.json({ success: true, data: { data: [], pagination: { page, pageSize, total: 0, totalPages: 0 } } });
-    }
-
     const totalResult = await db
       .select({ count: sql<number>`count(*)` })
       .from(schema.generations)
-      .where(inArray(schema.generations.userId, memberIds));
+      .where(eq(schema.generations.teamId, teamId));
     const total = totalResult[0]?.count ?? 0;
 
     const data = await db
       .select()
       .from(schema.generations)
-      .where(inArray(schema.generations.userId, memberIds))
+      .where(eq(schema.generations.teamId, teamId))
       .orderBy(desc(schema.generations.createdAt))
       .limit(pageSize)
       .offset((page - 1) * pageSize);

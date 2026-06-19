@@ -40,6 +40,7 @@ const app = new Hono<{
     NEXT_PUBLIC_APP_URL: string;
     GEMINI_API_KEY: string;
     GEMINI_BASE_URL?: string;
+    GEMINI_MODEL?: string;
     STRIPE_SECRET_KEY: string;
     STRIPE_WEBHOOK_SECRET: string;
     RESEND_API_KEY: string;
@@ -63,7 +64,12 @@ app.use("*", secureHeaders());
 
 // CORS configuration
 app.use("/api/*", cors({
-  origin: ["https://ourapix.jiahongw.com", "http://localhost:4001", "http://localhost:4545"],
+  origin: [
+    "https://ourapix.jiahongw.com",
+    "http://localhost:4001",
+    "http://localhost:4321",
+    "http://localhost:4545",
+  ],
   credentials: true,
   allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"],
@@ -95,8 +101,12 @@ app.route("/api/auth", authRoutes);
 // Protected routes (require authentication)
 // Apply auth middleware only to non-auth routes
 app.use("/api/*", async (c, next) => {
-  // Skip auth middleware for auth routes
-  if (c.req.path.startsWith("/api/auth")) {
+  // Skip session auth for routes with their own auth boundary.
+  if (
+    c.req.path.startsWith("/api/auth") ||
+    c.req.path.startsWith("/api/v1") ||
+    c.req.path.startsWith("/api/webhooks/stripe")
+  ) {
     return await next();
   }
   // Cast context to match middleware's expected type

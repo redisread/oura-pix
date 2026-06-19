@@ -9,8 +9,8 @@
     "build": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply oura-pix-db --local",
-    "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db --remote",
+    "db:migrate:local": "wrangler d1 migrations apply oura-pix-db --local --config ../../api/wrangler.jsonc",
+    "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db --remote --config ../../api/wrangler.jsonc",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
