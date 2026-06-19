@@ -89,3 +89,5 @@ pnpm-workspace.yaml.local
 
 # Astro
 .astro
+
+.agents/
