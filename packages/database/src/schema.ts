@@ -1,13 +1,16 @@
-import { sql, type InferSelectModel } from "drizzle-orm";
-import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 import {
   integer,
   real,
   sqliteTable,
   text,
-  primaryKey,
   index,
 } from "drizzle-orm/sqlite-core";
+import type {
+  GenerationResult,
+  GenerationSettings,
+  TemplateSettings,
+} from "@oura-pix/types";
 
 /**
  * 用户表 - Better Auth 集成
@@ -273,60 +276,6 @@ export const collections = sqliteTable("collections", {
 }, (table) => ({
   userIdIdx: index("collections_userId_idx").on(table.userId),
 }));
-
-/**
- * 生成设置类型
- */
-export interface GenerationSettings {
-  // 目标平台
-  targetPlatform?: "amazon" | "ebay" | "shopify" | "etsy" | "generic";
-  // 目标语言
-  language?: string;
-  // 生成数量
-  count?: number;
-  // 风格偏好
-  style?: "professional" | "lifestyle" | "minimal" | "luxury";
-  // 是否生成场景图
-  generateImages?: boolean;
-  // 场景图生成数量
-  imageCount?: number;
-  // 图片宽高比
-  aspectRatio?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
-  // 是否允许生成人物
-  allowPersons?: boolean;
-  // 额外配置
-  extra?: Record<string, unknown>;
-}
-
-/**
- * 生成结果类型
- */
-export interface GenerationResult {
-  // 结果 ID
-  id: string;
-  // 生成的标题
-  title: string;
-  // 生成的描述
-  description: string;
-  // 生成的标签/关键词
-  tags: string[];
-  // 生成的图片 URL(如果有)
-  imageUrl?: string;
-  // 置信度分数
-  confidenceScore?: number;
-  // 生成的场景图列表
-  sceneImages?: Array<{
-    imageId: string;
-    url: string;
-    aspectRatio: string;
-    width: number;
-    height: number;
-    promptUsed: string;
-    variation: number;
-  }>;
-  // 元数据
-  metadata?: Record<string, unknown>;
-}
 
 /**
  * 订阅计划类型
@@ -807,14 +756,3 @@ export const templates = sqliteTable("templates", {
   isPresetIdx: index("templates_isPreset_idx").on(table.isPreset),
   createdByIdx: index("templates_createdBy_idx").on(table.createdBy),
 }));
-
-export interface TemplateSettings {
-  targetPlatform?: "amazon" | "ebay" | "shopify" | "etsy" | "generic";
-  language?: string;
-  style?: "professional" | "lifestyle" | "minimal" | "luxury";
-  count?: number;
-  aspectRatio?: "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
-  allowPersons?: boolean;
-  imageCount?: number;
-}
-

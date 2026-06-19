@@ -6,6 +6,8 @@
   "types": "./src/index.ts",
   "type": "module",
   "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply oura-pix-db --local",
     "db:migrate:prod": "wrangler d1 migrations apply oura-pix-db --remote",

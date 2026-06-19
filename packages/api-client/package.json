@@ -10,7 +10,7 @@
     "lint": "echo 'no lint for api-client package'"
   },
   "dependencies": {
-    "@oura-pix/database": "workspace:*",
+    "@oura-pix/types": "workspace:*",
     "axios": "^1.6.0"
   },
   "devDependencies": {

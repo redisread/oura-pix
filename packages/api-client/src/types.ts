@@ -5,10 +5,9 @@
 import type {
   Generation,
   GenerationSettings,
-  GenerationResult,
   User,
   Subscription,
-} from "@oura-pix/database";
+} from "@oura-pix/types";
 
 // ============================================
 // API Response Types

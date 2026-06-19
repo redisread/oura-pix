@@ -7,9 +7,14 @@
 
 import { drizzle } from "drizzle-orm/d1";
 import type { D1Database } from "@cloudflare/workers-types";
-import * as schema from "@oura-pix/types";
+import * as schema from "./schema";
 
-export * from "@oura-pix/types";
+export * from "./schema";
+export type {
+  GenerationResult,
+  GenerationSettings,
+  TemplateSettings,
+} from "@oura-pix/types";
 export { schema };
 
 // Re-export drizzle-orm operators
