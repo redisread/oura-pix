@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export type Platform = "amazon" | "shopify" | "etsy" | "ebay" | "taobao" | "jd" | "tmall" | "self" | "other";
 
@@ -28,17 +29,6 @@ export interface Competitor {
   createdAt: string;
 }
 
-async function api<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { credentials: "include", ...init });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error ?? `Request failed: ${res.status}`);
-  }
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error ?? "Request failed");
-  return json.data as T;
-}
-
 export function useCompetitors() {
   const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -48,7 +38,7 @@ export function useCompetitors() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<Competitor[]>("/api/competitors");
+      const data = await apiJson<Competitor[]>("/api/competitors");
       setCompetitors(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load competitors");
@@ -64,7 +54,7 @@ export function useCompetitors() {
   const createCompetitor = useCallback(
     async (input: Omit<Competitor, "id" | "createdAt">): Promise<Competitor | null> => {
       try {
-        const created = await api<Competitor>("/api/competitors", {
+        const created = await apiJson<Competitor>("/api/competitors", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
@@ -82,7 +72,7 @@ export function useCompetitors() {
   const updateCompetitor = useCallback(
     async (id: string, input: Partial<Omit<Competitor, "id" | "createdAt">>): Promise<boolean> => {
       try {
-        await api(`/api/competitors/${id}`, {
+        await apiJson(`/api/competitors/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
@@ -100,7 +90,7 @@ export function useCompetitors() {
   const deleteCompetitor = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        await api(`/api/competitors/${id}`, { method: "DELETE" });
+        await apiJson(`/api/competitors/${id}`, { method: "DELETE" });
         await fetchCompetitors();
         return true;
       } catch (err) {

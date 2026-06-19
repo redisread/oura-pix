@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export interface ErrorRecord {
   id: string;
@@ -68,19 +69,12 @@ export function useErrorDashboard(params: UseErrorDashboardParams = {}) {
         ...(module ? { module } : {}),
       });
 
-      const [listRes, statsRes] = await Promise.all([
-        fetch(`/api/errors?${query.toString()}`, { credentials: "include" }),
-        fetch(`/api/errors/stats?range=${range}`, { credentials: "include" }),
+      const [listData, statsData] = await Promise.all([
+        apiJson<ErrorListResponse>(`/api/errors?${query.toString()}`),
+        apiJson<ErrorStats>(`/api/errors/stats?range=${range}`),
       ]);
-
-      if (!listRes.ok || !statsRes.ok) {
-        throw new Error("Failed to fetch error data");
-      }
-
-      const [listJson, statsJson] = await Promise.all([listRes.json(), statsRes.json()]);
-
-      if (listJson.success) setList(listJson.data);
-      if (statsJson.success) setStats(statsJson.data);
+      setList(listData);
+      setStats(statsData);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load errors");
     } finally {
@@ -94,11 +88,7 @@ export function useErrorDashboard(params: UseErrorDashboardParams = {}) {
 
   const deleteOne = useCallback(
     async (id: string) => {
-      const res = await fetch(`/api/errors/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to delete error");
+      await apiJson(`/api/errors/${id}`, { method: "DELETE" });
       await fetchAll();
     },
     [fetchAll]
@@ -106,13 +96,11 @@ export function useErrorDashboard(params: UseErrorDashboardParams = {}) {
 
   const deleteMany = useCallback(
     async (ids: string[]) => {
-      const res = await fetch("/api/errors/batch-delete", {
+      await apiJson("/api/errors/batch-delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ ids }),
       });
-      if (!res.ok) throw new Error("Failed to batch delete");
       await fetchAll();
     },
     [fetchAll]

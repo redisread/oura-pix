@@ -3,6 +3,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export interface FeedbackItem {
   id: string;
@@ -19,17 +20,6 @@ export interface FeedbackStats {
   avgRating: number | null;
 }
 
-async function api<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, { credentials: "include", ...init });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error ?? `Request failed: ${res.status}`);
-  }
-  const json = await res.json();
-  if (!json.success) throw new Error(json.error ?? "Request failed");
-  return json.data as T;
-}
-
 export function useFeedback(generationId: string | null) {
   const [list, setList] = useState<FeedbackItem[]>([]);
   const [stats, setStats] = useState<FeedbackStats | null>(null);
@@ -42,8 +32,8 @@ export function useFeedback(generationId: string | null) {
     setError(null);
     try {
       const [listData, statsData] = await Promise.all([
-        api<FeedbackItem[]>(`/api/feedback?generationId=${generationId}`),
-        api<FeedbackStats>(`/api/feedback/stats?generationId=${generationId}`),
+        apiJson<FeedbackItem[]>(`/api/feedback?generationId=${generationId}`),
+        apiJson<FeedbackStats>(`/api/feedback/stats?generationId=${generationId}`),
       ]);
       setList(listData);
       setStats(statsData);
@@ -58,7 +48,7 @@ export function useFeedback(generationId: string | null) {
     async (rating: number, comment?: string): Promise<boolean> => {
       if (!generationId) return false;
       try {
-        await api(`/api/feedback`, {
+        await apiJson(`/api/feedback`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ generationId, rating, ...(comment ? { comment } : {}) }),

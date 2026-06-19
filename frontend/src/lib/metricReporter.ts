@@ -7,6 +7,7 @@
  */
 
 import { onLCP, onINP, onCLS, onFCP, onTTFB } from "web-vitals";
+import { apiFetch } from "./api";
 
 type Rating = "good" | "needs-improvement" | "poor";
 type DeviceType = "mobile" | "tablet" | "desktop";
@@ -55,7 +56,7 @@ function buildContext(): Omit<MetricPayload, "name" | "value"> {
 
 async function send(payload: MetricPayload): Promise<void> {
   try {
-    await fetch("/api/metrics", {
+    await apiFetch("/api/metrics", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -71,7 +72,7 @@ async function flushBatch(): Promise<void> {
   if (buffered.length === 0) return;
   const batch = buffered.splice(0, BATCH_SIZE);
   try {
-    await fetch("/api/metrics/batch", {
+    await apiFetch("/api/metrics/batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

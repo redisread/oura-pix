@@ -13,13 +13,19 @@ import {
   getGenerationsList,
   getGenerationById,
   deleteGeneration,
+  cancelGeneration,
   getUserStats,
   createGeneration,
+  processGeneration,
 } from "../services/generation-service";
+import { getTeamForUser } from "../services/teamService";
 
 const router = new Hono<{
   Bindings: {
     DB: D1Database;
+    GEMINI_API_KEY?: string;
+    GEMINI_BASE_URL?: string;
+    GEMINI_MODEL?: string;
   };
   Variables: {
     user: { id: string; email: string; name?: string | null };
@@ -31,6 +37,7 @@ const router = new Hono<{
 const createGenerationSchema = z.object({
   productImageId: z.string(),
   referenceImageIds: z.array(z.string()).optional(),
+  teamId: z.string().optional(),
   prompt: z.string().optional(),
   settings: z.object({
     targetPlatform: z.enum(["amazon", "ebay", "shopify", "etsy", "generic"]),
@@ -140,7 +147,21 @@ router.post(
     const db = createDb(c.env.DB);
 
     try {
+      if (body.teamId) {
+        const team = await getTeamForUser(db, body.teamId, user.id);
+        if (!team) {
+          return c.json(
+            {
+              success: false,
+              error: { code: "FORBIDDEN", message: "You are not a member of this team" },
+            },
+            403
+          );
+        }
+      }
+
       const generation = await createGeneration(db, user.id, body);
+      c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
 
       return c.json(
         {
@@ -161,6 +182,36 @@ router.post(
     }
   }
 );
+
+// POST /api/generations/:id/cancel - Cancel generation
+router.post("/:id/cancel", async (c) => {
+  const user = getUser(c);
+  if (!user) {
+    return c.json(
+      {
+        success: false,
+        error: { code: "UNAUTHORIZED", message: "User not found" },
+      },
+      401
+    );
+  }
+
+  const id = c.req.param("id");
+  const db = createDb(c.env.DB);
+  const result = await cancelGeneration(db, id, user.id);
+
+  if (!result.success) {
+    return c.json(
+      {
+        success: false,
+        error: { code: "CANCEL_FAILED", message: result.error || "Failed to cancel generation" },
+      },
+      result.error === "Record not found" ? 404 : 409
+    );
+  }
+
+  return c.json({ success: true });
+});
 
 // DELETE /api/generations/:id - Delete generation
 router.delete("/:id", async (c) => {

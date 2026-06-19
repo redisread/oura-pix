@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export interface ApiKey {
   id: string;
@@ -28,10 +29,7 @@ export function useApiKeys() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/keys", { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch API keys");
-      const json = await res.json();
-      if (json.success) setKeys(json.data);
+      setKeys(await apiJson<ApiKey[]>("/api/keys"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load API keys");
     } finally {
@@ -46,20 +44,14 @@ export function useApiKeys() {
   const createKey = useCallback(
     async (name: string, expiresInDays?: number): Promise<CreatedKey | null> => {
       try {
-        const res = await fetch("/api/keys", {
+        const created = await apiJson<CreatedKey>("/api/keys", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
           body: JSON.stringify({ name, ...(expiresInDays ? { expiresInDays } : {}) }),
         });
-        if (!res.ok) throw new Error("Failed to create API key");
-        const json = await res.json();
-        if (json.success) {
-          setNewlyCreated(json.data);
-          await fetchKeys();
-          return json.data as CreatedKey;
-        }
-        return null;
+        setNewlyCreated(created);
+        await fetchKeys();
+        return created;
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to create API key");
         return null;
@@ -71,11 +63,7 @@ export function useApiKeys() {
   const revokeKey = useCallback(
     async (id: string) => {
       try {
-        const res = await fetch(`/api/keys/${id}`, {
-          method: "DELETE",
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Failed to revoke API key");
+        await apiJson(`/api/keys/${id}`, { method: "DELETE" });
         await fetchKeys();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to revoke API key");

@@ -4,7 +4,7 @@
 
 OuraPix 提供 RESTful API，允许开发者通过 API 调用生成功能。
 
-**Base URL：** `https://api.ourapix.com`
+**Base URL：** `https://api.ourapix.jiahongw.com`
 
 ## 认证
 
@@ -27,7 +27,7 @@ Authorization: Bearer op_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### 生成相关
 
-#### 触发图片生成
+#### 触发生成任务
 
 ```http
 POST /api/v1/generate
@@ -48,7 +48,8 @@ POST /api/v1/generate
     "imageCount": 5,
     "aspectRatio": "1:1 | 3:4 | 4:3 | 9:16 | 16:9",
     "allowPersons": false
-  }
+  },
+  "teamId": "optional-team-id"
 }
 ```
 
@@ -59,7 +60,7 @@ POST /api/v1/generate
   "success": true,
   "data": {
     "id": "generation-id",
-    "status": "processing",
+    "status": "pending",
     "createdAt": 1234567890
   }
 }
@@ -79,13 +80,13 @@ GET /api/v1/generation/:id
   "data": {
     "id": "generation-id",
     "status": "processing | completed | failed",
-    "progress": 50,
+    "imageGenerationStatus": "pending | processing | completed | failed | skipped",
     "results": [
       {
         "id": "result-id",
-        "imageUrl": "https://...",
         "title": "商品标题",
-        "description": "商品描述"
+        "description": "商品描述",
+        "tags": ["tag"]
       }
     ],
     "errorMessage": null
@@ -101,14 +102,7 @@ GET /api/v1/generation/:id/download
 
 **响应：**
 
-返回 ZIP 文件，包含所有生成的图片。
-
-**Headers：**
-
-```
-Content-Type: application/zip
-Content-Disposition: attachment; filename="generation-{id}.zip"
-```
+返回 JSON 图片 URL 列表；如果任务尚未完成返回 `NOT_READY`。
 
 ## 错误码
 
@@ -130,77 +124,7 @@ Content-Disposition: attachment; filename="generation-{id}.zip"
 
 ## 速率限制
 
-- Free 套餐：每分钟 10 次请求
-- Pro 套餐：每分钟 100 次请求
-- Business 套餐：无限制
-
-**响应 Header：**
-
-```
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 99
-X-RateLimit-Reset: 1234567890
-```
-
-## SDK
-
-### JavaScript/TypeScript
-
-```bash
-npm install ourapix
-```
-
-```typescript
-import { OuraPix } from 'ourapix';
-
-const client = new OuraPix({
-  apiKey: 'op_xxx'
-});
-
-// 触发生成
-const generation = await client.generate({
-  productImageId: 'image-id',
-  settings: {
-    targetPlatform: 'amazon',
-    count: 5,
-    style: 'minimal'
-  }
-});
-
-// 查询状态
-const status = await client.getGeneration(generation.id);
-
-// 下载图片
-const zip = await client.download(generation.id);
-```
-
-### Python
-
-```bash
-pip install ourapix
-```
-
-```python
-from ourapix import OuraPix
-
-client = OuraPix(api_key='op_xxx')
-
-# 触发生成
-generation = client.generate(
-    product_image_id='image-id',
-    settings={
-        'targetPlatform': 'amazon',
-        'count': 5,
-        'style': 'minimal'
-    }
-)
-
-# 查询状态
-status = client.get_generation(generation['id'])
-
-# 下载图片
-zip_file = client.download(generation['id'])
-```
+当前代码未实现统一 rate-limit header；如需开放外部 API，请在 `api/src/routes/v1/*` 增加限流后再补充此处。
 
 ## 示例
 
@@ -208,7 +132,7 @@ zip_file = client.download(generation['id'])
 
 ```bash
 # 触发生成
-curl -X POST https://api.ourapix.com/api/v1/generate \
+curl -X POST https://api.ourapix.jiahongw.com/api/v1/generate \
   -H "Authorization: Bearer op_xxx" \
   -H "Content-Type: application/json" \
   -d '{
@@ -221,49 +145,25 @@ curl -X POST https://api.ourapix.com/api/v1/generate \
   }'
 
 # 查询状态
-curl https://api.ourapix.com/api/v1/generation/{id} \
+curl https://api.ourapix.jiahongw.com/api/v1/generation/{id} \
   -H "Authorization: Bearer op_xxx"
 
 # 下载图片
-curl https://api.ourapix.com/api/v1/generation/{id}/download \
-  -H "Authorization: Bearer op_xxx" \
-  -o generation.zip
+curl https://api.ourapix.jiahongw.com/api/v1/generation/{id}/download \
+  -H "Authorization: Bearer op_xxx"
 ```
 
 ## Webhook
 
-> TODO: Webhook 功能开发中
-
-生成完成后，可以通过 Webhook 通知您的服务器。
-
-**配置 Webhook：**
-
-1. 访问 `/settings/webhooks` 页面
-2. 添加 Webhook URL
-3. 选择触发事件
-
-**Webhook 负载：**
-
-```json
-{
-  "event": "generation.completed",
-  "data": {
-    "id": "generation-id",
-    "status": "completed",
-    "results": [...]
-  },
-  "timestamp": 1234567890
-}
-```
+当前线上代码只包含 Stripe 入站 webhook：`POST /api/webhooks/stripe`。生成完成的出站 webhook 尚未实现。
 
 ## 更新日志
 
 ### v1.0.0 (2026-06-17)
 
 - 初始版本
-- 支持生成、查询状态、下载图片
+- 支持生成、查询状态、获取图片 URL
 - API Key 认证
-- 速率限制
 
 ## 相关资源
 

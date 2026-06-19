@@ -7,6 +7,8 @@
 
 type ErrorContext = Record<string, unknown>;
 
+import { apiFetch } from "./api";
+
 interface ReportErrorPayload {
   message: string;
   stack?: string;
@@ -43,7 +45,7 @@ async function send(payload: ReportErrorPayload): Promise<void> {
   lastReportAt = now;
 
   try {
-    await fetch("/api/errors", {
+    await apiFetch("/api/errors", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

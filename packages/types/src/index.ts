@@ -78,6 +78,7 @@ export interface User {
 export interface Generation {
   id: string;
   userId: string;
+  teamId: string | null;
   status: GenerationStatus;
   productImageId: string | null;
   referenceImageIds: string[] | null;

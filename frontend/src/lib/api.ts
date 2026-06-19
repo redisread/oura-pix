@@ -13,13 +13,44 @@ import type {
   UploadImageResponse,
 } from "@oura-pix/api-client";
 
-// Use Astro's import.meta.env for environment variables
-const baseURL = import.meta.env.PUBLIC_API_URL || "http://localhost:8787";
+// Use Astro's import.meta.env for environment variables.
+export const API_BASE_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:8989";
 
 export const api = createClient({
-  baseURL,
+  baseURL: API_BASE_URL,
   credentials: "include",
 });
+
+export function apiUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) return path;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE_URL}${normalizedPath}`;
+}
+
+export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(apiUrl(path), {
+    credentials: "include",
+    ...init,
+    headers: {
+      ...(init?.body && !(init.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
+  });
+}
+
+export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await apiFetch(path, init);
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = json?.error?.message ?? json?.error ?? `Request failed: ${response.status}`;
+    throw new Error(message);
+  }
+  if (!json.success) {
+    const message = json?.error?.message ?? json?.error ?? "Request failed";
+    throw new Error(message);
+  }
+  return json.data as T;
+}
 
 // ============================================
 // Auth APIs

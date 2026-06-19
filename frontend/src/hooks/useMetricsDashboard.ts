@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export type Rating = "good" | "needs-improvement" | "poor";
 
@@ -49,19 +50,12 @@ export function useMetricsDashboard(params: UseMetricsParams = {}) {
     setError(null);
 
     try {
-      const [statsRes, seriesRes] = await Promise.all([
-        fetch(`/api/metrics/dashboard?range=${range}`, { credentials: "include" }),
-        fetch(`/api/metrics/${selectedMetric}?range=${range}&limit=50`, { credentials: "include" }),
+      const [dashboardStats, metricSeries] = await Promise.all([
+        apiJson<DashboardStats>(`/api/metrics/dashboard?range=${range}`),
+        apiJson<{ points: MetricPoint[] }>(`/api/metrics/${selectedMetric}?range=${range}&limit=50`),
       ]);
-
-      if (!statsRes.ok || !seriesRes.ok) {
-        throw new Error("Failed to fetch metrics");
-      }
-
-      const [statsJson, seriesJson] = await Promise.all([statsRes.json(), seriesRes.json()]);
-
-      if (statsJson.success) setStats(statsJson.data);
-      if (seriesJson.success) setPoints(seriesJson.data.points);
+      setStats(dashboardStats);
+      setPoints(metricSeries.points);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load metrics");
     } finally {

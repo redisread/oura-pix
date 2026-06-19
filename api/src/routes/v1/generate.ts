@@ -13,11 +13,15 @@ import { apiKeyAuth } from "../../middleware/apiKeyAuth";
 import {
   getGenerationById,
   createGeneration,
+  processGeneration,
 } from "../../services/generation-service";
 
 const generate = new Hono<{
   Bindings: {
     DB: D1Database;
+    GEMINI_API_KEY?: string;
+    GEMINI_BASE_URL?: string;
+    GEMINI_MODEL?: string;
   };
   Variables: {
     apiKey: { id: string; userId: string; name: string };
@@ -55,6 +59,7 @@ generate.post("/", zValidator("json", createSchema), async (c) => {
   try {
     const db = createDb(c.env.DB);
     const generation = await createGeneration(db, apiKeyUser.id, body);
+    c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
     return c.json(
       {
         success: true,

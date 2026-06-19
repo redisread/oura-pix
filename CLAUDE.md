@@ -14,15 +14,14 @@ oura-pix/
 ├── frontend/         # Astro frontend package
 ├── packages/
 │   ├── api-client/
+│   ├── config/
 │   └── database/
-├── db/               # older migration path
 ├── drizzle/          # current root migrations
-├── i18n/messages/    # en / zh messages
 ├── docs/
-└── wrangler.jsonc    # root Cloudflare/OpenNext-style config
+└── pnpm-workspace.yaml
 ```
 
-Important: root `wrangler.jsonc` references `.open-next/worker.js`, while `frontend/` is currently Astro. Before deployment work, inspect the active workflow and output directory instead of assuming one frontend architecture.
+The frontend is Astro. API deployment uses `api/wrangler.jsonc`; frontend deployment uses `frontend/wrangler.toml`.
 
 ## Stack
 
@@ -61,8 +60,9 @@ API:
 ```bash
 pnpm api:dev
 pnpm api:deploy
-pnpm --filter=api test
-pnpm --filter=api lint
+pnpm --filter=@oura-pix/api test
+pnpm --filter=@oura-pix/api lint
+pnpm --filter=@oura-pix/api typecheck
 ```
 
 Frontend:
@@ -71,15 +71,16 @@ Frontend:
 pnpm web:dev
 pnpm web:preview
 pnpm web:deploy
-pnpm --filter=frontend build
-pnpm --filter=frontend lint
+pnpm --filter=@oura-pix/frontend build
+pnpm --filter=@oura-pix/frontend lint
+pnpm --filter=@oura-pix/frontend typecheck
 ```
 
 ## Cloudflare Resources
 
 - API worker: `oura-pix-api`
-- Main app config: root `wrangler.jsonc`
 - API config: `api/wrangler.jsonc`
+- Frontend config: `frontend/wrangler.toml`
 - D1 binding: `DB`
 - D1 database: `oura-pix-db`
 - R2 binding: `R2`
@@ -100,12 +101,13 @@ Secrets must be managed with Cloudflare Secrets, not committed:
 
 - Current migrations under `drizzle/migrations/` are the primary source for root deployment.
 - `api/wrangler.jsonc` points migrations to `../../drizzle/migrations`.
-- Confirm whether `db/migrations/` is legacy before adding new migrations there.
+- Drizzle schema lives in `packages/database/src/schema.ts`.
+- Drizzle journal has been baselined to `drizzle/migrations/meta/0017_snapshot.json`; do not keep generated catch-up migrations that recreate existing tables.
 - Production database migrations require explicit human authorization.
 
 ## i18n
 
-- Message files live in `i18n/messages/en.json` and `i18n/messages/zh.json`.
+- Message files live in `frontend/messages/`.
 - `frontend` currently has an `i18n:build` mock script; verify the real i18n flow before large text changes.
 
 ## PR / Review Rules
@@ -121,15 +123,15 @@ Before merge, provide:
 For API changes, run at least:
 
 ```bash
-pnpm --filter=api lint
-pnpm --filter=api test
+pnpm --filter=@oura-pix/api lint
+pnpm --filter=@oura-pix/api test
 ```
 
 For frontend changes, run at least:
 
 ```bash
-pnpm --filter=frontend build
-pnpm --filter=frontend lint
+pnpm --filter=@oura-pix/frontend build
+pnpm --filter=@oura-pix/frontend lint
 ```
 
 For cross-package changes, run:
@@ -142,8 +144,8 @@ pnpm lint
 ## Known Gotchas
 
 - Do not trust old product/architecture prose without checking current package files.
-- Root OpenNext config and `frontend/` Astro package can diverge; verify before deployment.
-- `frontend` typecheck currently uses `tsc --noEmit || true`; do not treat it as a strict gate unless changed.
+- Frontend API calls should go through `frontend/src/lib/api.ts` so `PUBLIC_API_URL` is honored.
+- `/api/v1/*` uses API key auth; `/api/webhooks/stripe` uses Stripe signature auth; do not place these behind session auth.
 - Sensitive payment, OAuth, Gemini, and auth secrets must never be pasted into public chat, docs, or commits.
 - This repo has custom `.claude/skills` and `.claude/commands`; prefer those workflows when working on OpenSpec / Spec Kit tasks.
 

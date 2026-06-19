@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { apiJson } from "@/lib/api";
 
 export interface Notification {
   id: string;
@@ -16,6 +17,11 @@ export interface Notification {
   resourceId: string | null;
   isRead: boolean;
   createdAt: string;
+}
+
+interface NotificationsPayload {
+  notifications: Notification[];
+  unreadCount: number;
 }
 
 interface UseNotificationsReturn {
@@ -40,22 +46,9 @@ export function useNotifications(): UseNotificationsReturn {
     setError(null);
 
     try {
-      const response = await fetch("/api/notifications?limit=50", {
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch notifications");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setNotifications(data.data.notifications);
-        setUnreadCount(data.data.unreadCount);
-      } else {
-        throw new Error(data.error || "Failed to fetch notifications");
-      }
+      const data = await apiJson<NotificationsPayload>("/api/notifications?limit=50");
+      setNotifications(data.notifications);
+      setUnreadCount(data.unreadCount);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch notifications");
     } finally {
@@ -65,23 +58,11 @@ export function useNotifications(): UseNotificationsReturn {
 
   const markAsRead = useCallback(async (id: string) => {
     try {
-      const response = await fetch(`/api/notifications/${id}/read`, {
-        method: "PUT",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to mark notification as read");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      }
+      await apiJson(`/api/notifications/${id}/read`, { method: "PUT" });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
     }
@@ -89,21 +70,9 @@ export function useNotifications(): UseNotificationsReturn {
 
   const markAllAsRead = useCallback(async () => {
     try {
-      const response = await fetch("/api/notifications/read-all", {
-        method: "PUT",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to mark all notifications as read");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-        setUnreadCount(0);
-      }
+      await apiJson("/api/notifications/read-all", { method: "PUT" });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
     } catch (err) {
       console.error("Failed to mark all notifications as read:", err);
     }
@@ -111,26 +80,14 @@ export function useNotifications(): UseNotificationsReturn {
 
   const deleteNotification = useCallback(async (id: string) => {
     try {
-      const response = await fetch(`/api/notifications/${id}`, {
-        method: "DELETE",
-        credentials: "include",
+      await apiJson(`/api/notifications/${id}`, { method: "DELETE" });
+      setNotifications((prev) => {
+        const notification = prev.find((n) => n.id === id);
+        if (notification && !notification.isRead) {
+          setUnreadCount((count) => Math.max(0, count - 1));
+        }
+        return prev.filter((n) => n.id !== id);
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete notification");
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setNotifications((prev) => {
-          const notification = prev.find((n) => n.id === id);
-          if (notification && !notification.isRead) {
-            setUnreadCount((count) => Math.max(0, count - 1));
-          }
-          return prev.filter((n) => n.id !== id);
-        });
-      }
     } catch (err) {
       console.error("Failed to delete notification:", err);
     }
