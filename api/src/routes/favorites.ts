@@ -282,4 +282,4 @@ router.get("/check/:imageUrl", async (c) => {
   });
 });
 
-export { router as favoriteRoutes };
+export default router;

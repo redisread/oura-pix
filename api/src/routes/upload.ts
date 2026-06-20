@@ -189,4 +189,4 @@ router.post(
   }
 );
 
-export { router as uploadRoutes };
+export default router;

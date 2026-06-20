@@ -191,4 +191,4 @@ router.post("/portal", async (c) => {
   }
 });
 
-export { router as subscriptionRoutes };
+export default router;
