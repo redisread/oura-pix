@@ -195,4 +195,4 @@ router.post("/reset-password", async (c) => {
   return c.json(data, response.status as never);
 });
 
-export { router as authRoutes };
+export default router;

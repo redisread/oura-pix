@@ -10,12 +10,12 @@ import { logger } from "hono/logger";
 import { timing } from "hono/timing";
 import { secureHeaders } from "hono/secure-headers";
 
-import { authRoutes } from "./routes/auth";
-import { userRoutes } from "./routes/user";
-import { generationRoutes } from "./routes/generations";
-import { uploadRoutes } from "./routes/upload";
-import { subscriptionRoutes } from "./routes/subscription";
-import { favoriteRoutes } from "./routes/favorites";
+import authRoutes from "./routes/auth";
+import userRoutes from "./routes/user";
+import generationRoutes from "./routes/generations";
+import uploadRoutes from "./routes/upload";
+import subscriptionRoutes from "./routes/subscription";
+import favoriteRoutes from "./routes/favorites";
 import statsRoutes from "./routes/stats";
 import notificationRoutes from "./routes/notifications";
 import errorRoutes from "./routes/errors";

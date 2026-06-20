@@ -113,4 +113,4 @@ router.put("/avatar", async (c) => {
   }
 });
 
-export { router as userRoutes };
+export default router;

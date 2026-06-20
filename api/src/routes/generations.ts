@@ -246,4 +246,4 @@ router.delete("/:id", async (c) => {
   });
 });
 
-export { router as generationRoutes };
+export default router;
