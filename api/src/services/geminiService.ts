@@ -110,9 +110,33 @@ function parseResults(text: string): GenerationResult[] {
   });
 }
 
+/**
+ * Generate mock product copy when GEMINI_API_KEY is not available.
+ * Returns placeholder variants so the UI remains functional in demo mode.
+ */
+function generateMockCopy(input: GenerateCopyInput): GenerationResult[] {
+  const count = Math.min(Math.max(input.settings.count ?? 3, 1), 10);
+  const platform = input.settings.targetPlatform || "generic";
+  const style = input.settings.style || "professional";
+
+  return Array.from({ length: count }, (_, i) => ({
+    id: `mock-variant-${i + 1}`,
+    title: `[Demo] Product Variant ${i + 1}`,
+    description: `[Demo mode — GEMINI_API_KEY not set] This is a placeholder description for a ${style} ${platform} product listing. Configure GEMINI_API_KEY to generate real AI copy.`,
+    tags: ["demo", platform, style],
+    confidenceScore: 0.5,
+    metadata: {
+      angle: `variant-${i + 1}`,
+      platform,
+      mock: true,
+    },
+  }));
+}
+
 export async function generateProductCopy(input: GenerateCopyInput): Promise<GenerationResult[]> {
   if (!input.env.GEMINI_API_KEY) {
-    throw new Error("GEMINI_API_KEY is not configured");
+    console.warn("[Gemini] GEMINI_API_KEY not set — returning mock data");
+    return generateMockCopy(input);
   }
 
   const parts: GeminiPart[] = [{ text: buildPrompt(input) }];
