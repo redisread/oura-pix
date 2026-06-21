@@ -33,7 +33,7 @@ export const apiKeyAuth = createMiddleware<ApiKeyContext>(async (c, next) => {
     return c.json({ error: "Missing or malformed API key. Use: Authorization: Bearer op_xxx" }, 401);
   }
 
-  const key = match[1];
+  const key = match[1]!;
   const db = createDb(c.env.DB);
   const record = await validateApiKey(db, key);
   if (!record) {
@@ -52,7 +52,7 @@ export const apiKeyAuth = createMiddleware<ApiKeyContext>(async (c, next) => {
   }
 
   c.set("apiKey", { id: record.id, userId: record.userId, name: record.name });
-  c.set("apiKeyUser", users[0]);
+  c.set("apiKeyUser", users[0]!);
 
   await next();
 });

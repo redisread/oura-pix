@@ -162,7 +162,7 @@ export async function getTeamForUser(
     .where(eq(schema.teamMembers.teamId, teamId));
 
   return {
-    ...rows[0],
+    ...rows[0]!,
     memberCount: count?.count ?? 0,
   };
 }
@@ -203,7 +203,7 @@ export async function joinTeamByInviteCode(
     .limit(1);
 
   if (teams.length === 0) return null;
-  const team = teams[0];
+  const team = teams[0]!;
 
   const existing = await db
     .select()
@@ -223,7 +223,7 @@ export async function joinTeamByInviteCode(
       joinedAt: new Date(),
     })
     .returning();
-  return created;
+  return created ?? null;
 }
 
 export async function listTeamMembers(
@@ -273,7 +273,7 @@ export async function updateMemberRole(
         and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, targetUserId))
       )
       .limit(1);
-    if (target.length > 0 && target[0].role === "owner") {
+    if (target.length > 0 && target[0]!.role === "owner") {
       return null;
     }
   }
@@ -301,7 +301,7 @@ export async function removeMember(
     )
     .limit(1);
   if (target.length === 0) return false;
-  if (target[0].role === "owner") return false;
+  if (target[0]!.role === "owner") return false;
 
   const result = await db
     .delete(schema.teamMembers)
@@ -327,7 +327,7 @@ export async function leaveTeam(
     .where(and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, userId)))
     .limit(1);
   if (member.length === 0) return false;
-  if (member[0].role === "owner") return false;
+  if (member[0]!.role === "owner") return false;
 
   await db
     .delete(schema.teamMembers)
