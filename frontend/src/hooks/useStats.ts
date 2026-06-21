@@ -4,7 +4,7 @@
  * Fetches and manages generation statistics
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { apiJson } from "@/lib/api";
 
 export type TimeRange = '7d' | '30d' | '90d' | 'all';
@@ -24,6 +24,9 @@ export function useStats(initialRange: TimeRange = '30d') {
   const [data, setData] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -40,7 +43,7 @@ export function useStats(initialRange: TimeRange = '30d') {
     };
 
     fetchStats();
-  }, [range]);
+  }, [range, refreshKey]);
 
   return {
     range,
@@ -48,5 +51,6 @@ export function useStats(initialRange: TimeRange = '30d') {
     data,
     loading,
     error,
+    refresh,
   };
 }

@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { useCompetitors, PLATFORM_LABELS, type Platform, type Competitor } from "@/hooks/useCompetitors";
+import { StateMessage } from "@/components/StateMessage";
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("zh-CN", {
@@ -212,19 +213,16 @@ export default function CompetitorsPage() {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded mb-4">
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-        </div>
-      )}
+      {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
       {loading && competitors.length === 0 ? (
-        <div className="text-center py-12 text-slate-500">加载中...</div>
+        <StateMessage variant="loading" message="加载竞品..." />
       ) : competitors.length === 0 ? (
-        <div className="text-center py-12 text-slate-500">
-          <p>还没有竞品记录</p>
-          <p className="text-xs mt-1">点击右上角添加第一个</p>
-        </div>
+        <StateMessage
+          variant="empty"
+          title="还没有竞品记录"
+          description="点击右上角添加第一个竞品"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {competitors.map((c) => (

@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { useApiKeys } from "@/hooks/useApiKeys";
+import { StateMessage } from "@/components/StateMessage";
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "-";
@@ -131,20 +132,17 @@ export default function ApiKeysPage() {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded mb-4">
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-        </div>
-      )}
+      {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
         {loading && keys.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">加载中...</div>
+          <StateMessage variant="loading" message="加载 API Keys..." />
         ) : keys.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
-            <p>还没有 API Key</p>
-            <p className="text-xs mt-1">点击右上角创建第一个</p>
-          </div>
+          <StateMessage
+            variant="empty"
+            title="还没有 API Key"
+            description="点击右上角创建第一个 API Key"
+          />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">

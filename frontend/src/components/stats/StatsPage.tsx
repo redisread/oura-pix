@@ -4,6 +4,7 @@ import { useStats, type TimeRange } from '@/hooks/useStats';
 import StatsCard from './StatsCard';
 import DistributionChart from './DistributionChart';
 import TrendChart from './TrendChart';
+import { StateMessage } from '@/components/StateMessage';
 
 const timeRanges: { value: TimeRange; label: string }[] = [
   { value: '7d', label: '近7天' },
@@ -13,7 +14,7 @@ const timeRanges: { value: TimeRange; label: string }[] = [
 ];
 
 export default function StatsPage() {
-  const { range, setRange, data, loading, error } = useStats('30d');
+  const { range, setRange, data, loading, error, refresh } = useStats('30d');
 
   const platformLabels: Record<string, string> = {
     amazon: 'Amazon',
@@ -61,21 +62,22 @@ export default function StatsPage() {
         </div>
 
         {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600" />
-          </div>
-        )}
+        {loading && <StateMessage variant="loading" message="加载统计数据..." />}
 
         {/* Error State */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-            <p className="text-red-800 dark:text-red-200">{error}</p>
-          </div>
+        {error && <StateMessage variant="error" message={error} onRetry={refresh} />}
+
+        {/* Empty State */}
+        {data && !loading && data.totalGenerations === 0 && (
+          <StateMessage
+            variant="empty"
+            title="暂无统计数据"
+            description="开始生成商品图片后，统计数据将在这里展示"
+          />
         )}
 
         {/* Stats Content */}
-        {data && !loading && (
+        {data && !loading && data.totalGenerations > 0 && (
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

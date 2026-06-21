@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { useCollections, type Collection } from "@/hooks/useCollections";
+import { StateMessage } from "@/components/StateMessage";
 
 const COLORS = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
@@ -34,19 +35,16 @@ export default function CollectionsPage() {
         </button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded mb-4">
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-        </div>
-      )}
+      {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
       {loading && collections.length === 0 ? (
-        <div className="text-center py-12 text-slate-500">加载中...</div>
+        <StateMessage variant="loading" message="加载收藏夹..." />
       ) : collections.length === 0 ? (
-        <div className="text-center py-12 text-slate-500">
-          <p>还没有收藏夹</p>
-          <p className="text-xs mt-1">点击右上角创建第一个</p>
-        </div>
+        <StateMessage
+          variant="empty"
+          title="还没有收藏夹"
+          description="点击右上角创建第一个收藏夹"
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {collections.map((c) => (

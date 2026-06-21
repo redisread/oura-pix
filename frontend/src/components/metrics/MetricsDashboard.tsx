@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import { useMetricsDashboard, type MetricSummary } from "@/hooks/useMetricsDashboard";
+import { StateMessage } from "@/components/StateMessage";
 
 type RangeFilter = "1h" | "24h" | "7d" | "30d";
 
@@ -137,16 +138,12 @@ export default function MetricsDashboard() {
         ))}
       </div>
 
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-lg mb-4">
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
-        </div>
-      )}
+      {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
       {/* Core Web Vitals cards */}
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">核心指标</h2>
       {loading && !stats ? (
-        <div className="text-center py-12 text-slate-500">加载中...</div>
+        <StateMessage variant="loading" message="加载指标..." />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
           {stats?.metrics.map((m) => <MetricCard key={m.name} summary={m} />) ??
@@ -172,7 +169,7 @@ export default function MetricsDashboard() {
         </div>
 
         {points.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">暂无数据</div>
+          <StateMessage variant="empty" title="暂无数据" description="选择指标后数据将在这里展示" />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
