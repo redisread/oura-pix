@@ -35,7 +35,7 @@ export default function PricingPage() {
         { text: `${m.pricingFeatures_resolution()}: ${m.pricingFeatures_hd()}`, included: true },
         { text: `${m.pricingFeatures_platforms()}: ${m.pricingFeatures_multiPlatform()}`, included: true },
         { text: `${m.pricingFeatures_batchGeneration()}: ${m.pricingFeatures_batch10()}`, included: true },
-        { text: m.pricingFeatures_apiAccess(), included: false },
+        { text: m.pricingFeatures_apiAccess(), included: true },
         { text: m.pricingFeatures_support(), included: true },
       ],
       cta: m.pricing_pro_cta(),
@@ -58,7 +58,7 @@ export default function PricingPage() {
         { text: m.pricingFeatures_support(), included: true },
       ],
       cta: m.pricing_enterprise_cta(),
-      ctaLink: "#",
+      ctaLink: "mailto:sales@ourapix.com",
       popular: false,
     },
   ];
@@ -69,7 +69,7 @@ export default function PricingPage() {
     { feature: m.pricingFeatures_templates(), free: m.pricingFeatures_basicTemplates(), pro: m.pricingFeatures_allTemplates(), enterprise: m.pricingFeatures_customTemplates() },
     { feature: m.pricingFeatures_platforms(), free: m.pricingFeatures_amazon(), pro: m.pricingFeatures_multiPlatform(), enterprise: m.pricingFeatures_allPlatforms() },
     { feature: m.pricingFeatures_batchGeneration(), free: m.pricingFeatures_notAvailable(), pro: m.pricingFeatures_batch10(), enterprise: m.pricingFeatures_unlimited() },
-    { feature: m.pricingFeatures_apiAccess(), free: m.pricingFeatures_notAvailable(), pro: m.pricingFeatures_notAvailable(), enterprise: "✓" },
+    { feature: m.pricingFeatures_apiAccess(), free: m.pricingFeatures_notAvailable(), pro: "✓", enterprise: "✓" },
     { feature: m.pricingFeatures_generationSpeed(), free: m.pricingFeatures_standardSpeed(), pro: m.pricingFeatures_priority(), enterprise: m.pricingFeatures_highestPriority() },
     { feature: m.pricingFeatures_support(), free: m.pricingFeatures_community(), pro: m.pricingFeatures_prioritySupport(), enterprise: m.pricingFeatures_dedicatedManager() },
   ];
@@ -251,7 +251,7 @@ export default function PricingPage() {
                 {m.pricing_ctaFree()}
               </a>
               <a
-                href="#"
+                href="mailto:sales@ourapix.com"
                 className="inline-flex items-center justify-center rounded-lg border border-slate-600 bg-transparent px-6 py-3 text-base font-medium text-white transition-all hover:bg-slate-800"
               >
                 {m.pricing_ctaContact()}
