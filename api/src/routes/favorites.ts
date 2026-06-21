@@ -83,10 +83,10 @@ router.get("/", async (c) => {
     createdAt: fav.createdAt,
     generation: generations[fav.generationId]
       ? {
-          id: generations[fav.generationId].id,
-          status: generations[fav.generationId].status,
-          settings: generations[fav.generationId].settings,
-          createdAt: generations[fav.generationId].createdAt,
+          id: generations[fav.generationId]!.id,
+          status: generations[fav.generationId]!.status,
+          settings: generations[fav.generationId]!.settings,
+          createdAt: generations[fav.generationId]!.createdAt,
         }
       : null,
   }));

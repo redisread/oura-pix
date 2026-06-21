@@ -66,7 +66,7 @@ export async function recordMetric(
       recordedAt: new Date(),
     })
     .returning();
-  return created;
+  return created!;
 }
 
 /**

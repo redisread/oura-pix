@@ -109,7 +109,6 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
                 src={imageUrl}
                 alt="Editing"
                 className="max-w-full max-h-[60vh] object-contain"
-                fetchpriority="high"
                 decoding="async"
                 style={{
                   transform: getTransformStyle(),

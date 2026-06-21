@@ -64,7 +64,7 @@ export async function ensureSeedData(db: ReturnType<typeof createDb>): Promise<v
       .insert(schema.categories)
       .values({ name: cat.name, description: cat.description, icon: cat.icon, bestPractices: cat.bestPractices, sortOrder: cat.sortOrder, createdAt: new Date() })
       .returning();
-    nameToId.set(cat.name, created.id);
+    nameToId.set(cat.name, created!.id);
   }
   for (const t of SEED_TEMPLATES) {
     const id = nameToId.get(t.categoryName);
@@ -113,7 +113,7 @@ export async function createUserTemplate(
     categoryId: input.categoryId, name: input.name, description: input.description ?? null,
     settings: input.settings, isPreset: false, createdBy: userId, usageCount: 0, createdAt: new Date(),
   }).returning();
-  return created;
+  return created!;
 }
 
 export async function listUserTemplates(db: ReturnType<typeof createDb>, userId: string): Promise<TemplateRecord[]> {
