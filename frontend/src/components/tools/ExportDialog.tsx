@@ -108,6 +108,8 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
     <div
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
     >
       <div
         className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-6"

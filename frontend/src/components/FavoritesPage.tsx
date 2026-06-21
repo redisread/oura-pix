@@ -51,6 +51,8 @@ function ImageModal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
     >
       <div
         className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-stone-800 rounded-xl overflow-hidden shadow-2xl"
