@@ -13,7 +13,7 @@ binding = "ASSETS"
 
 # Environment variables
 [vars]
-PUBLIC_API_URL = "https://api.ourapix.jiahongw.com"
+PUBLIC_API_URL = "https://oura-pix-api.wujiahong2013.workers.dev"
 
 # Observability
 [observability]
