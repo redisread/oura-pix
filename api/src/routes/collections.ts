@@ -35,14 +35,14 @@ const updateSchema = createSchema.partial();
  */
 collections.get("/", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   try {
     const db = createDb(c.env.DB);
     const data = await listCollections(db, user.id);
     return c.json({ success: true, data });
   } catch (error) {
     console.error("Failed to list collections:", error);
-    return c.json({ error: "Failed to list collections" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list collections" } }, 500);
   }
 });
 
@@ -51,7 +51,7 @@ collections.get("/", async (c) => {
  */
 collections.post("/", zValidator("json", createSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   const input = c.req.valid("json");
   try {
     const db = createDb(c.env.DB);
@@ -59,7 +59,7 @@ collections.post("/", zValidator("json", createSchema), async (c) => {
     return c.json({ success: true, data: created }, 201);
   } catch (error) {
     console.error("Failed to create collection:", error);
-    return c.json({ error: "Failed to create collection" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create collection" } }, 500);
   }
 });
 
@@ -68,17 +68,17 @@ collections.post("/", zValidator("json", createSchema), async (c) => {
  */
 collections.patch("/:id", zValidator("json", updateSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   const id = c.req.param("id");
   const input = c.req.valid("json");
   try {
     const db = createDb(c.env.DB);
     const updated = await updateCollection(db, id, user.id, input);
-    if (!updated) return c.json({ error: "Collection not found" }, 404);
+    if (!updated) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Collection not found" } }, 404);
     return c.json({ success: true, data: updated });
   } catch (error) {
     console.error("Failed to update collection:", error);
-    return c.json({ error: "Failed to update collection" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to update collection" } }, 500);
   }
 });
 
@@ -87,16 +87,16 @@ collections.patch("/:id", zValidator("json", updateSchema), async (c) => {
  */
 collections.delete("/:id", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   const id = c.req.param("id");
   try {
     const db = createDb(c.env.DB);
     const ok = await deleteCollection(db, id, user.id);
-    if (!ok) return c.json({ error: "Collection not found" }, 404);
+    if (!ok) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Collection not found" } }, 404);
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to delete collection:", error);
-    return c.json({ error: "Failed to delete collection" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete collection" } }, 500);
   }
 });
 
@@ -110,17 +110,17 @@ const moveSchema = z.object({
 
 collections.put("/:id/favorites/:favoriteId", zValidator("json", moveSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   const favoriteId = c.req.param("favoriteId");
   const { collectionId } = c.req.valid("json");
   try {
     const db = createDb(c.env.DB);
     const ok = await moveFavoriteToCollection(db, favoriteId, user.id, collectionId);
-    if (!ok) return c.json({ error: "Favorite not found" }, 404);
+    if (!ok) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Favorite not found" } }, 404);
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to move favorite:", error);
-    return c.json({ error: "Failed to move favorite" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to move favorite" } }, 500);
   }
 });
 

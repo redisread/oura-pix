@@ -63,7 +63,7 @@ metrics.post("/", zValidator("json", singleMetricSchema), async (c) => {
     return c.json({ success: true, data: { id: record.id } });
   } catch (error) {
     console.error("Failed to record metric:", error);
-    return c.json({ error: "Failed to record metric" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to record metric" } }, 500);
   }
 });
 
@@ -84,7 +84,7 @@ metrics.post("/batch", zValidator("json", batchMetricSchema), async (c) => {
     return c.json({ success: true, data: { recorded } });
   } catch (error) {
     console.error("Failed to record metrics batch:", error);
-    return c.json({ error: "Failed to record metrics" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to record metrics" } }, 500);
   }
 });
 
@@ -95,7 +95,7 @@ metrics.post("/batch", zValidator("json", batchMetricSchema), async (c) => {
 metrics.get("/dashboard", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   }
 
   const range = c.req.query("range") || "7d";
@@ -107,7 +107,7 @@ metrics.get("/dashboard", async (c) => {
     return c.json({ success: true, data: stats });
   } catch (error) {
     console.error("Failed to get dashboard stats:", error);
-    return c.json({ error: "Failed to get dashboard stats" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to get dashboard stats" } }, 500);
   }
 });
 
@@ -118,7 +118,7 @@ metrics.get("/dashboard", async (c) => {
 metrics.get("/:name", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   }
 
   const name = c.req.param("name");
@@ -132,7 +132,7 @@ metrics.get("/:name", async (c) => {
     return c.json({ success: true, data: { name, points: recent } });
   } catch (error) {
     console.error("Failed to get metric series:", error);
-    return c.json({ error: "Failed to get metric series" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to get metric series" } }, 500);
   }
 });
 

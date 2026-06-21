@@ -71,7 +71,7 @@ errors.post("/", zValidator("json", reportSchema), async (c) => {
     });
   } catch (error) {
     console.error("Failed to report error:", error);
-    return c.json({ error: "Failed to report error" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to report error" } }, 500);
   }
 });
 
@@ -82,7 +82,7 @@ errors.post("/", zValidator("json", reportSchema), async (c) => {
 errors.get("/", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   }
 
   const page = Number(c.req.query("page")) || 1;
@@ -107,7 +107,7 @@ errors.get("/", async (c) => {
     return c.json({ success: true, data: result });
   } catch (error) {
     console.error("Failed to list errors:", error);
-    return c.json({ error: "Failed to list errors" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list errors" } }, 500);
   }
 });
 
@@ -118,7 +118,7 @@ errors.get("/", async (c) => {
 errors.get("/stats", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   }
 
   const rangeStr = c.req.query("range") || "7d";
@@ -131,7 +131,7 @@ errors.get("/stats", async (c) => {
     return c.json({ success: true, data: stats });
   } catch (error) {
     console.error("Failed to get error stats:", error);
-    return c.json({ error: "Failed to get error stats" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to get error stats" } }, 500);
   }
 });
 
@@ -142,7 +142,7 @@ errors.get("/stats", async (c) => {
 errors.delete("/:id", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   }
 
   const id = c.req.param("id");
@@ -151,12 +151,12 @@ errors.delete("/:id", async (c) => {
     const db = createDb(c.env.DB);
     const success = await deleteError(db, id);
     if (!success) {
-      return c.json({ error: "Error not found" }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Error not found" } }, 404);
     }
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to delete error:", error);
-    return c.json({ error: "Failed to delete error" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete error" } }, 500);
   }
 });
 
@@ -171,7 +171,7 @@ const batchDeleteSchema = z.object({
 errors.post("/batch-delete", zValidator("json", batchDeleteSchema), async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ error: "Unauthorized" }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   }
 
   const { ids } = c.req.valid("json");
@@ -182,7 +182,7 @@ errors.post("/batch-delete", zValidator("json", batchDeleteSchema), async (c) =>
     return c.json({ success: true, data: { deleted } });
   } catch (error) {
     console.error("Failed to batch delete errors:", error);
-    return c.json({ error: "Failed to batch delete errors" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to batch delete errors" } }, 500);
   }
 });
 

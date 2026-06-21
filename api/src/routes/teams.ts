@@ -55,7 +55,7 @@ const roleSchema = z.object({
  */
 teams.post("/", zValidator("json", createSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const { name } = c.req.valid("json");
 
@@ -65,7 +65,7 @@ teams.post("/", zValidator("json", createSchema), async (c) => {
     return c.json({ success: true, data: team }, 201);
   } catch (error) {
     console.error("Failed to create team:", error);
-    return c.json({ error: "Failed to create team" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create team" } }, 500);
   }
 });
 
@@ -74,7 +74,7 @@ teams.post("/", zValidator("json", createSchema), async (c) => {
  */
 teams.get("/", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   try {
     const db = createDb(c.env.DB);
@@ -82,7 +82,7 @@ teams.get("/", async (c) => {
     return c.json({ success: true, data: teams });
   } catch (error) {
     console.error("Failed to list teams:", error);
-    return c.json({ error: "Failed to list teams" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list teams" } }, 500);
   }
 });
 
@@ -91,14 +91,14 @@ teams.get("/", async (c) => {
  */
 teams.get("/:id", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const teamId = c.req.param("id");
 
   try {
     const db = createDb(c.env.DB);
     const team = await getTeamForUser(db, teamId, user.id);
-    if (!team) return c.json({ error: "Team not found" }, 404);
+    if (!team) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Team not found" } }, 404);
 
     const members = await listTeamMembers(db, teamId);
     return c.json({
@@ -107,7 +107,7 @@ teams.get("/:id", async (c) => {
     });
   } catch (error) {
     console.error("Failed to get team:", error);
-    return c.json({ error: "Failed to get team" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to get team" } }, 500);
   }
 });
 
@@ -116,7 +116,7 @@ teams.get("/:id", async (c) => {
  */
 teams.put("/:id", zValidator("json", updateSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const teamId = c.req.param("id");
   const { name } = c.req.valid("json");
@@ -124,14 +124,14 @@ teams.put("/:id", zValidator("json", updateSchema), async (c) => {
   try {
     const db = createDb(c.env.DB);
     const team = await getTeamForUser(db, teamId, user.id);
-    if (!team) return c.json({ error: "Team not found" }, 404);
-    if (team.role !== "owner") return c.json({ error: "Only owner can update" }, 403);
+    if (!team) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Team not found" } }, 404);
+    if (team.role !== "owner") return c.json({ success: false, error: { code: "FORBIDDEN", message: "Only owner can update" } }, 403);
 
     const updated = await updateTeam(db, teamId, name);
     return c.json({ success: true, data: updated });
   } catch (error) {
     console.error("Failed to update team:", error);
-    return c.json({ error: "Failed to update team" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to update team" } }, 500);
   }
 });
 
@@ -140,21 +140,21 @@ teams.put("/:id", zValidator("json", updateSchema), async (c) => {
  */
 teams.delete("/:id", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const teamId = c.req.param("id");
 
   try {
     const db = createDb(c.env.DB);
     const team = await getTeamForUser(db, teamId, user.id);
-    if (!team) return c.json({ error: "Team not found" }, 404);
-    if (team.role !== "owner") return c.json({ error: "Only owner can delete" }, 403);
+    if (!team) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Team not found" } }, 404);
+    if (team.role !== "owner") return c.json({ success: false, error: { code: "FORBIDDEN", message: "Only owner can delete" } }, 403);
 
     await deleteTeam(db, teamId);
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to delete team:", error);
-    return c.json({ error: "Failed to delete team" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete team" } }, 500);
   }
 });
 
@@ -163,18 +163,18 @@ teams.delete("/:id", async (c) => {
  */
 teams.post("/:id/join", zValidator("json", joinSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const { inviteCode } = c.req.valid("json");
 
   try {
     const db = createDb(c.env.DB);
     const member = await joinTeamByInviteCode(db, user.id, inviteCode);
-    if (!member) return c.json({ error: "Invalid invite code or already a member" }, 400);
+    if (!member) return c.json({ success: false, error: { code: "BAD_REQUEST", message: "Invalid invite code or already a member" } }, 400);
     return c.json({ success: true, data: member });
   } catch (error) {
     console.error("Failed to join team:", error);
-    return c.json({ error: "Failed to join team" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to join team" } }, 500);
   }
 });
 
@@ -183,18 +183,18 @@ teams.post("/:id/join", zValidator("json", joinSchema), async (c) => {
  */
 teams.post("/:id/leave", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const teamId = c.req.param("id");
 
   try {
     const db = createDb(c.env.DB);
     const success = await leaveTeam(db, teamId, user.id);
-    if (!success) return c.json({ error: "Cannot leave (owner or not a member)" }, 400);
+    if (!success) return c.json({ success: false, error: { code: "BAD_REQUEST", message: "Cannot leave (owner or not a member)" } }, 400);
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to leave team:", error);
-    return c.json({ error: "Failed to leave team" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to leave team" } }, 500);
   }
 });
 
@@ -208,7 +208,7 @@ teams.put(
   zValidator("json", roleSchema),
   async (c) => {
     const user = await getUser(c);
-    if (!user) return c.json({ error: "Unauthorized" }, 401);
+    if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
     const teamId = c.req.param("id");
     const targetUserId = c.req.param("userId");
@@ -217,7 +217,7 @@ teams.put(
     try {
       const db = createDb(c.env.DB);
       const team = await getTeamForUser(db, teamId, user.id);
-      if (!team) return c.json({ error: "Team not found" }, 404);
+      if (!team) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Team not found" } }, 404);
 
       // Authorization: owner can do anything; admin can only set role to 'member'
       if (team.role === "owner") {
@@ -225,15 +225,15 @@ teams.put(
       } else if (team.role === "admin" && role === "member") {
         // OK
       } else {
-        return c.json({ error: "Insufficient permissions" }, 403);
+        return c.json({ success: false, error: { code: "FORBIDDEN", message: "Insufficient permissions" } }, 403);
       }
 
       const updated = await updateMemberRole(db, teamId, targetUserId, role);
-      if (!updated) return c.json({ error: "Cannot change role (owner or not found)" }, 400);
+      if (!updated) return c.json({ success: false, error: { code: "BAD_REQUEST", message: "Cannot change role (owner or not found)" } }, 400);
       return c.json({ success: true, data: updated });
     } catch (error) {
       console.error("Failed to update role:", error);
-      return c.json({ error: "Failed to update role" }, 500);
+      return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to update role" } }, 500);
     }
   }
 );
@@ -245,7 +245,7 @@ teams.put(
  */
 teams.delete("/:id/members/:userId", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const teamId = c.req.param("id");
   const targetUserId = c.req.param("userId");
@@ -253,18 +253,18 @@ teams.delete("/:id/members/:userId", async (c) => {
   try {
     const db = createDb(c.env.DB);
     const team = await getTeamForUser(db, teamId, user.id);
-    if (!team) return c.json({ error: "Team not found" }, 404);
+    if (!team) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Team not found" } }, 404);
 
     if (!isRoleAtLeast(team.role, "admin")) {
-      return c.json({ error: "Insufficient permissions" }, 403);
+      return c.json({ success: false, error: { code: "FORBIDDEN", message: "Insufficient permissions" } }, 403);
     }
 
     const success = await removeMember(db, teamId, targetUserId);
-    if (!success) return c.json({ error: "Cannot remove (owner or not found)" }, 400);
+    if (!success) return c.json({ success: false, error: { code: "BAD_REQUEST", message: "Cannot remove (owner or not found)" } }, 400);
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to remove member:", error);
-    return c.json({ error: "Failed to remove member" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to remove member" } }, 500);
   }
 });
 
@@ -273,7 +273,7 @@ teams.delete("/:id/members/:userId", async (c) => {
  */
 teams.get("/:id/generations", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const teamId = c.req.param("id");
   const page = Math.max(1, Number(c.req.query("page")) || 1);
@@ -282,7 +282,7 @@ teams.get("/:id/generations", async (c) => {
   try {
     const db = createDb(c.env.DB);
     const team = await getTeamForUser(db, teamId, user.id);
-    if (!team) return c.json({ error: "Team not found" }, 404);
+    if (!team) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Team not found" } }, 404);
 
     const totalResult = await db
       .select({ count: sql<number>`count(*)` })
@@ -312,7 +312,7 @@ teams.get("/:id/generations", async (c) => {
     });
   } catch (error) {
     console.error("Failed to list team generations:", error);
-    return c.json({ error: "Failed to list generations" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list generations" } }, 500);
   }
 });
 

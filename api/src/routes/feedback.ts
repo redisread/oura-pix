@@ -35,7 +35,7 @@ const submitSchema = z.object({
  */
 feedback.post("/", zValidator("json", submitSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const input = c.req.valid("json");
 
@@ -49,7 +49,7 @@ feedback.post("/", zValidator("json", submitSchema), async (c) => {
       .where(and(eq(schema.generations.id, input.generationId), eq(schema.generations.userId, user.id)))
       .limit(1);
     if (gen.length === 0) {
-      return c.json({ error: "Generation not found" }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Generation not found" } }, 404);
     }
 
     const [created] = await db
@@ -67,7 +67,7 @@ feedback.post("/", zValidator("json", submitSchema), async (c) => {
     return c.json({ success: true, data: { id: created.id } }, 201);
   } catch (error) {
     console.error("Failed to submit feedback:", error);
-    return c.json({ error: "Failed to submit feedback" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to submit feedback" } }, 500);
   }
 });
 
@@ -77,10 +77,10 @@ feedback.post("/", zValidator("json", submitSchema), async (c) => {
  */
 feedback.get("/", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const generationId = c.req.query("generationId");
-  if (!generationId) return c.json({ error: "generationId is required" }, 400);
+  if (!generationId) return c.json({ success: false, error: { code: "BAD_REQUEST", message: "generationId is required" } }, 400);
 
   try {
     const db = createDb(c.env.DB);
@@ -91,7 +91,7 @@ feedback.get("/", async (c) => {
       .where(and(eq(schema.generations.id, generationId), eq(schema.generations.userId, user.id)))
       .limit(1);
     if (gen.length === 0) {
-      return c.json({ error: "Generation not found" }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Generation not found" } }, 404);
     }
 
     const rows = await db
@@ -103,7 +103,7 @@ feedback.get("/", async (c) => {
     return c.json({ success: true, data: rows });
   } catch (error) {
     console.error("Failed to list feedback:", error);
-    return c.json({ error: "Failed to list feedback" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list feedback" } }, 500);
   }
 });
 
@@ -113,10 +113,10 @@ feedback.get("/", async (c) => {
  */
 feedback.get("/stats", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
 
   const generationId = c.req.query("generationId");
-  if (!generationId) return c.json({ error: "generationId is required" }, 400);
+  if (!generationId) return c.json({ success: false, error: { code: "BAD_REQUEST", message: "generationId is required" } }, 400);
 
   try {
     const db = createDb(c.env.DB);
@@ -126,7 +126,7 @@ feedback.get("/stats", async (c) => {
       .where(and(eq(schema.generations.id, generationId), eq(schema.generations.userId, user.id)))
       .limit(1);
     if (gen.length === 0) {
-      return c.json({ error: "Generation not found" }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Generation not found" } }, 404);
     }
 
     const [agg] = await db
@@ -147,7 +147,7 @@ feedback.get("/stats", async (c) => {
     });
   } catch (error) {
     console.error("Failed to get feedback stats:", error);
-    return c.json({ error: "Failed to get feedback stats" }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to get feedback stats" } }, 500);
   }
 });
 
