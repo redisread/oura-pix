@@ -96,6 +96,7 @@ export async function reportError(
     .limit(1);
 
   if (existing.length > 0) {
+    const ex = existing[0]!;
     // Update occurrences and lastSeenAt
     const [updated] = await db
       .update(schema.errors)
@@ -104,12 +105,12 @@ export async function reportError(
         lastSeenAt: new Date(),
         // Update message in case the latest occurrence has more context
         message: input.message.slice(0, 2000),
-        stack: input.stack?.slice(0, 4000) ?? existing[0].stack,
-        context: input.context ? JSON.stringify(input.context).slice(0, 8000) : existing[0].context,
+        stack: input.stack?.slice(0, 4000) ?? ex.stack,
+        context: input.context ? JSON.stringify(input.context).slice(0, 8000) : ex.context,
       })
-      .where(eq(schema.errors.id, existing[0].id))
+      .where(eq(schema.errors.id, ex.id))
       .returning();
-    return { record: updated, created: false };
+    return { record: updated!, created: false };
   }
 
   // Create a new record
@@ -129,7 +130,7 @@ export async function reportError(
       createdAt: new Date(),
     })
     .returning();
-  return { record: created, created: true };
+  return { record: created!, created: true };
 }
 
 /**

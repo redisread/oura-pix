@@ -87,12 +87,12 @@ export async function createApiKey(
     .returning();
 
   return {
-    id: created.id,
-    name: created.name,
+    id: created!.id,
+    name: created!.name,
     key, // full key — caller MUST show to user once
-    keyPrefix: created.keyPrefix,
-    createdAt: created.createdAt,
-    expiresAt: created.expiresAt,
+    keyPrefix: created!.keyPrefix,
+    createdAt: created!.createdAt,
+    expiresAt: created!.expiresAt,
   };
 }
 
@@ -116,7 +116,7 @@ export async function validateApiKey(
     .limit(1);
 
   if (records.length === 0) return null;
-  const record = records[0];
+  const record = records[0]!;
 
   if (record.isRevoked) return null;
   if (record.expiresAt && record.expiresAt.getTime() < Date.now()) return null;

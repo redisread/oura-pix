@@ -100,7 +100,7 @@ competitors.post("/", zValidator("json", createSchema), async (c) => {
         createdAt: new Date(),
       })
       .returning();
-    return c.json({ success: true, data: toResponse(created) }, 201);
+    return c.json({ success: true, data: toResponse(created!) }, 201);
   } catch (error) {
     console.error("Failed to create competitor:", error);
     return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create competitor" } }, 500);
