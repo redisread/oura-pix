@@ -209,9 +209,8 @@ export default function HistoryPage() {
         <ImageEditor
           imageUrl={editingImage}
           onClose={() => setEditingImage(null)}
-          onSave={async (blob) => {
+          onSave={async (_blob) => {
             // TODO: Implement save to backend
-            console.log("Saving edited image:", blob);
             setEditingImage(null);
           }}
         />

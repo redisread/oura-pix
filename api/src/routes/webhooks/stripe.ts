@@ -94,7 +94,7 @@ router.post("/stripe", async (c) => {
               },
             });
 
-          console.log("[Webhook] Checkout completed for user:", userId, "plan:", plan);
+          console.info("[Webhook] Checkout completed for user:", userId, "plan:", plan);
         }
         break;
       }
@@ -121,7 +121,7 @@ router.post("/stripe", async (c) => {
             })
             .where(eq(schema.subscriptions.id, existing.id));
 
-          console.log(
+          console.info(
             "[Webhook] Subscription updated:",
             externalSubscriptionId,
             "status:",
@@ -149,7 +149,7 @@ router.post("/stripe", async (c) => {
             })
             .where(eq(schema.subscriptions.id, existing.id));
 
-          console.log("[Webhook] Subscription canceled:", externalSubscriptionId);
+          console.info("[Webhook] Subscription canceled:", externalSubscriptionId);
         }
         break;
       }
@@ -173,13 +173,13 @@ router.post("/stripe", async (c) => {
             })
             .where(eq(schema.subscriptions.id, existing.id));
 
-          console.log("[Webhook] Payment failed for subscription:", subscriptionId);
+          console.info("[Webhook] Payment failed for subscription:", subscriptionId);
         }
         break;
       }
 
       default:
-        console.log("[Webhook] Unhandled event type:", event.type);
+        console.info("[Webhook] Unhandled event type:", event.type);
     }
 
     return c.json({ success: true, received: true });
