@@ -64,7 +64,7 @@ feedback.post("/", zValidator("json", submitSchema), async (c) => {
       })
       .returning();
 
-    return c.json({ success: true, data: { id: created.id } }, 201);
+    return c.json({ success: true, data: { id: created!.id } }, 201);
   } catch (error) {
     console.error("Failed to submit feedback:", error);
     return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to submit feedback" } }, 500);

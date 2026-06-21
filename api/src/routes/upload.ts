@@ -167,7 +167,7 @@ router.post(
       return c.json({
         success: true,
         data: {
-          id: image.id,
+          id: image!.id,
           url: imageUrl,
           originalName: file.name,
           size: file.size,

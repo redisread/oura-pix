@@ -317,7 +317,7 @@ export async function getUserStats(
   const validStyles = ["professional", "lifestyle", "minimal", "luxury"] as const;
   const rawStyle = styleResult[0]?.style;
   const favoriteStyle = validStyles.includes(rawStyle as typeof validStyles[number])
-    ? rawStyle
+    ? rawStyle ?? "professional"
     : "professional";
 
   return {
@@ -354,7 +354,7 @@ export async function createGeneration(
     })
     .returning();
 
-  return generation;
+  return generation!;
 }
 
 export interface GenerationRuntimeEnv {

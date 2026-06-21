@@ -56,7 +56,7 @@ export async function createCollection(
       createdAt: new Date(),
     })
     .returning();
-  return created;
+  return created!;
 }
 
 export async function updateCollection(

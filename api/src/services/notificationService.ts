@@ -51,7 +51,7 @@ export async function createNotification(
     })
     .returning();
 
-  return notification;
+  return notification!;
 }
 
 /**
