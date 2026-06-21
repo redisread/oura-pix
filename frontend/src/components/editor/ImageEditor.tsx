@@ -78,7 +78,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
       <div className="w-full h-full max-w-7xl max-h-[90vh] bg-stone-900 rounded-lg overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-700">

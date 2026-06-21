@@ -247,6 +247,8 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
           onClick={() => setConfirmAction(null)}
+          role="dialog"
+          aria-modal="true"
         >
           <div
             className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-sm w-full p-6"
