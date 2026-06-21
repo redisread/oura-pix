@@ -22,7 +22,7 @@ categories.get("/", async (c) => {
     const db = createDb(c.env.DB);
     const data = await listCategories(db);
     return c.json({ success: true, data });
-  } catch { return c.json({ error: "Failed to list categories" }, 500); }
+  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list categories" } }, 500); }
 });
 
 categories.get("/:id", async (c) => {
@@ -30,9 +30,9 @@ categories.get("/:id", async (c) => {
   try {
     const db = createDb(c.env.DB);
     const cat = await getCategory(db, id);
-    if (!cat) return c.json({ error: "Category not found" }, 404);
+    if (!cat) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Category not found" } }, 404);
     return c.json({ success: true, data: cat });
-  } catch { return c.json({ error: "Failed to get category" }, 500); }
+  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to get category" } }, 500); }
 });
 
 categories.get("/:id/templates", async (c) => {
@@ -41,7 +41,7 @@ categories.get("/:id/templates", async (c) => {
     const db = createDb(c.env.DB);
     const data = await listCategoryTemplates(db, id);
     return c.json({ success: true, data });
-  } catch { return c.json({ error: "Failed to list templates" }, 500); }
+  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list templates" } }, 500); }
 });
 
 const createTemplateSchema = z.object({
@@ -61,35 +61,35 @@ const createTemplateSchema = z.object({
 
 categories.post("/templates", zValidator("json", createTemplateSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   const input = c.req.valid("json");
   try {
     const db = createDb(c.env.DB);
     const created = await createUserTemplate(db, user.id, input);
     return c.json({ success: true, data: created }, 201);
-  } catch { return c.json({ error: "Failed to create template" }, 500); }
+  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create template" } }, 500); }
 });
 
 categories.get("/templates/mine", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   try {
     const db = createDb(c.env.DB);
     const data = await listUserTemplates(db, user.id);
     return c.json({ success: true, data });
-  } catch { return c.json({ error: "Failed to list templates" }, 500); }
+  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list templates" } }, 500); }
 });
 
 categories.delete("/templates/:id", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
   const id = c.req.param("id");
   try {
     const db = createDb(c.env.DB);
     const ok = await deleteUserTemplate(db, id, user.id);
-    if (!ok) return c.json({ error: "Template not found or is a preset" }, 404);
+    if (!ok) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Template not found or is a preset" } }, 404);
     return c.json({ success: true });
-  } catch { return c.json({ error: "Failed to delete template" }, 500); }
+  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete template" } }, 500); }
 });
 
 export default categories;

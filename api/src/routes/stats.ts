@@ -30,14 +30,14 @@ stats.get('/', async (c) => {
   try {
     const user = getUser(c);
     if (!user) {
-      return c.json({ error: 'Unauthorized' }, 401);
+      return c.json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } }, 401);
     }
 
     const range = (c.req.query('range') || '30d') as TimeRange;
     const validRanges: TimeRange[] = ['7d', '30d', '90d', 'all'];
 
     if (!validRanges.includes(range)) {
-      return c.json({ error: 'Invalid range parameter' }, 400);
+      return c.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Invalid range parameter' } }, 400);
     }
 
     const db = createDb(c.env.DB);
@@ -49,7 +49,7 @@ stats.get('/', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching stats:', error);
-    return c.json({ error: 'Failed to fetch statistics' }, 500);
+    return c.json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch statistics' } }, 500);
   }
 });
 
