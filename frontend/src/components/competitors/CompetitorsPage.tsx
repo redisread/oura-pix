@@ -261,7 +261,7 @@ export default function CompetitorsPage() {
                       rel="noopener noreferrer"
                       className="block aspect-square bg-slate-100 dark:bg-slate-800 rounded overflow-hidden"
                     >
-                      <img src={s} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={s} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </a>
                   ))}
                 </div>

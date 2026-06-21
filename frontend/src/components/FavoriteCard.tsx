@@ -77,6 +77,7 @@ export default function FavoriteCard({
         alt="收藏图片"
         className="w-full h-full object-cover"
         loading="lazy"
+        decoding="async"
       />
 
       {/* Selection Checkbox */}

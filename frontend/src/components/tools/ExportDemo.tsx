@@ -24,7 +24,7 @@ export default function ExportDemo() {
       {imageUrl ? (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded mb-4 p-4 min-h-[300px]">
-            <img src={imageUrl} alt="Selected" className="max-w-full max-h-[400px] object-contain" />
+            <img src={imageUrl} alt="Selected" className="max-w-full max-h-[400px] object-contain" loading="lazy" decoding="async" />
           </div>
           <div className="flex gap-2 justify-end">
             <button

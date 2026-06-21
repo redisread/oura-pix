@@ -85,7 +85,7 @@ export default function BackgroundRemover() {
             <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
               <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">原图</div>
               <div className="bg-slate-100 dark:bg-slate-800 rounded p-2 flex items-center justify-center min-h-[200px]">
-                <img src={imageUrl} alt="Original" className="max-w-full max-h-96 object-contain" />
+                <img src={imageUrl} alt="Original" className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
               </div>
             </div>
 
@@ -120,7 +120,7 @@ export default function BackgroundRemover() {
                     </div>
                   </div>
                 ) : result ? (
-                  <img src={result.url} alt="Result" className="max-w-full max-h-96 object-contain" />
+                  <img src={result.url} alt="Result" className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
                 ) : (
                   <p className="text-sm text-slate-400">点击"开始处理"生成结果</p>
                 )}

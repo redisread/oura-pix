@@ -231,7 +231,7 @@ function BatchItemRow({ item, onRemove, onDownload }: { item: BatchItem; onRemov
   return (
     <div className="px-4 py-3 flex items-center gap-3">
       <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded overflow-hidden flex-shrink-0">
-        <img src={item.resultUrl ?? item.originalUrl} alt="" className="w-full h-full object-cover" />
+        <img src={item.resultUrl ?? item.originalUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
