@@ -134,7 +134,7 @@ export default function ApiKeysPage() {
 
       {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
         {loading && keys.length === 0 ? (
           <StateMessage variant="loading" message="加载 API Keys..." />
         ) : keys.length === 0 ? (

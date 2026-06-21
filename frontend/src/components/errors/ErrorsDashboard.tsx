@@ -283,7 +283,7 @@ export default function ErrorsDashboard() {
         <div className="text-center py-12 text-slate-500">暂无错误 🎉</div>
       ) : (
         list && (
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
                 <tr>

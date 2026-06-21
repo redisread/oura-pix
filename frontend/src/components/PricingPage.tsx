@@ -191,7 +191,7 @@ export default function PricingPage() {
               <p className="mt-2 text-slate-600">{m.pricing_comparisonSubtitle()}</p>
             </div>
 
-            <div className="mt-10 overflow-hidden rounded-xl border border-slate-200">
+            <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200">
               <table className="w-full">
                 <thead className="bg-slate-50">
                   <tr>

@@ -176,7 +176,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
       </div>
 
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">成员</h2>
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
             <tr>
