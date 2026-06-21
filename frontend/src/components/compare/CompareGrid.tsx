@@ -76,6 +76,8 @@ export default function CompareGrid({
             src={img.url}
             alt={img.title || `图片 ${idx + 1}`}
             className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+            loading="lazy"
+            decoding="async"
             style={{
               transform: `scale(${zoom}) translate(${panX}px, ${panY}px)`,
               transformOrigin: "center",

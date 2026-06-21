@@ -171,7 +171,7 @@ export default function CollageMaker() {
                 style={{ display: "none" }}
               />
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[600px] object-contain" />
+                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
               ) : (
                 <p className="text-slate-400 p-12">添加图片开始</p>
               )}
@@ -211,7 +211,7 @@ function CellEditor({
   return (
     <div className="space-y-1">
       <div className="aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 relative group">
-        <img src={cell.imageUrl} alt={`Cell ${index + 1}`} className="w-full h-full object-cover" />
+        <img src={cell.imageUrl} alt={`Cell ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         <button
           onClick={onRemove}
           className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100"

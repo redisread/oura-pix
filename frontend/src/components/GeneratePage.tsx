@@ -549,6 +549,8 @@ export default function GeneratePage() {
                                   src={img.url}
                                   alt={`Scene ${img.variation}`}
                                   className="h-full w-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
                                 />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900/70 opacity-0 transition-opacity group-hover:opacity-100">
                                   <button

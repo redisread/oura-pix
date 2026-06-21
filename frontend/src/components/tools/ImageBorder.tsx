@@ -174,7 +174,7 @@ export default function ImageBorder() {
             <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded min-h-[500px]">
               <canvas ref={canvasRef} className="hidden" />
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[600px] object-contain" />
+                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
               ) : (
                 <p className="text-slate-400 p-12 text-center">
                   上传图片开始<br />

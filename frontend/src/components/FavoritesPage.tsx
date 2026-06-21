@@ -73,6 +73,7 @@ function ImageModal({
           src={favorite.imageUrl}
           alt="收藏图片"
           className="w-full h-full object-contain max-h-[80vh]"
+          decoding="async"
         />
 
         {/* Actions */}
