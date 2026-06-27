@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { localizeHref } from "@/paraglide/runtime.js";
 import { resetPassword } from "@/lib/auth";
 
 // PasswordInput sub-component
@@ -82,7 +83,7 @@ export default function ResetPasswordPage({ token }: Props) {
       } else {
         setIsSuccess(true);
         setTimeout(() => {
-          window.location.href = "/login";
+          window.location.href = localizeHref("/login");
         }, 3000);
       }
     } catch {
@@ -109,7 +110,7 @@ export default function ResetPasswordPage({ token }: Props) {
           />
           <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
             <div className="mb-8">
-              <a href="/" className="flex items-center gap-3 group">
+              <a href={localizeHref("/")} className="flex items-center gap-3 group">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-colors">
                   <span className="text-2xl font-bold text-white">O</span>
                 </div>
@@ -128,7 +129,7 @@ export default function ResetPasswordPage({ token }: Props) {
         <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-8 lg:px-12 xl:px-16 bg-white">
           <div className="w-full max-w-md mx-auto">
             <div className="lg:hidden flex justify-center mb-8">
-              <a href="/" className="flex items-center gap-2">
+              <a href={localizeHref("/")} className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900">
                   <span className="text-xl font-bold text-white">O</span>
                 </div>
@@ -149,7 +150,7 @@ export default function ResetPasswordPage({ token }: Props) {
                 该密码重置链接已过期或无效。
               </p>
               <a
-                href="/forgot-password"
+                href={localizeHref("/forgot-password")}
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors"
               >
                 重新申请
@@ -178,7 +179,7 @@ export default function ResetPasswordPage({ token }: Props) {
           />
           <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
             <div className="mb-8">
-              <a href="/" className="flex items-center gap-3 group">
+              <a href={localizeHref("/")} className="flex items-center gap-3 group">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-colors">
                   <span className="text-2xl font-bold text-white">O</span>
                 </div>
@@ -197,7 +198,7 @@ export default function ResetPasswordPage({ token }: Props) {
         <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-8 lg:px-12 xl:px-16 bg-white">
           <div className="w-full max-w-md mx-auto">
             <div className="lg:hidden flex justify-center mb-8">
-              <a href="/" className="flex items-center gap-2">
+              <a href={localizeHref("/")} className="flex items-center gap-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900">
                   <span className="text-xl font-bold text-white">O</span>
                 </div>
@@ -218,7 +219,7 @@ export default function ResetPasswordPage({ token }: Props) {
                 您的密码已重置，即将跳转到登录页面。
               </p>
               <a
-                href="/login"
+                href={localizeHref("/login")}
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors"
               >
                 立即登录
@@ -252,7 +253,7 @@ export default function ResetPasswordPage({ token }: Props) {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           <div className="mb-8">
-            <a href="/" className="flex items-center gap-3 group">
+            <a href={localizeHref("/")} className="flex items-center gap-3 group">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 group-hover:bg-white/20 transition-colors">
                 <span className="text-2xl font-bold text-white">O</span>
               </div>
@@ -287,7 +288,7 @@ export default function ResetPasswordPage({ token }: Props) {
         <div className="w-full max-w-md mx-auto">
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <a href="/" className="flex items-center gap-2">
+            <a href={localizeHref("/")} className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900">
                 <span className="text-xl font-bold text-white">O</span>
               </div>
@@ -367,7 +368,7 @@ export default function ResetPasswordPage({ token }: Props) {
           <div className="mt-8 pt-6 border-t border-slate-100">
             <p className="text-center text-slate-500">
               <a
-                href="/login"
+                href={localizeHref("/login")}
                 className="font-medium text-slate-900 hover:text-slate-700 transition-colors"
               >
                 返回登录

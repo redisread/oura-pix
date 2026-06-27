@@ -1,0 +1,79 @@
+{
+  "api": {
+    "badRequest": "リクエストパラメータが無効です",
+    "forbidden": "この操作を実行する権限がありません",
+    "generationNotFound": "生成履歴が見つかりません",
+    "internalError": "サーバーで処理を完了できませんでした",
+    "notFound": "リソースが見つかりません",
+    "templateNotFound": "テンプレートが見つからないか、プリセットテンプレートです",
+    "unauthorized": "先にログインしてください",
+    "userNotFound": "ユーザーが見つかりません"
+  },
+  "notifications": {
+    "generationComplete": {
+      "title": "生成が完了しました",
+      "message": "{imageCount} 枚の画像生成が完了しました"
+    },
+    "generationFailed": {
+      "title": "生成に失敗しました",
+      "message": "生成に失敗しました: {errorMessage}"
+    },
+    "subscriptionRenewal": {
+      "title": "サブスクリプションが更新されました",
+      "message": "{planName} プランのサブスクリプションが更新されました"
+    },
+    "subscriptionExpiring": {
+      "title": "サブスクリプションの期限が近づいています",
+      "message": "サブスクリプションは {daysLeft} 日後に期限切れになります。継続するには更新してください。"
+    }
+  },
+  "categories": [
+    {
+      "key": "apparel",
+      "name": "アパレル",
+      "description": "衣類、靴、帽子、アクセサリーなどの着用商品",
+      "bestPractices": "## アパレルのベストプラクティス\n\n### 詳細ページ構成\n- モデル着用画像（1-2枚）\n- 生地、縫製、金具のクローズアップ\n- サイズ表\n- コーディネート提案\n- お手入れ方法\n\n### コピーの方向性\n- 素材と仕立てを強調\n- 実際の利用シーンを見せる"
+    },
+    {
+      "key": "electronics",
+      "name": "電子製品",
+      "description": "スマートフォン、アクセサリー、スマートデバイスなど",
+      "bestPractices": "## 電子製品のベストプラクティス\n\n### 詳細ページ構成\n- 複数角度の商品画像\n- 主要スペックの比較\n- 利用シーンのデモ\n- 同梱物一覧"
+    },
+    {
+      "key": "beauty",
+      "name": "美容",
+      "description": "メイク、スキンケア、香水など",
+      "bestPractices": "## 美容商品のベストプラクティス\n\n### 詳細ページ構成\n- 実際の使用・仕上がり画像\n- 成分の説明\n- 持続性テスト\n- 肌色への適合範囲"
+    },
+    {
+      "key": "food",
+      "name": "食品",
+      "description": "お菓子、飲料、調味料など",
+      "bestPractices": "## 食品のベストプラクティス\n\n### 詳細ページ構成\n- パッケージ正面画像\n- 原材料リスト\n- 栄養成分表示\n- 食用シーン"
+    },
+    {
+      "key": "home",
+      "name": "ホーム",
+      "description": "家具、装飾、収納などのホーム用品",
+      "bestPractices": "## ホーム用品のベストプラクティス\n\n### 詳細ページ構成\n- 空間全体のシーン画像\n- サイズ表示\n- 素材の詳細\n- 部屋でのコーディネート例"
+    }
+  ],
+  "templates": [
+    { "key": "apparel-white-model", "categoryKey": "apparel", "name": "白背景メイン画像 + モデル画像", "description": "Amazon メイン画像スタイル" },
+    { "key": "apparel-lifestyle", "categoryKey": "apparel", "name": "ライフスタイルシーン画像", "description": "Lifestyle スタイル" },
+    { "key": "apparel-detail", "categoryKey": "apparel", "name": "ディテールクローズアップ", "description": "仕立ての細部に注目" },
+    { "key": "electronics-angles", "categoryKey": "electronics", "name": "多角度の商品画像", "description": "4方向からの表示" },
+    { "key": "electronics-use", "categoryKey": "electronics", "name": "使用シーンのデモ", "description": "実際の利用例" },
+    { "key": "electronics-specs", "categoryKey": "electronics", "name": "スペック比較画像", "description": "技術仕様を強調" },
+    { "key": "beauty-face", "categoryKey": "beauty", "name": "使用後の仕上がり表示", "description": "実際のメイク比較" },
+    { "key": "beauty-closeup", "categoryKey": "beauty", "name": "商品クローズアップ", "description": "パッケージと質感" },
+    { "key": "beauty-luxury", "categoryKey": "beauty", "name": "高級感のあるシーン画像", "description": "Luxury スタイル" },
+    { "key": "food-packaging", "categoryKey": "food", "name": "パッケージ正面画像", "description": "ブランド名と商品名を強調" },
+    { "key": "food-scene", "categoryKey": "food", "name": "食用シーン", "description": "実際の利用シーン" },
+    { "key": "food-ingredients", "categoryKey": "food", "name": "原材料構成画像", "description": "天然原料を強調" },
+    { "key": "home-room", "categoryKey": "home", "name": "空間コーディネート画像", "description": "部屋全体の組み合わせ" },
+    { "key": "home-detail", "categoryKey": "home", "name": "商品ディテール画像", "description": "素材と仕上げ" },
+    { "key": "home-variants", "categoryKey": "home", "name": "カラー・バリエーション表示", "description": "セットでの組み合わせ" }
+  ]
+}

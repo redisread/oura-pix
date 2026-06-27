@@ -4,14 +4,20 @@ interface Props {
   description?: string;
 }
 
+import * as m from "@/paraglide/messages.js";
+import { getLocale, getTextDirection } from "@/paraglide/runtime.js";
+
 const {
-  title = "OuraPix - AI Product Detail Page Generator",
-  description = "Generate stunning product detail pages with AI"
+  title = `OuraPix - ${m.description()}`,
+  description = m.description()
 } = Astro.props;
+
+const locale = getLocale();
+const direction = getTextDirection(locale);
 ---
 
 <!DOCTYPE html>
-<html lang="zh">
+<html lang={locale} dir={direction}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

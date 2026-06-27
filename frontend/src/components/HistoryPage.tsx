@@ -5,6 +5,8 @@
  */
 
 import { useCallback, useState } from "react";
+import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 import { useGenerations } from "@/hooks/useGenerations";
 import FilterBar from "./FilterBar";
 import GenerationCard from "./GenerationCard";
@@ -44,16 +46,16 @@ function EmptyState({ onGenerate }: { onGenerate: () => void }) {
         </svg>
       </div>
       <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-        暂无生成记录
+        {m.history_empty()}
       </h3>
       <p className="text-stone-500 dark:text-stone-400 text-center mb-6 max-w-sm">
-        开始使用 AI 生成精美的商品详情页图片吧
+        {m.history_emptyDescription()}
       </p>
       <button
         onClick={onGenerate}
         className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
       >
-        开始生成
+        {m.history_startGenerate()}
       </button>
     </div>
   );
@@ -79,11 +81,11 @@ export default function HistoryPage() {
   const [editingImage, setEditingImage] = useState<string | null>(null);
 
   const handleViewDetail = useCallback((id: string) => {
-    window.location.href = `/generate?history=${id}`;
+    window.location.href = localizeHref(`/generate?history=${id}`);
   }, []);
 
   const handleRegenerate = useCallback((id: string) => {
-    window.location.href = `/generate?regenerate=${id}`;
+    window.location.href = localizeHref(`/generate?regenerate=${id}`);
   }, []);
 
   const handleEdit = useCallback((imageUrl: string) => {
@@ -103,7 +105,7 @@ export default function HistoryPage() {
   );
 
   const handleGenerate = useCallback(() => {
-    window.location.href = "/generate";
+    window.location.href = localizeHref("/generate");
   }, []);
 
   return (
@@ -113,10 +115,10 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">
-              生成历史
+              {m.history_title()}
             </h1>
             <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">
-              {pagination ? `共 ${pagination.total} 条记录` : ""}
+              {pagination ? m.history_totalRecords({ count: pagination.total.toString() }) : ""}
             </p>
           </div>
           <button
@@ -126,7 +128,7 @@ export default function HistoryPage() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            新建生成
+            {m.history_newGenerate()}
           </button>
         </div>
 
@@ -149,7 +151,7 @@ export default function HistoryPage() {
                 onClick={refresh}
                 className="mt-2 text-sm text-red-600 dark:text-red-400 underline hover:no-underline"
               >
-                重试
+                {m.common_retry()}
               </button>
             </div>
           )}
@@ -185,7 +187,7 @@ export default function HistoryPage() {
                     disabled={page === 1}
                     className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
                   >
-                    上一页
+                    {m.common_previousPage()}
                   </button>
                   <span className="text-sm text-stone-600 dark:text-stone-400">
                     {page} / {pagination.totalPages}
@@ -195,7 +197,7 @@ export default function HistoryPage() {
                     disabled={page === pagination.totalPages}
                     className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
                   >
-                    下一页
+                    {m.common_nextPage()}
                   </button>
                 </div>
               )}

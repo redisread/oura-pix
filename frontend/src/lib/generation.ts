@@ -4,10 +4,12 @@
  */
 
 import { api } from "./api";
+import type { GenerationLanguage, Locale } from "@oura-pix/i18n";
 
 interface GenerationSettings {
   targetPlatform?: "amazon" | "ebay" | "shopify" | "etsy" | "generic";
-  language?: string;
+  language?: GenerationLanguage;
+  uiLocale?: Locale;
   count?: number;
   style?: "professional" | "lifestyle" | "minimal" | "luxury";
   generateImages?: boolean;

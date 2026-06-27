@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Sparkles } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 import { useAuth } from "@/hooks/use-auth";
 import { signInSocial } from "@/lib/auth";
 
@@ -39,11 +40,11 @@ function PasswordInput({
 // Social login buttons
 function SocialLoginButtons() {
   const handleGoogleLogin = () => {
-    signInSocial("google", "/");
+    signInSocial("google", localizeHref("/"));
   };
 
   const handleGitHubLogin = () => {
-    signInSocial("github", "/");
+    signInSocial("github", localizeHref("/"));
   };
 
   return (
@@ -116,7 +117,7 @@ export default function LoginPage() {
     const result = await login(email, password);
 
     if (result.success) {
-      window.location.href = "/";
+      window.location.href = localizeHref("/");
     } else {
       setError(result.error || m.login_error());
     }
@@ -146,7 +147,7 @@ export default function LoginPage() {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
           <div className="mb-8">
-            <a href="/" className="flex items-center gap-3 group">
+            <a href={localizeHref("/")} className="flex items-center gap-3 group">
               <div className="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
                 <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80 blur-xl" />
@@ -197,7 +198,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md mx-auto">
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
-            <a href="/" className="flex items-center gap-2">
+            <a href={localizeHref("/")} className="flex items-center gap-2">
               <div className="relative flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
                 <span className="relative text-xl font-bold text-white">
@@ -276,7 +277,7 @@ export default function LoginPage() {
                 </label>
               </div>
               <a
-                href="/forgot-password"
+                href={localizeHref("/forgot-password")}
                 className="text-sm font-medium text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))] transition-colors"
               >
                 {m.login_forgotPassword()}
@@ -309,7 +310,7 @@ export default function LoginPage() {
             <p className="text-center text-foreground-muted text-sm">
               {m.login_noAccount()}{" "}
               <a
-                href="/register"
+                href={localizeHref("/register")}
                 className="font-medium text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))] transition-colors"
               >
                 {m.login_signUp()}

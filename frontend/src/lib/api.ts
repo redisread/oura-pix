@@ -5,6 +5,8 @@
  */
 
 import { createClient, ENDPOINTS } from "@oura-pix/api-client";
+import { LOCALE_HEADER, type Locale } from "@oura-pix/i18n";
+import { getLocale } from "@/paraglide/runtime.js";
 import type {
   SignInInput,
   SignUpInput,
@@ -21,6 +23,19 @@ export const api = createClient({
   credentials: "include",
 });
 
+function currentLocale(): Locale {
+  try {
+    return getLocale() as Locale;
+  } catch {
+    return "zh-CN";
+  }
+}
+
+api.interceptors.request.use((config) => {
+  config.headers.set(LOCALE_HEADER, currentLocale());
+  return config;
+});
+
 export function apiUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
@@ -33,6 +48,7 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
     ...init,
     headers: {
       ...(init?.body && !(init.body instanceof FormData) ? { "Content-Type": "application/json" } : {}),
+      [LOCALE_HEADER]: currentLocale(),
       ...init?.headers,
     },
   });

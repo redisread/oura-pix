@@ -2,6 +2,7 @@
 
 import { ArrowRight, Sparkles, Zap, Globe, Shield } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 
 export default function HomePage() {
   return (
@@ -44,7 +45,7 @@ export default function HomePage() {
               {/* CTA Buttons */}
               <div className="mt-10 flex flex-col gap-4 sm:flex-row animate-fade-in-up stagger-4">
                 <a
-                  href="/generate"
+                  href={localizeHref("/generate")}
                   className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
                 >
                   <Sparkles className="h-5 w-5" />
@@ -52,7 +53,7 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </a>
                 <a
-                  href="/pricing"
+                  href={localizeHref("/pricing")}
                   className="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
                 >
                   {m.pricing()}
@@ -132,7 +133,7 @@ export default function HomePage() {
                 </p>
                 <div className="mt-10">
                   <a
-                    href="/generate"
+                    href={localizeHref("/generate")}
                     className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
                   >
                     <Sparkles className="h-5 w-5" />

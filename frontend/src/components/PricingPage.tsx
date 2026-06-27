@@ -1,6 +1,7 @@
 "use client";
 
 import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 
 export default function PricingPage() {
   const plans = [
@@ -169,7 +170,7 @@ export default function PricingPage() {
 
                   {/* CTA Button */}
                   <a
-                    href={plan.ctaLink}
+                    href={plan.ctaLink.startsWith("/") ? localizeHref(plan.ctaLink) : plan.ctaLink}
                     className={`
                       block w-full rounded-lg px-4 py-3 text-center text-sm font-medium transition-all
                       ${plan.popular
@@ -248,7 +249,7 @@ export default function PricingPage() {
             </p>
             <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
               <a
-                href="/generate"
+                href={localizeHref("/generate")}
                 className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-medium text-slate-900 transition-all hover:bg-slate-100"
               >
                 {m.pricing_ctaFree()}

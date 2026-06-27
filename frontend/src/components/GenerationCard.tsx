@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import * as m from "@/paraglide/messages.js";
 import type { GenerationRecord } from "@/hooks/useGenerations";
 
 interface GenerationCardProps {
@@ -23,10 +24,10 @@ function formatTime(dateString: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "刚刚";
-  if (diffMins < 60) return `${diffMins}分钟前`;
-  if (diffHours < 24) return `${diffHours}小时前`;
-  if (diffDays < 7) return `${diffDays}天前`;
+  if (diffMins < 1) return m.common_justNow();
+  if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
+  if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
+  if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
   return date.toLocaleDateString("zh-CN");
 }
 
@@ -34,13 +35,13 @@ function getStatusInfo(status: string): { label: string; color: string; bg: stri
   switch (status) {
     case "success":
     case "completed":
-      return { label: "已完成", color: "text-green-700", bg: "bg-green-100" };
+      return { label: m.profile_history_status_completed(), color: "text-green-700", bg: "bg-green-100" };
     case "processing":
     case "pending":
-      return { label: "处理中", color: "text-yellow-700", bg: "bg-yellow-100" };
+      return { label: m.profile_history_status_processing(), color: "text-yellow-700", bg: "bg-yellow-100" };
     case "failed":
     case "error":
-      return { label: "失败", color: "text-red-700", bg: "bg-red-100" };
+      return { label: m.profile_history_status_failed(), color: "text-red-700", bg: "bg-red-100" };
     default:
       return { label: status, color: "text-gray-700", bg: "bg-gray-100" };
   }
@@ -99,7 +100,7 @@ export default function GenerationCard({
         {thumbnail ? (
           <img
             src={thumbnail}
-            alt="商品图"
+            alt={m.generation_productImageAlt()}
             className="w-full h-full object-cover"
             loading="lazy"
             decoding="async"
@@ -120,7 +121,7 @@ export default function GenerationCard({
         {/* Image Count Badge */}
         {generation.generatedImages.length > 0 && (
           <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium bg-black/60 text-white">
-            {generation.generatedImages.length} 张
+            {m.generation_imageCount({ count: generation.generatedImages.length.toString() })}
           </div>
         )}
 
@@ -133,7 +134,7 @@ export default function GenerationCard({
           <button
             onClick={() => onViewDetail(generation.id)}
             className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
-            title="查看详情"
+            title={m.profile_history_viewDetail()}
           >
             <svg className="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -143,7 +144,7 @@ export default function GenerationCard({
           <button
             onClick={() => onRegenerate(generation.id)}
             className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
-            title="重新生成"
+            title={m.history_regenerate()}
           >
             <svg className="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -155,7 +156,7 @@ export default function GenerationCard({
               if (imageUrl) onEdit(imageUrl);
             }}
             className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
-            title="编辑图片"
+            title={m.editor_editImage()}
           >
             <svg className="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -168,7 +169,7 @@ export default function GenerationCard({
                 ? "bg-red-500 hover:bg-red-600 text-white"
                 : "bg-white/90 hover:bg-white text-stone-700"
             }`}
-            title={showDeleteConfirm ? "再次点击确认删除" : "删除"}
+            title={showDeleteConfirm ? m.history_deleteConfirm() : m.common_delete()}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -181,7 +182,7 @@ export default function GenerationCard({
       <div className="p-3">
         {/* Title / Prompt */}
         <h3 className="text-sm font-medium text-stone-900 dark:text-stone-100 line-clamp-2 mb-2">
-          {generation.prompt || `生成任务 #${generation.id.slice(0, 8)}`}
+          {generation.prompt || m.generation_taskTitle({ id: generation.id.slice(0, 8) })}
         </h3>
 
         {/* Meta Info */}

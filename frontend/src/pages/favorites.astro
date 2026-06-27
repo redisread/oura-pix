@@ -6,6 +6,6 @@ import * as m from "@/paraglide/messages.js";
 const isLoggedIn = true; // TODO: Check session
 ---
 
-<Layout title={m.favorites_title?.() || "我的收藏"}>
+<Layout title={m.favorites_title()}>
   <FavoritesPage client:load />
 </Layout>

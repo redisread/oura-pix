@@ -11,6 +11,7 @@
  */
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import * as m from "@/paraglide/messages.js";
 import { reportError } from "@/lib/errorReporter";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
@@ -62,10 +63,10 @@ export class ErrorBoundary extends Component<Props, State> {
             <AlertTriangle className="h-10 w-10 text-red-600 dark:text-red-400" />
           </div>
           <h2 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
-            页面出错了
+            {m.errorBoundary_title()}
           </h2>
           <p className="mb-2 max-w-md text-center text-sm text-slate-500 dark:text-slate-400">
-            渲染页面时发生了意外错误。错误已自动上报，我们会尽快修复。
+            {m.errorBoundary_description()}
           </p>
           {this.state.error && (
             <p className="mb-6 max-w-md truncate text-center text-xs font-mono text-slate-400 dark:text-slate-500">
@@ -78,13 +79,13 @@ export class ErrorBoundary extends Component<Props, State> {
               className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
             >
               <RefreshCw className="h-4 w-4" />
-              刷新页面
+              {m.errorBoundary_reload()}
             </button>
             <button
               onClick={this.handleReset}
               className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
-              重试
+              {m.common_retry()}
             </button>
           </div>
         </div>

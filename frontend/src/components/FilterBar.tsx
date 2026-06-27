@@ -5,6 +5,7 @@
  */
 
 import type { TimeFilter, PlatformFilter, StatusFilter } from "@/hooks/useGenerations";
+import * as m from "@/paraglide/messages.js";
 
 interface FilterBarProps {
   timeFilter: TimeFilter;
@@ -16,26 +17,26 @@ interface FilterBarProps {
 }
 
 const timeFilters: { value: TimeFilter; label: string }[] = [
-  { value: "all", label: "全部" },
-  { value: "today", label: "今天" },
-  { value: "week", label: "本周" },
-  { value: "month", label: "本月" },
+  { value: "all", label: m.history_filterAll() },
+  { value: "today", label: m.history_filterToday() },
+  { value: "week", label: m.history_filterWeek() },
+  { value: "month", label: m.history_filterMonth() },
 ];
 
 const platformFilters: { value: PlatformFilter; label: string; icon: string }[] = [
-  { value: "all", label: "全部平台", icon: "🌐" },
+  { value: "all", label: m.history_filterAllPlatforms(), icon: "🌐" },
   { value: "amazon", label: "Amazon", icon: "🅰️" },
   { value: "shopify", label: "Shopify", icon: "🛍️" },
   { value: "ebay", label: "eBay", icon: "🏷️" },
   { value: "etsy", label: "Etsy", icon: "🎨" },
-  { value: "generic", label: "通用", icon: "📦" },
+  { value: "generic", label: m.common_custom(), icon: "📦" },
 ];
 
 const statusFilters: { value: StatusFilter; label: string; color: string }[] = [
-  { value: "all", label: "全部状态", color: "gray" },
-  { value: "success", label: "成功", color: "green" },
-  { value: "pending", label: "处理中", color: "yellow" },
-  { value: "failed", label: "失败", color: "red" },
+  { value: "all", label: m.history_filterAllStatus(), color: "gray" },
+  { value: "success", label: m.history_statusSuccess(), color: "green" },
+  { value: "pending", label: m.history_statusPending(), color: "yellow" },
+  { value: "failed", label: m.history_statusFailed(), color: "red" },
 ];
 
 export default function FilterBar({

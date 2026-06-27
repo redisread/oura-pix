@@ -1,6 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
+import { localizeHref } from "@/paraglide/runtime.js";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -30,12 +31,12 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-foreground">Product</h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <a href="/generate" className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/generate")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
                   Generate
                 </a>
               </li>
               <li>
-                <a href="/pricing" className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/pricing")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
                   Pricing
                 </a>
               </li>
@@ -46,12 +47,12 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-foreground">Support</h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <a href="/docs" className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/docs")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
                   Documentation
                 </a>
               </li>
               <li>
-                <a href="/blog" className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/blog")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
                   Blog
                 </a>
               </li>

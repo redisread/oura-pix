@@ -4,6 +4,14 @@
 
 import { createDb, schema, type TemplateSettings } from "@oura-pix/database";
 import { eq, and, asc, desc, sql } from "drizzle-orm";
+import {
+  DEFAULT_LOCALE,
+  getPresetCategories,
+  getPresetTemplates,
+  type CategoryTranslation,
+  type Locale,
+  type TemplateTranslation,
+} from "@oura-pix/i18n";
 
 export interface CategoryRecord {
   id: string;
@@ -54,6 +62,47 @@ export const SEED_TEMPLATES: Array<{ categoryName: string; name: string; descrip
   { categoryName: "家居", name: "多色多款展示", description: "配套组合", settings: { targetPlatform: "etsy", style: "luxury", count: 8, aspectRatio: "1:1" } },
 ];
 
+const PRESET_CATEGORY_KEY_BY_NAME = new Map(
+  getPresetCategories(DEFAULT_LOCALE).map((category) => [category.name, category.key])
+);
+const PRESET_TEMPLATE_KEY_BY_NAME = new Map(
+  getPresetTemplates(DEFAULT_LOCALE).map((template) => [template.name, template.key])
+);
+
+function findCategoryTranslation(locale: Locale, key: string): CategoryTranslation | undefined {
+  return getPresetCategories(locale).find((category) => category.key === key);
+}
+
+function findTemplateTranslation(locale: Locale, key: string): TemplateTranslation | undefined {
+  return getPresetTemplates(locale).find((template) => template.key === key);
+}
+
+function localizeCategory<T extends CategoryRecord>(category: T, locale: Locale): T {
+  const key = PRESET_CATEGORY_KEY_BY_NAME.get(category.name);
+  const translation = key ? findCategoryTranslation(locale, key) : undefined;
+  if (!translation) return category;
+
+  return {
+    ...category,
+    name: translation.name,
+    description: translation.description,
+    bestPractices: translation.bestPractices,
+  };
+}
+
+function localizeTemplate<T extends TemplateRecord>(template: T, locale: Locale): T {
+  if (!template.isPreset) return template;
+  const key = PRESET_TEMPLATE_KEY_BY_NAME.get(template.name);
+  const translation = key ? findTemplateTranslation(locale, key) : undefined;
+  if (!translation) return template;
+
+  return {
+    ...template,
+    name: translation.name,
+    description: translation.description,
+  };
+}
+
 export async function ensureSeedData(db: ReturnType<typeof createDb>): Promise<void> {
   const existing = await db.select().from(schema.categories).limit(1);
   if (existing.length > 0) return;
@@ -75,7 +124,10 @@ export async function ensureSeedData(db: ReturnType<typeof createDb>): Promise<v
   }
 }
 
-export async function listCategories(db: ReturnType<typeof createDb>): Promise<CategoryRecord[]> {
+export async function listCategories(
+  db: ReturnType<typeof createDb>,
+  locale: Locale = DEFAULT_LOCALE
+): Promise<CategoryRecord[]> {
   await ensureSeedData(db);
   const rows = await db
     .select({
@@ -87,22 +139,31 @@ export async function listCategories(db: ReturnType<typeof createDb>): Promise<C
     .leftJoin(schema.templates, eq(schema.templates.categoryId, schema.categories.id))
     .groupBy(schema.categories.id)
     .orderBy(asc(schema.categories.sortOrder));
-  return rows.map((r) => ({ ...r, templateCount: r.templateCount }));
+  return rows.map((r) => localizeCategory({ ...r, templateCount: r.templateCount }, locale));
 }
 
-export async function getCategory(db: ReturnType<typeof createDb>, id: string): Promise<CategoryRecord | null> {
+export async function getCategory(
+  db: ReturnType<typeof createDb>,
+  id: string,
+  locale: Locale = DEFAULT_LOCALE
+): Promise<CategoryRecord | null> {
   await ensureSeedData(db);
   const rows = await db.select().from(schema.categories).where(eq(schema.categories.id, id)).limit(1);
-  return rows[0] ?? null;
+  return rows[0] ? localizeCategory(rows[0], locale) : null;
 }
 
-export async function listCategoryTemplates(db: ReturnType<typeof createDb>, categoryId: string): Promise<TemplateRecord[]> {
+export async function listCategoryTemplates(
+  db: ReturnType<typeof createDb>,
+  categoryId: string,
+  locale: Locale = DEFAULT_LOCALE
+): Promise<TemplateRecord[]> {
   await ensureSeedData(db);
-  return db
+  const templates = await db
     .select()
     .from(schema.templates)
     .where(eq(schema.templates.categoryId, categoryId))
     .orderBy(desc(schema.templates.isPreset), desc(schema.templates.usageCount));
+  return templates.map((template) => localizeTemplate(template, locale));
 }
 
 export async function createUserTemplate(

@@ -6,6 +6,7 @@
 
 import { eq, and, gte, desc, sql, count, inArray } from "drizzle-orm";
 import { createDb, schema, type GenerationSettings, type GenerationResult } from "@oura-pix/database";
+import { generationLanguageToLocale } from "@oura-pix/i18n";
 import { generateProductCopy } from "./geminiService";
 import { notifyGenerationComplete, notifyGenerationFailed } from "./notificationService";
 
@@ -98,7 +99,7 @@ function transformRecord(
     teamId: record.teamId,
     platform: settings?.targetPlatform || "generic",
     style: settings?.style || "professional",
-    language: settings?.language || "en",
+    language: settings?.language || "zh",
     count: settings?.count || results?.length || 0,
     productImageId: record.productImageId,
     productImageUrl: productImage?.url || null,
@@ -397,6 +398,7 @@ export async function processGeneration(
       : [];
 
     const settings = record.settings as GenerationSettings;
+    const notificationLocale = settings.uiLocale ?? generationLanguageToLocale(settings.language);
     const results = await generateProductCopy({
       env,
       productImage: productImage
@@ -427,7 +429,7 @@ export async function processGeneration(
       })
       .where(eq(schema.generations.id, generationId));
 
-    await notifyGenerationComplete(db, record.userId, generationId, results.length).catch((error) => {
+    await notifyGenerationComplete(db, record.userId, generationId, results.length, notificationLocale).catch((error) => {
       console.error("[Generation] Completion notification failed:", error);
     });
   } catch (error) {
@@ -446,7 +448,9 @@ export async function processGeneration(
       })
       .where(eq(schema.generations.id, generationId));
 
-    await notifyGenerationFailed(db, record.userId, generationId, message).catch((notifyError) => {
+    const settings = record.settings as GenerationSettings;
+    const notificationLocale = settings.uiLocale ?? generationLanguageToLocale(settings.language);
+    await notifyGenerationFailed(db, record.userId, generationId, message, notificationLocale).catch((notifyError) => {
       console.error("[Generation] Failure notification failed:", notifyError);
     });
   }

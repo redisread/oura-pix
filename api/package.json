@@ -16,6 +16,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.4.0",
     "@oura-pix/database": "workspace:*",
+    "@oura-pix/i18n": "workspace:*",
     "better-auth": "^1.5.1",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.6.0",

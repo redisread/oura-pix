@@ -10,6 +10,7 @@
  */
 
 import { Loader2, AlertCircle, Inbox } from "lucide-react";
+import * as m from "@/paraglide/messages.js";
 
 type StateMessageBase = {
   className?: string;
@@ -79,7 +80,7 @@ function ErrorMessage({ message, onRetry, className }: ErrorState) {
               onClick={onRetry}
               className="mt-2 text-sm font-medium text-red-600 underline hover:no-underline dark:text-red-400"
             >
-              重试
+              {m.common_retry()}
             </button>
           )}
         </div>

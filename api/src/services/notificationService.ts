@@ -7,6 +7,11 @@
 import { createDb, schema } from "@oura-pix/database";
 import { eq, and, desc, sql } from "drizzle-orm";
 import type { NotificationTypeType } from "@oura-pix/database";
+import {
+  DEFAULT_LOCALE,
+  notificationMessage,
+  type Locale,
+} from "@oura-pix/i18n";
 
 export interface CreateNotificationInput {
   userId: string;
@@ -165,14 +170,16 @@ export async function notifyGenerationComplete(
   db: ReturnType<typeof createDb>,
   userId: string,
   generationId: string,
-  imageCount: number
+  imageCount: number,
+  locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
+  const notification = notificationMessage(locale, "generationComplete", { imageCount });
   return createNotification(db, {
     userId,
     type: "generation_complete",
-    title: "生成完成",
-    message: `您的 ${imageCount} 张图片已生成完成`,
-    link: `/history/${generationId}`,
+    title: notification.title,
+    message: notification.message,
+    link: `/generate?history=${generationId}`,
     resourceId: generationId,
   });
 }
@@ -184,14 +191,16 @@ export async function notifyGenerationFailed(
   db: ReturnType<typeof createDb>,
   userId: string,
   generationId: string,
-  errorMessage: string
+  errorMessage: string,
+  locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
+  const notification = notificationMessage(locale, "generationFailed", { errorMessage });
   return createNotification(db, {
     userId,
     type: "generation_failed",
-    title: "生成失败",
-    message: `生成失败: ${errorMessage}`,
-    link: `/history/${generationId}`,
+    title: notification.title,
+    message: notification.message,
+    link: `/generate?history=${generationId}`,
     resourceId: generationId,
   });
 }
@@ -202,13 +211,15 @@ export async function notifyGenerationFailed(
 export async function notifySubscriptionRenewal(
   db: ReturnType<typeof createDb>,
   userId: string,
-  planName: string
+  planName: string,
+  locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
+  const notification = notificationMessage(locale, "subscriptionRenewal", { planName });
   return createNotification(db, {
     userId,
     type: "subscription_renewal",
-    title: "订阅已续期",
-    message: `您的 ${planName} 订阅已成功续期`,
+    title: notification.title,
+    message: notification.message,
     link: "/settings/subscription",
   });
 }
@@ -219,13 +230,15 @@ export async function notifySubscriptionRenewal(
 export async function notifySubscriptionExpiring(
   db: ReturnType<typeof createDb>,
   userId: string,
-  daysLeft: number
+  daysLeft: number,
+  locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
+  const notification = notificationMessage(locale, "subscriptionExpiring", { daysLeft });
   return createNotification(db, {
     userId,
     type: "subscription_expiring",
-    title: "订阅即将到期",
-    message: `您的订阅将在 ${daysLeft} 天后到期，请及时续期`,
+    title: notification.title,
+    message: notification.message,
     link: "/settings/subscription",
   });
 }

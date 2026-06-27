@@ -1,0 +1,79 @@
+{
+  "api": {
+    "badRequest": "Invalid request parameters",
+    "forbidden": "You do not have permission to perform this action",
+    "generationNotFound": "Generation record not found",
+    "internalError": "The server could not complete the request",
+    "notFound": "Resource not found",
+    "templateNotFound": "Template not found or is a preset template",
+    "unauthorized": "Please sign in first",
+    "userNotFound": "User not found"
+  },
+  "notifications": {
+    "generationComplete": {
+      "title": "Generation complete",
+      "message": "Your {imageCount} images have finished generating"
+    },
+    "generationFailed": {
+      "title": "Generation failed",
+      "message": "Generation failed: {errorMessage}"
+    },
+    "subscriptionRenewal": {
+      "title": "Subscription renewed",
+      "message": "Your {planName} subscription has been renewed"
+    },
+    "subscriptionExpiring": {
+      "title": "Subscription expiring soon",
+      "message": "Your subscription expires in {daysLeft} days. Renew soon to keep access."
+    }
+  },
+  "categories": [
+    {
+      "key": "apparel",
+      "name": "Apparel",
+      "description": "Clothing, shoes, hats, accessories, and other wearable products",
+      "bestPractices": "## Apparel best practices\n\n### Detail page structure\n- Model shots (1-2 images)\n- Close-ups of fabric, stitching, and hardware\n- Size chart\n- Styling suggestions\n- Care instructions\n\n### Copy style\n- Emphasize materials and craftsmanship\n- Show realistic usage scenarios"
+    },
+    {
+      "key": "electronics",
+      "name": "Electronics",
+      "description": "Phones, accessories, smart devices, and related products",
+      "bestPractices": "## Electronics best practices\n\n### Detail page structure\n- Product shots from multiple angles\n- Core specification comparison\n- Usage scenario demos\n- Package contents"
+    },
+    {
+      "key": "beauty",
+      "name": "Beauty",
+      "description": "Makeup, skincare, fragrance, and related products",
+      "bestPractices": "## Beauty best practices\n\n### Detail page structure\n- Real on-face or application results\n- Ingredient explanation\n- Wear-time or durability tests\n- Skin tone compatibility range"
+    },
+    {
+      "key": "food",
+      "name": "Food",
+      "description": "Snacks, drinks, seasonings, and other food products",
+      "bestPractices": "## Food best practices\n\n### Detail page structure\n- Front packaging image\n- Ingredient list\n- Nutrition facts\n- Consumption scenarios"
+    },
+    {
+      "key": "home",
+      "name": "Home",
+      "description": "Furniture, decor, storage, and home goods",
+      "bestPractices": "## Home best practices\n\n### Detail page structure\n- Full room scene\n- Dimension callouts\n- Material details\n- Room styling examples"
+    }
+  ],
+  "templates": [
+    { "key": "apparel-white-model", "categoryKey": "apparel", "name": "White background + model shots", "description": "Amazon main image style" },
+    { "key": "apparel-lifestyle", "categoryKey": "apparel", "name": "Lifestyle scene images", "description": "Lifestyle style" },
+    { "key": "apparel-detail", "categoryKey": "apparel", "name": "Detail close-up set", "description": "Focus on craftsmanship details" },
+    { "key": "electronics-angles", "categoryKey": "electronics", "name": "Multi-angle product shots", "description": "Four-angle presentation" },
+    { "key": "electronics-use", "categoryKey": "electronics", "name": "Usage scenario demo", "description": "Real-world applications" },
+    { "key": "electronics-specs", "categoryKey": "electronics", "name": "Specification comparison", "description": "Highlight technical specs" },
+    { "key": "beauty-face", "categoryKey": "beauty", "name": "On-face effect showcase", "description": "Real makeup comparison" },
+    { "key": "beauty-closeup", "categoryKey": "beauty", "name": "Product close-ups", "description": "Packaging and texture" },
+    { "key": "beauty-luxury", "categoryKey": "beauty", "name": "Luxury scene images", "description": "Luxury style" },
+    { "key": "food-packaging", "categoryKey": "food", "name": "Front packaging image", "description": "Highlight brand and product name" },
+    { "key": "food-scene", "categoryKey": "food", "name": "Consumption scenes", "description": "Real usage scenarios" },
+    { "key": "food-ingredients", "categoryKey": "food", "name": "Ingredient composition image", "description": "Highlight natural ingredients" },
+    { "key": "home-room", "categoryKey": "home", "name": "Room styling image", "description": "Complete home styling" },
+    { "key": "home-detail", "categoryKey": "home", "name": "Product detail shots", "description": "Materials and workmanship" },
+    { "key": "home-variants", "categoryKey": "home", "name": "Color and variant display", "description": "Matching combinations" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "check": {
+      "outputs": []
+    }
+  }
+}
