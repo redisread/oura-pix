@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ImageCutout from '../../components/tools/ImageCutout';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title="智能抠图">
+  <Navbar client:load />
   <ImageCutout client:load />
 </Layout>

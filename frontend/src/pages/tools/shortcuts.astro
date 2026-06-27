@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ShortcutsDemo from '../../components/tools/ShortcutsDemo';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title="快捷键参考">
+  <Navbar client:load />
   <ShortcutsDemo client:load />
 </Layout>

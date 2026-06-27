@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import StatsPage from '../components/stats/StatsPage';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="生成统计">
+  <Navbar client:load />
   <StatsPage client:load />
 </Layout>

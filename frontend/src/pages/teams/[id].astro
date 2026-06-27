@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import TeamDetailPage from '../../components/teams/TeamDetailPage';
+import Navbar from '../../components/Navbar';
 
 export const prerender = false;
 
@@ -8,5 +9,6 @@ const { id } = Astro.params;
 ---
 
 <Layout title="团队详情">
+  <Navbar client:load />
   <TeamDetailPage teamId={id ?? ''} client:load />
 </Layout>

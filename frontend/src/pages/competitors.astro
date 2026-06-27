@@ -2,9 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import CompetitorsPage from '../components/competitors/CompetitorsPage';
 import ErrorBoundary from '../components/ErrorBoundary';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="竞品分析">
+  <Navbar client:load />
   <ErrorBoundary client:load>
     <CompetitorsPage client:load />
   </ErrorBoundary>

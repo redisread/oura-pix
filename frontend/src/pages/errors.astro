@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ErrorsDashboard from '../components/errors/ErrorsDashboard';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="错误追踪">
+  <Navbar client:load />
   <ErrorsDashboard client:load />
 </Layout>

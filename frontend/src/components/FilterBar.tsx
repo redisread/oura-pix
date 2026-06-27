@@ -23,20 +23,20 @@ const timeFilters: { value: TimeFilter; label: string }[] = [
   { value: "month", label: m.history_filterMonth() },
 ];
 
-const platformFilters: { value: PlatformFilter; label: string; icon: string }[] = [
-  { value: "all", label: m.history_filterAllPlatforms(), icon: "🌐" },
-  { value: "amazon", label: "Amazon", icon: "🅰️" },
-  { value: "shopify", label: "Shopify", icon: "🛍️" },
-  { value: "ebay", label: "eBay", icon: "🏷️" },
-  { value: "etsy", label: "Etsy", icon: "🎨" },
-  { value: "generic", label: m.common_custom(), icon: "📦" },
+const platformFilters: { value: PlatformFilter; label: string }[] = [
+  { value: "all", label: m.history_filterAllPlatforms() },
+  { value: "amazon", label: "Amazon" },
+  { value: "shopify", label: "Shopify" },
+  { value: "ebay", label: "eBay" },
+  { value: "etsy", label: "Etsy" },
+  { value: "generic", label: m.common_custom() },
 ];
 
-const statusFilters: { value: StatusFilter; label: string; color: string }[] = [
-  { value: "all", label: m.history_filterAllStatus(), color: "gray" },
-  { value: "success", label: m.history_statusSuccess(), color: "green" },
-  { value: "pending", label: m.history_statusPending(), color: "yellow" },
-  { value: "failed", label: m.history_statusFailed(), color: "red" },
+const statusFilters: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: m.history_filterAllStatus() },
+  { value: "success", label: m.history_statusSuccess() },
+  { value: "pending", label: m.history_statusPending() },
+  { value: "failed", label: m.history_statusFailed() },
 ];
 
 export default function FilterBar({
@@ -48,53 +48,37 @@ export default function FilterBar({
   onStatusFilterChange,
 }: FilterBarProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 p-4 bg-stone-50 dark:bg-stone-900 rounded-xl">
-      {/* Time Filter */}
+    <div className="panel flex flex-col gap-3 p-3 sm:flex-row">
       <div className="flex flex-wrap gap-1">
         {timeFilters.map((f) => (
           <button
             key={f.value}
             onClick={() => onTimeFilterChange(f.value)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              timeFilter === f.value
-                ? "bg-amber-600 text-white"
-                : "bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-700"
-            }`}
+            className={`segmented-option ${timeFilter === f.value ? "segmented-option-active" : ""}`}
           >
             {f.label}
           </button>
         ))}
       </div>
 
-      {/* Platform Filter */}
       <div className="flex flex-wrap gap-1 sm:ml-auto">
         {platformFilters.map((f) => (
           <button
             key={f.value}
             onClick={() => onPlatformFilterChange(f.value)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors flex items-center gap-1 ${
-              platformFilter === f.value
-                ? "bg-amber-600 text-white"
-                : "bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-700"
-            }`}
+            className={`segmented-option ${platformFilter === f.value ? "segmented-option-active" : ""}`}
           >
-            <span>{f.icon}</span>
-            <span className="hidden sm:inline">{f.label}</span>
+            <span>{f.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Status Filter */}
       <div className="flex flex-wrap gap-1">
         {statusFilters.map((f) => (
           <button
             key={f.value}
             onClick={() => onStatusFilterChange(f.value)}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-              statusFilter === f.value
-                ? "bg-amber-600 text-white"
-                : "bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-700"
-            }`}
+            className={`segmented-option ${statusFilter === f.value ? "segmented-option-active" : ""}`}
           >
             {f.label}
           </button>

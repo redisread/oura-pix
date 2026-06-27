@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ApiKeysPage from '../components/keys/ApiKeysPage';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="API Keys">
+  <Navbar client:load />
   <ApiKeysPage client:load />
 </Layout>

@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ImageBorder from '../../components/tools/ImageBorder';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title="智能边框">
+  <Navbar client:load />
   <ImageBorder client:load />
 </Layout>

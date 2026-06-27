@@ -59,31 +59,31 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex min-h-[400px] flex-col items-center justify-center px-4 py-16">
-          <div className="mb-6 rounded-full bg-red-100 p-4 dark:bg-red-900/30">
-            <AlertTriangle className="h-10 w-10 text-red-600 dark:text-red-400" />
+          <div className="mb-6 rounded-md bg-[hsl(var(--color-error-light))] p-4 text-[hsl(var(--color-error))]">
+            <AlertTriangle className="h-10 w-10" aria-hidden="true" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">
+          <h2 className="mb-2 font-display text-2xl font-semibold text-foreground">
             {m.errorBoundary_title()}
           </h2>
-          <p className="mb-2 max-w-md text-center text-sm text-slate-500 dark:text-slate-400">
+          <p className="mb-2 max-w-md text-center text-sm text-foreground-muted">
             {m.errorBoundary_description()}
           </p>
           {this.state.error && (
-            <p className="mb-6 max-w-md truncate text-center text-xs font-mono text-slate-400 dark:text-slate-500">
+            <p className="font-utility mb-6 max-w-md truncate text-center text-xs text-foreground-muted">
               {this.state.error.message}
             </p>
           )}
           <div className="flex gap-3">
             <button
               onClick={this.handleReload}
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+              className="btn-primary h-10 gap-2 px-4"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
               {m.errorBoundary_reload()}
             </button>
             <button
               onClick={this.handleReset}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="btn-secondary h-10 px-4"
             >
               {m.common_retry()}
             </button>

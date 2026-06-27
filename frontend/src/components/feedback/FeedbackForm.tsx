@@ -102,15 +102,15 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <div className="panel p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">用户反馈</h3>
+        <h3 className="panel-title">用户反馈</h3>
         {stats && stats.count > 0 && (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center gap-2 text-sm text-foreground-muted">
             <span>{stats.count} 条评价</span>
             <span className="flex items-center gap-1">
-              <span className="text-yellow-500">★</span>
-              <span className="font-medium text-slate-700 dark:text-slate-300">
+              <span className="font-medium text-[hsl(var(--accent))]">★</span>
+              <span className="font-medium text-foreground">
                 {stats.avgRating?.toFixed(1) ?? "-"}
               </span>
             </span>
@@ -119,27 +119,27 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-2 rounded mb-3">
-          <p className="text-xs text-red-700 dark:text-red-300">{error}</p>
+        <div className="error-banner mb-3 p-2">
+          <p className="text-xs">{error}</p>
         </div>
       )}
 
       {showThanks ? (
-        <p className="text-sm text-green-600 dark:text-green-400 text-center py-2">感谢您的反馈！</p>
+        <p className="success-banner py-2 text-center text-sm">感谢您的反馈！</p>
       ) : showForm ? (
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="block text-xs text-slate-500 mb-1">评分</label>
+            <label className="panel-label mb-1 block">评分</label>
             <RatingStars value={rating} onChange={setRating} />
           </div>
           <div className="mb-3">
-            <label className="block text-xs text-slate-500 mb-1">评论（可选）</label>
+            <label className="panel-label mb-1 block">评论（可选）</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
               maxLength={2000}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+              className="input"
               placeholder="说说你的感受..."
             />
           </div>
@@ -147,14 +147,14 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded"
+              className="btn-secondary h-9 px-3"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={rating === 0 || submitting}
-              className="px-3 py-1.5 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
+              className="btn-primary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "提交中..." : "提交"}
             </button>
@@ -163,27 +163,27 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
       ) : (
         <button
           onClick={() => setShowForm(true)}
-          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          className="text-sm font-semibold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))]"
         >
-          提交反馈 →
+          提交反馈
         </button>
       )}
 
       {loading && list.length === 0 ? (
-        <p className="text-xs text-slate-400 mt-3">加载反馈...</p>
+        <p className="mt-3 text-xs text-foreground-muted">加载反馈...</p>
       ) : list.length > 0 ? (
         <div className="mt-4 space-y-2">
           {list.slice(0, 5).map((f) => (
-            <div key={f.id} className="border-t border-slate-100 dark:border-slate-800 pt-2">
+            <div key={f.id} className="border-t border-[hsl(var(--border))] pt-2">
               <div className="flex items-center gap-2 mb-1">
                 <RatingStars value={f.rating} readonly />
-                <span className="text-xs text-slate-400">{formatDate(f.createdAt)}</span>
+                <span className="font-utility text-xs text-foreground-muted">{formatDate(f.createdAt)}</span>
               </div>
-              {f.comment && <p className="text-sm text-slate-600 dark:text-slate-400">{f.comment}</p>}
+              {f.comment && <p className="text-sm text-foreground-muted">{f.comment}</p>}
             </div>
           ))}
           {list.length > 5 && (
-            <p className="text-xs text-slate-400 text-center">还有 {list.length - 5} 条反馈...</p>
+            <p className="text-center text-xs text-foreground-muted">还有 {list.length - 5} 条反馈...</p>
           )}
         </div>
       ) : null}

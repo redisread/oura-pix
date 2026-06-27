@@ -8,6 +8,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Download, PackageOpen, Trash2, Upload, Wand2, X } from "lucide-react";
 import { useBatchProcess, type OutputFormat, type BatchItem } from "@/hooks/useBatchProcess";
 
 function formatBytes(bytes: number): string {
@@ -64,25 +65,26 @@ export default function BatchProcessor() {
   }, 0);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">批量处理工具</h1>
-        <p className="text-sm text-slate-500 mt-1">
+    <div className="workbench-page">
+      <div className="workbench-container">
+        <header className="mb-8 max-w-3xl">
+          <p className="page-kicker">Tool bench / Batch</p>
+          <h1 className="page-title mt-2">批量处理工具</h1>
+          <p className="page-description mt-3">
           浏览器内批量处理图片：调整尺寸、压缩、添加水印、格式转换。
         </p>
-      </div>
+        </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Options panel */}
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">处理选项</h2>
+          <div className="panel space-y-4 p-4">
+            <h2 className="panel-title">处理选项</h2>
 
           <div>
-            <label className="block text-xs text-slate-500 mb-1">输出格式</label>
+              <label className="panel-label mb-1 block">输出格式</label>
             <select
               value={options.format}
               onChange={(e) => setOptions({ ...options, format: e.target.value as OutputFormat })}
-              className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+                className="input py-1.5"
             >
               <option value="image/jpeg">JPEG</option>
               <option value="image/png">PNG</option>
@@ -92,30 +94,30 @@ export default function BatchProcessor() {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">宽 (px)</label>
+                <label className="panel-label mb-1 block">宽 (px)</label>
               <input
                 type="number"
                 value={options.resizeWidth ?? ""}
                 onChange={(e) => setOptions({ ...options, resizeWidth: e.target.value ? Number(e.target.value) : undefined })}
                 placeholder="原图"
-                className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+                  className="input py-1.5"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">高 (px)</label>
+                <label className="panel-label mb-1 block">高 (px)</label>
               <input
                 type="number"
                 value={options.resizeHeight ?? ""}
                 onChange={(e) => setOptions({ ...options, resizeHeight: e.target.value ? Number(e.target.value) : undefined })}
                 placeholder="原图"
-                className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+                  className="input py-1.5"
               />
             </div>
           </div>
 
           {options.format !== "image/png" && (
             <div>
-              <div className="flex justify-between text-xs text-slate-500 mb-1">
+                <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
                 <span>质量</span>
                 <span>{Math.round(options.quality * 100)}%</span>
               </div>
@@ -126,20 +128,21 @@ export default function BatchProcessor() {
                 step="0.05"
                 value={options.quality}
                 onChange={(e) => setOptions({ ...options, quality: Number(e.target.value) })}
-                className="w-full accent-slate-900"
+                  className="range"
+                  aria-label="输出质量"
               />
             </div>
           )}
 
-          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="space-y-2 border-t border-[hsl(var(--border))] pt-2">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
                 checked={options.watermarkEnabled}
                 onChange={(e) => setOptions({ ...options, watermarkEnabled: e.target.checked })}
-                className="rounded"
+                  className="h-4 w-4 rounded border-[hsl(var(--border))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary)/0.28)]"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">添加水印</span>
+                <span className="text-sm font-medium text-foreground">添加水印</span>
             </label>
             {options.watermarkEnabled && (
               <input
@@ -147,7 +150,7 @@ export default function BatchProcessor() {
                 value={options.watermarkText}
                 onChange={(e) => setOptions({ ...options, watermarkText: e.target.value })}
                 placeholder="水印文字"
-                className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+                  className="input py-1.5"
               />
             )}
           </div>
@@ -155,16 +158,18 @@ export default function BatchProcessor() {
           <button
             onClick={processAll}
             disabled={items.length === 0 || processing}
-            className="w-full px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
+              className="btn-primary h-10 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
+              <Wand2 className="h-4 w-4" aria-hidden="true" />
             {processing ? `处理中 ${progress}%` : `开始处理 (${items.length})`}
           </button>
 
           {completedCount > 0 && (
             <button
               onClick={downloadZip}
-              className="w-full px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="btn-secondary h-10 w-full gap-2"
             >
+                <Download className="h-4 w-4" aria-hidden="true" />
               下载 ZIP ({completedCount})
             </button>
           )}
@@ -176,11 +181,7 @@ export default function BatchProcessor() {
             onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-              dragActive
-                ? "border-slate-900 dark:border-slate-100 bg-slate-50 dark:bg-slate-800/50"
-                : "border-slate-300 dark:border-slate-700"
-            }`}
+              className={`drop-zone p-8 text-center ${dragActive ? "drop-zone-active" : ""}`}
           >
             <input
               ref={fileInputRef}
@@ -193,34 +194,44 @@ export default function BatchProcessor() {
             />
             <label
               htmlFor="batch-input"
-              className="inline-block cursor-pointer px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800"
+                className="btn-primary h-10 cursor-pointer gap-2 px-4"
             >
+                <Upload className="h-4 w-4" aria-hidden="true" />
               选择多张图片
             </label>
-            <p className="text-xs text-slate-500 mt-2">或拖放图片到这里</p>
+              <p className="mt-2 text-xs font-medium text-foreground-muted">或拖放图片到这里</p>
           </div>
 
           {items.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                <div className="text-sm">
+              <div className="panel overflow-hidden">
+                <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-4 py-3">
+                  <div className="text-sm font-semibold text-foreground">
                   共 {items.length} 张 · 完成 {completedCount}
                   {totalSavings > 0 && ` · 节省 ${formatBytes(totalSavings)}`}
                 </div>
                 <button
                   onClick={clearAll}
-                  className="text-xs text-slate-500 hover:text-red-500"
+                    className="icon-button h-8 gap-1 px-2 text-xs"
                 >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   清空
                 </button>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[500px] overflow-y-auto">
+                <div className="max-h-[500px] overflow-y-auto">
                 {items.map((item) => (
                   <BatchItemRow key={item.id} item={item} onRemove={removeItem} onDownload={downloadOne} />
                 ))}
               </div>
             </div>
           )}
+            {items.length === 0 && (
+              <div className="panel-muted flex min-h-[260px] flex-col items-center justify-center p-8 text-center">
+                <PackageOpen className="mb-4 h-10 w-10 text-foreground-muted" aria-hidden="true" />
+                <p className="font-semibold text-foreground">还没有待处理图片</p>
+                <p className="mt-1 text-sm text-foreground-muted">选择或拖入图片后，这里会显示处理队列。</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -229,15 +240,15 @@ export default function BatchProcessor() {
 
 function BatchItemRow({ item, onRemove, onDownload }: { item: BatchItem; onRemove: (id: string) => void; onDownload: (item: BatchItem) => void }) {
   return (
-    <div className="px-4 py-3 flex items-center gap-3">
-      <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded overflow-hidden flex-shrink-0">
+    <div className="data-row flex items-center gap-3 px-4 py-3">
+      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-[hsl(var(--secondary))]">
         <img src={item.resultUrl ?? item.originalUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+        <div className="truncate text-sm font-semibold text-foreground">
           {item.file.name}
         </div>
-        <div className="text-xs text-slate-500">
+        <div className="font-utility text-xs text-foreground-muted">
           {item.status === "done" ? (
             <>
               {item.width}×{item.height} · {formatBytes(item.originalSize)} → {formatBytes(item.resultSize)}
@@ -248,28 +259,29 @@ function BatchItemRow({ item, onRemove, onDownload }: { item: BatchItem; onRemov
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <span className={`text-xs px-2 py-0.5 rounded ${
-          item.status === "done" ? "bg-green-100 text-green-700" :
-          item.status === "error" ? "bg-red-100 text-red-700" :
-          item.status === "processing" ? "bg-blue-100 text-blue-700" :
-          "bg-slate-100 text-slate-700"
+        <span className={`status-badge ${
+          item.status === "done" ? "status-badge-success" :
+          item.status === "error" ? "status-badge-error" :
+          item.status === "processing" ? "status-badge-info" :
+          "status-badge-neutral"
         }`}>
           {item.status === "done" ? "完成" : item.status === "error" ? "失败" : item.status === "processing" ? "处理中" : "等待"}
         </span>
         {item.status === "done" && (
           <button
             onClick={() => onDownload(item)}
-            className="text-xs text-blue-600 hover:underline"
+            className="icon-button h-8 gap-1 px-2 text-xs"
           >
+            <Download className="h-3.5 w-3.5" aria-hidden="true" />
             下载
           </button>
         )}
         <button
           onClick={() => onRemove(item.id)}
-          className="text-slate-400 hover:text-red-500"
-          aria-label="Remove"
+          className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
+          aria-label="Remove image"
         >
-          ✕
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
     </div>

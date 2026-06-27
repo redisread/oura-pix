@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ExportDemo from '../../components/tools/ExportDemo';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title="导出图片">
+  <Navbar client:load />
   <ExportDemo client:load />
 </Layout>

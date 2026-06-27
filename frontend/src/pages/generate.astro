@@ -2,12 +2,14 @@
 import Layout from '../layouts/Layout.astro';
 import GeneratePage from '../components/GeneratePage';
 import ErrorBoundary from '../components/ErrorBoundary';
+import Navbar from '../components/Navbar';
 
 const title = "Generate - OuraPix";
 const description = "Generate stunning product detail pages with AI";
 ---
 
 <Layout title={title} description={description}>
+  <Navbar client:load />
   <ErrorBoundary client:load>
     <GeneratePage client:load />
   </ErrorBoundary>

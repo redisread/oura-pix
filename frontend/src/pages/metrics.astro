@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import MetricsDashboard from '../components/metrics/MetricsDashboard';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="性能监控">
+  <Navbar client:load />
   <MetricsDashboard client:load />
 </Layout>

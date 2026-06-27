@@ -1,148 +1,225 @@
 "use client";
 
-import { ArrowRight, Sparkles, Zap, Globe, Shield } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Camera,
+  CheckCircle2,
+  Globe2,
+  PackageCheck,
+  ScanLine,
+  WandSparkles,
+} from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
+
+const proofRows = [
+  { label: "Input", value: "1 product photo", tone: "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" },
+  { label: "Market", value: "Amazon, Shopify, eBay", tone: "bg-[hsl(var(--accent)/0.12)] text-[hsl(var(--accent))]" },
+  { label: "Output", value: "Copy, image scenes, tags", tone: "bg-[hsl(var(--foreground)/0.08)] text-foreground" },
+];
+
+const workflow = [
+  {
+    icon: Camera,
+    title: "Drop in the hero image",
+    copy: "Start with the product photo your team already has. Add reference shots only when the brand direction needs it.",
+  },
+  {
+    icon: ScanLine,
+    title: "Set marketplace constraints",
+    copy: "Choose platform, language, aspect ratio, scene count, and style before a generation starts.",
+  },
+  {
+    icon: PackageCheck,
+    title: "Review listing-ready assets",
+    copy: "Scan the generated title, selling points, tags, and scene images in the same workspace.",
+  },
+];
+
+const platformBadges = ["Amazon", "Shopify", "eBay", "Etsy"];
 
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden">
-          {/* Background gradient mesh */}
-          <div className="absolute inset-0 gradient-mesh" />
-          <div className="absolute inset-0 gradient-radial" />
+        <section className="relative overflow-hidden border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]">
+          <div className="proof-strip absolute inset-x-0 top-0 h-2" />
 
-          {/* Floating orbs */}
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[hsl(var(--primary))]/10 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
-
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col items-center justify-center py-24 text-center lg:py-36">
-              {/* Badge */}
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--primary)/0.3)] bg-[hsl(var(--primary)/0.1)] px-4 py-1.5 text-sm animate-fade-in-up">
-                <span className="status-dot status-dot-online" />
-                <span className="text-foreground-muted">AI Powered Product Generation</span>
-              </div>
-
-              {/* Title */}
-              <h1 className="max-w-4xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl animate-fade-in-up stagger-1">
-                {m.welcome()}
+          <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:pb-20 lg:pt-20">
+            <div className="flex flex-col justify-center">
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--accent))]">
+                Product photo to listing bench
+              </p>
+              <h1 className="font-display mt-5 max-w-3xl text-5xl font-semibold text-foreground sm:text-6xl lg:text-7xl">
+                Turn one product shot into a marketplace-ready detail page.
               </h1>
-
-              {/* Gradient text effect for key word */}
-              <h1 className="max-w-4xl text-4xl font-bold tracking-tight mt-2 sm:text-5xl lg:text-6xl animate-fade-in-up stagger-2">
-                <span className="gradient-text">{m.description()}</span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="mt-6 max-w-2xl text-lg text-foreground-muted animate-fade-in-up stagger-3">
-                Transform your product images into stunning detail pages with AI.
-                Generate professional content for Amazon, Shopify, eBay, and more.
+              <p className="mt-6 max-w-2xl text-lg text-foreground-muted">
+                OuraPix helps cross-border teams turn product imagery into copy, visual scenes,
+                tags, and exportable detail-page material without leaving the browser.
               </p>
 
-              {/* CTA Buttons */}
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row animate-fade-in-up stagger-4">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <a
                   href={localizeHref("/generate")}
-                  className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
+                  className="btn-primary gap-2 px-6 py-3 text-base"
                 >
-                  <Sparkles className="h-5 w-5" />
+                  <WandSparkles className="h-5 w-5" aria-hidden="true" />
                   {m.generate()}
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
                 <a
                   href={localizeHref("/pricing")}
-                  className="btn-secondary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
+                  className="btn-secondary gap-2 px-6 py-3 text-base"
                 >
                   {m.pricing()}
                 </a>
               </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Features Section */}
-        <section className="relative py-24">
-          <div className="absolute inset-0 gradient-mesh opacity-50" />
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-foreground sm:text-4xl animate-fade-in-up">
-                Everything you need
-              </h2>
-              <p className="mt-4 text-lg text-foreground-muted">
-                Create stunning product pages in minutes
-              </p>
-            </div>
-
-            <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                {
-                  icon: Sparkles,
-                  title: "AI Generation",
-                  desc: "Generate pages with AI",
-                  color: "from-[hsl(var(--primary))] to-violet-500",
-                },
-                {
-                  icon: Globe,
-                  title: "Multi-language",
-                  desc: "Support for multiple languages",
-                  color: "from-cyan-500 to-blue-500",
-                },
-                {
-                  icon: Zap,
-                  title: "Fast Export",
-                  desc: "Export in multiple formats",
-                  color: "from-amber-500 to-orange-500",
-                },
-                {
-                  icon: Shield,
-                  title: "Secure & Private",
-                  desc: "Your data stays protected",
-                  color: "from-emerald-500 to-green-500",
-                },
-              ].map((feature, index) => (
-                <div
-                  key={feature.title}
-                  className="card card-hover p-6 animate-fade-in-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} p-2.5`}>
-                    <feature.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground">{feature.title}</h3>
-                  <p className="mt-2 text-sm text-foreground-muted">{feature.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="relative py-24">
-          <div className="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-            <div className="card p-12 lg:p-16 glow-sm">
-              <div className="absolute inset-0 gradient-radial opacity-50" />
-              <div className="relative">
-                <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-                  Ready to get started?
-                </h2>
-                <p className="mt-4 text-lg text-foreground-muted">
-                  Create your first product page in minutes
-                </p>
-                <div className="mt-10">
-                  <a
-                    href={localizeHref("/generate")}
-                    className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
+              <div className="mt-8 flex flex-wrap gap-2" aria-label="Supported marketplaces">
+                {platformBadges.map((platform) => (
+                  <span
+                    key={platform}
+                    className="rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card)/0.8)] px-3 py-1 text-sm font-semibold text-foreground-muted"
                   >
-                    <Sparkles className="h-5 w-5" />
-                    Start Generating
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                </div>
+                    {platform}
+                  </span>
+                ))}
               </div>
             </div>
+
+            <aside className="relative" aria-label="OuraPix generation specimen">
+              <div className="card specimen-shadow overflow-hidden border-2 border-[hsl(var(--foreground)/0.14)]">
+                <div className="proof-strip h-3" />
+                <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[1fr_0.88fr]">
+                  <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background-secondary))] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
+                          Source image
+                        </p>
+                        <h2 className="mt-1 text-xl font-semibold text-foreground">
+                          Travel mug set
+                        </h2>
+                      </div>
+                      <BadgeCheck className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
+                    </div>
+
+                    <div className="mt-4 aspect-[4/3] overflow-hidden rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+                      <div className="bench-grid flex h-full items-center justify-center p-8">
+                        <img
+                          src="/logo.png"
+                          alt="OuraPix product preview placeholder"
+                          className="h-full max-h-48 w-full object-contain"
+                          loading="eager"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-2">
+                      {proofRows.map((row) => (
+                        <div
+                          key={row.label}
+                          className="flex items-center justify-between gap-3 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2"
+                        >
+                          <span className="font-utility text-[11px] font-semibold uppercase text-foreground-muted">
+                            {row.label}
+                          </span>
+                          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${row.tone}`}>
+                            {row.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
+                      <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
+                        Generated listing
+                      </p>
+                      <h3 className="mt-3 text-2xl font-semibold text-foreground">
+                        Leakproof mug for daily carry
+                      </h3>
+                      <p className="mt-3 text-sm text-foreground-muted">
+                        Compact silhouette, textured grip, and insulated body described for marketplace search.
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {["BPA free", "commute", "giftable"].map((tag) => (
+                          <span key={tag} className="badge">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--foreground))] p-4 text-[hsl(var(--background))]">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.68)]">
+                          Export check
+                        </p>
+                        <Globe2 className="h-5 w-5 text-[hsl(var(--background))]" aria-hidden="true" />
+                      </div>
+                      <div className="mt-5 space-y-3">
+                        {["Localized copy", "Scene ratios", "SEO tags"].map((item) => (
+                          <div key={item} className="flex items-center gap-2 text-sm font-semibold">
+                            <CheckCircle2 className="h-4 w-4 text-[hsl(var(--accent))]" aria-hidden="true" />
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section className="bg-[hsl(var(--card))] py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
+              <div>
+                <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--primary))]">
+                  Operating line
+                </p>
+                <h2 className="font-display mt-3 text-4xl font-semibold text-foreground">
+                  Built around the actual listing workflow.
+                </h2>
+              </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                {workflow.map((item) => (
+                  <div
+                    key={item.title}
+                    className="border-l-2 border-[hsl(var(--border))] bg-[hsl(var(--background)/0.5)] p-5"
+                  >
+                    <item.icon className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
+                    <h3 className="mt-5 text-lg font-semibold text-foreground">{item.title}</h3>
+                    <p className="mt-3 text-sm text-foreground-muted">{item.copy}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-[hsl(var(--border))] bg-[hsl(var(--foreground))] py-14 text-[hsl(var(--background))]">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+            <div>
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.62)]">
+                Ready at the bench
+              </p>
+              <h2 className="font-display mt-3 text-4xl font-semibold">
+                Start with the product image you already have.
+              </h2>
+            </div>
+            <a
+              href={localizeHref("/generate")}
+              className="inline-flex items-center justify-center rounded-md bg-[hsl(var(--background))] px-6 py-3 text-base font-semibold text-foreground transition hover:bg-[hsl(var(--background-secondary))]"
+            >
+              {m.generate()}
+              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+            </a>
           </div>
         </section>
       </main>

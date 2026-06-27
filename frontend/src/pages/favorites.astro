@@ -1,11 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import FavoritesPage from "../components/FavoritesPage";
+import Navbar from "../components/Navbar";
 import * as m from "@/paraglide/messages.js";
 
 const isLoggedIn = true; // TODO: Check session
 ---
 
 <Layout title={m.favorites_title()}>
+  <Navbar client:load />
   <FavoritesPage client:load />
 </Layout>

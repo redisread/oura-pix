@@ -7,6 +7,8 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Copy, Plus, UserPlus, Users, X } from "lucide-react";
+import { localizeHref } from "@/paraglide/runtime.js";
 import { useTeams, type Team } from "@/hooks/useTeams";
 import { StateMessage } from "@/components/StateMessage";
 
@@ -24,17 +26,19 @@ const ROLE_LABELS: Record<Team["role"], string> = {
   member: "成员",
 };
 
-const ROLE_COLORS: Record<Team["role"], string> = {
-  owner: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-  admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-  member: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+const ROLE_BADGES: Record<Team["role"], string> = {
+  owner: "status-badge-info",
+  admin: "status-badge-warning",
+  member: "status-badge-neutral",
 };
 
 function CopyableCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
-      onClick={async () => {
+      type="button"
+      onClick={async (e) => {
+        e.preventDefault();
         try {
           await navigator.clipboard.writeText(code);
           setCopied(true);
@@ -43,10 +47,15 @@ function CopyableCode({ code }: { code: string }) {
           /* ignore */
         }
       }}
-      className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-mono bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
+      className="panel-muted inline-flex items-center gap-1 px-2 py-0.5 text-xs"
+      aria-label="复制邀请码"
     >
       <code>{code}</code>
-      <span className="text-slate-500">{copied ? "✓" : "📋"}</span>
+      {copied ? (
+        <Check className="h-3.5 w-3.5 text-[hsl(var(--color-success))]" aria-hidden="true" />
+      ) : (
+        <Copy className="h-3.5 w-3.5 text-foreground-muted" aria-hidden="true" />
+      )}
     </button>
   );
 }
@@ -79,164 +88,141 @@ export default function TeamsPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">团队</h1>
-          <p className="text-sm text-slate-500 mt-1">协作共享生成历史</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowJoin(true)}
-            className="px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
-          >
-            加入团队
-          </button>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="px-3 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
-          >
-            + 创建团队
-          </button>
-        </div>
-      </div>
-
-      {error && <StateMessage variant="error" message={error} className="mb-4" />}
-
-      {loading && teams.length === 0 ? (
-        <StateMessage variant="loading" message="加载团队..." />
-      ) : teams.length === 0 ? (
-        <StateMessage
-          variant="empty"
-          title="还没有加入任何团队"
-          description="创建或加入团队开始协作"
-        />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {teams.map((team) => (
-            <a
-              key={team.id}
-              href={`/teams/${team.id}`}
-              className="block bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 hover:border-slate-400 dark:hover:border-slate-500 transition-colors"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                  {team.name}
-                </h3>
-                <span className={`px-2 py-0.5 text-xs rounded ${ROLE_COLORS[team.role]}`}>
-                  {ROLE_LABELS[team.role]}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mb-2">
-                {team.memberCount} 成员 · 创建于 {formatDate(team.createdAt)}
-              </p>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-500">邀请码:</span>
-                <CopyableCode code={team.inviteCode} />
-              </div>
-            </a>
-          ))}
-        </div>
-      )}
-
-      {showCreate && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowCreate(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <form
-            onSubmit={handleCreate}
-            className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              创建团队
-            </h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                团队名称
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="如：电商产品组"
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
-                maxLength={100}
-                required
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-2 justify-end">
-              <button
-                type="button"
-                onClick={() => setShowCreate(false)}
-                className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                disabled={!name.trim()}
-                className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
-              >
-                创建
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {showJoin && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowJoin(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <form
-            onSubmit={handleJoin}
-            className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+    <div className="workbench-page">
+      <div className="workbench-container max-w-6xl">
+        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="page-kicker">Team / Collaboration</p>
+            <h1 className="page-title mt-2">团队</h1>
+            <p className="page-description mt-3">协作共享生成历史</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setShowJoin(true)} className="btn-secondary h-10 gap-2 px-4">
+              <UserPlus className="h-4 w-4" aria-hidden="true" />
               加入团队
-            </h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                邀请码
-              </label>
-              <input
-                type="text"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                placeholder="TEAM-XXXXXXXX"
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 font-mono"
-                required
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-2 justify-end">
-              <button
-                type="button"
-                onClick={() => setShowJoin(false)}
-                className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                disabled={!inviteCode.trim()}
-                className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
-              >
-                加入
-              </button>
-            </div>
-          </form>
+            </button>
+            <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              创建团队
+            </button>
+          </div>
+        </header>
+
+        {error && <StateMessage variant="error" message={error} className="mb-4" />}
+
+        {loading && teams.length === 0 ? (
+          <StateMessage variant="loading" message="加载团队..." />
+        ) : teams.length === 0 ? (
+          <StateMessage
+            variant="empty"
+            title="还没有加入任何团队"
+            description="创建或加入团队开始协作"
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {teams.map((team) => (
+              <div key={team.id} className="card card-hover p-4">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <a
+                    href={localizeHref(`/teams/${team.id}`)}
+                    className="flex min-w-0 items-center gap-2 rounded-sm focus-ring"
+                  >
+                    <Users className="h-5 w-5 shrink-0 text-[hsl(var(--primary))]" aria-hidden="true" />
+                    <h2 className="truncate font-semibold text-foreground">{team.name}</h2>
+                  </a>
+                  <span className={`status-badge ${ROLE_BADGES[team.role]}`}>
+                    {ROLE_LABELS[team.role]}
+                  </span>
+                </div>
+                <p className="mb-3 text-xs text-foreground-muted">
+                  {team.memberCount} 成员 · 创建于 {formatDate(team.createdAt)}
+                </p>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-foreground-muted">邀请码:</span>
+                  <CopyableCode code={team.inviteCode} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showCreate && (
+          <TeamModal title="创建团队" onClose={() => setShowCreate(false)} onSubmit={handleCreate}>
+            <label className="panel-label mb-1 block">团队名称</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="如：电商产品组"
+              className="input"
+              maxLength={100}
+              required
+              autoFocus
+            />
+            <button type="submit" disabled={!name.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">
+              创建
+            </button>
+          </TeamModal>
+        )}
+
+        {showJoin && (
+          <TeamModal title="加入团队" onClose={() => setShowJoin(false)} onSubmit={handleJoin}>
+            <label className="panel-label mb-1 block">邀请码</label>
+            <input
+              type="text"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              placeholder="TEAM-XXXXXXXX"
+              className="input font-utility"
+              required
+              autoFocus
+            />
+            <button type="submit" disabled={!inviteCode.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">
+              加入
+            </button>
+          </TeamModal>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TeamModal({
+  title,
+  onClose,
+  onSubmit,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <form
+        onSubmit={onSubmit}
+        className="panel w-full max-w-md space-y-4 p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="font-display text-2xl font-semibold text-foreground">{title}</h2>
+          <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label="关闭">
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
         </div>
-      )}
+        {children}
+        <div className="flex justify-end">
+          <button type="button" onClick={onClose} className="btn-secondary h-10 px-4">
+            取消
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
