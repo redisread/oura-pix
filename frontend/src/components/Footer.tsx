@@ -6,14 +6,14 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-[oklch(var(--border))] bg-[oklch(var(--background))]">
+    <footer className="border-t border-[hsl(var(--border))] bg-[hsl(var(--background))]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Logo & Description */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2">
               <div className="relative flex h-8 w-8 items-center justify-center rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
                 <span className="relative text-sm font-bold text-white">
                   <Sparkles className="h-4 w-4" />
                 </span>
@@ -60,7 +60,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-12 border-t border-[oklch(var(--border))] pt-8">
+        <div className="mt-12 border-t border-[hsl(var(--border))] pt-8">
           <p className="text-center text-sm text-foreground-muted">
             © {currentYear} OuraPix. All rights reserved.
           </p>

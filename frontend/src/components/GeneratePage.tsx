@@ -212,9 +212,9 @@ export default function GeneratePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1 bg-[oklch(var(--background))]">
+      <main className="flex-1 bg-[hsl(var(--background))]">
         {/* Header */}
-        <div className="border-b border-[oklch(var(--border))] bg-[oklch(var(--background-secondary))]">
+        <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--background-secondary))]">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <h1 className="text-2xl font-bold text-foreground">{m.generation_title?.() || "生成商品详情"}</h1>
             <p className="mt-1 text-sm text-foreground-muted">
@@ -230,7 +230,7 @@ export default function GeneratePage() {
             <div className="space-y-6">
               <div className="card p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Upload className="h-5 w-5 text-[oklch(var(--primary))]" />
+                  <Upload className="h-5 w-5 text-[hsl(var(--primary))]" />
                   <h2 className="text-lg font-semibold text-foreground">{m.generation_uploadSection?.() || "上传图片"}</h2>
                 </div>
 
@@ -258,10 +258,10 @@ export default function GeneratePage() {
               </div>
 
               {/* Tips */}
-              <div className="card p-4 border-[oklch(var(--primary)/0.2)]">
+              <div className="card p-4 border-[hsl(var(--primary)/0.2)]">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[oklch(var(--primary)/0.1)]">
-                    <Sparkles className="h-5 w-5 text-[oklch(var(--primary))]" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--primary)/0.1)]">
+                    <Sparkles className="h-5 w-5 text-[hsl(var(--primary))]" />
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-foreground">{m.generation_uploadTips?.() || "上传提示"}</h4>
@@ -278,7 +278,7 @@ export default function GeneratePage() {
             {/* Middle: Settings Panel */}
             <div className="card p-6">
               <div className="flex items-center gap-2 mb-6">
-                <Settings className="h-5 w-5 text-[oklch(var(--primary))]" />
+                <Settings className="h-5 w-5 text-[hsl(var(--primary))]" />
                 <h2 className="text-lg font-semibold text-foreground">{m.generation_settings?.() || "生成设置"}</h2>
               </div>
 
@@ -296,12 +296,12 @@ export default function GeneratePage() {
                       className={`
                         flex flex-col items-center justify-center rounded-xl border-2 p-4 transition-all duration-200
                         ${settings.platform === platform.value
-                          ? "border-[oklch(var(--primary))] bg-[oklch(var(--primary)/0.1)]"
-                          : "border-[oklch(var(--border))] hover:border-[oklch(var(--foreground-muted))/0.3]"
+                          ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)]"
+                          : "border-[hsl(var(--border))] hover:border-[hsl(var(--foreground-muted)/0.3)]"
                         }
                       `}
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 text-sm font-bold text-white">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 text-sm font-bold text-white">
                         {platform.icon}
                       </span>
                       <span className="mt-2 text-sm font-medium text-foreground">
@@ -325,7 +325,7 @@ export default function GeneratePage() {
                     step={1}
                     value={settings.count}
                     onChange={(e) => setSettings({ ...settings, count: parseInt(e.target.value) })}
-                    className="flex-1 h-2 bg-[oklch(var(--secondary))] rounded-lg appearance-none cursor-pointer accent-[oklch(var(--primary))]"
+                    className="flex-1 h-2 bg-[hsl(var(--secondary))] rounded-lg appearance-none cursor-pointer accent-[hsl(var(--primary))]"
                   />
                   <span className="w-12 text-center text-lg font-semibold text-foreground">
                     {settings.count}
@@ -348,8 +348,8 @@ export default function GeneratePage() {
                       className={`
                         w-full flex items-center justify-between rounded-xl border-2 p-3 text-left transition-all duration-200
                         ${settings.style === style.value
-                          ? "border-[oklch(var(--primary))] bg-[oklch(var(--primary)/0.1)]"
-                          : "border-[oklch(var(--border))] hover:border-[oklch(var(--foreground-muted))/0.3]"
+                          ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)]"
+                          : "border-[hsl(var(--border))] hover:border-[hsl(var(--foreground-muted)/0.3)]"
                         }
                       `}
                     >
@@ -362,7 +362,7 @@ export default function GeneratePage() {
                         </span>
                       </div>
                       {settings.style === style.value && (
-                        <Check className="h-5 w-5 text-[oklch(var(--primary))]" />
+                        <Check className="h-5 w-5 text-[hsl(var(--primary))]" />
                       )}
                     </button>
                   ))}
@@ -387,7 +387,7 @@ export default function GeneratePage() {
               </div>
 
               {/* Image Generation Toggle */}
-              <div className="mb-6 rounded-xl border border-[oklch(var(--border))] p-4">
+              <div className="mb-6 rounded-xl border border-[hsl(var(--border))] p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">
@@ -402,7 +402,7 @@ export default function GeneratePage() {
                     onClick={() => setSettings({ ...settings, generateImages: !settings.generateImages })}
                     className={`
                       relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
-                      ${settings.generateImages ? "bg-[oklch(var(--primary))]" : "bg-[oklch(var(--secondary))]"}
+                      ${settings.generateImages ? "bg-[hsl(var(--primary))]" : "bg-[hsl(var(--secondary))]"}
                     `}
                   >
                     <span
@@ -415,7 +415,7 @@ export default function GeneratePage() {
                 </div>
 
                 {settings.generateImages && (
-                  <div className="space-y-4 pt-4 border-t border-[oklch(var(--border))]">
+                  <div className="space-y-4 pt-4 border-t border-[hsl(var(--border))]">
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-2">
                         {m.generation_imageGen_count?.() || "图片数量"}
@@ -428,7 +428,7 @@ export default function GeneratePage() {
                           step={1}
                           value={settings.imageCount}
                           onChange={(e) => setSettings({ ...settings, imageCount: parseInt(e.target.value) })}
-                          className="flex-1 h-1.5 bg-[oklch(var(--secondary))] rounded-lg appearance-none cursor-pointer accent-[oklch(var(--primary))]"
+                          className="flex-1 h-1.5 bg-[hsl(var(--secondary))] rounded-lg appearance-none cursor-pointer accent-[hsl(var(--primary))]"
                         />
                         <span className="w-8 text-center text-sm font-semibold text-foreground">
                           {settings.imageCount}
@@ -458,7 +458,7 @@ export default function GeneratePage() {
 
               {/* Error Message */}
               {error && (
-                <div className="mb-4 rounded-xl bg-[oklch(var(--color-error-light))] p-3 text-sm text-[oklch(var(--color-error))]">
+                <div className="mb-4 rounded-xl bg-[hsl(var(--color-error-light))] p-3 text-sm text-[hsl(var(--color-error))]">
                   {error}
                 </div>
               )}
@@ -501,7 +501,7 @@ export default function GeneratePage() {
             {/* Right: Preview Area */}
             <div className="card p-6">
               <div className="flex items-center gap-2 mb-4">
-                <Eye className="h-5 w-5 text-[oklch(var(--primary))]" />
+                <Eye className="h-5 w-5 text-[hsl(var(--primary))]" />
                 <h2 className="text-lg font-semibold text-foreground">{m.generation_preview?.() || "预览"}</h2>
               </div>
 
@@ -532,7 +532,7 @@ export default function GeneratePage() {
                     <button
                       type="button"
                       onClick={() => setShowCompare(true)}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[oklch(var(--border))] p-3 text-sm font-medium text-foreground-muted hover:border-[oklch(var(--primary))] hover:text-[oklch(var(--primary))] transition-colors"
+                      className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[hsl(var(--border))] p-3 text-sm font-medium text-foreground-muted hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))] transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
@@ -541,7 +541,7 @@ export default function GeneratePage() {
                     </button>
                   )}
                   {generatedResults.map((result, resultIndex) => (
-                    <div key={result.id || resultIndex} className="rounded-xl border border-[oklch(var(--border))] p-4">
+                    <div key={result.id || resultIndex} className="rounded-xl border border-[hsl(var(--border))] p-4">
                       <div className="mb-4">
                         <h3 className="text-base font-semibold text-foreground mb-2">
                           {result.title}
@@ -554,7 +554,7 @@ export default function GeneratePage() {
                             {result.tags.slice(0, 5).map((tag: string, tagIndex: number) => (
                               <span
                                 key={tagIndex}
-                                className="inline-flex items-center rounded-full bg-[oklch(var(--primary)/0.1)] px-2.5 py-0.5 text-xs text-[oklch(var(--primary))]"
+                                className="inline-flex items-center rounded-full bg-[hsl(var(--primary)/0.1)] px-2.5 py-0.5 text-xs text-[hsl(var(--primary))]"
                               >
                                 {tag}
                               </span>
@@ -572,7 +572,7 @@ export default function GeneratePage() {
                             {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
-                                className="group relative aspect-square rounded-xl border border-[oklch(var(--border))] bg-[oklch(var(--secondary))] overflow-hidden"
+                                className="group relative aspect-square rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] overflow-hidden"
                               >
                                 <img
                                   src={img.url}
@@ -581,23 +581,23 @@ export default function GeneratePage() {
                                   loading="lazy"
                                   decoding="async"
                                 />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[oklch(var(--background))]/80 opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm">
+                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[hsl(var(--background))]/80 opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm">
                                   <button
                                     type="button"
                                     onClick={() => window.open(img.url, "_blank")}
-                                    className="rounded-lg bg-[oklch(var(--primary))] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(var(--primary-hover))]"
+                                    className="rounded-lg bg-[hsl(var(--primary))] px-3 py-1.5 text-xs font-medium text-white hover:bg-[hsl(var(--primary-hover))]"
                                   >
                                     {m.generation_viewLarge?.() || "查看大图"}
                                   </button>
                                   <a
                                     href={img.url}
                                     download
-                                    className="rounded-lg bg-[oklch(var(--secondary))] px-3 py-1.5 text-xs font-medium text-foreground hover:bg-[oklch(var(--secondary-hover))]"
+                                    className="rounded-lg bg-[hsl(var(--secondary))] px-3 py-1.5 text-xs font-medium text-foreground hover:bg-[hsl(var(--secondary-hover))]"
                                   >
                                     {m.generation_downloadImage?.() || "下载"}
                                   </a>
                                 </div>
-                                <div className="absolute top-1 left-1 rounded bg-[oklch(var(--background))]/80 backdrop-blur-sm px-1.5 py-0.5 text-xs text-foreground-muted">
+                                <div className="absolute top-1 left-1 rounded bg-[hsl(var(--background))]/80 backdrop-blur-sm px-1.5 py-0.5 text-xs text-foreground-muted">
                                   {img.variation}
                                 </div>
                               </div>
@@ -610,8 +610,8 @@ export default function GeneratePage() {
                 </div>
               ) : !isGenerating ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[oklch(var(--primary)/0.1)] mb-4">
-                    <svg className="h-8 w-8 text-[oklch(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[hsl(var(--primary)/0.1)] mb-4">
+                    <svg className="h-8 w-8 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>

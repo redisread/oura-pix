@@ -5,28 +5,28 @@
 ### 1. 启动后端 API
 
 ```bash
-cd /Users/victor/Desktop/project/github/oura-pix/api
-pnpm dev
+pnpm api:dev
 ```
 
-后端将在 `http://localhost:8787` 启动
+后端将在 `http://localhost:8989` 启动
 
 ### 2. 启动前端
 
 ```bash
-cd /Users/victor/Desktop/project/github/oura-pix/frontend
-pnpm dev
+pnpm web:dev
 ```
 
 前端将在 `http://localhost:4321` 启动
 
 ### 3. 环境变量配置
 
-确保 `frontend/.env` 包含：
+确保 `frontend/.env.local` 包含：
 
 ```env
-PUBLIC_API_URL=http://localhost:8787
+PUBLIC_API_URL=http://localhost:8989
 ```
+
+完整本地环境和自动化门禁见 [`docs/LOCAL_TESTING.md`](../docs/LOCAL_TESTING.md)。
 
 ---
 
@@ -209,8 +209,8 @@ pnpm --filter @oura-pix/frontend build
 ```
 
 ### API 连接失败
-- 检查后端是否启动（localhost:8787）
-- 检查 .env 中的 PUBLIC_API_URL
+- 检查后端是否启动（localhost:8989）
+- 检查 `frontend/.env.local` 中的 `PUBLIC_API_URL`
 - 检查网络连接
 
 ### 登录问题

@@ -3,7 +3,7 @@
  * Compatible with Better Auth backend
  */
 
-import { api } from "./api";
+import { api, API_BASE_URL } from "./api";
 
 export interface User {
   id: string;
@@ -126,6 +126,8 @@ export function signInSocial(
   provider: "google" | "github",
   callbackURL: string = "/"
 ): void {
-  // Redirect to API auth endpoint
-  window.location.href = `/api/auth/sign-in/${provider}?callbackURL=${encodeURIComponent(callbackURL)}`;
+  const callback = new URL(callbackURL, window.location.origin).toString();
+  const url = new URL(`/api/auth/sign-in/${provider}`, API_BASE_URL);
+  url.searchParams.set("callbackURL", callback);
+  window.location.href = url.toString();
 }

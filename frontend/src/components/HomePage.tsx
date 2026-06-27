@@ -14,13 +14,13 @@ export default function HomePage() {
           <div className="absolute inset-0 gradient-radial" />
 
           {/* Floating orbs */}
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[oklch(var(--primary))]/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[hsl(var(--primary))]/10 rounded-full blur-3xl animate-float" />
           <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-violet-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
 
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-center py-24 text-center lg:py-36">
               {/* Badge */}
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[oklch(var(--primary)/0.3)] bg-[oklch(var(--primary)/0.1)] px-4 py-1.5 text-sm animate-fade-in-up">
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--primary)/0.3)] bg-[hsl(var(--primary)/0.1)] px-4 py-1.5 text-sm animate-fade-in-up">
                 <span className="status-dot status-dot-online" />
                 <span className="text-foreground-muted">AI Powered Product Generation</span>
               </div>
@@ -81,7 +81,7 @@ export default function HomePage() {
                   icon: Sparkles,
                   title: "AI Generation",
                   desc: "Generate pages with AI",
-                  color: "from-[oklch(var(--primary))] to-violet-500",
+                  color: "from-[hsl(var(--primary))] to-violet-500",
                 },
                 {
                   icon: Globe,

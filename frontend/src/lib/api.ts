@@ -42,11 +42,19 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(path, init);
   const json = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const message = json?.error?.message ?? json?.error ?? `Request failed: ${response.status}`;
+    const error = json?.error;
+    const message =
+      typeof error === "string"
+        ? error
+        : error?.message ?? error?.code ?? `Request failed: ${response.status}`;
     throw new Error(message);
   }
   if (!json.success) {
-    const message = json?.error?.message ?? json?.error ?? "Request failed";
+    const error = json?.error;
+    const message =
+      typeof error === "string"
+        ? error
+        : error?.message ?? error?.code ?? "Request failed";
     throw new Error(message);
   }
   return json.data as T;

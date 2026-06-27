@@ -50,10 +50,10 @@ function SocialLoginButtons() {
     <>
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-[oklch(var(--border))]" />
+          <span className="w-full border-t border-[hsl(var(--border))]" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-[oklch(var(--background))] px-3 text-foreground-muted">
+          <span className="bg-[hsl(var(--background))] px-3 text-foreground-muted">
             or continue with
           </span>
         </div>
@@ -127,12 +127,12 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left side - Marketing */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[oklch(var(--background-secondary))]">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[hsl(var(--background-secondary))]">
         {/* Background decorations */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[oklch(var(--primary))]/20 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[hsl(var(--primary))]/20 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/15 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[oklch(var(--primary))]/10 rounded-full blur-2xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[hsl(var(--primary))]/10 rounded-full blur-2xl" />
         </div>
 
         {/* Grid pattern */}
@@ -148,8 +148,8 @@ export default function LoginPage() {
           <div className="mb-8">
             <a href="/" className="flex items-center gap-3 group">
               <div className="relative flex h-12 w-12 items-center justify-center rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80" />
-                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80 blur-xl" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80 blur-xl" />
                 <span className="relative text-2xl font-bold text-white">
                   <Sparkles className="h-6 w-6" />
                 </span>
@@ -171,19 +171,19 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-6 text-sm text-foreground-muted">
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-[oklch(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-[hsl(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               <span>{m.loginMarketing_featureFree()}</span>
             </div>
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-[oklch(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-[hsl(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               <span>{m.loginMarketing_featureFast()}</span>
             </div>
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-[oklch(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-[hsl(var(--primary))]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               <span>{m.loginMarketing_featureQuality()}</span>
@@ -193,13 +193,13 @@ export default function LoginPage() {
       </div>
 
       {/* Right side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-8 lg:px-12 xl:px-16 bg-[oklch(var(--background))]">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-8 lg:px-12 xl:px-16 bg-[hsl(var(--background))]">
         <div className="w-full max-w-md mx-auto">
           {/* Mobile Logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <a href="/" className="flex items-center gap-2">
               <div className="relative flex h-10 w-10 items-center justify-center rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
                 <span className="relative text-xl font-bold text-white">
                   <Sparkles className="h-5 w-5" />
                 </span>
@@ -220,8 +220,8 @@ export default function LoginPage() {
 
           {/* Error message */}
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-[oklch(var(--color-error-light))] border border-[oklch(var(--color-error)/0.3)]">
-              <p className="text-sm text-[oklch(var(--color-error))]">{error}</p>
+            <div className="mb-6 p-4 rounded-xl bg-[hsl(var(--color-error-light))] border border-[hsl(var(--color-error)/0.3)]">
+              <p className="text-sm text-[hsl(var(--color-error))]">{error}</p>
             </div>
           )}
 
@@ -266,7 +266,7 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-[oklch(var(--border))] bg-[oklch(var(--input))] text-[oklch(var(--primary))] focus:ring-[oklch(var(--primary)/0.3)]"
+                  className="h-4 w-4 rounded border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary)/0.3)]"
                 />
                 <label
                   htmlFor="remember"
@@ -277,7 +277,7 @@ export default function LoginPage() {
               </div>
               <a
                 href="/forgot-password"
-                className="text-sm font-medium text-[oklch(var(--primary))] hover:text-[oklch(var(--primary-hover))] transition-colors"
+                className="text-sm font-medium text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))] transition-colors"
               >
                 {m.login_forgotPassword()}
               </a>
@@ -305,12 +305,12 @@ export default function LoginPage() {
           </form>
 
           {/* Register link */}
-          <div className="mt-8 pt-6 border-t border-[oklch(var(--border))]">
+          <div className="mt-8 pt-6 border-t border-[hsl(var(--border))]">
             <p className="text-center text-foreground-muted text-sm">
               {m.login_noAccount()}{" "}
               <a
                 href="/register"
-                className="font-medium text-[oklch(var(--primary))] hover:text-[oklch(var(--primary-hover))] transition-colors"
+                className="font-medium text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))] transition-colors"
               >
                 {m.login_signUp()}
               </a>

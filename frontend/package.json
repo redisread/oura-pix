@@ -16,7 +16,6 @@
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",
     "@astrojs/react": "^4.0.0",
-    "@astrojs/tailwind": "^6.0.0",
     "@imgly/background-removal": "^1.7.0",
     "@oura-pix/api-client": "workspace:*",
     "astro": "^5.0.0",

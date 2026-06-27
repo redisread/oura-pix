@@ -27,7 +27,7 @@ const createSchema = z.object({
   name: z.string().min(1).max(200),
   url: z.string().url().max(2000),
   platform: z.enum(PLATFORMS).default("other"),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().max(2000).nullable().optional(),
   screenshots: z.array(z.string().url()).max(20).optional(),
 });
 

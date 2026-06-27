@@ -103,6 +103,8 @@ oura-pix/
 
 ## 本地开发
 
+本地环境搭建、数据库初始化、服务启动和自动化测试门禁见 [Local Testing](./LOCAL_TESTING.md)。本节保留项目背景与开发约定。
+
 ### 环境要求
 
 - Node.js >= 18
