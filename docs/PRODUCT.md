@@ -1,339 +1,115 @@
-# OuraPix 产品文档
+# OuraPix Product Notes
 
-## 产品简介
+OuraPix helps cross-border e-commerce sellers turn product images and prompts into reusable product-detail content. The current app combines Gemini-generated copy variants, generation history, favorites, team workflows, API access, and browser-side image utilities.
 
-OuraPix 是一款 AI 驱动的跨境电商商品详情页生成器，专为亚马逊/Shopify/eBay/Etsy 卖家设计。通过 AI 技术，帮助用户在 5 分钟内生成专业级商品详情页，大幅提升上架效率。
+## Target Users
 
-## 目标用户
+- Marketplace sellers publishing products across Amazon, Shopify, eBay, and Etsy.
+- Small teams that need repeatable listing copy and image-prep workflows.
+- Operators who want generation history, favorites, collections, and API access in one place.
 
-- **亚马逊/Shopify/eBay 卖家**：需要快速上架大量商品
-- **中小卖家**：没有专业设计团队，需要低成本生成高质量图片
-- **内容运营**：需要快速生成大量商品图
-- **品牌商家**：追求高转化率详情页，保持品牌视觉一致性
+## Current Value
 
-## 核心价值
+| Value | Current Behavior |
+|-------|------------------|
+| Faster listing preparation | Generate multiple title/description/tag variants from product context |
+| Reusable product assets | Keep generation history, favorites, collections, and compare views |
+| Lightweight image operations | Use browser-side tools for background removal, collage, batch export, borders, and cutouts |
+| Operational visibility | Track usage, errors, metrics, notifications, and team activity |
+| API access | Create and inspect generation jobs with API keys |
 
-| 价值 | 说明 |
-|------|------|
-| 🚀 效率提升 100x | 5 分钟生成传统需要 3-5 天的详情页 |
-| 💰 成本降低 90% | 无需雇佣设计师，AI 生成专业级图片 |
-| 🎨 风格统一 | 支持风格参考，保持品牌视觉一致性 |
-| 🌍 多平台适配 | Amazon、Shopify、eBay 一键适配 |
+## Implemented Surfaces
 
-## 核心功能
+### Generation
 
-### 1. 智能商品分析
+Route: `/generate`
 
-上传商品主图，AI 自动识别商品特性、卖点，智能规划详情页结构。
+- Upload a product image.
+- Add optional reference images and prompt instructions.
+- Select platform, language, style, count, aspect ratio, and image-generation preference.
+- Submit a generation job.
+- View generated text/content variants.
+- In local/demo mode, Gemini can be unconfigured; the API returns placeholder variants.
 
-**功能特点：**
-- 自动识别商品类目
-- 分析商品卖点和特性
-- 智能推荐详情页结构
-- 支持多商品批量分析
+Current Worker behavior: `api/src/services/geminiService.ts` generates product copy/content. Image generation fields are retained in settings and database records, but image generation is marked as skipped by the Worker pipeline.
 
-### 2. 批量图片生成
+### History
 
-一键生成 5-10 张高质量详情图：
+Route: `/history`
 
-- **商品卖点图**：突出商品核心卖点
-- **使用场景图**：展示商品使用场景
-- **细节特写图**：展示商品细节
-- **对比展示图**：与竞品或旧版对比
-- **购买引导图**：引导用户购买
+- List past generation jobs.
+- Filter by platform, status, and time range.
+- Open generated content details.
+- Delete generation records.
+- Launch the editor/compare flows from available image URLs.
 
-**支持的平台尺寸：**
+### Favorites and Collections
 
-| 平台 | 尺寸 | 特性 |
-|------|------|------|
-| Amazon | 2000×2000px | 白底主图 + 场景图 |
-| Shopify | 2048×2048px | 品牌风格详情 |
-| eBay | 1600×1600px | 简洁卖点展示 |
-| Etsy | 2000×2000px | 手工艺风格 |
-| 自定义 | 灵活尺寸 | 按需定制 |
+Routes: `/favorites`, `/collections`
 
-### 3. 风格参考支持
+- Favorite generated image URLs.
+- Organize favorites into color-coded collections.
+- Rename, filter, and remove collections.
 
-上传品牌参考图，AI 学习并保持一致视觉风格。
+### Browser Image Tools
 
-**支持的风格：**
-- 极简风格：简洁干净，突出产品
-- 奢华风格：高端大气，彰显品质
-- 生活风格：场景融入，情感共鸣
-- 专业风格：现代前卫，科技感强
+Routes: `/tools/*`
 
-### 4. 4K 高清输出
+| Route | Tool |
+|-------|------|
+| `/tools/background-remover` | Browser-side background removal |
+| `/tools/cutout` | Local cutout/masking workflow |
+| `/tools/collage` | Multi-image collage builder |
+| `/tools/batch` | Resize/compress/convert batch export |
+| `/tools/border` | Product border and badge styling |
+| `/tools/export` | Platform export presets |
+| `/tools/shortcuts` | Keyboard shortcut reference |
 
-生成图片清晰度达印刷级别，可直接用于电商平台。
+### Teams
 
-**输出规格：**
-- 分辨率：最高 4K（3840×2160）
-- 格式：PNG、JPEG、WebP
-- 质量：无损压缩，保留细节
+Routes: `/teams`, `/teams/:id`
 
-## 功能页面说明
+- Create teams.
+- Join by invite code.
+- Manage roles and members.
+- Associate generation records with a team.
 
-### 生成页面（/generate）
+### Operational Pages
 
-主要的商品详情页生成页面。
+| Route | Purpose |
+|-------|---------|
+| `/stats` | Generation and favorite statistics |
+| `/metrics` | Web vitals and metric summaries |
+| `/errors` | Client/server error reporting dashboard |
+| `/api-keys` | API key creation and revocation |
+| `/competitors` | Manual competitor record tracking |
+| `/categories` | Category and template browsing |
 
-**功能：**
-- 上传商品主图
-- 上传风格参考图（可选）
-- 选择目标平台
-- 选择生成风格
-- 设置生成数量
-- 设置图片比例
-- 开始生成
+### Account and Billing
 
-**操作流程：**
-1. 上传商品主图（必需）
-2. 上传风格参考图（可选）
-3. 选择目标平台
-4. 选择生成风格
-5. 设置生成参数
-6. 点击"生成"按钮
-7. 等待生成完成（约 2-5 分钟）
-8. 查看和下载生成结果
+- Better Auth sign in, sign up, password reset, and profile flows.
+- Stripe subscription/webhook integration in the API.
+- Pricing page and subscription route scaffolding.
 
-### 历史页面（/history）
+## Platform Settings
 
-查看所有历史生成记录。
-
-**功能：**
-- 卡片式展示生成历史
-- 按平台筛选
-- 按时间筛选（今天/本周/本月）
-- 搜索功能
-- 查看详情
-- 重新生成
-- 下载图片
-- 删除记录
-
-### 收藏页面（/favorites）
-
-查看和管理收藏的图片。
-
-**功能：**
-- 卡片式展示收藏图片
-- 批量管理
-- 取消收藏
-- 下载收藏图片
-- 按时间筛选
-- 按收藏夹筛选
-
-### 收藏夹（/collections）
-
-将收藏图片分组管理。
-
-**功能：**
-- 创建/编辑/删除收藏夹（命名 + 颜色标签）
-- 10 种颜色标签可选
-- inline 编辑收藏夹名称
-- 收藏图片时归入指定收藏夹
-- 按收藏夹过滤图片
-
-### 对比页面（/compare）
+Supported target platforms:
 
-并排对比多张生成的图片。
-
-**功能：**
-- 选择 2-4 张图片对比
-- 缩放和平移查看细节
-- 键盘快捷键支持
-- 全屏模式
-- 直接从对比视图收藏或删除
-
-### 统计页面（/stats）
+- `amazon`
+- `shopify`
+- `ebay`
+- `etsy`
+- `generic`
 
-查看生成统计数据。
-
-**功能：**
-- 总生成次数和图片数
-- 按平台分布统计
-- 按风格分布统计
-- 生成趋势图
-- 时间范围切换（7天/30天/90天/全部）
+Supported styles:
 
-### 通知中心
+- `professional`
+- `lifestyle`
+- `minimal`
+- `luxury`
 
-查看系统通知和生成完成通知。
+Supported languages are currently driven by UI/API inputs and message files, with English, Chinese, and Japanese present in the frontend message layer.
 
-**功能：**
-- 未读通知数量显示
-- 通知列表
-- 标记已读/未读
-- 全部标记已读
-- 删除通知
+## Known Product Boundary
 
-### 图片编辑器
-
-对生成的图片进行编辑和优化。
-
-**功能：**
-- 旋转（左/右 90°）
-- 翻转（水平/垂直）
-- 裁剪比例预设（自由 / 1:1 / 3:4 / 4:3 / 16:9）
-- 调整亮度/对比度/饱和度（0-200%）
-- 色温调整（-100 冷 / 0 中性 / +100 暖）
-- 色调调整（-100 绿 / 0 中性 / +100 紫红）
-- 锐化（0-100%）
-- 文字水印叠加
-- 撤销/重做（支持键盘快捷键 Ctrl+Z/Ctrl+Y）
-- 重置到原始状态
-- 全屏编辑器模态框
-
-### 工具集（/tools/*）
-
-独立的浏览器内图片处理工具，无需登录、无需上传服务器。
-
-| 路径 | 工具 | 说明 |
-|------|------|------|
-| `/tools/background-remover` | 智能去背景 | 基于 @imgly/background-removal WASM，移除整图背景 |
-| `/tools/cutout` | 局部抠图 | 矩形/画笔选区 + 边缘羽化，导出透明 PNG |
-| `/tools/collage` | 图片拼图 | 多图组合，预设布局 |
-| `/tools/batch` | 批量处理 | 调整尺寸、压缩、添加水印、格式转换、ZIP 打包 |
-| `/tools/border` | 智能边框 | 7 种边框样式 + 6 种徽章（新品/热卖/折扣等）|
-| `/tools/export` | 导出预设 | 多格式（PNG/JPEG/WebP）+ 8 个平台尺寸预设 |
-| `/tools/shortcuts` | 快捷键参考 | 全局快捷键列表 |
-
-### 团队协作
-
-与团队成员共享和管理生成资源。
-
-**功能：**
-- 创建和管理团队
-- 邀请成员加入团队（邀请码）
-- 角色权限管理（Owner/Admin/Member）
-- 共享团队生成历史
-- 团队成员管理（添加/移除/角色变更）
-
-### 竞品分析
-
-收集和分析竞品详情页。
-
-**功能：**
-- 添加竞品商品（截图或链接）
-- 按平台分类竞品
-- 添加竞品备注和分析
-- 查看竞品截图和详情
-- 删除竞品记录
-
-### 用户反馈
-
-对生成结果进行评价和反馈。
-
-**功能：**
-- 为生成结果评分（1-5 星）
-- 添加文字评论
-- 查看其他用户的反馈
-- 查看反馈统计（平均分、反馈数量）
-
-### 商品类目与模板
-
-按商品类目选择预设模板。
-
-**功能：**
-- 5 个预设类目（服装、电子产品、美妆、食品、家居）
-- 每个类目 3 个预设模板（共 15 个）
-- 查看类目的最佳实践指南
-- 创建自定义模板
-- 按类目浏览模板
-
-### API 密钥管理（/api-keys）
-
-管理 API 访问密钥。
-
-**功能：**
-- 创建 API 密钥
-- 查看密钥列表
-- 吊销密钥
-- 复制密钥
-- 查看 API 使用示例
-
-## 使用场景
-
-### 场景一：新品上架
-
-**用户：** 亚马逊卖家，每周上架 10+ 新品
-
-**流程：**
-1. 上传商品主图
-2. AI 自动分析并生成详情页结构
-3. 一键生成 8 张详情图
-4. 下载 4K 高清图片，直接上传亚马逊
-
-**效果：** 上架准备时间从 3 天缩短到 30 分钟
-
-### 场景二：品牌视觉统一
-
-**用户：** Shopify 品牌店，需要保持视觉一致性
-
-**流程：**
-1. 上传品牌风格参考图
-2. 批量上传多款商品主图
-3. AI 统一按品牌风格生成详情图
-4. 保持全店视觉统一
-
-**效果：** 品牌一致性提升，转化率提升 15%
-
-### 场景三：多平台铺货
-
-**用户：** 跨平台卖家，同一商品上架多个平台
-
-**流程：**
-1. 上传商品主图
-2. 选择 Amazon → 生成 2000×2000px 白底图
-3. 选择 Shopify → 生成 2048×2048px 品牌风格图
-4. 选择 eBay → 生成 1600×1600px 简洁图
-
-**效果：** 一套商品素材，多平台快速适配
-
-## 定价说明
-
-### Free 套餐
-
-- 每月 5 次生成
-- 标清图片（1080p）
-- 基础功能
-
-### Pro 套餐
-
-- 每月 100 次生成
-- 高清图片（4K）
-- 优先队列
-- 所有高级功能
-
-### Business 套餐
-
-- 无限生成
-- 4K 图片
-- 团队协作
-- API 访问
-- 专属支持
-
-## 常见问题
-
-### Q: 生成一次需要多长时间？
-
-A: 通常需要 2-5 分钟，取决于生成数量和服务器负载。
-
-### Q: 可以修改生成的图片吗？
-
-A: 可以。生成后可以使用图片编辑器进行旋转、翻转、调整亮度/对比度/饱和度、添加水印等操作。
-
-### Q: 生成的图片可以商用吗？
-
-A: 可以。生成的图片版权归用户所有，可自由用于商业用途。
-
-### Q: 支持哪些语言？
-
-A: 目前支持中文、英文、日文三种语言。
-
-### Q: 如何联系客服？
-
-A: 可以通过应用内反馈或发送邮件到 support@ourapix.com。
-
-## 更新日志
-
-查看 [CHANGELOG.md](./CHANGELOG.md) 了解最新版本更新内容。
+The product still exposes image-generation settings because the database/API contract already contains those fields. The current Worker path does not call an image-generation model. Until that pipeline exists, docs and UI copy should avoid promising generated scene images as a production capability.
