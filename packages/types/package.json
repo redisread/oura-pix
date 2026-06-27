@@ -13,7 +13,7 @@
     "@oura-pix/i18n": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
+    "@cloudflare/workers-types": "^4.20260625.1",
     "typescript": "^5.6.3"
   }
 }

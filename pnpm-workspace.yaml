@@ -2,8 +2,25 @@ packages:
   - 'api'
   - 'frontend'
   - 'packages/*'
+autoInstallPeers: false
 allowBuilds:
   esbuild: true
   protobufjs: true
   sharp: true
   workerd: true
+
+overrides:
+  '@babel/core': ^7.29.7
+  esbuild@<=0.24.2: 0.25.12
+  esbuild@>=0.27.3 <0.28.1: 0.28.1
+  form-data: ^4.0.6
+  js-yaml: 4.2.0
+  kysely: ^0.29.2
+  next: ^15.5.15
+  postcss: ^8.5.15
+  qs: ^6.15.3
+  solid-js: ^1.9.4
+  uuid@<11.1.1: 11.1.1
+  vite@>=7.1.0 <=7.3.1: 7.3.6
+  picomatch@<2.3.2: 2.3.2
+  picomatch@>=4.0.0 <4.0.4: 4.0.4

@@ -49,7 +49,7 @@ const reportSchema = z.object({
   severity: ErrorSeverityEnum.optional(),
   type: ErrorTypeEnum.optional(),
   module: ErrorModuleEnum.optional(),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 });
 
 errors.post("/", zValidator("json", reportSchema), async (c) => {
