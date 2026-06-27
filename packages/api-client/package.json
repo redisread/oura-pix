@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@oura-pix/types": "workspace:*",
-    "axios": "^1.6.0"
+    "axios": "^1.18.1"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",

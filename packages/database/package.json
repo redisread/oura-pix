@@ -15,13 +15,13 @@
   },
   "dependencies": {
     "@oura-pix/types": "workspace:*",
-    "drizzle-orm": "^0.45.1"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
+    "@cloudflare/workers-types": "^4.20260625.1",
     "@types/node": "^22.9.0",
     "drizzle-kit": "^0.31.9",
     "typescript": "^5.6.3",
-    "wrangler": "^4.69.0"
+    "wrangler": "^4.105.0"
   }
 }
