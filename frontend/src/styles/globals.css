@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-background-secondary: hsl(var(--background-secondary));
+  --color-foreground: hsl(var(--foreground));
+  --color-foreground-muted: hsl(var(--foreground-muted));
+  --color-primary: hsl(var(--primary));
+  --color-primary-hover: hsl(var(--primary-hover));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-hover: hsl(var(--secondary-hover));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+}
+
 /* ========================================
    Anthropic Design System - Global Styles
    ======================================== */
@@ -57,7 +81,7 @@
   --shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.4);
   --shadow-lg: 0 12px 32px -4px oklch(0 0 0 / 0.5);
   --shadow-xl: 0 24px 48px -8px oklch(0 0 0 / 0.6);
-  --shadow-glow: 0 0 40px oklch(var(--primary) / 0.15);
+  --shadow-glow: 0 0 40px hsl(var(--primary)/0.15);
 
   /* Border radius */
   --radius: 0.75rem;
@@ -144,7 +168,7 @@
   }
 
   ::selection {
-    background: oklch(var(--primary) / 0.3);
+    background: hsl(var(--primary)/0.3);
   }
 }
 
@@ -176,7 +200,7 @@
 @layer utilities {
   /* Gradient text */
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[oklch(var(--primary))] to-violet-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--primary))] to-violet-400;
   }
 
   /* Glass effect */
@@ -195,7 +219,7 @@
   }
 
   .glow-sm {
-    box-shadow: 0 0 20px oklch(var(--primary) / 0.1);
+    box-shadow: 0 0 20px hsl(var(--primary)/0.1);
   }
 
   /* Surface layers */
@@ -210,12 +234,12 @@
   /* Anthropic button styles */
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200;
-    background: oklch(var(--primary));
-    color: var(--primary-foreground);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
   }
 
   .btn-primary:hover {
-    background: oklch(var(--primary-hover));
+    background: hsl(var(--primary-hover));
     transform: translateY(-1px);
   }
 
@@ -225,53 +249,53 @@
 
   .btn-secondary {
     @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200;
-    background: oklch(var(--secondary));
-    color: var(--secondary-foreground);
-    border: 1px solid oklch(var(--border));
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
   }
 
   .btn-secondary:hover {
-    background: oklch(var(--secondary-hover));
-    border-color: oklch(var(--foreground-muted) / 0.3);
+    background: hsl(var(--secondary-hover));
+    border-color: hsl(var(--foreground-muted)/0.3);
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200;
-    color: var(--foreground-muted);
+    color: hsl(var(--foreground-muted));
   }
 
   .btn-ghost:hover {
-    color: var(--foreground);
-    background: oklch(var(--foreground) / 0.05);
+    color: hsl(var(--foreground));
+    background: hsl(var(--foreground)/0.05);
   }
 
   /* Card styles */
   .card {
     @apply rounded-xl border transition-all duration-200;
-    background: oklch(var(--card));
-    border-color: oklch(var(--border));
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
   }
 
   .card-hover {
-    @apply hover:border-[oklch(var(--primary)/0.3)] hover:shadow-lg;
+    @apply hover:border-primary/30 hover:shadow-lg;
   }
 
   /* Input styles */
   .input {
     @apply w-full rounded-lg border px-3 py-2.5 text-sm transition-colors;
-    background: oklch(var(--input));
-    border-color: oklch(var(--border));
-    color: var(--foreground);
+    background: hsl(var(--input));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
   }
 
   .input::placeholder {
-    color: var(--foreground-muted);
+    color: hsl(var(--foreground-muted));
   }
 
   .input:focus {
     @apply outline-none ring-2;
-    border-color: oklch(var(--primary));
-    ring-color: oklch(var(--primary) / 0.3);
+    border-color: hsl(var(--primary));
+    --tw-ring-color: hsl(var(--primary)/0.3);
   }
 }
 
@@ -332,10 +356,10 @@
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px oklch(var(--primary) / 0.15);
+    box-shadow: 0 0 20px hsl(var(--primary)/0.15);
   }
   50% {
-    box-shadow: 0 0 40px oklch(var(--primary) / 0.25);
+    box-shadow: 0 0 40px hsl(var(--primary)/0.25);
   }
 }
 
@@ -389,25 +413,25 @@
 .gradient-anthropic {
   background: linear-gradient(
     135deg,
-    oklch(var(--background)) 0%,
-    oklch(var(--background-secondary)) 50%,
-    oklch(var(--background)) 100%
+    hsl(var(--background)) 0%,
+    hsl(var(--background-secondary)) 50%,
+    hsl(var(--background)) 100%
   );
 }
 
 .gradient-radial {
   background: radial-gradient(
     ellipse at center,
-    oklch(var(--primary) / 0.08) 0%,
+    hsl(var(--primary)/0.08) 0%,
     transparent 70%
   );
 }
 
 .gradient-mesh {
   background:
-    radial-gradient(at 20% 30%, oklch(var(--primary) / 0.08) 0px, transparent 50%),
-    radial-gradient(at 80% 70%, oklch(270 70% 60%) / 0.06) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, oklch(var(--background-secondary)) 0px, transparent 70%);
+    radial-gradient(at 20% 30%, hsl(var(--primary)/0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 70%, hsl(270 70% 60% / 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, hsl(var(--background-secondary)) 0px, transparent 70%);
 }
 
 /* ========================================
@@ -420,25 +444,25 @@
 }
 
 .status-dot-online {
-  background: oklch(var(--color-success));
-  box-shadow: 0 0 8px oklch(var(--color-success) / 0.5);
+  background: hsl(var(--color-success));
+  box-shadow: 0 0 8px hsl(var(--color-success)/0.5);
 }
 
 .status-dot-offline {
-  background: oklch(var(--foreground-muted));
+  background: hsl(var(--foreground-muted));
 }
 
 /* Badge */
 .badge {
   @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
-  background: oklch(var(--primary) / 0.15);
-  color: oklch(var(--primary));
+  background: hsl(var(--primary)/0.15);
+  color: hsl(var(--primary));
 }
 
 /* Tooltip */
 .tooltip {
   @apply absolute z-50 rounded-lg border px-3 py-2 text-sm shadow-lg;
-  background: oklch(var(--popover));
-  border-color: oklch(var(--border));
-  color: var(--popover-foreground);
+  background: hsl(var(--popover));
+  border-color: hsl(var(--border));
+  color: hsl(var(--popover-foreground));
 }

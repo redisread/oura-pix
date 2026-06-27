@@ -2,3 +2,8 @@ packages:
   - 'api'
   - 'frontend'
   - 'packages/*'
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  sharp: true
+  workerd: true

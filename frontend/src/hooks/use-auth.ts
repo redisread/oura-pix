@@ -15,9 +15,20 @@ interface AuthResult {
  * Provides user state and auth operation methods
  */
 export function useAuth() {
-  const { user, isLoading, isAuthenticated, setUser, setLoading, logout: storeLogout } = useAuthStore();
+  const {
+    user,
+    isLoading,
+    isAuthenticated,
+    hasInitialized,
+    setUser,
+    setLoading,
+    setInitialized,
+    logout: storeLogout,
+  } = useAuthStore();
 
-  const loadSession = useCallback(async () => {
+  const loadSession = useCallback(async (force = false) => {
+    if (!force && hasInitialized) return;
+
     setLoading(true);
     try {
       const session = await getSession();
@@ -29,9 +40,10 @@ export function useAuth() {
     } catch {
       setUser(null);
     } finally {
+      setInitialized(true);
       setLoading(false);
     }
-  }, [setUser, setLoading]);
+  }, [hasInitialized, setUser, setLoading, setInitialized]);
 
   useEffect(() => {
     loadSession();
@@ -46,7 +58,7 @@ export function useAuth() {
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     const result = await signIn(email, password);
     if (result.success) {
-      await loadSession();
+      await loadSession(true);
     }
     return result;
   }, [loadSession]);
@@ -61,7 +73,7 @@ export function useAuth() {
   const register = useCallback(async (name: string, email: string, password: string): Promise<AuthResult> => {
     const result = await signUp(email, password, name);
     if (result.success) {
-      await loadSession();
+      await loadSession(true);
     }
     return result;
   }, [loadSession]);

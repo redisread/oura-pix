@@ -1,9 +1,11 @@
 # API Development Secrets
-# Copy this file to .dev.vars and fill in your values
-# This file is for local development only and should not be committed
+# Copy this file to api/.dev.vars and fill in real service keys when needed.
+# This file is for local development only and should not be committed.
 
 # Better Auth Secret (generate with: openssl rand -base64 32)
 BETTER_AUTH_SECRET=local-dev-secret-key-change-in-production
+BETTER_AUTH_URL=http://localhost:8989
+NEXT_PUBLIC_APP_URL=http://localhost:4321
 
 # Stripe Secret Key (test mode)
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
@@ -11,14 +13,17 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 # Stripe Webhook Secret
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
-# Gemini API Key (deprecated, use DASHSCOPE_API_KEY instead)
-GEMINI_API_KEY=your_gemini_api_key
-
-# DashScope API Key (阿里百炼)
-DASHSCOPE_API_KEY=sk-your-dashscope-api-key
+# Gemini API Key
+# Leave empty to exercise the built-in demo response path.
+GEMINI_API_KEY=
+GEMINI_BASE_URL=
+GEMINI_MODEL=
 
 # Resend API Key
 RESEND_API_KEY=re_your_resend_api_key
+FROM_EMAIL=noreply@localhost
+FROM_NAME=OuraPix Local
+CLOUDFLARE_R2_PUBLIC_URL=http://localhost:8989
 
 # OAuth Providers (optional, for testing login)
 # AUTH_GOOGLE_ID=your_google_client_id

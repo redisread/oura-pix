@@ -5,6 +5,7 @@ import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import LanguageSelector from "./LanguageSelector";
 import NotificationBell from "./notifications/NotificationBell";
+import { useAuth } from "@/hooks/use-auth";
 
 type NavItem =
   | { type: "link"; href: string; label: string }
@@ -16,6 +17,12 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [expandedMobileGroup, setExpandedMobileGroup] = useState<string | null>(null);
   const dropdownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { isAuthenticated, isLoading, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,7 +85,7 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "glass border-b border-[oklch(var(--border))] shadow-lg"
+          ? "glass border-b border-[hsl(var(--border))] shadow-lg"
           : "bg-transparent"
       }`}
     >
@@ -87,8 +94,8 @@ export default function Navbar() {
         <a href="/" className="flex items-center gap-3 group">
           <div className="relative flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
             {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80" />
-            <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80 blur-xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80 blur-xl" />
             {/* Icon */}
             <span className="relative text-lg font-bold text-white">
               <Sparkles className="h-4 w-4" />
@@ -104,7 +111,7 @@ export default function Navbar() {
               <a
                 key={item.href}
                 href={item.href}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
               >
                 {item.label}
               </a>
@@ -120,7 +127,7 @@ export default function Navbar() {
                     e.stopPropagation();
                     setOpenDropdown(openDropdown === item.label ? null : item.label);
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                 >
                   {item.label}
                   <ChevronDown
@@ -131,12 +138,12 @@ export default function Navbar() {
                 </button>
                 {openDropdown === item.label && (
                   <div className="absolute left-0 top-full pt-2 animate-scale-in origin-top-left">
-                    <div className="min-w-[160px] rounded-xl border border-[oklch(var(--border))] bg-[oklch(var(--popover))] p-1.5 shadow-xl">
+                    <div className="min-w-[160px] rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--popover))] p-1.5 shadow-xl">
                       {item.children.map((child) => (
                         <a
                           key={child.href}
                           href={child.href}
-                          className="flex items-center px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
+                          className="flex items-center px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                         >
                           {child.label}
                         </a>
@@ -151,26 +158,48 @@ export default function Navbar() {
 
         {/* Right Side: Language & Auth */}
         <div className="hidden md:flex items-center gap-2">
-          <NotificationBell />
+          {isAuthenticated && <NotificationBell />}
           <LanguageSelector />
-          <a
-            href="/login"
-            className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
-          >
-            {m.login()}
-          </a>
-          <a
-            href="/register"
-            className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
-          >
-            {m.register()}
-          </a>
+          {isAuthenticated ? (
+            <>
+              <a
+                href="/profile"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+              >
+                个人中心
+              </a>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
+              >
+                退出
+              </button>
+            </>
+          ) : (
+            !isLoading && (
+              <>
+                <a
+                  href="/login"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                >
+                  {m.login()}
+                </a>
+                <a
+                  href="/register"
+                  className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
+                >
+                  {m.register()}
+                </a>
+              </>
+            )
+          )}
         </div>
 
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-foreground-muted hover:bg-[oklch(var(--foreground)/0.05)] transition-colors"
+          className="md:hidden p-2 rounded-lg text-foreground-muted hover:bg-[hsl(var(--foreground)/0.05)] transition-colors"
           aria-label={isMenuOpen ? "关闭菜单" : "打开菜单"}
           aria-expanded={isMenuOpen}
         >
@@ -180,14 +209,14 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-[oklch(var(--border))] bg-[oklch(var(--background))]/95 backdrop-blur-xl px-4 py-4 animate-fade-in">
+        <div className="md:hidden border-t border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur-xl px-4 py-4 animate-fade-in">
           <nav className="flex flex-col gap-1">
             {navItems.map((item) =>
               item.type === "link" ? (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
+                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                 >
                   {item.label}
                 </a>
@@ -199,7 +228,7 @@ export default function Navbar() {
                         expandedMobileGroup === item.label ? null : item.label
                       )
                     }
-                    className="flex w-full items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
+                    className="flex w-full items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                   >
                     {item.label}
                     <ChevronDown
@@ -209,12 +238,12 @@ export default function Navbar() {
                     />
                   </button>
                   {expandedMobileGroup === item.label && (
-                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-[oklch(var(--border))] pl-3">
+                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-[hsl(var(--border))] pl-3">
                       {item.children.map((child) => (
                         <a
                           key={child.href}
                           href={child.href}
-                          className="px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
+                          className="px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                         >
                           {child.label}
                         </a>
@@ -224,19 +253,41 @@ export default function Navbar() {
                 </div>
               )
             )}
-            <hr className="my-3 border-[oklch(var(--border))]" />
-            <a
-              href="/login"
-              className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
-            >
-              {m.login()}
-            </a>
-            <a
-              href="/register"
-              className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
-            >
-              {m.register()}
-            </a>
+            <hr className="my-3 border-[hsl(var(--border))]" />
+            {isAuthenticated ? (
+              <>
+                <a
+                  href="/profile"
+                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                >
+                  个人中心
+                </a>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
+                >
+                  退出
+                </button>
+              </>
+            ) : (
+              !isLoading && (
+                <>
+                  <a
+                    href="/login"
+                    className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                  >
+                    {m.login()}
+                  </a>
+                  <a
+                    href="/register"
+                    className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
+                  >
+                    {m.register()}
+                  </a>
+                </>
+              )
+            )}
           </nav>
         </div>
       )}
