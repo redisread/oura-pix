@@ -162,10 +162,19 @@ export const profile_history_deleteFailedDesc = () => "请稍后重试";
 export const profile_settings_title = () => "账户设置";
 export const profile_settings_profile = () => "个人资料";
 export const profile_settings_password = () => "修改密码";
+export const profile_settings_currentPassword = () => "当前密码";
+export const profile_settings_enterCurrentPassword = () => "请输入当前密码";
+export const profile_settings_newPassword = () => "新密码";
+export const profile_settings_enterNewPassword = () => "请输入新密码";
 export const profile_settings_notifications = () => "通知设置";
+export const profile_settings_notifyOnComplete = () => "生成完成时通知我";
+export const profile_settings_receiveMarketing = () => "接收营销邮件";
 export const profile_settings_save = () => "保存设置";
 export const profile_settings_saving = () => "保存中...";
 export const profile_settings_saveSuccess = () => "设置已保存";
+
+// Overview
+export const profile_overview_recentActivity = () => "最近活动";
 
 // Common
 export const profile_cancel = () => "取消";

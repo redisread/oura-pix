@@ -266,21 +266,21 @@ function SettingsForm() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                当前密码
+                {m.profile_settings_currentPassword()}
               </label>
               <input
                 type="password"
-                placeholder="请输入当前密码"
+                placeholder={m.profile_settings_enterCurrentPassword()}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition-colors focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                新密码
+                {m.profile_settings_newPassword()}
               </label>
               <input
                 type="password"
-                placeholder="请输入新密码"
+                placeholder={m.profile_settings_enterNewPassword()}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm transition-colors focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
             </div>
@@ -299,7 +299,7 @@ function SettingsForm() {
                 className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
               />
               <label htmlFor="notify-generation" className="ml-2 text-sm text-slate-700">
-                生成完成时通知我
+                {m.profile_settings_notifyOnComplete()}
               </label>
             </div>
             <div className="flex items-center">
@@ -309,7 +309,7 @@ function SettingsForm() {
                 className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
               />
               <label htmlFor="notify-marketing" className="ml-2 text-sm text-slate-700">
-                接收营销邮件
+                {m.profile_settings_receiveMarketing()}
               </label>
             </div>
           </div>
@@ -399,7 +399,7 @@ export default function ProfilePage() {
             <UserInfoCard />
             <div className="bg-white rounded-xl shadow-sm border border-slate-200">
               <div className="p-6 border-b border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900">最近活动</h3>
+                <h3 className="text-lg font-semibold text-slate-900">{m.profile_overview_recentActivity()}</h3>
               </div>
               <div className="p-6">
                 {mockHistory.slice(0, 3).map((item) => (

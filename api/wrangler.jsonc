@@ -25,6 +25,9 @@
     "NEXT_PUBLIC_APP_URL": "https://ourapix.jiahongw.com",
     "FROM_EMAIL": "noreply@ourapix.jiahongw.com",
     "FROM_NAME": "OuraPix",
-    "CLOUDFLARE_R2_PUBLIC_URL": "https://ourapix.cos.jiahongw.com"
+    "CLOUDFLARE_R2_PUBLIC_URL": "https://ourapix.cos.jiahongw.com",
+    "STRIPE_STARTER_PRICE_ID": "",
+    "STRIPE_PRO_PRICE_ID": "",
+    "STRIPE_ENTERPRISE_PRICE_ID": ""
   }
 }
