@@ -19,6 +19,7 @@ interface GenerationSettings {
 export interface CreateGenerationRequest {
   productImageId: string;
   referenceImageIds?: string[];
+  teamId?: string;
   prompt?: string;
   settings?: Partial<GenerationSettings>;
 }

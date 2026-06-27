@@ -1,0 +1,11 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FavoritesPage from "../components/FavoritesPage";
+import * as m from "@/paraglide/messages.js";
+
+const isLoggedIn = true; // TODO: Check session
+---
+
+<Layout title={m.favorites_title?.() || "我的收藏"}>
+  <FavoritesPage client:load />
+</Layout>

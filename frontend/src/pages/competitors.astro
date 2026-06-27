@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CompetitorsPage from '../components/competitors/CompetitorsPage';
+import ErrorBoundary from '../components/ErrorBoundary';
+---
+
+<Layout title="竞品分析">
+  <ErrorBoundary client:load>
+    <CompetitorsPage client:load />
+  </ErrorBoundary>
+</Layout>

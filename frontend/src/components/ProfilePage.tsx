@@ -139,8 +139,8 @@ function UserInfoCard() {
 
 // Generation History Component
 function GenerationHistory() {
-  const handleDelete = (id: string) => {
-    console.log("Delete record:", id);
+  const handleDelete = (_id: string) => {
+    // TODO: Implement delete functionality
   };
 
   return (

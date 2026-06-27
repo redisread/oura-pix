@@ -44,7 +44,7 @@ router.post(
       );
     }
 
-    const { fileName, fileType, type } = c.req.valid("json");
+    const { fileName, fileType } = c.req.valid("json");
     const { R2, CLOUDFLARE_R2_PUBLIC_URL } = c.env;
 
     try {
@@ -52,8 +52,8 @@ router.post(
       const ext = fileName.split(".").pop() || "jpg";
       const key = `uploads/${user.id}/${crypto.randomUUID()}.${ext}`;
 
-      // Create R2 upload
-      const upload = await R2.createMultipartUpload(key, {
+      // Create R2 upload (validates bucket access)
+      await R2.createMultipartUpload(key, {
         httpMetadata: {
           contentType: fileType,
         },
@@ -167,7 +167,7 @@ router.post(
       return c.json({
         success: true,
         data: {
-          id: image.id,
+          id: image!.id,
           url: imageUrl,
           originalName: file.name,
           size: file.size,
@@ -189,4 +189,4 @@ router.post(
   }
 );
 
-export { router as uploadRoutes };
+export default router;

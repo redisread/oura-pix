@@ -108,6 +108,7 @@ export const pricingFeatures_community = () => "社区支持";
 export const pricingFeatures_prioritySupport = () => "优先支持";
 export const pricingFeatures_dedicatedManager = () => "专属客户经理";
 export const pricingFeatures_feature = () => "功能";
+export const pricingFeatures_generationSpeed = () => "生成速度";
 
 // FAQ
 export const pricing_faq1_question = () => "如何升级或降级方案？";
@@ -180,3 +181,185 @@ export const profile_overview_recentActivity = () => "最近活动";
 export const profile_cancel = () => "取消";
 export const profile_confirm = () => "确认";
 export const profile_loading = () => "加载中...";
+
+// Generation page
+export const generation_title = () => "生成商品详情页";
+export const generation_subtitle = () => "上传商品图片，选择设置，AI 将为您生成专业的商品详情页";
+export const generation_uploadSection = () => "上传图片";
+export const generation_mainImage = () => "商品主图";
+export const generation_mainImageDesc = () => "上传您的商品主图，这将成为详情页的核心";
+export const generation_styleImage = () => "风格参考（可选）";
+export const generation_styleImageDesc = () => "上传参考风格图片，帮助 AI 理解您的偏好";
+export const generation_uploadTips = () => "上传提示";
+export const generation_uploadTip1 = () => "使用白色或透明背景的商品图片";
+export const generation_uploadTip2 = () => "图片分辨率建议 800x800 以上";
+export const generation_uploadTip3 = () => "支持 JPG、PNG 格式";
+export const generation_uploadingBtn = () => "上传中...";
+export const generation_settings = () => "生成设置";
+export const generation_platform = () => "选择平台";
+export const generation_count = () => "生成数量";
+export const generation_countDesc = () => "选择要生成的详情页数量（5-10）";
+export const generation_style = () => "风格偏好";
+export const generation_outputLang = () => "输出语言";
+export const generation_generatingBtn = () => "生成中...";
+export const generation_generateBtn = () => "开始生成";
+export const generation_preview = () => "预览区域";
+export const generation_previewDesc = () => "生成的详情页将显示在这里";
+export const generation_sceneImages = () => "生成的场景图";
+export const generation_viewLarge = () => "查看大图";
+export const generation_downloadImage = () => "下载图片";
+export const generation_aiCreatingImages = () => "AI 正在创建图片...";
+export const generation_generatingSceneImages = () => "正在生成场景图...";
+export const generation_failed = () => "生成失败";
+
+// Generation image generation settings
+export const generation_imageGen_title = () => "场景图生成";
+export const generation_imageGen_count = () => "图片数量";
+export const generation_imageGen_desc = () => "选择要生成的场景图数量（3-10）";
+export const generation_imageGen_aspectRatio = () => "宽高比";
+
+// Generation errors
+export const generation_error_noImage = () => "请先上传商品主图";
+export const generation_error_uploadFailed = () => "上传失败";
+export const generation_error_createFailed = () => "创建失败";
+export const generation_error_failed = () => "生成失败";
+
+// Generation stages
+export const generation_stage_analyzing = () => "分析商品图片中...";
+export const generation_stage_generatingText = () => "生成文案内容中...";
+export const generation_stage_generatingImages = ({ current, total }) => `生成场景图中 (${current}/${total})...`;
+export const generation_stage_uploading = () => "上传结果中...";
+export const generation_stage_completed = () => "生成完成！";
+
+// Generation stage labels
+export const generation_stageLabel_analyzing = () => "分析图片";
+export const generation_stageLabel_generatingText = () => "生成文案";
+export const generation_stageLabel_generatingImages = () => "生成场景图";
+export const generation_stageLabel_uploading = () => "上传结果";
+
+// Style labels
+export const style_minimal_label = () => "简约";
+export const style_minimal_desc = () => "简洁清爽，突出商品本身";
+export const style_luxury_label = () => "奢华";
+export const style_luxury_desc = () => "高端大气，展现品质感";
+export const style_lifestyle_label = () => "生活场景";
+export const style_lifestyle_desc = () => "场景融合，情感连接";
+export const style_professional_label = () => "专业";
+export const style_professional_desc = () => "专业商务风格";
+
+// Upload component
+export const upload_singleFileOnly = () => "只能上传一个文件";
+export const upload_maxFilesExceeded = ({ max }) => `最多只能上传 ${max} 个文件`;
+export const upload_fileTooLarge = ({ size }) => `文件大小不能超过 ${size}`;
+export const upload_invalidType = ({ type }) => `仅支持 ${type} 格式文件`;
+export const upload_filesSelected = ({ count }) => `已选择 ${count} 个文件`;
+export const upload_clickOrDrag = () => "点击或拖拽文件到此处";
+export const upload_supportedFormats = ({ type, size }) => `支持 ${type}，最大 ${size}`;
+
+// Common
+export const common_custom = () => "自定义";
+
+// History page
+export const history_title = () => "生成历史";
+export const history_subtitle = () => "查看您的所有生成记录";
+export const history_empty = () => "暂无生成记录";
+export const history_emptyDescription = () => "开始使用 AI 生成精美的商品详情页图片吧";
+export const history_startGenerate = () => "开始生成";
+export const history_newGenerate = () => "新建生成";
+export const history_totalRecords = ({ count }) => `共 ${count} 条记录`;
+export const history_filterAll = () => "全部";
+export const history_filterToday = () => "今天";
+export const history_filterWeek = () => "本周";
+export const history_filterMonth = () => "本月";
+export const history_filterAllPlatforms = () => "全部平台";
+export const history_filterAllStatus = () => "全部状态";
+export const history_statusSuccess = () => "已完成";
+export const history_statusPending = () => "处理中";
+export const history_statusFailed = () => "失败";
+export const history_viewDetail = () => "查看详情";
+export const history_regenerate = () => "重新生成";
+export const history_delete = () => "删除";
+export const history_deleteConfirm = () => "再次点击确认删除";
+export const history_images = ({ count }) => `${count} 张`;
+export const history_minutesAgo = ({ count }) => `${count}分钟前`;
+export const history_hoursAgo = ({ count }) => `${count}小时前`;
+export const history_daysAgo = ({ count }) => `${count}天前`;
+export const history_justNow = () => "刚刚";
+export const history_previousPage = () => "上一页";
+export const history_nextPage = () => "下一页";
+export const history_retry = () => "重试";
+export const history_noImage = () => "无图片";
+
+// Favorites page
+export const favorites_title = () => "我的收藏";
+export const favorites_subtitle = () => "您收藏的所有图片";
+export const favorites_empty = () => "暂无收藏";
+export const favorites_emptyDescription = () => "浏览生成结果，收藏您喜欢的图片";
+export const favorites_goGenerate = () => "去生成图片";
+export const favorites_batchManage = () => "批量管理";
+export const favorites_selectAll = () => "全选";
+export const favorites_deselectAll = () => "取消全选";
+export const favorites_unfavorite = () => "取消收藏";
+export const favorites_cancel = () => "取消";
+export const favorites_total = ({ count }) => `共 ${count} 张收藏`;
+export const favorites_confirmBatchUnfavorite = ({ count }) => `确定要取消收藏 ${count} 张图片吗？`;
+export const favorites_download = () => "下载";
+export const favorites_today = () => "今天";
+export const favorites_daysAgo = ({ count }) => `${count}天前`;
+
+// Compare view
+export const compare_title = () => "图片对比";
+export const compare_button = () => "对比视图";
+export const compare_buttonDesc = () => "对比视图（查看所有生成的图片）";
+export const compare_layout2x2 = () => "2×2";
+export const compare_layout1x4 = () => "1×4";
+export const compare_layout4x1 = () => "4×1";
+export const compare_layoutSingle = () => "单图";
+export const compare_zoomIn = () => "放大";
+export const compare_zoomOut = () => "缩小";
+export const compare_reset = () => "重置";
+export const compare_fullscreen = () => "全屏";
+export const compare_exitFullscreen = () => "退出全屏";
+export const compare_prev = () => "上一张";
+export const compare_next = () => "下一张";
+export const compare_close = () => "关闭";
+export const compare_helpWheel = () => "滚轮缩放";
+export const compare_helpDrag = () => "拖拽平移";
+export const compare_helpArrow = () => "← → 切换图片";
+export const compare_helpZoom = () => "+/- 缩放";
+export const compare_helpFullscreen = () => "F 全屏";
+export const compare_helpEsc = () => "ESC 关闭";
+
+// Stats
+export const stats_title = () => "统计";
+export const stats_description = () => "查看您的生成历史数据分析";
+export const stats_totalGenerations = () => "总生成次数";
+export const stats_totalGenerationsSubtitle = () => "AI 生成任务总数";
+export const stats_totalImages = () => "总图片数";
+export const stats_totalImagesSubtitle = () => "生成的图片总数";
+export const stats_avgGenerationTime = () => "平均生成时间";
+export const stats_avgGenerationTimeSubtitle = () => "每次生成的平均耗时";
+export const stats_favoriteRate = () => "收藏率";
+export const stats_favoriteRateSubtitle = () => "收藏图片占比";
+export const stats_platformDistribution = () => "平台分布";
+export const stats_styleDistribution = () => "风格分布";
+export const stats_generationTrend = () => "生成趋势";
+export const stats_noData = () => "暂无数据";
+export const stats_total = () => "总计";
+export const stats_average = () => "平均";
+export const stats_times = () => "次";
+export const stats_timesPerDay = () => "次/天";
+export const stats_range7d = () => "近7天";
+export const stats_range30d = () => "近30天";
+export const stats_range90d = () => "近90天";
+export const stats_rangeAll = () => "全部";
+
+// Language selector
+export const language_selector = () => "语言";
+export const language_zh = () => "中文";
+export const language_en = () => "English";
+export const language_ja = () => "日本語";
+
+// Nav links
+export const history = () => "生成历史";
+export const favorites = () => "我的收藏";

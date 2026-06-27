@@ -56,7 +56,7 @@ export async function sendPasswordResetEmail(
       `,
     });
 
-    console.log("[Mail] Password reset email sent to:", user.email);
+    console.info("[Mail] Password reset email sent to:", user.email);
   } catch (error) {
     console.error("[Mail] Failed to send password reset email:", error);
     throw error;
@@ -86,7 +86,7 @@ export async function sendWelcomeEmail(user: UserInfo, env: Env) {
       `,
     });
 
-    console.log("[Mail] Welcome email sent to:", user.email);
+    console.info("[Mail] Welcome email sent to:", user.email);
   } catch (error) {
     console.error("[Mail] Failed to send welcome email:", error);
   }

@@ -5,103 +5,7 @@
  */
 
 import { Hono } from "hono";
-import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { google, github } from "better-auth/social-providers";
-import { createDb, schema } from "@oura-pix/database";
-import { sendPasswordResetEmail } from "../lib/mail";
-
-// Create Better Auth instance for routes
-function createAuth(
-  env: {
-    DB: D1Database;
-    BETTER_AUTH_SECRET: string;
-    BETTER_AUTH_URL: string;
-    FROM_EMAIL: string;
-    FROM_NAME: string;
-    NEXT_PUBLIC_APP_URL?: string;
-    RESEND_API_KEY: string;
-    AUTH_GOOGLE_ID?: string;
-    AUTH_GOOGLE_SECRET?: string;
-    AUTH_GITHUB_ID?: string;
-    AUTH_GITHUB_SECRET?: string;
-  },
-  isLocalDevOverride?: boolean,
-  baseUrlOverride?: string
-) {
-  const db = createDb(env.DB);
-
-  // Check if running in local development (HTTP)
-  const isLocalDev = isLocalDevOverride ??
-    (env.BETTER_AUTH_URL.startsWith("http://localhost") ||
-      env.BETTER_AUTH_URL.startsWith("http://127.0.0.1"));
-
-  // Use override URL if provided, otherwise determine from local dev status
-  // For local dev, default to localhost:8787 if not specified
-  const baseURL = baseUrlOverride ||
-    (isLocalDev ? "http://localhost:8787" : env.BETTER_AUTH_URL);
-
-  return betterAuth({
-    baseURL: baseURL,
-    basePath: "/api/auth",
-    secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: [
-      env.BETTER_AUTH_URL,
-      env.NEXT_PUBLIC_APP_URL || env.BETTER_AUTH_URL,
-      "http://localhost:4001",
-      "http://localhost:8787",
-    ],
-    socialProviders: {
-      google: {
-        enabled: !!(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET),
-        clientId: env.AUTH_GOOGLE_ID || "",
-        clientSecret: env.AUTH_GOOGLE_SECRET || "",
-      },
-      github: {
-        enabled: !!(env.AUTH_GITHUB_ID && env.AUTH_GITHUB_SECRET),
-        clientId: env.AUTH_GITHUB_ID || "",
-        clientSecret: env.AUTH_GITHUB_SECRET || "",
-      },
-    },
-    database: drizzleAdapter(db, {
-      provider: "sqlite",
-      camelCase: true,
-      schema: {
-        user: schema.users,
-        account: schema.accounts,
-        session: schema.sessions,
-        verification: schema.verificationTokens,
-      },
-    }),
-    emailAndPassword: {
-      enabled: true,
-      minPasswordLength: 8,
-      requireEmailVerification: false,
-      sendResetPassword: async ({ user, url }) => {
-        await sendPasswordResetEmail(
-          { email: user.email, name: user.name || undefined },
-          { resetUrl: url, userName: user.name || user.email },
-          env
-        );
-      },
-    },
-    session: {
-      expiresIn: 604800,
-      updateAge: 86400,
-      cookieCache: {
-        enabled: true,
-        maxAge: 5 * 60,
-      },
-    },
-    // Use non-secure cookies for local development (HTTP)
-    advanced: {
-      disableCSRFCheck: isLocalDev,
-      useSecureCookies: !isLocalDev,
-    },
-  });
-}
+import { createAuth, normalizeLocalSetCookie } from "../lib/auth";
 
 const router = new Hono<{
   Bindings: {
@@ -121,15 +25,7 @@ const router = new Hono<{
 
 // Sign in (maps to Better Auth's /sign-in/email endpoint)
 router.post("/sign-in", async (c) => {
-  // Check if running in local development (HTTP)
-  const isLocalDev = c.req.url.startsWith("http://localhost") ||
-    c.req.url.startsWith("http://127.0.0.1");
-
-  // Get the base URL from the request for local development
-  const requestUrl = new URL(c.req.url);
-  const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
-
-  const auth = createAuth(c.env, isLocalDev, isLocalDev ? baseUrl : undefined);
+  const auth = createAuth(c.env, c.req.url);
 
   // Get raw body text
   const bodyText = await c.req.text();
@@ -151,33 +47,23 @@ router.post("/sign-in", async (c) => {
   const response = await auth.handler(request);
 
   // Copy Set-Cookie header if present
-  let setCookie = response.headers.get("Set-Cookie");
+  const setCookie = response.headers.get("Set-Cookie");
   if (setCookie) {
     // For local development: strip Secure flag from cookies to allow HTTP
-    if (isLocalDev) {
-      setCookie = setCookie.replace(/;\s*Secure/gi, "");
-    }
-    c.header("Set-Cookie", setCookie);
+    const normalizedCookie = normalizeLocalSetCookie(setCookie, c.req.url);
+    if (normalizedCookie) c.header("Set-Cookie", normalizedCookie);
   }
 
   // Handle response - read response body first
   const text = await response.text();
 
   const data = text ? JSON.parse(text) : { success: true, status: response.status };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Sign up (maps to Better Auth's /sign-up/email endpoint)
 router.post("/sign-up", async (c) => {
-  // Check if running in local development (HTTP)
-  const isLocalDev = c.req.url.startsWith("http://localhost") ||
-    c.req.url.startsWith("http://127.0.0.1");
-
-  // Get the base URL from the request for local development
-  const requestUrl = new URL(c.req.url);
-  const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
-
-  const auth = createAuth(c.env, isLocalDev, isLocalDev ? baseUrl : undefined);
+  const auth = createAuth(c.env, c.req.url);
 
   const bodyText = await c.req.text();
 
@@ -197,13 +83,11 @@ router.post("/sign-up", async (c) => {
 
   const response = await auth.handler(request);
 
-  let setCookie = response.headers.get("Set-Cookie");
+  const setCookie = response.headers.get("Set-Cookie");
   if (setCookie) {
     // For local development: strip Secure flag from cookies to allow HTTP
-    if (isLocalDev) {
-      setCookie = setCookie.replace(/;\s*Secure/gi, "");
-    }
-    c.header("Set-Cookie", setCookie);
+    const normalizedCookie = normalizeLocalSetCookie(setCookie, c.req.url);
+    if (normalizedCookie) c.header("Set-Cookie", normalizedCookie);
   }
 
   const text = await response.text();
@@ -211,26 +95,19 @@ router.post("/sign-up", async (c) => {
   let data;
   try {
     data = text ? JSON.parse(text) : { success: true };
-  } catch (e) {
+  } catch {
     data = { success: false, error: "Invalid response" };
   }
 
   // Use 200 status code if Better Auth returns success
   const statusCode = response.status >= 200 && response.status < 300 ? response.status : 200;
-  return c.json(data, statusCode as any);
+  return c.json(data, statusCode as never);
 });
 
 // Sign out
 router.post("/sign-out", async (c) => {
   // Check if running in local development (HTTP)
-  const isLocalDev = c.req.url.startsWith("http://localhost") ||
-    c.req.url.startsWith("http://127.0.0.1");
-
-  // Get the base URL from the request for local development
-  const requestUrl = new URL(c.req.url);
-  const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
-
-  const auth = createAuth(c.env, isLocalDev, isLocalDev ? baseUrl : undefined);
+  const auth = createAuth(c.env, c.req.url);
 
   const url = new URL(c.req.url);
   const request = new Request(url.toString(), {
@@ -239,31 +116,21 @@ router.post("/sign-out", async (c) => {
   });
   const response = await auth.handler(request);
 
-  let setCookie = response.headers.get("Set-Cookie");
+  const setCookie = response.headers.get("Set-Cookie");
   if (setCookie) {
     // For local development: strip Secure flag from cookies to allow HTTP
-    if (isLocalDev) {
-      setCookie = setCookie.replace(/;\s*Secure/gi, "");
-    }
-    c.header("Set-Cookie", setCookie);
+    const normalizedCookie = normalizeLocalSetCookie(setCookie, c.req.url);
+    if (normalizedCookie) c.header("Set-Cookie", normalizedCookie);
   }
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : { success: true };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Get session
 router.get("/session", async (c) => {
-  // Check if running in local development (HTTP)
-  const isLocalDev = c.req.url.startsWith("http://localhost") ||
-    c.req.url.startsWith("http://127.0.0.1");
-
-  // Get the base URL from the request
-  const requestUrl = new URL(c.req.url);
-  const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
-
-  const auth = createAuth(c.env, isLocalDev, isLocalDev ? baseUrl : undefined);
+  const auth = createAuth(c.env, c.req.url);
 
   // Use the original request URL but ensure correct pathname
   const url = new URL(c.req.url);
@@ -282,16 +149,12 @@ router.get("/session", async (c) => {
   const text = await response.text();
 
   const data = text ? JSON.parse(text) : { user: null, session: null };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Forgot password (maps to Better Auth's /request-password-reset endpoint)
 router.post("/forgot-password", async (c) => {
-  // Check if running in local development (HTTP)
-  const isLocalDev = c.req.url.startsWith("http://localhost") ||
-    c.req.url.startsWith("http://127.0.0.1");
-
-  const auth = createAuth(c.env, isLocalDev);
+  const auth = createAuth(c.env, c.req.url);
   const bodyText = await c.req.text();
 
   // Rewrite path to match Better Auth's expected endpoint
@@ -311,16 +174,12 @@ router.post("/forgot-password", async (c) => {
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : { success: true };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
 // Reset password
 router.post("/reset-password", async (c) => {
-  // Check if running in local development (HTTP)
-  const isLocalDev = c.req.url.startsWith("http://localhost") ||
-    c.req.url.startsWith("http://127.0.0.1");
-
-  const auth = createAuth(c.env, isLocalDev);
+  const auth = createAuth(c.env, c.req.url);
   const bodyText = await c.req.text();
 
   const url = new URL(c.req.url);
@@ -333,7 +192,7 @@ router.post("/reset-password", async (c) => {
 
   const text = await response.text();
   const data = text ? JSON.parse(text) : { success: true };
-  return c.json(data, response.status as any);
+  return c.json(data, response.status as never);
 });
 
-export { router as authRoutes };
+export default router;

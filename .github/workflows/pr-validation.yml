@@ -1,0 +1,40 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Lint API
+        run: pnpm --filter @oura-pix/api lint
+
+      - name: Typecheck API
+        run: pnpm --filter @oura-pix/api typecheck
+
+      - name: Lint Frontend
+        run: pnpm --filter @oura-pix/frontend lint
+
+      - name: Typecheck Frontend
+        run: pnpm --filter @oura-pix/frontend typecheck

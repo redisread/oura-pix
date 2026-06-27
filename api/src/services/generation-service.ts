@@ -6,23 +6,42 @@
 
 import { eq, and, gte, desc, sql, count, inArray } from "drizzle-orm";
 import { createDb, schema, type GenerationSettings, type GenerationResult } from "@oura-pix/database";
-import type { D1Database } from "@cloudflare/workers-types";
+import { generateProductCopy } from "./geminiService";
+import { notifyGenerationComplete, notifyGenerationFailed } from "./notificationService";
 
 export type TimeFilter = "all" | "today" | "week" | "month";
 
 export interface GenerationRecord {
   id: string;
   prompt: string | null;
+  teamId: string | null;
   platform: string;
   style: string;
   language: string;
   count: number;
   productImageId: string | null;
   productImageUrl: string | null;
+  productImage: {
+    id: string;
+    url: string;
+    originalName: string;
+  } | null;
   referenceImageUrls: string[];
+  referenceImages: Array<{
+    id: string;
+    url: string;
+    originalName: string;
+  }>;
+  results: GenerationResult[] | null;
   generatedImages: string[];
   createdAt: Date;
+  updatedAt: Date;
+  completedAt: Date | null;
   status: string;
+  processingStage?: string | null;
+  imageGenerationStatus?: string | null;
+  imageGenerationError?: string | null;
+  generatedImageCount?: number | null;
   errorMessage?: string | null;
 }
 
@@ -76,16 +95,36 @@ function transformRecord(
   return {
     id: record.id,
     prompt: record.prompt,
+    teamId: record.teamId,
     platform: settings?.targetPlatform || "generic",
     style: settings?.style || "professional",
     language: settings?.language || "en",
     count: settings?.count || results?.length || 0,
     productImageId: record.productImageId,
     productImageUrl: productImage?.url || null,
+    productImage: productImage
+      ? {
+          id: productImage.id,
+          url: productImage.url,
+          originalName: productImage.originalName,
+        }
+      : null,
     referenceImageUrls: referenceImages.map((img) => img.url),
+    referenceImages: referenceImages.map((img) => ({
+      id: img.id,
+      url: img.url,
+      originalName: img.originalName,
+    })),
+    results,
     generatedImages: results?.map((r) => r.imageUrl!).filter(Boolean) || [],
     createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    completedAt: record.completedAt,
     status: record.status,
+    processingStage: record.processingStage,
+    imageGenerationStatus: record.imageGenerationStatus,
+    imageGenerationError: record.imageGenerationError,
+    generatedImageCount: record.generatedImageCount,
     errorMessage: record.errorMessage,
   };
 }
@@ -208,6 +247,35 @@ export async function deleteGeneration(
   return { success: true };
 }
 
+export async function cancelGeneration(
+  db: ReturnType<typeof createDb>,
+  id: string,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  const record = await db.query.generations.findFirst({
+    where: and(eq(schema.generations.id, id), eq(schema.generations.userId, userId)),
+  });
+
+  if (!record) {
+    return { success: false, error: "Record not found" };
+  }
+  if (record.status === "completed") {
+    return { success: false, error: "Completed generation cannot be cancelled" };
+  }
+
+  await db
+    .update(schema.generations)
+    .set({
+      status: "failed",
+      errorMessage: "Generation cancelled",
+      completedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.generations.id, id));
+
+  return { success: true };
+}
+
 export async function getUserStats(
   db: ReturnType<typeof createDb>,
   userId: string
@@ -249,7 +317,7 @@ export async function getUserStats(
   const validStyles = ["professional", "lifestyle", "minimal", "luxury"] as const;
   const rawStyle = styleResult[0]?.style;
   const favoriteStyle = validStyles.includes(rawStyle as typeof validStyles[number])
-    ? rawStyle
+    ? rawStyle ?? "professional"
     : "professional";
 
   return {
@@ -268,20 +336,118 @@ export async function createGeneration(
     referenceImageIds?: string[];
     prompt?: string;
     settings: GenerationSettings;
+    teamId?: string;
   }
 ): Promise<typeof schema.generations.$inferSelect> {
   const [generation] = await db
     .insert(schema.generations)
     .values({
       userId,
+      teamId: input.teamId,
       productImageId: input.productImageId,
       referenceImageIds: input.referenceImageIds || [],
       prompt: input.prompt,
       settings: input.settings,
       status: "pending",
       processingStage: "analyzing",
+      stageStartedAt: new Date(),
     })
     .returning();
 
-  return generation;
+  return generation!;
+}
+
+export interface GenerationRuntimeEnv {
+  DB: D1Database;
+  GEMINI_API_KEY?: string;
+  GEMINI_BASE_URL?: string;
+  GEMINI_MODEL?: string;
+}
+
+export async function processGeneration(
+  env: GenerationRuntimeEnv,
+  generationId: string
+): Promise<void> {
+  const db = createDb(env.DB);
+  const record = await db.query.generations.findFirst({
+    where: eq(schema.generations.id, generationId),
+  });
+
+  if (!record || record.status !== "pending") return;
+
+  const now = new Date();
+  await db
+    .update(schema.generations)
+    .set({
+      status: "processing",
+      processingStage: "generating_text",
+      stageStartedAt: now,
+      imageGenerationStatus: record.settings?.generateImages ? "pending" : "skipped",
+      updatedAt: now,
+    })
+    .where(eq(schema.generations.id, generationId));
+
+  try {
+    const productImage = record.productImageId
+      ? await db.query.images.findFirst({ where: eq(schema.images.id, record.productImageId) })
+      : null;
+    const referenceIds = (record.referenceImageIds as string[] | null) ?? [];
+    const referenceImages = referenceIds.length
+      ? await db.query.images.findMany({ where: inArray(schema.images.id, referenceIds) })
+      : [];
+
+    const settings = record.settings as GenerationSettings;
+    const results = await generateProductCopy({
+      env,
+      productImage: productImage
+        ? { url: productImage.url, mimeType: productImage.mimeType }
+        : null,
+      referenceImages: referenceImages.map((image) => ({
+        url: image.url,
+        mimeType: image.mimeType,
+      })),
+      prompt: record.prompt,
+      settings,
+    });
+
+    const completedAt = new Date();
+    await db
+      .update(schema.generations)
+      .set({
+        status: "completed",
+        processingStage: "completed",
+        results,
+        generatedImageCount: results.filter((result) => Boolean(result.imageUrl)).length,
+        imageGenerationStatus: "skipped",
+        imageGenerationError: settings.generateImages
+          ? "Image generation is not configured in the current Worker pipeline; text assets were generated."
+          : null,
+        completedAt,
+        updatedAt: completedAt,
+      })
+      .where(eq(schema.generations.id, generationId));
+
+    await notifyGenerationComplete(db, record.userId, generationId, results.length).catch((error) => {
+      console.error("[Generation] Completion notification failed:", error);
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Generation failed";
+    const failedAt = new Date();
+    await db
+      .update(schema.generations)
+      .set({
+        status: "failed",
+        processingStage: "generating_text",
+        imageGenerationStatus: "failed",
+        errorMessage: message,
+        imageGenerationError: message,
+        completedAt: failedAt,
+        updatedAt: failedAt,
+      })
+      .where(eq(schema.generations.id, generationId));
+
+    await notifyGenerationFailed(db, record.userId, generationId, message).catch((notifyError) => {
+      console.error("[Generation] Failure notification failed:", notifyError);
+    });
+  }
 }

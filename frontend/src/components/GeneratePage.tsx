@@ -4,10 +4,32 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import * as m from "@/paraglide/messages.js";
 import UploadDropzone from "./UploadDropzone";
 import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
+import CompareView from "./compare/CompareView";
 import { uploadImage } from "@/lib/api";
 import { createGeneration, getGeneration } from "@/lib/generation";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
+
+interface SceneImage {
+  imageId?: string;
+  url: string;
+  aspectRatio?: string;
+  width?: number;
+  height?: number;
+  promptUsed?: string;
+  variation?: number;
+}
+
+interface GeneratedResult {
+  id?: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
+  imageUrl?: string;
+  confidenceScore?: number;
+  sceneImages?: SceneImage[];
+  metadata?: Record<string, unknown>;
+}
 type Style = "minimal" | "luxury" | "lifestyle" | "professional";
 type AspectRatio = "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
 
@@ -39,8 +61,9 @@ export default function GeneratePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState<GenerationStage>("analyzing");
-  const [generatedResults, setGeneratedResults] = useState<any[]>([]);
+  const [generatedResults, setGeneratedResults] = useState<GeneratedResult[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showCompare, setShowCompare] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const platforms: { value: Platform; label: string; icon: string }[] = [
@@ -80,7 +103,7 @@ export default function GeneratePage() {
   const pollGenerationStatus = async (genId: string) => {
     const result = await getGeneration(genId);
     if (result.success && result.data) {
-      const { status, imageGenerationStatus, results, generatedImageCount } = result.data;
+      const { status, imageGenerationStatus, results } = result.data;
 
       if (status === "processing") {
         if (imageGenerationStatus === "processing") {
@@ -475,6 +498,28 @@ export default function GeneratePage() {
               {/* Results Display */}
               {generatedResults.length > 0 ? (
                 <div className="space-y-6">
+                  {/* Demo Mode Banner */}
+                  {generatedResults.some((r) => r.metadata?.mock) && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 flex items-center gap-2">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Demo 模式 — GEMINI_API_KEY 未配置，当前结果为占位数据。配置后可生成真实 AI 文案。
+                    </div>
+                  )}
+                  {/* Compare Button */}
+                  {generatedResults.some(r => r.sceneImages && r.sceneImages.length > 1) && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCompare(true)}
+                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 p-3 text-sm font-medium text-slate-600 hover:border-amber-500 hover:text-amber-600 transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                      </svg>
+                      对比视图（查看所有生成的图片）
+                    </button>
+                  )}
                   {generatedResults.map((result, resultIndex) => (
                     <div key={result.id || resultIndex} className="rounded-lg border border-slate-200 p-4">
                       <div className="mb-4">
@@ -504,7 +549,7 @@ export default function GeneratePage() {
                             {m.generation_sceneImages?.() || "场景图"} ({result.sceneImages.length})
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
-                            {result.sceneImages.map((img: any, imgIndex: number) => (
+                            {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
                                 className="group relative aspect-square rounded-lg border border-slate-200 bg-slate-50 overflow-hidden"
@@ -513,6 +558,8 @@ export default function GeneratePage() {
                                   src={img.url}
                                   alt={`Scene ${img.variation}`}
                                   className="h-full w-full object-cover"
+                                  loading="lazy"
+                                  decoding="async"
                                 />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900/70 opacity-0 transition-opacity group-hover:opacity-100">
                                   <button
@@ -553,6 +600,21 @@ export default function GeneratePage() {
           </div>
         </div>
       </main>
+
+      {/* Compare View Modal */}
+      {showCompare && (
+        <CompareView
+          images={generatedResults.flatMap((result, resultIndex) =>
+            (result.sceneImages || []).map((img, imgIndex) => ({
+              id: img.imageId || `${resultIndex}-${imgIndex}`,
+              url: img.url,
+              title: result.title,
+              generationId: result.id || `${resultIndex}`,
+            }))
+          )}
+          onClose={() => setShowCompare(false)}
+        />
+      )}
     </div>
   );
 }

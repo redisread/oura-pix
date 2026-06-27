@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TeamsPage from '../components/teams/TeamsPage';
+import ErrorBoundary from '../components/ErrorBoundary';
+---
+
+<Layout title="团队">
+  <ErrorBoundary client:load>
+    <TeamsPage client:load />
+  </ErrorBoundary>
+</Layout>

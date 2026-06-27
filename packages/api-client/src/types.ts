@@ -5,10 +5,9 @@
 import type {
   Generation,
   GenerationSettings,
-  GenerationResult,
   User,
   Subscription,
-} from "@oura-pix/database";
+} from "@oura-pix/types";
 
 // ============================================
 // API Response Types
@@ -108,6 +107,7 @@ export interface UpdateProfileInput {
 export interface CreateGenerationInput {
   productImageId: string;
   referenceImageIds?: string[];
+  teamId?: string;
   prompt?: string;
   settings: GenerationSettings;
 }
@@ -187,4 +187,48 @@ export interface CheckoutInput {
 
 export interface PortalInput {
   returnUrl: string;
+}
+
+// ============================================
+// Favorites Types
+// ============================================
+
+export interface AddFavoriteInput {
+  generationId: string;
+  imageUrl: string;
+  imageIndex?: number;
+}
+
+export interface Favorite {
+  id: string;
+  generationId: string;
+  imageUrl: string;
+  imageIndex: number | null;
+  createdAt: Date;
+  generation: {
+    id: string;
+    status: string;
+    settings: GenerationSettings;
+    createdAt: Date;
+  } | null;
+}
+
+export interface FavoritesListParams {
+  page?: number;
+  pageSize?: number;
+}
+
+export interface FavoritesListResponse {
+  favorites: Favorite[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface CheckFavoriteResponse {
+  isFavorited: boolean;
+  favoriteId: string | null;
 }

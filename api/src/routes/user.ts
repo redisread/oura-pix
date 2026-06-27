@@ -5,54 +5,7 @@
  */
 
 import { Hono } from "hono";
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { createDb, schema } from "@oura-pix/database";
-import { authMiddleware } from "../middleware/auth";
-
-/**
- * Create Better Auth instance for user routes
- */
-function createAuth(env: {
-  DB: D1Database;
-  BETTER_AUTH_SECRET: string;
-  BETTER_AUTH_URL: string;
-}) {
-  const db = createDb(env.DB);
-
-  return betterAuth({
-    baseURL: env.BETTER_AUTH_URL,
-    secret: env.BETTER_AUTH_SECRET,
-    database: drizzleAdapter(db, {
-      provider: "sqlite",
-      camelCase: true,
-      schema: {
-        user: schema.users,
-        account: schema.accounts,
-        session: schema.sessions,
-        verification: schema.verificationTokens,
-      },
-    }),
-    session: {
-      expiresIn: 604800,
-      updateAge: 86400,
-    },
-  });
-}
-
-/**
- * Helper to extract session token from request
- */
-function getSessionToken(c: Hono.Context): string | null {
-  const cookie = c.req.header("Cookie");
-  if (cookie) {
-    const match = cookie.match(/better-auth\.session_token=([^;]+)/);
-    if (match) {
-      return match[1];
-    }
-  }
-  return null;
-}
+import { createAuth, getSessionTokenFromHeaders } from "../lib/auth";
 
 const router = new Hono<{
   Bindings: {
@@ -62,12 +15,9 @@ const router = new Hono<{
   };
 }>();
 
-// Apply auth middleware to all routes
-router.use("*", authMiddleware);
-
 // Update user profile (name)
 router.put("/profile", async (c) => {
-  const auth = createAuth(c.env);
+  const auth = createAuth(c.env, c.req.url);
   const body = await c.req.json();
 
   const { name } = body as { name?: string };
@@ -83,7 +33,7 @@ router.put("/profile", async (c) => {
   }
 
   try {
-    const sessionToken = getSessionToken(c);
+    const sessionToken = getSessionTokenFromHeaders(new Headers(c.req.header()));
     if (!sessionToken) {
       return c.json(
         {
@@ -98,7 +48,7 @@ router.put("/profile", async (c) => {
       headers: new Headers({
         cookie: `better-auth.session_token=${sessionToken}`,
       }),
-      data: { name: name.trim() },
+      body: { name: name.trim() },
     });
 
     return c.json({ success: true, data: result });
@@ -116,7 +66,7 @@ router.put("/profile", async (c) => {
 
 // Update user avatar/image
 router.put("/avatar", async (c) => {
-  const auth = createAuth(c.env);
+  const auth = createAuth(c.env, c.req.url);
   const body = await c.req.json();
 
   const { image } = body as { image?: string };
@@ -132,7 +82,7 @@ router.put("/avatar", async (c) => {
   }
 
   try {
-    const sessionToken = getSessionToken(c);
+    const sessionToken = getSessionTokenFromHeaders(new Headers(c.req.header()));
     if (!sessionToken) {
       return c.json(
         {
@@ -147,7 +97,7 @@ router.put("/avatar", async (c) => {
       headers: new Headers({
         cookie: `better-auth.session_token=${sessionToken}`,
       }),
-      data: { image },
+      body: { image },
     });
 
     return c.json({ success: true, data: result });
@@ -163,4 +113,4 @@ router.put("/avatar", async (c) => {
   }
 });
 
-export { router as userRoutes };
+export default router;
