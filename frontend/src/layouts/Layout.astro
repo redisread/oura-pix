@@ -20,12 +20,12 @@ const {
     <meta name="description" content={description} />
     <title>{title}</title>
 
-    <!-- Inter font -->
+    <!-- Geist Sans font - Anthropic's preferred font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="font-sans antialiased min-h-screen bg-white text-slate-900">
+  <body class="font-sans antialiased min-h-screen bg-background text-foreground">
     <slot />
     <script>
       // Install the global error and metric reporters as early as possible on every page.
@@ -43,6 +43,6 @@ const {
   @import '../styles/globals.css';
 
   :root {
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   }
 </style>
