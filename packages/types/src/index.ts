@@ -5,6 +5,10 @@
  * packages do not depend on Drizzle or Cloudflare database bindings.
  */
 
+export type { GenerationLanguage, Locale } from "@oura-pix/i18n";
+
+import type { GenerationLanguage, Locale } from "@oura-pix/i18n";
+
 export type Platform = "amazon" | "ebay" | "shopify" | "etsy" | "generic";
 export type GenerationStyle = "professional" | "lifestyle" | "minimal" | "luxury";
 export type AspectRatio = "1:1" | "3:4" | "4:3" | "9:16" | "16:9";
@@ -24,7 +28,8 @@ export type ImageGenerationStatus =
 
 export interface GenerationSettings {
   targetPlatform?: Platform;
-  language?: string;
+  language?: GenerationLanguage;
+  uiLocale?: Locale;
   count?: number;
   style?: GenerationStyle;
   generateImages?: boolean;
@@ -57,7 +62,7 @@ export interface GenerationResult {
 
 export interface TemplateSettings {
   targetPlatform?: Platform;
-  language?: string;
+  language?: GenerationLanguage;
   style?: GenerationStyle;
   count?: number;
   aspectRatio?: AspectRatio;

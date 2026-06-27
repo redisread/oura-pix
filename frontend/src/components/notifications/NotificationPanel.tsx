@@ -7,6 +7,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
 
 interface NotificationPanelProps {
@@ -21,10 +23,10 @@ function formatTimeAgo(dateString: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "刚刚";
-  if (diffMins < 60) return `${diffMins}分钟前`;
-  if (diffHours < 24) return `${diffHours}小时前`;
-  if (diffDays < 7) return `${diffDays}天前`;
+  if (diffMins < 1) return m.common_justNow();
+  if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
+  if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
+  if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
   return date.toLocaleDateString("zh-CN");
 }
 
@@ -61,7 +63,9 @@ function NotificationItem({
       onMarkAsRead(notification.id);
     }
     if (notification.link) {
-      window.location.href = notification.link;
+      window.location.href = notification.link.startsWith("/")
+        ? localizeHref(notification.link)
+        : notification.link;
     }
   };
 
@@ -163,10 +167,10 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-          通知
+          {m.notification_title()}
           {unreadCount > 0 && (
             <span className="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">
-              ({unreadCount} 条未读)
+              ({m.notification_unreadCount({ count: unreadCount.toString() })})
             </span>
           )}
         </h3>
@@ -175,7 +179,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
             onClick={markAllAsRead}
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
           >
-            全部标记已读
+            {m.notification_markAllRead()}
           </button>
         )}
       </div>
@@ -185,7 +189,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
         {loading && notifications.length === 0 ? (
           <div className="p-8 text-center text-slate-500 dark:text-slate-400">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3" />
-            <p>加载中...</p>
+            <p>{m.common_loading()}</p>
           </div>
         ) : error ? (
           <div className="p-8 text-center">
@@ -194,7 +198,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
               onClick={fetchNotifications}
               className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
             >
-              重试
+              {m.common_retry()}
             </button>
           </div>
         ) : notifications.length === 0 ? (
@@ -212,7 +216,7 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
               />
             </svg>
-            <p>暂无通知</p>
+            <p>{m.notification_empty()}</p>
           </div>
         ) : (
           notifications.map((notification) => (
@@ -230,10 +234,10 @@ export default function NotificationPanel({ onClose }: NotificationPanelProps) {
       {notifications.length > 0 && (
         <div className="p-3 border-t border-slate-200 dark:border-slate-700 text-center">
           <a
-            href="/notifications"
+            href={localizeHref("/notifications")}
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
           >
-            查看所有通知
+            {m.notification_viewAll()}
           </a>
         </div>
       )}

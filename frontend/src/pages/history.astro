@@ -7,7 +7,7 @@ import * as m from "@/paraglide/messages.js";
 const isLoggedIn = true; // TODO: Check session
 ---
 
-<Layout title={m.history_title?.() || "生成历史"}>
+<Layout title={m.history_title()}>
   <ErrorBoundary client:load>
     <HistoryPage client:load />
   </ErrorBoundary>

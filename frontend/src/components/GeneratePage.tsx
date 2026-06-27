@@ -3,6 +3,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Sparkles, Upload, Settings, Eye, Check } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
+import { getLocale } from "@/paraglide/runtime.js";
+import { localeToGenerationLanguage, type GenerationLanguage, type Locale } from "@oura-pix/i18n";
 import UploadDropzone from "./UploadDropzone";
 import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
 import CompareView from "./compare/CompareView";
@@ -38,11 +40,19 @@ interface GenerationSettings {
   platform: Platform;
   count: number;
   style: Style;
-  language: string;
+  language: GenerationLanguage;
   generateImages: boolean;
   imageCount: number;
   aspectRatio: AspectRatio;
   allowPersons: boolean;
+}
+
+function currentUiLocale(): Locale {
+  try {
+    return getLocale() as Locale;
+  } catch {
+    return "zh-CN";
+  }
 }
 
 export default function GeneratePage() {
@@ -53,7 +63,7 @@ export default function GeneratePage() {
     platform: "amazon",
     count: 5,
     style: "minimal",
-    language: "zh",
+    language: localeToGenerationLanguage(currentUiLocale()),
     generateImages: true,
     imageCount: 5,
     aspectRatio: "1:1",
@@ -72,14 +82,14 @@ export default function GeneratePage() {
     { value: "shopify", label: "Shopify", icon: "S" },
     { value: "ebay", label: "eBay", icon: "E" },
     { value: "etsy", label: "Etsy", icon: "T" },
-    { value: "generic", label: m.common_custom?.() || "自定义", icon: "C" },
+    { value: "generic", label: m.common_custom(), icon: "C" },
   ];
 
   const styles: { value: Style; label: string; description: string }[] = [
-    { value: "minimal", label: m.style_minimal_label?.() || "极简风格", description: m.style_minimal_desc?.() || "简洁干净，突出产品" },
-    { value: "luxury", label: m.style_luxury_label?.() || "奢华风格", description: m.style_luxury_desc?.() || "高端大气，彰显品质" },
-    { value: "lifestyle", label: m.style_lifestyle_label?.() || "生活风格", description: m.style_lifestyle_desc?.() || "场景融入，情感共鸣" },
-    { value: "professional", label: m.style_professional_label?.() || "专业风格", description: m.style_professional_desc?.() || "现代前卫，科技感强" },
+    { value: "minimal", label: m.style_minimal_label(), description: m.style_minimal_desc() },
+    { value: "luxury", label: m.style_luxury_label(), description: m.style_luxury_desc() },
+    { value: "lifestyle", label: m.style_lifestyle_label(), description: m.style_lifestyle_desc() },
+    { value: "professional", label: m.style_professional_label(), description: m.style_professional_desc() },
   ];
 
   // Cleanup polling on unmount
@@ -130,7 +140,7 @@ export default function GeneratePage() {
         }
       } else if (status === "failed") {
         setIsGenerating(false);
-        setError(result.data.errorMessage || m.generation_failed?.() || "生成失败");
+        setError(result.data.errorMessage || m.generation_failed());
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -141,7 +151,7 @@ export default function GeneratePage() {
 
   const handleGenerate = async () => {
     if (mainImage.length === 0) {
-      setError(m.generation_error_noImage?.() || "请先上传主商品图片");
+      setError(m.generation_error_noImage());
       return;
     }
 
@@ -156,7 +166,7 @@ export default function GeneratePage() {
       const mainImageResult = await uploadImage(mainImage[0], "product");
       if (!mainImageResult?.id) {
         setIsUploading(false);
-        setError(m.generation_error_uploadFailed?.() || "上传失败");
+        setError(m.generation_error_uploadFailed());
         return;
       }
 
@@ -181,6 +191,7 @@ export default function GeneratePage() {
           count: settings.count,
           style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
           language: settings.language,
+          uiLocale: currentUiLocale(),
           generateImages: settings.generateImages,
           imageCount: settings.imageCount,
           aspectRatio: settings.aspectRatio,
@@ -189,7 +200,7 @@ export default function GeneratePage() {
       });
 
       if (!generationResult.success) {
-        setError(generationResult.error || m.generation_error_createFailed?.() || "创建生成任务失败");
+        setError(generationResult.error || m.generation_error_createFailed());
         setIsGenerating(false);
         return;
       }
@@ -202,7 +213,7 @@ export default function GeneratePage() {
       }, 2000);
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : m.generation_error_failed?.() || "生成失败");
+      setError(err instanceof Error ? err.message : m.generation_error_failed());
       setIsUploading(false);
       setIsGenerating(false);
     }
@@ -216,9 +227,9 @@ export default function GeneratePage() {
         {/* Header */}
         <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--background-secondary))]">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-bold text-foreground">{m.generation_title?.() || "生成商品详情"}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{m.generation_title()}</h1>
             <p className="mt-1 text-sm text-foreground-muted">
-              {m.generation_subtitle?.() || "上传商品图片，AI 将为您生成专业的商品详情页"}
+              {m.generation_subtitle()}
             </p>
           </div>
         </div>
@@ -231,12 +242,12 @@ export default function GeneratePage() {
               <div className="card p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Upload className="h-5 w-5 text-[hsl(var(--primary))]" />
-                  <h2 className="text-lg font-semibold text-foreground">{m.generation_uploadSection?.() || "上传图片"}</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{m.generation_uploadSection()}</h2>
                 </div>
 
                 <UploadDropzone
-                  label={m.generation_mainImage?.() || "主商品图片"}
-                  description={m.generation_mainImageDesc?.() || "支持 JPG、PNG、WebP，最大 10MB"}
+                  label={m.generation_mainImage()}
+                  description={m.generation_mainImageDesc()}
                   accept="image/*"
                   multiple={false}
                   maxSize={10 * 1024 * 1024}
@@ -246,8 +257,8 @@ export default function GeneratePage() {
 
                 <div className="mt-6">
                   <UploadDropzone
-                    label={m.generation_styleImage?.() || "风格参考图"}
-                    description={m.generation_styleImageDesc?.() || "可选，最多 3 张"}
+                    label={m.generation_styleImage()}
+                    description={m.generation_styleImageDesc()}
                     accept="image/*"
                     multiple
                     maxFiles={3}
@@ -264,11 +275,11 @@ export default function GeneratePage() {
                     <Sparkles className="h-5 w-5 text-[hsl(var(--primary))]" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-foreground">{m.generation_uploadTips?.() || "上传提示"}</h4>
+                    <h4 className="text-sm font-medium text-foreground">{m.generation_uploadTips()}</h4>
                     <ul className="mt-1 text-sm text-foreground-muted space-y-1">
-                      <li>{m.generation_uploadTip1?.() || "使用清晰、高分辨率的商品图片"}</li>
-                      <li>{m.generation_uploadTip2?.() || "确保商品主体清晰可见"}</li>
-                      <li>{m.generation_uploadTip3?.() || "风格参考图可以帮助 AI 理解您的偏好"}</li>
+                      <li>{m.generation_uploadTip1()}</li>
+                      <li>{m.generation_uploadTip2()}</li>
+                      <li>{m.generation_uploadTip3()}</li>
                     </ul>
                   </div>
                 </div>
@@ -279,13 +290,13 @@ export default function GeneratePage() {
             <div className="card p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Settings className="h-5 w-5 text-[hsl(var(--primary))]" />
-                <h2 className="text-lg font-semibold text-foreground">{m.generation_settings?.() || "生成设置"}</h2>
+                <h2 className="text-lg font-semibold text-foreground">{m.generation_settings()}</h2>
               </div>
 
               {/* Platform Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-foreground mb-3">
-                  {m.generation_platform?.() || "目标平台"}
+                  {m.generation_platform()}
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {platforms.map((platform) => (
@@ -315,7 +326,7 @@ export default function GeneratePage() {
               {/* Generation Count */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-foreground mb-3">
-                  {m.generation_count?.() || "生成数量"}
+                  {m.generation_count()}
                 </label>
                 <div className="flex items-center gap-4">
                   <input
@@ -331,13 +342,13 @@ export default function GeneratePage() {
                     {settings.count}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-foreground-muted">{m.generation_countDesc?.() || "选择要生成的商品详情数量"}</p>
+                <p className="mt-1 text-xs text-foreground-muted">{m.generation_countDesc()}</p>
               </div>
 
               {/* Style Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-foreground mb-3">
-                  {m.generation_style?.() || "风格选择"}
+                  {m.generation_style()}
                 </label>
                 <div className="space-y-2">
                   {styles.map((style) => (
@@ -372,17 +383,16 @@ export default function GeneratePage() {
               {/* Language Selection */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-foreground mb-3">
-                  {m.generation_outputLang?.() || "输出语言"}
+                  {m.generation_outputLang()}
                 </label>
                 <select
                   value={settings.language}
-                  onChange={(e) => setSettings({ ...settings, language: e.target.value })}
+                  onChange={(e) => setSettings({ ...settings, language: e.target.value as GenerationLanguage })}
                   className="input"
                 >
-                  <option value="zh">中文</option>
+                  <option value="zh">{m.language_zh()}</option>
                   <option value="en">English</option>
-                  <option value="ja">日本語</option>
-                  <option value="de">Deutsch</option>
+                  <option value="ja">{m.language_ja()}</option>
                 </select>
               </div>
 
@@ -391,10 +401,10 @@ export default function GeneratePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">
-                      {m.generation_imageGen_title?.() || "生成场景图"}
+                      {m.generation_imageGen_title()}
                     </h3>
                     <p className="text-xs text-foreground-muted mt-0.5">
-                      {m.generation_imageGen_desc?.() || "为商品生成多角度展示图"}
+                      {m.generation_imageGen_desc()}
                     </p>
                   </div>
                   <button
@@ -418,7 +428,7 @@ export default function GeneratePage() {
                   <div className="space-y-4 pt-4 border-t border-[hsl(var(--border))]">
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-2">
-                        {m.generation_imageGen_count?.() || "图片数量"}
+                        {m.generation_imageGen_count()}
                       </label>
                       <div className="flex items-center gap-3">
                         <input
@@ -438,7 +448,7 @@ export default function GeneratePage() {
 
                     <div>
                       <label className="block text-xs font-medium text-foreground mb-2">
-                        {m.generation_imageGen_aspectRatio?.() || "宽高比"}
+                        {m.generation_imageGen_aspectRatio()}
                       </label>
                       <select
                         value={settings.aspectRatio}
@@ -482,17 +492,17 @@ export default function GeneratePage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    {m.generation_uploadingBtn?.() || "上传中..."}
+                    {m.generation_uploadingBtn()}
                   </>
                 ) : isGenerating ? (
                   <>
                     <Sparkles className="h-5 w-5 animate-pulse" />
-                    {m.generation_generatingBtn?.() || "生成中..."}
+                    {m.generation_generatingBtn()}
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-5 w-5" />
-                    {m.generation_generateBtn?.() || "开始生成"}
+                    {m.generation_generateBtn()}
                   </>
                 )}
               </button>
@@ -502,7 +512,7 @@ export default function GeneratePage() {
             <div className="card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Eye className="h-5 w-5 text-[hsl(var(--primary))]" />
-                <h2 className="text-lg font-semibold text-foreground">{m.generation_preview?.() || "预览"}</h2>
+                <h2 className="text-lg font-semibold text-foreground">{m.generation_preview()}</h2>
               </div>
 
               {/* Progress */}
@@ -524,7 +534,7 @@ export default function GeneratePage() {
                   {generatedResults.some((r) => r.metadata?.mock) && (
                     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-400 flex items-center gap-2">
                       <Sparkles className="w-4 h-4 flex-shrink-0" />
-                      Demo 模式 — GEMINI_API_KEY 未配置，当前结果为占位数据。配置后可生成真实 AI 文案。
+                      {m.generation_demoMode()}
                     </div>
                   )}
                   {/* Compare Button */}
@@ -537,7 +547,7 @@ export default function GeneratePage() {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
                       </svg>
-                      对比视图（查看所有生成的图片）
+                      {m.compare_buttonDesc()}
                     </button>
                   )}
                   {generatedResults.map((result, resultIndex) => (
@@ -566,7 +576,7 @@ export default function GeneratePage() {
                       {result.sceneImages && result.sceneImages.length > 0 && (
                         <div>
                           <h4 className="text-xs font-medium text-foreground-muted mb-2">
-                            {m.generation_sceneImages?.() || "场景图"} ({result.sceneImages.length})
+                            {m.generation_sceneImages()} ({result.sceneImages.length})
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
                             {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
@@ -587,14 +597,14 @@ export default function GeneratePage() {
                                     onClick={() => window.open(img.url, "_blank")}
                                     className="rounded-lg bg-[hsl(var(--primary))] px-3 py-1.5 text-xs font-medium text-white hover:bg-[hsl(var(--primary-hover))]"
                                   >
-                                    {m.generation_viewLarge?.() || "查看大图"}
+                                    {m.generation_viewLarge()}
                                   </button>
                                   <a
                                     href={img.url}
                                     download
                                     className="rounded-lg bg-[hsl(var(--secondary))] px-3 py-1.5 text-xs font-medium text-foreground hover:bg-[hsl(var(--secondary-hover))]"
                                   >
-                                    {m.generation_downloadImage?.() || "下载"}
+                                    {m.generation_downloadImage()}
                                   </a>
                                 </div>
                                 <div className="absolute top-1 left-1 rounded bg-[hsl(var(--background))]/80 backdrop-blur-sm px-1.5 py-0.5 text-xs text-foreground-muted">
@@ -615,7 +625,7 @@ export default function GeneratePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-foreground-muted">{m.generation_previewDesc?.() || "生成结果将显示在这里"}</p>
+                  <p className="text-sm text-foreground-muted">{m.generation_previewDesc()}</p>
                 </div>
               ) : null}
             </div>

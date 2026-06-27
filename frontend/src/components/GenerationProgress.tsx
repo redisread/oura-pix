@@ -20,25 +20,28 @@ export default function GenerationProgress({
   const getStageText = () => {
     switch (stage) {
       case "analyzing":
-        return m.generation_stage_analyzing?.() || "分析图片中...";
+        return m.generation_stage_analyzing();
       case "generating_text":
-        return m.generation_stage_generatingText?.() || "生成文案中...";
+        return m.generation_stage_generatingText();
       case "generating_images":
-        return m.generation_stage_generatingImages?.({ current: currentImageCount.toString(), total: totalImageCount.toString() }) || `生成场景图中 (${currentImageCount}/${totalImageCount})...`;
+        return m.generation_stage_generatingImages({
+          current: currentImageCount.toString(),
+          total: totalImageCount.toString(),
+        });
       case "uploading":
-        return m.generation_stage_uploading?.() || "上传结果中...";
+        return m.generation_stage_uploading();
       case "completed":
-        return m.generation_stage_completed?.() || "生成完成";
+        return m.generation_stage_completed();
       default:
         return "";
     }
   };
 
   const stages = [
-    { key: "analyzing", label: m.generation_stageLabel_analyzing?.() || "分析图片" },
-    { key: "generating_text", label: m.generation_stageLabel_generatingText?.() || "生成文案" },
-    { key: "generating_images", label: m.generation_stageLabel_generatingImages?.() || "生成场景图" },
-    { key: "uploading", label: m.generation_stageLabel_uploading?.() || "上传结果" },
+    { key: "analyzing", label: m.generation_stageLabel_analyzing() },
+    { key: "generating_text", label: m.generation_stageLabel_generatingText() },
+    { key: "generating_images", label: m.generation_stageLabel_generatingImages() },
+    { key: "uploading", label: m.generation_stageLabel_uploading() },
   ];
 
   const currentStageIndex = stages.findIndex((s) => s.key === stage);
@@ -147,9 +150,9 @@ export default function GenerationProgress({
               />
             </svg>
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900">{m.generation_generatingSceneImages?.() || "正在生成场景图"}</p>
+              <p className="text-sm font-medium text-blue-900">{m.generation_generatingSceneImages()}</p>
               <p className="text-xs text-blue-700 mt-1">
-                {m.generation_aiCreatingImages?.() || "AI 正在为您的商品创建多角度展示图，请稍候..."}
+                {m.generation_aiCreatingImages()}
               </p>
             </div>
           </div>

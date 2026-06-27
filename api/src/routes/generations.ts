@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb } from "@oura-pix/database";
+import { resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
 import { getUser } from "../middleware/auth";
 import {
   getGenerationsList,
@@ -30,18 +31,20 @@ const router = new Hono<{
   Variables: {
     user: { id: string; email: string; name?: string | null };
     session: { id: string; expiresAt: Date };
+    locale?: Locale;
   };
 }>();
 
 // Validation schemas
-const createGenerationSchema = z.object({
+export const createGenerationSchema = z.object({
   productImageId: z.string(),
   referenceImageIds: z.array(z.string()).optional(),
   teamId: z.string().optional(),
   prompt: z.string().optional(),
   settings: z.object({
     targetPlatform: z.enum(["amazon", "ebay", "shopify", "etsy", "generic"]),
-    language: z.string(),
+    language: z.enum(["zh", "en", "ja"]),
+    uiLocale: z.enum(["zh-CN", "en", "ja"]).optional(),
     count: z.number().min(1).max(10),
     style: z.enum(["professional", "lifestyle", "minimal", "luxury"]),
     generateImages: z.boolean().optional(),
@@ -51,14 +54,36 @@ const createGenerationSchema = z.object({
   }),
 });
 
+function getLocale(c: { req: { raw: Request } }): Locale {
+  return resolveLocale({ headers: c.req.raw.headers });
+}
+
+const validateCreateGeneration = zValidator("json", createGenerationSchema, (result, c) => {
+  if (!result.success) {
+    const locale = getLocale(c);
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: "BAD_REQUEST",
+          message: serverMessage(locale, "badRequest"),
+          details: result.error.flatten(),
+        },
+      },
+      400
+    );
+  }
+});
+
 // GET /api/generations - List generations
 router.get("/", async (c) => {
+  const locale = getLocale(c);
   const user = getUser(c);
   if (!user) {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
       },
       401
     );
@@ -95,12 +120,13 @@ router.get("/", async (c) => {
 
 // GET /api/generations/:id - Get generation by ID
 router.get("/:id", async (c) => {
+  const locale = getLocale(c);
   const user = getUser(c);
   if (!user) {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
       },
       401
     );
@@ -115,7 +141,7 @@ router.get("/:id", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "NOT_FOUND", message: "Generation not found" },
+        error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
       },
       404
     );
@@ -130,14 +156,15 @@ router.get("/:id", async (c) => {
 // POST /api/generations - Create generation
 router.post(
   "/",
-  zValidator("json", createGenerationSchema),
+  validateCreateGeneration,
   async (c) => {
+    const locale = getLocale(c);
     const user = getUser(c);
     if (!user) {
       return c.json(
         {
           success: false,
-          error: { code: "UNAUTHORIZED", message: "User not found" },
+          error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
         },
         401
       );
@@ -153,7 +180,7 @@ router.post(
           return c.json(
             {
               success: false,
-              error: { code: "FORBIDDEN", message: "You are not a member of this team" },
+              error: { code: "FORBIDDEN", message: serverMessage(locale, "forbidden") },
             },
             403
           );
@@ -175,7 +202,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "INTERNAL_ERROR", message: "Failed to create generation" },
+          error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
         },
         500
       );
@@ -185,12 +212,13 @@ router.post(
 
 // POST /api/generations/:id/cancel - Cancel generation
 router.post("/:id/cancel", async (c) => {
+  const locale = getLocale(c);
   const user = getUser(c);
   if (!user) {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
       },
       401
     );
@@ -204,7 +232,13 @@ router.post("/:id/cancel", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "CANCEL_FAILED", message: result.error || "Failed to cancel generation" },
+        error: {
+          code: "CANCEL_FAILED",
+          message: serverMessage(
+            locale,
+            result.error === "Record not found" ? "generationNotFound" : "badRequest"
+          ),
+        },
       },
       result.error === "Record not found" ? 404 : 409
     );
@@ -215,12 +249,13 @@ router.post("/:id/cancel", async (c) => {
 
 // DELETE /api/generations/:id - Delete generation
 router.delete("/:id", async (c) => {
+  const locale = getLocale(c);
   const user = getUser(c);
   if (!user) {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
       },
       401
     );
@@ -235,7 +270,7 @@ router.delete("/:id", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "NOT_FOUND", message: result.error || "Generation not found" },
+        error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
       },
       404
     );

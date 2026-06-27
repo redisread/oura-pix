@@ -64,7 +64,7 @@ async function imageToPart(image: ImageInput): Promise<GeminiPart | null> {
 function buildPrompt(input: GenerateCopyInput): string {
   const settings = input.settings;
   const count = Math.min(Math.max(settings.count ?? 3, 1), 10);
-  const language = settings.language || "en";
+  const language = settings.language || "zh";
   const platform = settings.targetPlatform || "generic";
   const style = settings.style || "professional";
 

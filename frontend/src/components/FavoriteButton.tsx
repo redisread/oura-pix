@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import * as m from "@/paraglide/messages.js";
 import { useFavorites } from "@/hooks/useFavorites";
 
 interface FavoriteButtonProps {
@@ -81,7 +82,7 @@ export default function FavoriteButton({
           ? "text-red-500 hover:text-red-600"
           : "text-white/80 hover:text-white"
       } ${isToggling ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
-      title={isFavorited ? "取消收藏" : "收藏"}
+      title={isFavorited ? m.favorite_remove() : m.favorite_add()}
     >
       <svg
         className={`w-5 h-5 transition-transform ${isToggling ? "scale-90" : "scale-100"}`}

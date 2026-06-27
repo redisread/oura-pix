@@ -4,20 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "pnpm i18n:build && astro dev",
+    "build": "pnpm i18n:build && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint src/",
     "clean": "rm -rf dist .astro",
-    "typecheck": "tsc --noEmit",
-    "i18n:build": "echo 'i18n uses paraglide-js mock mode'"
+    "typecheck": "pnpm i18n:build && tsc --noEmit",
+    "i18n:build": "paraglide-js compile --project ../packages/i18n/project.inlang --outdir ./src/paraglide --strategy url cookie baseLocale --emit-ts-declarations --silent",
+    "i18n:check": "pnpm --filter @oura-pix/i18n check"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",
     "@astrojs/react": "^4.0.0",
     "@imgly/background-removal": "^1.7.0",
     "@oura-pix/api-client": "workspace:*",
+    "@oura-pix/i18n": "workspace:*",
     "astro": "^5.0.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.460.0",

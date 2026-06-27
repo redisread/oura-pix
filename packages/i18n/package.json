@@ -1,5 +1,5 @@
 {
-  "name": "@oura-pix/types",
+  "name": "@oura-pix/i18n",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
@@ -7,13 +7,10 @@
   "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
-    "lint": "echo 'no lint for types package'"
-  },
-  "dependencies": {
-    "@oura-pix/i18n": "workspace:*"
+    "lint": "tsc --noEmit",
+    "check": "node scripts/check-i18n.mjs"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
     "typescript": "^5.6.3"
   }
 }

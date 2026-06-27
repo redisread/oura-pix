@@ -9,6 +9,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb } from "@oura-pix/database";
+import { resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
 import { apiKeyAuth } from "../../middleware/apiKeyAuth";
 import {
   getGenerationById,
@@ -26,6 +27,7 @@ const generate = new Hono<{
   Variables: {
     apiKey: { id: string; userId: string; name: string };
     apiKeyUser: { id: string; email: string };
+    locale?: Locale;
   };
 }>();
 
@@ -38,7 +40,8 @@ const createSchema = z.object({
   prompt: z.string().max(2000).optional(),
   settings: z.object({
     targetPlatform: z.enum(["amazon", "ebay", "shopify", "etsy", "generic"]),
-    language: z.string().min(2).max(10),
+    language: z.enum(["zh", "en", "ja"]),
+    uiLocale: z.enum(["zh-CN", "en", "ja"]).optional(),
     count: z.number().int().min(1).max(10),
     style: z.enum(["professional", "lifestyle", "minimal", "luxury"]),
     generateImages: z.boolean().optional(),
@@ -48,17 +51,45 @@ const createSchema = z.object({
   }),
 });
 
+function getLocale(c: { req: { raw: Request } }): Locale {
+  return resolveLocale({ headers: c.req.raw.headers });
+}
+
+const validateCreateGeneration = zValidator("json", createSchema, (result, c) => {
+  if (!result.success) {
+    const locale = getLocale(c);
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: "BAD_REQUEST",
+          message: serverMessage(locale, "badRequest"),
+          details: result.error.flatten(),
+        },
+      },
+      400
+    );
+  }
+});
+
 /**
  * POST /api/v1/generate
  * Trigger a new generation. Returns the generation ID and initial status.
  */
-generate.post("/", zValidator("json", createSchema), async (c) => {
+generate.post("/", validateCreateGeneration, async (c) => {
+  const locale = getLocale(c);
   const apiKeyUser = c.get("apiKeyUser");
   const body = c.req.valid("json");
 
   try {
     const db = createDb(c.env.DB);
-    const generation = await createGeneration(db, apiKeyUser.id, body);
+    const generation = await createGeneration(db, apiKeyUser.id, {
+      ...body,
+      settings: {
+        ...body.settings,
+        uiLocale: body.settings.uiLocale ?? locale,
+      },
+    });
     c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
     return c.json(
       {
@@ -76,7 +107,7 @@ generate.post("/", zValidator("json", createSchema), async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "INTERNAL_ERROR", message: "Failed to create generation" },
+        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
       },
       500
     );
@@ -88,6 +119,7 @@ generate.post("/", zValidator("json", createSchema), async (c) => {
  * Get the status and result of a generation.
  */
 generate.get("/:id", async (c) => {
+  const locale = getLocale(c);
   const apiKeyUser = c.get("apiKeyUser");
   const id = c.req.param("id");
 
@@ -98,7 +130,7 @@ generate.get("/:id", async (c) => {
       return c.json(
         {
           success: false,
-          error: { code: "NOT_FOUND", message: "Generation not found" },
+          error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
         },
         404
       );
@@ -119,7 +151,7 @@ generate.get("/:id", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "INTERNAL_ERROR", message: "Failed to fetch generation" },
+        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
       },
       500
     );
@@ -132,6 +164,7 @@ generate.get("/:id", async (c) => {
  * (P0: returns URLs; signed download URLs can be added in P1.)
  */
 generate.get("/:id/download", async (c) => {
+  const locale = getLocale(c);
   const apiKeyUser = c.get("apiKeyUser");
   const id = c.req.param("id");
 
@@ -142,7 +175,7 @@ generate.get("/:id/download", async (c) => {
       return c.json(
         {
           success: false,
-          error: { code: "NOT_FOUND", message: "Generation not found" },
+          error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
         },
         404
       );
@@ -153,7 +186,7 @@ generate.get("/:id/download", async (c) => {
           success: false,
           error: {
             code: "NOT_READY",
-            message: `Generation is ${generation.status}, not completed yet`,
+            message: serverMessage(locale, "badRequest"),
             currentStatus: generation.status,
           },
         },
@@ -175,7 +208,7 @@ generate.get("/:id/download", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "INTERNAL_ERROR", message: "Failed to fetch images" },
+        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
       },
       500
     );

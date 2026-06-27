@@ -5,6 +5,8 @@
  */
 
 import { useState, useCallback } from "react";
+import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites, type Favorite } from "@/hooks/useFavorites";
 import FavoriteCard from "./FavoriteCard";
 
@@ -23,16 +25,16 @@ function EmptyState({ onBrowse }: { onBrowse: () => void }) {
         </svg>
       </div>
       <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
-        暂无收藏
+        {m.favorites_empty()}
       </h3>
       <p className="text-stone-500 dark:text-stone-400 text-center mb-6 max-w-sm">
-        浏览生成结果，收藏您喜欢的图片
+        {m.favorites_emptyDescription()}
       </p>
       <button
         onClick={onBrowse}
         className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
       >
-        去生成图片
+        {m.favorites_goGenerate()}
       </button>
     </div>
   );
@@ -71,7 +73,7 @@ function ImageModal({
         {/* Image */}
         <img
           src={favorite.imageUrl}
-          alt="收藏图片"
+          alt={m.favorite_imageAlt()}
           className="w-full h-full object-contain max-h-[80vh]"
           decoding="async"
         />
@@ -80,7 +82,7 @@ function ImageModal({
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between">
           <div className="text-white text-sm">
             <span className="font-medium">
-              {favorite.generation?.settings?.targetPlatform || "通用"}
+              {favorite.generation?.settings?.targetPlatform || m.common_custom()}
             </span>
             <span className="ml-4 opacity-75">
               {new Date(favorite.createdAt).toLocaleDateString("zh-CN")}
@@ -92,7 +94,7 @@ function ImageModal({
               download
               className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors"
             >
-              下载
+              {m.favorites_download()}
             </a>
             <button
               onClick={() => {
@@ -101,7 +103,7 @@ function ImageModal({
               }}
               className="px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg text-sm transition-colors"
             >
-              取消收藏
+              {m.favorite_remove()}
             </button>
           </div>
         </div>
@@ -151,7 +153,7 @@ export default function FavoritesPage() {
     if (selectedIds.size === 0) return;
 
     const count = selectedIds.size;
-    if (!confirm(`确定要取消收藏 ${count} 张图片吗？`)) return;
+    if (!confirm(m.favorites_confirmBatchUnfavorite({ count: count.toString() }))) return;
 
     await batchRemove(Array.from(selectedIds));
     setSelectedIds(new Set());
@@ -159,7 +161,7 @@ export default function FavoritesPage() {
   }, [selectedIds, batchRemove]);
 
   const handleBrowse = useCallback(() => {
-    window.location.href = "/generate";
+    window.location.href = localizeHref("/generate");
   }, []);
 
   return (
@@ -172,10 +174,10 @@ export default function FavoritesPage() {
               <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
               </svg>
-              我的收藏
+              {m.favorites_title()}
             </h1>
             <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">
-              {pagination ? `共 ${pagination.total} 张收藏` : ""}
+              {pagination ? m.favorites_total({ count: pagination.total.toString() }) : ""}
             </p>
           </div>
 
@@ -187,14 +189,14 @@ export default function FavoritesPage() {
                   onClick={selectAll}
                   className="px-3 py-1.5 text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
                 >
-                  {selectedIds.size === favorites.length ? "取消全选" : "全选"}
+                  {selectedIds.size === favorites.length ? m.favorites_deselectAll() : m.favorites_selectAll()}
                 </button>
                 <button
                   onClick={handleBatchRemove}
                   disabled={selectedIds.size === 0}
                   className="px-4 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  取消收藏 ({selectedIds.size})
+                  {m.favorite_remove()} ({selectedIds.size})
                 </button>
                 <button
                   onClick={() => {
@@ -203,7 +205,7 @@ export default function FavoritesPage() {
                   }}
                   className="px-3 py-1.5 text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
                 >
-                  取消
+                  {m.common_cancel()}
                 </button>
               </>
             ) : (
@@ -212,7 +214,7 @@ export default function FavoritesPage() {
                   onClick={() => setSelectionMode(true)}
                   className="px-4 py-1.5 text-sm bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-300 rounded-lg transition-colors"
                 >
-                  批量管理
+                  {m.favorites_batchManage()}
                 </button>
               )
             )}
@@ -227,7 +229,7 @@ export default function FavoritesPage() {
               onClick={refresh}
               className="mt-2 text-sm text-red-600 dark:text-red-400 underline hover:no-underline"
             >
-              重试
+              {m.common_retry()}
             </button>
           </div>
         )}
@@ -264,7 +266,7 @@ export default function FavoritesPage() {
                   disabled={page === 1}
                   className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
                 >
-                  上一页
+                  {m.common_previousPage()}
                 </button>
                 <span className="text-sm text-stone-600 dark:text-stone-400">
                   {page} / {pagination.totalPages}
@@ -274,7 +276,7 @@ export default function FavoritesPage() {
                   disabled={page === pagination.totalPages}
                   className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
                 >
-                  下一页
+                  {m.common_nextPage()}
                 </button>
               </div>
             )}

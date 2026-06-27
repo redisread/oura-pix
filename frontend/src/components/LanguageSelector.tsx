@@ -2,26 +2,23 @@
 
 import { useState, useRef, useEffect } from "react";
 import * as m from "@/paraglide/messages.js";
+import { getLocale, setLocale, type Locale } from "@/paraglide/runtime.js";
 
-type LanguageTag = "zh-CN" | "en" | "ja";
+type LanguageTag = Locale;
 
 const languages: { tag: LanguageTag; label: string; flag: string }[] = [
-  { tag: "zh-CN", label: "中文", flag: "🇨🇳" },
+  { tag: "zh-CN", label: m.language_zh(), flag: "🇨🇳" },
   { tag: "en", label: "English", flag: "🇺🇸" },
-  { tag: "ja", label: "日本語", flag: "🇯🇵" },
+  { tag: "ja", label: m.language_ja(), flag: "🇯🇵" },
 ];
 
 export default function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState<LanguageTag>("zh-CN");
+  const [currentLang, setCurrentLang] = useState<LanguageTag>(() => getLocale());
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Get current language from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("paraglide_language");
-    if (stored && languages.some((l) => l.tag === stored)) {
-      setCurrentLang(stored as LanguageTag);
-    }
+    setCurrentLang(getLocale());
   }, []);
 
   // Close dropdown when clicking outside
@@ -38,9 +35,7 @@ export default function LanguageSelector() {
 
   const handleLanguageChange = (lang: LanguageTag) => {
     setCurrentLang(lang);
-    localStorage.setItem("paraglide_language", lang);
-    // Reload page to apply new language
-    window.location.reload();
+    setLocale(lang);
   };
 
   const currentLanguage = languages.find((l) => l.tag === currentLang) || languages[0];
@@ -50,9 +45,7 @@ export default function LanguageSelector() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
-        aria-label={typeof (m as Record<string, unknown>).language_selector === 'function'
-          ? ((m as Record<string, () => string>).language_selector())
-          : "Language"}
+        aria-label={m.language_selector()}
       >
         <span>{currentLanguage.flag}</span>
         <span className="hidden sm:inline">{currentLanguage.label}</span>

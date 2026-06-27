@@ -49,24 +49,24 @@ export default function UploadDropzone({
     // Check max files
     const totalFiles = selectedFiles.length + fileArray.length;
     if (!multiple && fileArray.length > 1) {
-      setError(m.upload_singleFileOnly?.() || "只能上传单个文件");
+      setError(m.upload_singleFileOnly());
       return [];
     }
     if (multiple && totalFiles > maxFiles) {
-      setError(m.upload_maxFilesExceeded?.({ max: maxFiles.toString() }) || `最多上传 ${maxFiles} 个文件`);
+      setError(m.upload_maxFilesExceeded({ max: maxFiles.toString() }));
       return [];
     }
 
     for (const file of fileArray) {
       // Check file size
       if (file.size > maxSize) {
-        setError(m.upload_fileTooLarge?.({ size: formatFileSize(maxSize) }) || `文件大小不能超过 ${formatFileSize(maxSize)}`);
+        setError(m.upload_fileTooLarge({ size: formatFileSize(maxSize) }));
         continue;
       }
 
       // Check file type
       if (accept !== "*" && !file.type.match(accept.replace("/*", "/"))) {
-        setError(m.upload_invalidType?.({ type: accept }) || `不支持的文件类型`);
+        setError(m.upload_invalidType({ type: accept }));
         continue;
       }
 
@@ -178,11 +178,11 @@ export default function UploadDropzone({
           </svg>
           <p className="mt-2 text-sm text-slate-600">
             {selectedFiles.length > 0
-              ? m.upload_filesSelected?.({ count: selectedFiles.length.toString() }) || `已选择 ${selectedFiles.length} 个文件`
-              : m.upload_clickOrDrag?.() || "点击或拖拽文件到此处上传"}
+              ? m.upload_filesSelected({ count: selectedFiles.length.toString() })
+              : m.upload_clickOrDrag()}
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            {description || m.upload_supportedFormats?.() || "支持 JPG、PNG、WebP 格式"}
+            {description || m.upload_supportedFormats({ type: accept, size: formatFileSize(maxSize) })}
           </p>
         </div>
       </div>

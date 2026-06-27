@@ -29,6 +29,7 @@ import collectionRoutes from "./routes/collections";
 import v1Routes from "./routes/v1";
 import { stripeWebhookRoutes } from "./routes/webhooks/stripe";
 import { authMiddleware } from "./middleware/auth";
+import { LOCALE_HEADER, resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
 
 // Create Hono app with Cloudflare bindings
 const app = new Hono<{
@@ -52,6 +53,9 @@ const app = new Hono<{
     AUTH_GITHUB_ID?: string;
     AUTH_GITHUB_SECRET?: string;
   };
+  Variables: {
+    locale: Locale;
+  };
 }>();
 
 // ============================================
@@ -61,6 +65,10 @@ const app = new Hono<{
 app.use("*", logger());
 app.use("*", timing());
 app.use("*", secureHeaders());
+app.use("*", async (c, next) => {
+  c.set("locale", resolveLocale({ headers: c.req.raw.headers }));
+  await next();
+});
 
 // CORS configuration
 app.use("/api/*", cors({
@@ -71,7 +79,7 @@ app.use("/api/*", cors({
   ],
   credentials: true,
   allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
+  allowHeaders: ["Content-Type", "Authorization", LOCALE_HEADER],
 }));
 
 // ============================================
@@ -138,13 +146,14 @@ app.route("/api/webhooks", stripeWebhookRoutes);
 
 app.onError((err, c) => {
   console.error("[API] Error:", err);
+  const locale = resolveLocale({ headers: c.req.raw.headers });
 
   return c.json(
     {
       success: false,
       error: {
         code: "INTERNAL_ERROR",
-        message: err.message || "Internal server error",
+        message: serverMessage(locale, "internalError"),
       },
       meta: {
         timestamp: new Date().toISOString(),
@@ -157,12 +166,14 @@ app.onError((err, c) => {
 
 // 404 handler
 app.notFound((c) => {
+  const locale = resolveLocale({ headers: c.req.raw.headers });
+
   return c.json(
     {
       success: false,
       error: {
         code: "NOT_FOUND",
-        message: "Resource not found",
+        message: serverMessage(locale, "notFound"),
       },
       meta: {
         timestamp: new Date().toISOString(),

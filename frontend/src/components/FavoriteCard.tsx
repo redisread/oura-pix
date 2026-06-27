@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import * as m from "@/paraglide/messages.js";
 import type { Favorite } from "@/hooks/useFavorites";
 
 interface FavoriteCardProps {
@@ -22,8 +23,8 @@ function formatTime(dateString: string): string {
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffDays < 1) return "今天";
-  if (diffDays < 7) return `${diffDays}天前`;
+  if (diffDays < 1) return m.common_today();
+  if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
   return date.toLocaleDateString("zh-CN");
 }
 
@@ -38,7 +39,7 @@ function getPlatformLabel(platform?: string): string {
     case "etsy":
       return "Etsy";
     default:
-      return "通用";
+      return m.common_custom();
   }
 }
 
@@ -74,7 +75,7 @@ export default function FavoriteCard({
       {/* Image */}
       <img
         src={favorite.imageUrl}
-        alt="收藏图片"
+        alt={m.favorite_imageAlt()}
         className="w-full h-full object-cover"
         loading="lazy"
         decoding="async"
@@ -111,7 +112,7 @@ export default function FavoriteCard({
             onView(favorite);
           }}
           className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
-          title="查看详情"
+          title={m.profile_history_viewDetail()}
         >
           <svg className="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -124,7 +125,7 @@ export default function FavoriteCard({
             onRemove(favorite.id);
           }}
           className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
-          title="取消收藏"
+          title={m.favorite_remove()}
         >
           <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />

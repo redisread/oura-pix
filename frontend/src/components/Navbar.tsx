@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
+import { localizeHref } from "@/paraglide/runtime.js";
 import LanguageSelector from "./LanguageSelector";
 import NotificationBell from "./notifications/NotificationBell";
 import { useAuth } from "@/hooks/use-auth";
@@ -21,7 +22,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = "/";
+    window.location.href = localizeHref("/");
   };
 
   useEffect(() => {
@@ -50,25 +51,25 @@ export default function Navbar() {
     },
     {
       type: "group",
-      label: "内容",
+      label: m.nav_content(),
       children: [
-        { href: "/history", label: m.history_title?.() || "生成历史" },
-        { href: "/favorites", label: m.favorites_title?.() || "我的收藏" },
-        { href: "/competitors", label: "竞品" },
+        { href: "/history", label: m.history_title() },
+        { href: "/favorites", label: m.favorites_title() },
+        { href: "/competitors", label: m.nav_competitors() },
       ],
     },
     {
       type: "group",
-      label: "工具",
+      label: m.nav_tools(),
       children: [
-        { href: "/stats", label: m.stats_title?.() || "统计" },
-        { href: "/metrics", label: "性能监控" },
-        { href: "/errors", label: "错误追踪" },
+        { href: "/stats", label: m.stats_title() },
+        { href: "/metrics", label: m.nav_metrics() },
+        { href: "/errors", label: m.nav_errors() },
         { href: "/api-keys", label: "API Keys" },
-        { href: "/categories", label: "商品类目" },
+        { href: "/categories", label: m.nav_categories() },
       ],
     },
-    { type: "link", href: "/teams", label: "团队" },
+    { type: "link", href: "/teams", label: m.nav_teams() },
     { type: "link", href: "/pricing", label: m.pricing() },
   ];
 
@@ -91,7 +92,7 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-3 group">
+        <a href={localizeHref("/")} className="flex items-center gap-3 group">
           <div className="relative flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
@@ -110,7 +111,7 @@ export default function Navbar() {
             item.type === "link" ? (
               <a
                 key={item.href}
-                href={item.href}
+                href={localizeHref(item.href)}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
               >
                 {item.label}
@@ -142,7 +143,7 @@ export default function Navbar() {
                       {item.children.map((child) => (
                         <a
                           key={child.href}
-                          href={child.href}
+                          href={localizeHref(child.href)}
                           className="flex items-center px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                         >
                           {child.label}
@@ -163,30 +164,30 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               <a
-                href="/profile"
+                href={localizeHref("/profile")}
                 className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
               >
-                个人中心
+                {m.profile()}
               </a>
               <button
                 type="button"
                 onClick={handleLogout}
                 className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
               >
-                退出
+                {m.logout()}
               </button>
             </>
           ) : (
             !isLoading && (
               <>
                 <a
-                  href="/login"
+                  href={localizeHref("/login")}
                   className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                 >
                   {m.login()}
                 </a>
                 <a
-                  href="/register"
+                  href={localizeHref("/register")}
                   className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
                 >
                   {m.register()}
@@ -200,7 +201,7 @@ export default function Navbar() {
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="md:hidden p-2 rounded-lg text-foreground-muted hover:bg-[hsl(var(--foreground)/0.05)] transition-colors"
-          aria-label={isMenuOpen ? "关闭菜单" : "打开菜单"}
+          aria-label={isMenuOpen ? m.nav_closeMenu() : m.nav_openMenu()}
           aria-expanded={isMenuOpen}
         >
           {isMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
@@ -215,7 +216,7 @@ export default function Navbar() {
               item.type === "link" ? (
                 <a
                   key={item.href}
-                  href={item.href}
+                  href={localizeHref(item.href)}
                   className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                 >
                   {item.label}
@@ -242,7 +243,7 @@ export default function Navbar() {
                       {item.children.map((child) => (
                         <a
                           key={child.href}
-                          href={child.href}
+                          href={localizeHref(child.href)}
                           className="px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                         >
                           {child.label}
@@ -257,30 +258,30 @@ export default function Navbar() {
             {isAuthenticated ? (
               <>
                 <a
-                  href="/profile"
+                  href={localizeHref("/profile")}
                   className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                 >
-                  个人中心
+                  {m.profile()}
                 </a>
                 <button
                   type="button"
                   onClick={handleLogout}
                   className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
                 >
-                  退出
+                  {m.logout()}
                 </button>
               </>
             ) : (
               !isLoading && (
                 <>
                   <a
-                    href="/login"
+                    href={localizeHref("/login")}
                     className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
                   >
                     {m.login()}
                   </a>
                   <a
-                    href="/register"
+                    href={localizeHref("/register")}
                     className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
                   >
                     {m.register()}
