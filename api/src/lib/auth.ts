@@ -40,7 +40,6 @@ export function createAuth(env: AuthEnv, requestUrl?: string) {
     trustedOrigins: [
       env.BETTER_AUTH_URL,
       env.NEXT_PUBLIC_APP_URL || env.BETTER_AUTH_URL,
-      "http://localhost:4001",
       "http://localhost:4321",
       "http://localhost:8787",
       "http://localhost:8989",

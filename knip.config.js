@@ -10,7 +10,6 @@ module.exports = {
   ignore: [
     '.cleanup-backup/**',
     '**/.wrangler/**',
-    '**/.next/**',
     '**/.astro/**',
     '**/.turbo/**',
     'drizzle/**',

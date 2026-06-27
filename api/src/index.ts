@@ -66,7 +66,6 @@ app.use("*", secureHeaders());
 app.use("/api/*", cors({
   origin: [
     "https://ourapix.jiahongw.com",
-    "http://localhost:4001",
     "http://localhost:4321",
     "http://localhost:4545",
   ],

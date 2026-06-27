@@ -23,7 +23,7 @@ OuraPix 面向 Amazon、Shopify、eBay、Etsy 等跨境电商场景，围绕商�
 
 当前产品面包含：
 
-- 商品详情生成：支持平台、风格、数量、比例等生成参数。
+- 商品详情生成：当前 Worker 生成文案/内容变体，图片生成字段保留为兼容状态。
 - 资产管理：生成历史、收藏、收藏夹、图片对比、统计和通知。
 - 图片编辑：裁剪、旋转、翻转、色彩调整、锐化和水印。
 - 浏览器工具：去背景、局部抠图、拼图、批量处理、智能边框和导出预设。
@@ -169,9 +169,7 @@ oura-pix/
 | [docs/LOCAL_TESTING.md](./docs/LOCAL_TESTING.md) | 本地环境和可重复冒烟流程 |
 | [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) | 开发背景和项目结构 |
 | [docs/API.md](./docs/API.md) | REST API 端点和示例 |
-| [docs/reference/database.md](./docs/reference/database.md) | 数据库参考 |
 | [docs/reference/design.md](./docs/reference/design.md) | 设计系统说明 |
-| [docs/reference/imagen-api.md](./docs/reference/imagen-api.md) | Gemini / Imagen 集成说明 |
 | [CLAUDE.md](./CLAUDE.md) | Agent 规则和仓库注意事项 |
 
 ## License
