@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import LanguageSelector from "./LanguageSelector";
 import NotificationBell from "./notifications/NotificationBell";
@@ -76,29 +76,35 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b transition-all duration-200 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "border-slate-200 bg-white/80 backdrop-blur-md"
-          : "border-transparent bg-white"
+          ? "glass border-b border-[oklch(var(--border))] shadow-lg"
+          : "bg-transparent"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900">
-            <span className="text-sm font-bold text-white">O</span>
+        <a href="/" className="flex items-center gap-3 group">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 opacity-80 blur-xl" />
+            {/* Icon */}
+            <span className="relative text-lg font-bold text-white">
+              <Sparkles className="h-4 w-4" />
+            </span>
           </div>
-          <span className="text-lg font-semibold text-slate-900">OuraPix</span>
+          <span className="text-lg font-semibold text-foreground tracking-tight">OuraPix</span>
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) =>
             item.type === "link" ? (
               <a
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
               >
                 {item.label}
               </a>
@@ -114,23 +120,23 @@ export default function Navbar() {
                     e.stopPropagation();
                     setOpenDropdown(openDropdown === item.label ? null : item.label);
                   }}
-                  className="flex items-center gap-1 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
                 >
                   {item.label}
                   <ChevronDown
-                    className={`h-3.5 w-3.5 transition-transform ${
+                    className={`h-3.5 w-3.5 transition-transform duration-200 ${
                       openDropdown === item.label ? "rotate-180" : ""
                     }`}
                   />
                 </button>
                 {openDropdown === item.label && (
-                  <div className="absolute left-0 top-full pt-2">
-                    <div className="min-w-[140px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                  <div className="absolute left-0 top-full pt-2 animate-scale-in origin-top-left">
+                    <div className="min-w-[160px] rounded-xl border border-[oklch(var(--border))] bg-[oklch(var(--popover))] p-1.5 shadow-xl">
                       {item.children.map((child) => (
                         <a
                           key={child.href}
                           href={child.href}
-                          className="block px-4 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                          className="flex items-center px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
                         >
                           {child.label}
                         </a>
@@ -149,13 +155,13 @@ export default function Navbar() {
           <LanguageSelector />
           <a
             href="/login"
-            className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-md hover:bg-slate-100 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
           >
             {m.login()}
           </a>
           <a
             href="/register"
-            className="text-sm font-medium bg-slate-900 text-white px-4 py-1.5 rounded-md hover:bg-slate-800 transition-colors"
+            className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
           >
             {m.register()}
           </a>
@@ -164,24 +170,24 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100"
+          className="md:hidden p-2 rounded-lg text-foreground-muted hover:bg-[oklch(var(--foreground)/0.05)] transition-colors"
           aria-label={isMenuOpen ? "关闭菜单" : "打开菜单"}
           aria-expanded={isMenuOpen}
         >
-          {isMenuOpen ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
+          {isMenuOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-4">
+        <div className="md:hidden border-t border-[oklch(var(--border))] bg-[oklch(var(--background))]/95 backdrop-blur-xl px-4 py-4 animate-fade-in">
           <nav className="flex flex-col gap-1">
             {navItems.map((item) =>
               item.type === "link" ? (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
                 >
                   {item.label}
                 </a>
@@ -193,22 +199,22 @@ export default function Navbar() {
                         expandedMobileGroup === item.label ? null : item.label
                       )
                     }
-                    className="flex w-full items-center justify-between px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    className="flex w-full items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
                   >
                     {item.label}
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
+                      className={`h-4 w-4 transition-transform duration-200 ${
                         expandedMobileGroup === item.label ? "rotate-180" : ""
                       }`}
                     />
                   </button>
                   {expandedMobileGroup === item.label && (
-                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-slate-200 pl-3">
+                    <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-[oklch(var(--border))] pl-3">
                       {item.children.map((child) => (
                         <a
                           key={child.href}
                           href={child.href}
-                          className="px-3 py-1.5 rounded-md text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          className="px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
                         >
                           {child.label}
                         </a>
@@ -218,16 +224,16 @@ export default function Navbar() {
                 </div>
               )
             )}
-            <hr className="my-2 border-slate-200" />
+            <hr className="my-3 border-[oklch(var(--border))]" />
             <a
               href="/login"
-              className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100"
+              className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[oklch(var(--foreground)/0.05)]"
             >
               {m.login()}
             </a>
             <a
               href="/register"
-              className="px-3 py-2 rounded-md text-sm font-medium bg-slate-900 text-white text-center"
+              className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
             >
               {m.register()}
             </a>

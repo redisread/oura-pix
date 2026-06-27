@@ -1,65 +1,97 @@
 @import "tailwindcss";
 
 /* ========================================
-   OuraPix Design System - Global Styles
+   Anthropic Design System - Global Styles
    ======================================== */
 
 :root {
-  /* Core Colors - HSL format for Tailwind */
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --primary: 222 47% 11%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 217 91% 60%;
-  --accent-foreground: 0 0% 100%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 222 47% 11%;
-  --radius: 0.5rem;
+  /* Core Colors - Dark theme by default */
+  --background: 225 15% 8%;
+  --background-secondary: 225 15% 11%;
+  --foreground: 220 15% 95%;
+  --foreground-muted: 220 10% 60%;
+
+  /* Primary - Anthropic Purple */
+  --primary: 270 70% 65%;
+  --primary-hover: 270 70% 70%;
+  --primary-foreground: 0 0% 0%;
+
+  /* Secondary */
+  --secondary: 225 15% 14%;
+  --secondary-hover: 225 15% 18%;
+  --secondary-foreground: 220 15% 95%;
+
+  /* Muted */
+  --muted: 225 15% 14%;
+  --muted-foreground: 220 10% 55%;
+
+  /* Accent */
+  --accent: 270 70% 65%;
+  --accent-foreground: 0 0% 0%;
+
+  /* Border & Input */
+  --border: 225 15% 18%;
+  --input: 225 15% 14%;
+  --ring: 270 70% 65%;
+
+  /* Cards */
+  --card: 225 15% 11%;
+  --card-foreground: 220 15% 95%;
+
+  /* Popover */
+  --popover: 225 15% 11%;
+  --popover-foreground: 220 15% 95%;
 
   /* Semantic Colors */
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
-  --color-warning: #f59e0b;
-  --color-warning-light: #fef3c7;
-  --color-error: #ef4444;
-  --color-error-light: #fee2e2;
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
+  --color-success: 160 60% 45%;
+  --color-success-light: 160 60% 15%;
+  --color-warning: 38 92% 50%;
+  --color-warning-light: 38 92% 15%;
+  --color-error: 0 72% 55%;
+  --color-error-light: 0 72% 18%;
+  --color-info: 210 80% 55%;
+  --color-info-light: 210 80% 18%;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.4);
+  --shadow-lg: 0 12px 32px -4px oklch(0 0 0 / 0.5);
+  --shadow-xl: 0 24px 48px -8px oklch(0 0 0 / 0.6);
+  --shadow-glow: 0 0 40px oklch(var(--primary) / 0.15);
+
+  /* Border radius */
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
 }
 
-.dark {
-  --background: 222 47% 11%;
-  --foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
-  --accent: 217 91% 60%;
+/* Light theme */
+.light {
+  --background: 0 0% 100%;
+  --background-secondary: 220 14% 96%;
+  --foreground: 225 15% 10%;
+  --foreground-muted: 220 10% 45%;
+  --primary: 270 70% 55%;
+  --primary-hover: 270 70% 60%;
+  --secondary: 220 14% 94%;
+  --secondary-hover: 220 14% 90%;
+  --secondary-foreground: 225 15% 10%;
+  --muted: 220 14% 94%;
+  --muted-foreground: 220 10% 45%;
+  --accent: 270 70% 55%;
   --accent-foreground: 0 0% 100%;
-  --popover: 222 47% 11%;
-  --popover-foreground: 210 40% 98%;
-  --card: 222 47% 11%;
-  --card-foreground: 210 40% 98%;
-  --border: 217 33% 17%;
-  --input: 217 33% 17%;
-  --ring: 212 26% 83%;
+  --border: 220 14% 88%;
+  --input: 220 14% 94%;
+  --ring: 270 70% 55%;
+  --card: 0 0% 100%;
+  --card-foreground: 225 15% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 225 15% 10%;
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-md: 0 4px 12px -2px oklch(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 32px -4px oklch(0 0 0 / 0.1);
+  --shadow-xl: 0 24px 48px -8px oklch(0 0 0 / 0.12);
 }
 
 /* ========================================
@@ -111,9 +143,8 @@
     line-height: 1.6;
   }
 
-  /* Selection */
   ::selection {
-    @apply bg-primary/20;
+    background: oklch(var(--primary) / 0.3);
   }
 }
 
@@ -122,8 +153,8 @@
    ======================================== */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -131,11 +162,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
+  @apply bg-foreground/20 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
+  @apply bg-foreground/30;
 }
 
 /* ========================================
@@ -145,91 +176,103 @@
 @layer utilities {
   /* Gradient text */
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-fuchsia-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[oklch(var(--primary))] to-violet-400;
   }
 
   /* Glass effect */
   .glass {
-    @apply bg-background/80 backdrop-blur-md;
+    @apply bg-background/80 backdrop-blur-xl;
   }
 
   /* Focus ring */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
   }
-}
 
-/* ========================================
-   Prose Styles (for blog/docs content)
-   ======================================== */
+  /* Glow effects */
+  .glow {
+    box-shadow: var(--shadow-glow);
+  }
 
-.prose {
-  @apply max-w-none;
-}
+  .glow-sm {
+    box-shadow: 0 0 20px oklch(var(--primary) / 0.1);
+  }
 
-.prose h1 {
-  @apply text-4xl font-bold mb-6;
-}
+  /* Surface layers */
+  .surface-1 {
+    @apply bg-background;
+  }
 
-.prose h2 {
-  @apply text-2xl font-semibold mt-10 mb-4;
-}
+  .surface-2 {
+    @apply bg-background-secondary;
+  }
 
-.prose h3 {
-  @apply text-xl font-semibold mt-8 mb-3;
-}
+  /* Anthropic button styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200;
+    background: oklch(var(--primary));
+    color: var(--primary-foreground);
+  }
 
-.prose p {
-  @apply mb-4 leading-relaxed;
-}
+  .btn-primary:hover {
+    background: oklch(var(--primary-hover));
+    transform: translateY(-1px);
+  }
 
-.prose ul {
-  @apply list-disc pl-6 mb-4;
-}
+  .btn-primary:active {
+    transform: translateY(0);
+  }
 
-.prose ol {
-  @apply list-decimal pl-6 mb-4;
-}
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200;
+    background: oklch(var(--secondary));
+    color: var(--secondary-foreground);
+    border: 1px solid oklch(var(--border));
+  }
 
-.prose li {
-  @apply mb-1;
-}
+  .btn-secondary:hover {
+    background: oklch(var(--secondary-hover));
+    border-color: oklch(var(--foreground-muted) / 0.3);
+  }
 
-.prose a {
-  @apply text-primary hover:underline;
-}
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200;
+    color: var(--foreground-muted);
+  }
 
-.prose code {
-  @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
-}
+  .btn-ghost:hover {
+    color: var(--foreground);
+    background: oklch(var(--foreground) / 0.05);
+  }
 
-.prose pre {
-  @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4;
-}
+  /* Card styles */
+  .card {
+    @apply rounded-xl border transition-all duration-200;
+    background: oklch(var(--card));
+    border-color: oklch(var(--border));
+  }
 
-.prose pre code {
-  @apply bg-transparent p-0;
-}
+  .card-hover {
+    @apply hover:border-[oklch(var(--primary)/0.3)] hover:shadow-lg;
+  }
 
-.prose blockquote {
-  @apply border-l-4 border-primary pl-4 italic my-6;
-}
+  /* Input styles */
+  .input {
+    @apply w-full rounded-lg border px-3 py-2.5 text-sm transition-colors;
+    background: oklch(var(--input));
+    border-color: oklch(var(--border));
+    color: var(--foreground);
+  }
 
-.prose img {
-  @apply rounded-lg my-6;
-}
+  .input::placeholder {
+    color: var(--foreground-muted);
+  }
 
-.prose table {
-  @apply w-full border-collapse mb-4;
-}
-
-.prose th,
-.prose td {
-  @apply border border-border px-4 py-2;
-}
-
-.prose th {
-  @apply bg-muted font-semibold;
+  .input:focus {
+    @apply outline-none ring-2;
+    border-color: oklch(var(--primary));
+    ring-color: oklch(var(--primary) / 0.3);
+  }
 }
 
 /* ========================================
@@ -248,7 +291,7 @@
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -259,7 +302,7 @@
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
@@ -270,11 +313,41 @@
 @keyframes slide-in-right {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(16px);
   }
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px oklch(var(--primary) / 0.15);
+  }
+  50% {
+    box-shadow: 0 0 40px oklch(var(--primary) / 0.25);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
@@ -292,4 +365,80 @@
 
 .animate-slide-in-right {
   animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Staggered animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* ========================================
+   Gradient Backgrounds
+   ======================================== */
+
+.gradient-anthropic {
+  background: linear-gradient(
+    135deg,
+    oklch(var(--background)) 0%,
+    oklch(var(--background-secondary)) 50%,
+    oklch(var(--background)) 100%
+  );
+}
+
+.gradient-radial {
+  background: radial-gradient(
+    ellipse at center,
+    oklch(var(--primary) / 0.08) 0%,
+    transparent 70%
+  );
+}
+
+.gradient-mesh {
+  background:
+    radial-gradient(at 20% 30%, oklch(var(--primary) / 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 70%, oklch(270 70% 60%) / 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, oklch(var(--background-secondary)) 0px, transparent 70%);
+}
+
+/* ========================================
+   Component Specific Styles
+   ======================================== */
+
+/* Status indicators */
+.status-dot {
+  @apply h-2 w-2 rounded-full;
+}
+
+.status-dot-online {
+  background: oklch(var(--color-success));
+  box-shadow: 0 0 8px oklch(var(--color-success) / 0.5);
+}
+
+.status-dot-offline {
+  background: oklch(var(--foreground-muted));
+}
+
+/* Badge */
+.badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  background: oklch(var(--primary) / 0.15);
+  color: oklch(var(--primary));
+}
+
+/* Tooltip */
+.tooltip {
+  @apply absolute z-50 rounded-lg border px-3 py-2 text-sm shadow-lg;
+  background: oklch(var(--popover));
+  border-color: oklch(var(--border));
+  color: var(--popover-foreground);
 }

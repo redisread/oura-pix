@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import { Sparkles, Upload, Settings, Eye, Check } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import UploadDropzone from "./UploadDropzone";
 import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
@@ -211,12 +212,12 @@ export default function GeneratePage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1 bg-slate-50">
+      <main className="flex-1 bg-[oklch(var(--background))]">
         {/* Header */}
-        <div className="border-b border-slate-200 bg-white">
+        <div className="border-b border-[oklch(var(--border))] bg-[oklch(var(--background-secondary))]">
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-bold text-slate-900">{m.generation_title?.() || "生成商品详情"}</h1>
-            <p className="mt-1 text-sm text-slate-600">
+            <h1 className="text-2xl font-bold text-foreground">{m.generation_title?.() || "生成商品详情"}</h1>
+            <p className="mt-1 text-sm text-foreground-muted">
               {m.generation_subtitle?.() || "上传商品图片，AI 将为您生成专业的商品详情页"}
             </p>
           </div>
@@ -227,8 +228,11 @@ export default function GeneratePage() {
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Left: Upload Area */}
             <div className="space-y-6">
-              <div className="rounded-xl bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold text-slate-900">{m.generation_uploadSection?.() || "上传图片"}</h2>
+              <div className="card p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Upload className="h-5 w-5 text-[oklch(var(--primary))]" />
+                  <h2 className="text-lg font-semibold text-foreground">{m.generation_uploadSection?.() || "上传图片"}</h2>
+                </div>
 
                 <UploadDropzone
                   label={m.generation_mainImage?.() || "主商品图片"}
@@ -254,14 +258,14 @@ export default function GeneratePage() {
               </div>
 
               {/* Tips */}
-              <div className="rounded-xl bg-blue-50 p-4">
+              <div className="card p-4 border-[oklch(var(--primary)/0.2)]">
                 <div className="flex gap-3">
-                  <svg className="h-5 w-5 shrink-0 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[oklch(var(--primary)/0.1)]">
+                    <Sparkles className="h-5 w-5 text-[oklch(var(--primary))]" />
+                  </div>
                   <div>
-                    <h4 className="text-sm font-medium text-blue-900">{m.generation_uploadTips?.() || "上传提示"}</h4>
-                    <ul className="mt-1 text-sm text-blue-700 space-y-1">
+                    <h4 className="text-sm font-medium text-foreground">{m.generation_uploadTips?.() || "上传提示"}</h4>
+                    <ul className="mt-1 text-sm text-foreground-muted space-y-1">
                       <li>{m.generation_uploadTip1?.() || "使用清晰、高分辨率的商品图片"}</li>
                       <li>{m.generation_uploadTip2?.() || "确保商品主体清晰可见"}</li>
                       <li>{m.generation_uploadTip3?.() || "风格参考图可以帮助 AI 理解您的偏好"}</li>
@@ -272,12 +276,15 @@ export default function GeneratePage() {
             </div>
 
             {/* Middle: Settings Panel */}
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <h2 className="mb-6 text-lg font-semibold text-slate-900">{m.generation_settings?.() || "生成设置"}</h2>
+            <div className="card p-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Settings className="h-5 w-5 text-[oklch(var(--primary))]" />
+                <h2 className="text-lg font-semibold text-foreground">{m.generation_settings?.() || "生成设置"}</h2>
+              </div>
 
               {/* Platform Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-3">
+                <label className="block text-sm font-medium text-foreground mb-3">
                   {m.generation_platform?.() || "目标平台"}
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -287,17 +294,17 @@ export default function GeneratePage() {
                       type="button"
                       onClick={() => setSettings({ ...settings, platform: platform.value })}
                       className={`
-                        flex flex-col items-center justify-center rounded-lg border-2 p-4 transition-all
+                        flex flex-col items-center justify-center rounded-xl border-2 p-4 transition-all duration-200
                         ${settings.platform === platform.value
-                          ? "border-slate-900 bg-slate-50"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "border-[oklch(var(--primary))] bg-[oklch(var(--primary)/0.1)]"
+                          : "border-[oklch(var(--border))] hover:border-[oklch(var(--foreground-muted))/0.3]"
                         }
                       `}
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[oklch(var(--primary))] to-violet-500 text-sm font-bold text-white">
                         {platform.icon}
                       </span>
-                      <span className="mt-2 text-sm font-medium text-slate-700">
+                      <span className="mt-2 text-sm font-medium text-foreground">
                         {platform.label}
                       </span>
                     </button>
@@ -307,7 +314,7 @@ export default function GeneratePage() {
 
               {/* Generation Count */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-3">
+                <label className="block text-sm font-medium text-foreground mb-3">
                   {m.generation_count?.() || "生成数量"}
                 </label>
                 <div className="flex items-center gap-4">
@@ -318,18 +325,18 @@ export default function GeneratePage() {
                     step={1}
                     value={settings.count}
                     onChange={(e) => setSettings({ ...settings, count: parseInt(e.target.value) })}
-                    className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
+                    className="flex-1 h-2 bg-[oklch(var(--secondary))] rounded-lg appearance-none cursor-pointer accent-[oklch(var(--primary))]"
                   />
-                  <span className="w-12 text-center text-lg font-semibold text-slate-900">
+                  <span className="w-12 text-center text-lg font-semibold text-foreground">
                     {settings.count}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-slate-500">{m.generation_countDesc?.() || "选择要生成的商品详情数量"}</p>
+                <p className="mt-1 text-xs text-foreground-muted">{m.generation_countDesc?.() || "选择要生成的商品详情数量"}</p>
               </div>
 
               {/* Style Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-3">
+                <label className="block text-sm font-medium text-foreground mb-3">
                   {m.generation_style?.() || "风格选择"}
                 </label>
                 <div className="space-y-2">
@@ -339,25 +346,23 @@ export default function GeneratePage() {
                       type="button"
                       onClick={() => setSettings({ ...settings, style: style.value })}
                       className={`
-                        w-full flex items-center justify-between rounded-lg border-2 p-3 text-left transition-all
+                        w-full flex items-center justify-between rounded-xl border-2 p-3 text-left transition-all duration-200
                         ${settings.style === style.value
-                          ? "border-slate-900 bg-slate-50"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "border-[oklch(var(--primary))] bg-[oklch(var(--primary)/0.1)]"
+                          : "border-[oklch(var(--border))] hover:border-[oklch(var(--foreground-muted))/0.3]"
                         }
                       `}
                     >
                       <div>
-                        <span className="block text-sm font-medium text-slate-900">
+                        <span className="block text-sm font-medium text-foreground">
                           {style.label}
                         </span>
-                        <span className="block text-xs text-slate-500">
+                        <span className="block text-xs text-foreground-muted">
                           {style.description}
                         </span>
                       </div>
                       {settings.style === style.value && (
-                        <svg className="h-5 w-5 text-slate-900" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
+                        <Check className="h-5 w-5 text-[oklch(var(--primary))]" />
                       )}
                     </button>
                   ))}
@@ -366,13 +371,13 @@ export default function GeneratePage() {
 
               {/* Language Selection */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-slate-700 mb-3">
+                <label className="block text-sm font-medium text-foreground mb-3">
                   {m.generation_outputLang?.() || "输出语言"}
                 </label>
                 <select
                   value={settings.language}
                   onChange={(e) => setSettings({ ...settings, language: e.target.value })}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                  className="input"
                 >
                   <option value="zh">中文</option>
                   <option value="en">English</option>
@@ -382,13 +387,13 @@ export default function GeneratePage() {
               </div>
 
               {/* Image Generation Toggle */}
-              <div className="mb-6 rounded-lg border-2 border-slate-200 p-4">
+              <div className="mb-6 rounded-xl border border-[oklch(var(--border))] p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       {m.generation_imageGen_title?.() || "生成场景图"}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-foreground-muted mt-0.5">
                       {m.generation_imageGen_desc?.() || "为商品生成多角度展示图"}
                     </p>
                   </div>
@@ -396,13 +401,13 @@ export default function GeneratePage() {
                     type="button"
                     onClick={() => setSettings({ ...settings, generateImages: !settings.generateImages })}
                     className={`
-                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                      ${settings.generateImages ? "bg-slate-900" : "bg-slate-300"}
+                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
+                      ${settings.generateImages ? "bg-[oklch(var(--primary))]" : "bg-[oklch(var(--secondary))]"}
                     `}
                   >
                     <span
                       className={`
-                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                        inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200
                         ${settings.generateImages ? "translate-x-6" : "translate-x-1"}
                       `}
                     />
@@ -410,9 +415,9 @@ export default function GeneratePage() {
                 </div>
 
                 {settings.generateImages && (
-                  <div className="space-y-4 pt-2 border-t border-slate-200">
+                  <div className="space-y-4 pt-4 border-t border-[oklch(var(--border))]">
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 mb-2">
+                      <label className="block text-xs font-medium text-foreground mb-2">
                         {m.generation_imageGen_count?.() || "图片数量"}
                       </label>
                       <div className="flex items-center gap-3">
@@ -423,22 +428,22 @@ export default function GeneratePage() {
                           step={1}
                           value={settings.imageCount}
                           onChange={(e) => setSettings({ ...settings, imageCount: parseInt(e.target.value) })}
-                          className="flex-1 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
+                          className="flex-1 h-1.5 bg-[oklch(var(--secondary))] rounded-lg appearance-none cursor-pointer accent-[oklch(var(--primary))]"
                         />
-                        <span className="w-8 text-center text-sm font-semibold text-slate-900">
+                        <span className="w-8 text-center text-sm font-semibold text-foreground">
                           {settings.imageCount}
                         </span>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-slate-700 mb-2">
+                      <label className="block text-xs font-medium text-foreground mb-2">
                         {m.generation_imageGen_aspectRatio?.() || "宽高比"}
                       </label>
                       <select
                         value={settings.aspectRatio}
                         onChange={(e) => setSettings({ ...settings, aspectRatio: e.target.value as AspectRatio })}
-                        className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+                        className="input text-xs"
                       >
                         <option value="1:1">1:1</option>
                         <option value="3:4">3:4</option>
@@ -453,7 +458,7 @@ export default function GeneratePage() {
 
               {/* Error Message */}
               {error && (
-                <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                <div className="mb-4 rounded-xl bg-[oklch(var(--color-error-light))] p-3 text-sm text-[oklch(var(--color-error))]">
                   {error}
                 </div>
               )}
@@ -464,24 +469,41 @@ export default function GeneratePage() {
                 onClick={handleGenerate}
                 disabled={!canGenerate}
                 className={`
-                  w-full rounded-lg px-4 py-3 text-base font-medium transition-all
+                  btn-primary w-full h-12 rounded-xl text-base font-medium flex items-center justify-center gap-2
                   ${canGenerate
-                    ? "bg-slate-900 text-white hover:bg-slate-800"
-                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    ? ""
+                    : "opacity-50 cursor-not-allowed"
                   }
                 `}
               >
-                {isUploading
-                  ? m.generation_uploadingBtn?.() || "上传中..."
-                  : isGenerating
-                    ? m.generation_generatingBtn?.() || "生成中..."
-                    : m.generation_generateBtn?.() || "开始生成"}
+                {isUploading ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    {m.generation_uploadingBtn?.() || "上传中..."}
+                  </>
+                ) : isGenerating ? (
+                  <>
+                    <Sparkles className="h-5 w-5 animate-pulse" />
+                    {m.generation_generatingBtn?.() || "生成中..."}
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5" />
+                    {m.generation_generateBtn?.() || "开始生成"}
+                  </>
+                )}
               </button>
             </div>
 
             {/* Right: Preview Area */}
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-slate-900">{m.generation_preview?.() || "预览"}</h2>
+            <div className="card p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Eye className="h-5 w-5 text-[oklch(var(--primary))]" />
+                <h2 className="text-lg font-semibold text-foreground">{m.generation_preview?.() || "预览"}</h2>
+              </div>
 
               {/* Progress */}
               {isGenerating && (
@@ -500,10 +522,8 @@ export default function GeneratePage() {
                 <div className="space-y-6">
                   {/* Demo Mode Banner */}
                   {generatedResults.some((r) => r.metadata?.mock) && (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 flex items-center gap-2">
-                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-400 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 flex-shrink-0" />
                       Demo 模式 — GEMINI_API_KEY 未配置，当前结果为占位数据。配置后可生成真实 AI 文案。
                     </div>
                   )}
@@ -512,7 +532,7 @@ export default function GeneratePage() {
                     <button
                       type="button"
                       onClick={() => setShowCompare(true)}
-                      className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-slate-300 p-3 text-sm font-medium text-slate-600 hover:border-amber-500 hover:text-amber-600 transition-colors"
+                      className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[oklch(var(--border))] p-3 text-sm font-medium text-foreground-muted hover:border-[oklch(var(--primary))] hover:text-[oklch(var(--primary))] transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
@@ -521,12 +541,12 @@ export default function GeneratePage() {
                     </button>
                   )}
                   {generatedResults.map((result, resultIndex) => (
-                    <div key={result.id || resultIndex} className="rounded-lg border border-slate-200 p-4">
+                    <div key={result.id || resultIndex} className="rounded-xl border border-[oklch(var(--border))] p-4">
                       <div className="mb-4">
-                        <h3 className="text-base font-semibold text-slate-900 mb-2">
+                        <h3 className="text-base font-semibold text-foreground mb-2">
                           {result.title}
                         </h3>
-                        <p className="text-sm text-slate-600 line-clamp-3">
+                        <p className="text-sm text-foreground-muted line-clamp-3">
                           {result.description}
                         </p>
                         {result.tags && result.tags.length > 0 && (
@@ -534,7 +554,7 @@ export default function GeneratePage() {
                             {result.tags.slice(0, 5).map((tag: string, tagIndex: number) => (
                               <span
                                 key={tagIndex}
-                                className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700"
+                                className="inline-flex items-center rounded-full bg-[oklch(var(--primary)/0.1)] px-2.5 py-0.5 text-xs text-[oklch(var(--primary))]"
                               >
                                 {tag}
                               </span>
@@ -545,14 +565,14 @@ export default function GeneratePage() {
 
                       {result.sceneImages && result.sceneImages.length > 0 && (
                         <div>
-                          <h4 className="text-xs font-medium text-slate-700 mb-2">
+                          <h4 className="text-xs font-medium text-foreground-muted mb-2">
                             {m.generation_sceneImages?.() || "场景图"} ({result.sceneImages.length})
                           </h4>
                           <div className="grid grid-cols-3 gap-2">
                             {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
-                                className="group relative aspect-square rounded-lg border border-slate-200 bg-slate-50 overflow-hidden"
+                                className="group relative aspect-square rounded-xl border border-[oklch(var(--border))] bg-[oklch(var(--secondary))] overflow-hidden"
                               >
                                 <img
                                   src={img.url}
@@ -561,23 +581,23 @@ export default function GeneratePage() {
                                   loading="lazy"
                                   decoding="async"
                                 />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-900/70 opacity-0 transition-opacity group-hover:opacity-100">
+                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[oklch(var(--background))]/80 opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-sm">
                                   <button
                                     type="button"
                                     onClick={() => window.open(img.url, "_blank")}
-                                    className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-100"
+                                    className="rounded-lg bg-[oklch(var(--primary))] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(var(--primary-hover))]"
                                   >
                                     {m.generation_viewLarge?.() || "查看大图"}
                                   </button>
                                   <a
                                     href={img.url}
                                     download
-                                    className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-slate-900 hover:bg-slate-100"
+                                    className="rounded-lg bg-[oklch(var(--secondary))] px-3 py-1.5 text-xs font-medium text-foreground hover:bg-[oklch(var(--secondary-hover))]"
                                   >
                                     {m.generation_downloadImage?.() || "下载"}
                                   </a>
                                 </div>
-                                <div className="absolute top-1 left-1 rounded bg-slate-900/70 px-1.5 py-0.5 text-xs text-white">
+                                <div className="absolute top-1 left-1 rounded bg-[oklch(var(--background))]/80 backdrop-blur-sm px-1.5 py-0.5 text-xs text-foreground-muted">
                                   {img.variation}
                                 </div>
                               </div>
@@ -590,10 +610,12 @@ export default function GeneratePage() {
                 </div>
               ) : !isGenerating ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <svg className="h-12 w-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-sm text-slate-600">{m.generation_previewDesc?.() || "生成结果将显示在这里"}</p>
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[oklch(var(--primary)/0.1)] mb-4">
+                    <svg className="h-8 w-8 text-[oklch(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-foreground-muted">{m.generation_previewDesc?.() || "生成结果将显示在这里"}</p>
                 </div>
               ) : null}
             </div>
