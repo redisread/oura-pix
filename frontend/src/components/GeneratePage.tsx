@@ -8,8 +8,10 @@ import { localeToGenerationLanguage, type GenerationLanguage, type Locale } from
 import UploadDropzone from "./UploadDropzone";
 import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
 import CompareView from "./compare/CompareView";
+import PromptTemplates, { type PromptTemplate } from "./generation/PromptTemplates";
 import { uploadImage } from "@/lib/api";
 import { createGeneration, getGeneration, previewGeneration } from "@/lib/generation";
+import { useToast, ToastProvider } from "./ui/Toast";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
 
@@ -56,6 +58,7 @@ function currentUiLocale(): Locale {
 }
 
 export default function GeneratePage() {
+  const toast = useToast();
   const [mainImage, setMainImage] = useState<File[]>([]);
   const [styleImages, setStyleImages] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -77,6 +80,7 @@ export default function GeneratePage() {
   const [showCompare, setShowCompare] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [previewResult, setPreviewResult] = useState<{ title: string; description: string; keywords: string[] } | null>(null);
+  const [promptText, setPromptText] = useState(""); // P0 T5 #87
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const platforms: { value: Platform; label: string; icon: string }[] = [
@@ -136,6 +140,7 @@ export default function GeneratePage() {
         setProgress(100);
         setIsGenerating(false);
         setGeneratedResults(results);
+        toast.success("生成完成，点击查看结果");
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -143,6 +148,12 @@ export default function GeneratePage() {
       } else if (status === "failed") {
         setIsGenerating(false);
         setError(result.data.errorMessage || m.generation_failed());
+        toast.error("生成失败，请重试", {
+          action: {
+            label: "重试",
+            onClick: () => handleGenerate(),
+          },
+        });
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -188,13 +199,14 @@ export default function GeneratePage() {
       const generationResult = await createGeneration({
         productImageId: mainImageResult.id,
         referenceImageIds: styleImageIds.length > 0 ? styleImageIds : undefined,
+        prompt: promptText.trim() || undefined,
         settings: {
           targetPlatform: settings.platform,
           count: settings.count,
           style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
           language: settings.language,
           uiLocale: currentUiLocale(),
-          generateImages: settings.generateImages,
+          generateImages: false, // P0 T1 #83: 图片生成功能隐藏中，强制关闭
           imageCount: settings.imageCount,
           aspectRatio: settings.aspectRatio,
           allowPersons: settings.allowPersons,
@@ -265,7 +277,8 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <ToastProvider>
+      <div className="flex min-h-screen flex-col">
       <main className="flex-1 bg-[hsl(var(--background))]">
         {/* Header */}
         <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--card))]">
@@ -357,6 +370,39 @@ export default function GeneratePage() {
               <div className="flex items-center gap-2 mb-6">
                 <Settings className="h-5 w-5 text-[hsl(var(--primary))]" />
                 <h2 className="text-lg font-semibold text-foreground">{m.generation_settings()}</h2>
+              </div>
+
+              {/* Prompt Templates + History (P0 T5 #87) */}
+              <PromptTemplates
+                platform={settings.platform}
+                style={settings.style}
+                onSelect={(tpl) => setPromptText(tpl.template)}
+                onHistorySelect={(rec) => {
+                  setPromptText(rec.prompt || "");
+                  setSettings({
+                    ...settings,
+                    platform: rec.platform as Platform,
+                    style: rec.style as Style,
+                    language: rec.language as GenerationLanguage,
+                  });
+                }}
+              />
+
+              {/* Prompt Input (P0 T5 #87) */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Prompt 提示词（可选）
+                </label>
+                <textarea
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
+                  placeholder="输入额外的产品描述或要求，或选择上方模板"
+                  rows={3}
+                  className="input resize-y"
+                />
+                <div className="text-xs text-foreground-muted mt-1">
+                  {promptText.length} / 500 字符
+                </div>
               </div>
 
               {/* Platform Selection */}
@@ -466,7 +512,8 @@ export default function GeneratePage() {
                 </select>
               </div>
 
-              {/* Image Generation Toggle */}
+              {/* Image Generation Toggle - HIDDEN for launch (P0 T1 #83) */}
+              {/* Original code preserved below, uncomment when launching image generation
               <div className="mb-6 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background)/0.42)] p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -537,6 +584,14 @@ export default function GeneratePage() {
                     </div>
                   </div>
                 )}
+              </div>
+              */}
+
+              {/* Coming Soon Notice (P0 T1 #83) */}
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg mb-6">
+                <p className="text-sm text-amber-800 dark:text-amber-300">
+                  🚧 图片生成功能即将上线，敬请期待
+                </p>
               </div>
 
               {/* Error Message */}
@@ -790,6 +845,7 @@ export default function GeneratePage() {
           onClose={() => setShowCompare(false)}
         />
       )}
-    </div>
+      </div>
+    </ToastProvider>
   );
 }

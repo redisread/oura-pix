@@ -100,6 +100,21 @@ export function createAuth(
     advanced: {
       disableCSRFCheck: isLocalDev,
       useSecureCookies: !isLocalDev,
+      // P0 #88: 跨子域 Cookie 共享（仅生产环境）
+      // 前端 ourapix.jiahongw.com / API api.ourapix.jiahongw.com
+      // 共享主域 .jiahongw.com
+      ...(isLocalDev
+        ? {}
+        : {
+            crossSubDomainCookies: {
+              enabled: true,
+              domain: ".jiahongw.com",
+            },
+            defaultCookieAttributes: {
+              sameSite: "none",
+              secure: true,
+            },
+          }),
     },
   });
 }
