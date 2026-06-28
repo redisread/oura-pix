@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SettingsLayout from '../../layouts/SettingsLayout.astro';
+import ApiKeysPage from '../../components/keys/ApiKeysPage';
+import * as m from "@/paraglide/messages.js";
+
+const title = m.meta_apiKeysTitle();
+---
+
+<Layout title={title}>
+  <SettingsLayout title={title} currentKey="api-keys">
+    <ApiKeysPage client:load />
+  </SettingsLayout>
+</Layout>

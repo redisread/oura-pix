@@ -1,0 +1,14 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SettingsLayout from '../../layouts/SettingsLayout.astro';
+import TeamsPage from '../../components/teams/TeamsPage';
+import * as m from "@/paraglide/messages.js";
+
+const title = "团队管理 - 个人中心";
+---
+
+<Layout title={title}>
+  <SettingsLayout title={title} currentKey="teams">
+    <TeamsPage client:load />
+  </SettingsLayout>
+</Layout>
