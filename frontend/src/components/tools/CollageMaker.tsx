@@ -7,7 +7,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useImageCollage, LAYOUTS, getLayoutLabel, type LayoutTemplate, type CollageCell } from "@/hooks/useImageCollage";
+import { Download, ImagePlus, X } from "lucide-react";
+import {
+  getLayoutLabel,
+  LAYOUTS,
+  useImageCollage,
+  type CollageCell,
+  type LayoutTemplate,
+} from "@/hooks/useImageCollage";
 import * as m from "@/paraglide/messages.js";
 
 export default function CollageMaker() {
@@ -61,40 +68,35 @@ export default function CollageMaker() {
   const filledCount = cells.filter((c) => c.imageUrl).length;
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_collageTitle()}</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {m.tool_collageSubtitle()}
-        </p>
-      </div>
+    <div className="workbench-page">
+      <div className="workbench-container">
+        <header className="mb-8 max-w-3xl">
+          <p className="page-kicker">{m.tool_collageKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_collageTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_collageSubtitle()}</p>
+        </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Options */}
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{m.tool_layout()}</h2>
+          <div className="panel space-y-4 p-4">
+            <h2 className="panel-title">{m.tool_layout()}</h2>
           <div className="grid grid-cols-2 gap-2">
             {(Object.keys(LAYOUTS) as LayoutTemplate[]).map((key) => (
               <button
                 key={key}
                 onClick={() => setOptions({ ...options, layout: key })}
-                className={`px-2 py-2 text-xs rounded ${
-                  options.layout === key
-                    ? "bg-slate-900 text-white"
-                    : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"
-                }`}
+                  className={`segmented-option ${options.layout === key ? "segmented-option-active" : ""}`}
               >
                 {getLayoutLabel(key)}
               </button>
             ))}
           </div>
 
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">{m.tool_outputSize()}</h2>
+            <h2 className="panel-title border-t border-[hsl(var(--border))] pt-4">{m.tool_outputSize()}</h2>
           <div className="grid grid-cols-2 gap-2">
             <select
               value={String(options.outputWidth)}
               onChange={(e) => setOptions({ ...options, outputWidth: Number(e.target.value), outputHeight: Number(e.target.value) })}
-              className="px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+                className="input py-1.5"
             >
               <option value="1080">1080×1080</option>
               <option value="720">720×720</option>
@@ -104,12 +106,13 @@ export default function CollageMaker() {
               type="color"
               value={options.backgroundColor}
               onChange={(e) => setOptions({ ...options, backgroundColor: e.target.value })}
-              className="w-full h-8 border border-slate-200 dark:border-slate-700 rounded"
+                className="swatch"
+                aria-label={m.tool_collageBackgroundAria()}
             />
           </div>
 
           <div>
-            <div className="flex justify-between text-xs text-slate-500 mb-1">
+              <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
               <span>{m.tool_gap()}</span>
               <span>{options.gap}px</span>
             </div>
@@ -119,12 +122,13 @@ export default function CollageMaker() {
               max="32"
               value={options.gap}
               onChange={(e) => setOptions({ ...options, gap: Number(e.target.value) })}
-              className="w-full accent-slate-900"
+                className="range"
+                aria-label={m.tool_collageGapAria()}
             />
           </div>
 
           <div>
-            <div className="flex justify-between text-xs text-slate-500 mb-1">
+              <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
               <span>{m.tool_borderRadius()}</span>
               <span>{options.borderRadius}px</span>
             </div>
@@ -134,14 +138,16 @@ export default function CollageMaker() {
               max="32"
               value={options.borderRadius}
               onChange={(e) => setOptions({ ...options, borderRadius: Number(e.target.value) })}
-              className="w-full accent-slate-900"
+                className="range"
+                aria-label={m.tool_collageRadiusAria()}
             />
           </div>
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
+              className="btn-primary h-10 w-full gap-2"
           >
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />
             {m.tool_addImagesCount({ filled: filledCount.toString(), total: cells.length.toString() })}
           </button>
           <input
@@ -156,16 +162,16 @@ export default function CollageMaker() {
           <button
             onClick={download}
             disabled={filledCount === 0 || exporting}
-            className="w-full px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
+              className="btn-secondary h-10 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
+              <Download className="h-4 w-4" aria-hidden="true" />
             {exporting ? m.tool_exporting() : m.tool_downloadPng()}
           </button>
         </div>
 
-        {/* Preview */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-            <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded min-h-[400px]">
+            <div className="panel p-4">
+              <div className="panel-muted flex min-h-[400px] items-center justify-center">
               <canvas
                 ref={canvasRef}
                 className="max-w-full max-h-[600px]"
@@ -174,18 +180,18 @@ export default function CollageMaker() {
               {previewUrl ? (
                 <img src={previewUrl} alt={m.tool_preview()} className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
               ) : (
-                <p className="text-slate-400 p-12">{m.tool_collageEmpty()}</p>
+                  <p className="p-12 text-sm font-medium text-foreground-muted">{m.tool_collageEmpty()}</p>
               )}
             </div>
           </div>
 
-          {/* Cell editor */}
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
             {cells.map((cell, idx) => (
               <CellEditor key={idx} index={idx} cell={cell} onUpdate={(p) => updateCell(idx, p)} onRemove={() => removeCell(idx)} />
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
@@ -204,25 +210,26 @@ function CellEditor({
 }) {
   if (!cell.imageUrl) {
     return (
-      <div className="aspect-square bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-400 text-xs">
+      <div className="panel-muted flex aspect-square items-center justify-center font-utility text-xs text-foreground-muted">
         #{index + 1}
       </div>
     );
   }
   return (
     <div className="space-y-1">
-      <div className="aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 relative group">
-        <img src={cell.imageUrl} alt={m.tool_cellImageAlt({ index: (index + 1).toString() })} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+      <div className="group relative aspect-square overflow-hidden rounded-md bg-[hsl(var(--secondary))]">
+        <img src={cell.imageUrl} alt={`Cell ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         <button
           onClick={onRemove}
-          className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100"
+          className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md bg-[hsl(var(--color-error))] text-white opacity-0 transition-opacity group-hover:opacity-100"
+          aria-label={m.tool_collageRemoveImageAria({ index: (index + 1).toString() })}
         >
-          ✕
+          <X className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
       <div className="space-y-0.5">
         <div className="flex items-center gap-1">
-          <span className="text-[10px] text-slate-500 w-6">{m.tool_scale()}</span>
+          <span className="w-6 text-[10px] text-foreground-muted">{m.tool_scale()}</span>
           <input
             type="range"
             min="1"
@@ -230,7 +237,8 @@ function CellEditor({
             step="0.1"
             value={cell.scale}
             onChange={(e) => onUpdate({ scale: Number(e.target.value) })}
-            className="flex-1 accent-slate-900"
+            className="range flex-1"
+            aria-label={m.tool_collageScaleImageAria({ index: (index + 1).toString() })}
           />
         </div>
       </div>

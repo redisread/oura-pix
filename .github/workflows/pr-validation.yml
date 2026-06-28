@@ -4,37 +4,41 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
-    name: Lint & Type Check
+    name: Quality Gates
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.0.0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm build
+      - name: Verify workspace
+        run: pnpm verify
 
-      - name: Lint API
-        run: pnpm --filter @oura-pix/api lint
-
-      - name: Typecheck API
-        run: pnpm --filter @oura-pix/api typecheck
-
-      - name: Lint Frontend
-        run: pnpm --filter @oura-pix/frontend lint
-
-      - name: Typecheck Frontend
-        run: pnpm --filter @oura-pix/frontend typecheck
+      - name: Security audit
+        run: pnpm audit --audit-level high

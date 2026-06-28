@@ -14,13 +14,11 @@ interface TrendChartProps {
 export default function TrendChart({ data, title }: TrendChartProps) {
   if (data.length === 0) {
     return (
-      <div className="bg-white dark:bg-stone-800 rounded-lg shadow-sm border border-stone-200 dark:border-stone-700 p-6">
-        <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
+      <div className="panel p-6">
+        <h3 className="mb-4 text-lg font-semibold text-foreground">
           {title}
         </h3>
-        <p className="text-sm text-stone-500 dark:text-stone-500 text-center py-8">
-          {m.stats_noData()}
-        </p>
+        <p className="py-8 text-center text-sm text-foreground-muted">{m.stats_noData()}</p>
       </div>
     );
   }
@@ -46,8 +44,8 @@ export default function TrendChart({ data, title }: TrendChartProps) {
   const areaD = `${pathD} L ${points[points.length - 1]?.x || 0} ${chartHeight} L 0 ${chartHeight} Z`;
 
   return (
-    <div className="bg-white dark:bg-stone-800 rounded-lg shadow-sm border border-stone-200 dark:border-stone-700 p-6">
-      <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
+    <div className="panel p-6">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
         {title}
       </h3>
 
@@ -69,7 +67,7 @@ export default function TrendChart({ data, title }: TrendChartProps) {
               y2={chartHeight - ratio * (chartHeight - padding)}
               stroke="currentColor"
               strokeWidth="0.2"
-              className="text-stone-200 dark:text-stone-700"
+              className="text-[hsl(var(--border))]"
             />
           ))}
 
@@ -113,7 +111,7 @@ export default function TrendChart({ data, title }: TrendChartProps) {
         </svg>
 
         {/* X-axis labels */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-stone-500 dark:text-stone-500">
+        <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-foreground-muted">
           {data.length > 0 && (
             <>
               <span>{data[0].date}</span>
@@ -127,17 +125,17 @@ export default function TrendChart({ data, title }: TrendChartProps) {
       </div>
 
       {/* Summary */}
-      <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
+      <div className="mt-4 border-t border-[hsl(var(--border))] pt-4">
         <div className="flex justify-between text-sm">
-          <span className="text-stone-600 dark:text-stone-400">{m.stats_total()}</span>
-          <span className="font-semibold text-stone-900 dark:text-stone-100">
-            {data.reduce((sum, d) => sum + d.count, 0)} {m.stats_times()}
+          <span className="text-foreground-muted">{m.stats_total()}</span>
+          <span className="font-semibold text-foreground">
+            {m.stats_times({ count: data.reduce((sum, d) => sum + d.count, 0).toString() })}
           </span>
         </div>
         <div className="flex justify-between text-sm mt-2">
-          <span className="text-stone-600 dark:text-stone-400">{m.stats_average()}</span>
-          <span className="font-semibold text-stone-900 dark:text-stone-100">
-            {(data.reduce((sum, d) => sum + d.count, 0) / data.length).toFixed(1)} {m.stats_timesPerDay()}
+          <span className="text-foreground-muted">{m.stats_average()}</span>
+          <span className="font-semibold text-foreground">
+            {m.stats_timesPerDay({ count: (data.reduce((sum, d) => sum + d.count, 0) / data.length).toFixed(1) })}
           </span>
         </div>
       </div>

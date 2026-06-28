@@ -1,12 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import PricingPage from '../components/PricingPage';
 import * as m from "@/paraglide/messages.js";
+import PricingPage from '../components/PricingPage';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const title = m.meta_pricingTitle();
 const description = m.meta_pricingDescription();
 ---
 
 <Layout title={title} description={description}>
+  <Navbar client:load />
   <PricingPage client:visible />
+  <Footer />
 </Layout>

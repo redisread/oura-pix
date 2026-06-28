@@ -7,6 +7,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { Download, ImagePlus, Replace } from "lucide-react";
 import ExportDialog from "./ExportDialog";
 import * as m from "@/paraglide/messages.js";
 
@@ -16,34 +17,34 @@ export default function ExportDemo() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_exportTitle()}</h1>
-        <p className="text-sm text-slate-500 mt-1">{m.tool_exportSubtitle()}</p>
-      </div>
+    <div className="workbench-page">
+      <div className="workbench-container max-w-4xl">
+        <header className="mb-8 max-w-3xl">
+          <p className="page-kicker">{m.tool_exportKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_exportTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_exportSubtitle()}</p>
+        </header>
 
       {imageUrl ? (
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
-          <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded mb-4 p-4 min-h-[300px]">
-            <img src={imageUrl} alt={m.tool_preview()} className="max-w-full max-h-[400px] object-contain" loading="lazy" decoding="async" />
+          <div className="panel p-6">
+            <div className="panel-muted mb-4 flex min-h-[320px] items-center justify-center p-4">
+            <img src={imageUrl} alt="Selected" className="max-w-full max-h-[400px] object-contain" loading="lazy" decoding="async" />
           </div>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="btn-secondary h-10 gap-2 px-4"
             >
-              {m.common_changeImage()}
-            </button>
+                <Replace className="h-4 w-4" aria-hidden="true" />{m.common_changeImage()}</button>
             <button
               onClick={() => setShowDialog(true)}
-              className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
+                className="btn-primary h-10 gap-2 px-4"
             >
-              {m.tool_exportAction()}
-            </button>
+                <Download className="h-4 w-4" aria-hidden="true" />{m.tool_exportAction()}</button>
           </div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 p-12 text-center">
+          <div className="drop-zone p-12 text-center">
           <input
             ref={fileInputRef}
             type="file"
@@ -57,15 +58,15 @@ export default function ExportDemo() {
           />
           <label
             htmlFor="export-input"
-            className="inline-block cursor-pointer px-6 py-3 bg-slate-900 text-white rounded hover:bg-slate-800"
+              className="btn-primary h-11 cursor-pointer gap-2 px-6"
           >
-            {m.common_selectImage()}
-          </label>
-          <p className="text-xs text-slate-500 mt-3">{m.common_supportedImageFormats()}</p>
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />{m.common_selectImage()}</label>
+            <p className="mt-3 text-xs font-medium text-foreground-muted">{m.common_supportedImageFormats()}</p>
         </div>
       )}
 
       <ExportDialog imageUrl={imageUrl} isOpen={showDialog} onClose={() => setShowDialog(false)} />
+      </div>
     </div>
   );
 }

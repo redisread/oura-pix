@@ -5,6 +5,7 @@
  */
 
 import { useState } from "react";
+import { Check, Eye, HeartOff } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import type { Favorite } from "@/hooks/useFavorites";
 import { formatLocaleDate } from "@/lib/locale";
@@ -64,16 +65,24 @@ export default function FavoriteCard({
 
   return (
     <div
-      className={`group relative aspect-square rounded-xl overflow-hidden cursor-pointer transition-all duration-200 ${
+      className={`group card relative aspect-square cursor-pointer overflow-hidden transition-all duration-200 ${
         isSelected
-          ? "ring-4 ring-amber-500 ring-offset-2 dark:ring-offset-stone-900"
+          ? "ring-4 ring-[hsl(var(--primary)/0.42)] ring-offset-2 ring-offset-[hsl(var(--background))]"
           : "hover:shadow-lg"
       }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={m.profile_history_viewDetail()}
     >
-      {/* Image */}
       <img
         src={favorite.imageUrl}
         alt={m.favorite_imageAlt()}
@@ -86,24 +95,21 @@ export default function FavoriteCard({
       {selectionMode && (
         <div className="absolute top-2 left-2">
           <div
-            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+            className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition-colors ${
               isSelected
-                ? "bg-amber-500 border-amber-500"
-                : "bg-white/80 border-white/80"
+                ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary))]"
+                : "border-[hsl(var(--card))] bg-[hsl(var(--card)/0.86)]"
             }`}
           >
             {isSelected && (
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
+              <Check className="h-4 w-4 text-white" aria-hidden="true" />
             )}
           </div>
         </div>
       )}
 
-      {/* Hover Overlay */}
       <div
-        className={`absolute inset-0 bg-black/40 flex items-center justify-center gap-2 transition-opacity duration-200 ${
+        className={`absolute inset-0 flex items-center justify-center gap-2 bg-[hsl(var(--foreground)/0.42)] transition-opacity duration-200 ${
           showActions && !selectionMode ? "opacity-100" : "opacity-0"
         }`}
       >
@@ -112,31 +118,27 @@ export default function FavoriteCard({
             e.stopPropagation();
             onView(favorite);
           }}
-          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
+          className="icon-button h-10 w-10 bg-[hsl(var(--card)/0.92)] text-foreground hover:bg-[hsl(var(--card))]"
           title={m.profile_history_viewDetail()}
+          aria-label={m.profile_history_viewDetail()}
         >
-          <svg className="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
+          <Eye className="h-5 w-5" aria-hidden="true" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onRemove(favorite.id);
           }}
-          className="p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
+          className="icon-button h-10 w-10 bg-[hsl(var(--card)/0.92)] text-[hsl(var(--color-error))] hover:bg-[hsl(var(--card))]"
           title={m.favorite_remove()}
+          aria-label={m.favorite_remove()}
         >
-          <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
+          <HeartOff className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
 
-      {/* Info Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
-        <div className="flex items-center justify-between text-xs text-white">
+      <div className="absolute bottom-0 left-0 right-0 bg-[hsl(var(--foreground)/0.72)] p-2">
+        <div className="flex items-center justify-between text-xs font-semibold text-[hsl(var(--background))]">
           <span>{getPlatformLabel(favorite.generation?.settings?.targetPlatform)}</span>
           <span>{formatTime(favorite.createdAt)}</span>
         </div>

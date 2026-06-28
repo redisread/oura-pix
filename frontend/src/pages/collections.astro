@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import CollectionsPage from '../components/collections/CollectionsPage';
 import * as m from "@/paraglide/messages.js";
+import CollectionsPage from '../components/collections/CollectionsPage';
+import Navbar from '../components/Navbar';
 ---
 
-<Layout title={m.meta_collectionsTitle()}>
+<Layout title={m.collections_title()}>
+  <Navbar client:load />
   <CollectionsPage client:load />
 </Layout>

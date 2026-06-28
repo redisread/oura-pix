@@ -8,6 +8,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Download, RefreshCw, Upload, Wand2 } from "lucide-react";
 import { useBackgroundRemoval } from "@/hooks/useBackgroundRemoval";
 import * as m from "@/paraglide/messages.js";
 
@@ -53,16 +54,16 @@ export default function BackgroundRemover() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_backgroundRemoverTitle()}</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {m.tool_backgroundRemoverSubtitle()}
-        </p>
-      </div>
+    <div className="workbench-page">
+      <div className="workbench-container">
+        <header className="mb-8 max-w-3xl">
+          <p className="page-kicker">{m.tool_backgroundKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_backgroundRemoverTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_backgroundRemoverSubtitle()}</p>
+        </header>
 
-      {!imageUrl ? (
-        <div className="bg-white dark:bg-slate-900 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 p-12 text-center">
+        {!imageUrl ? (
+          <div className="drop-zone p-12 text-center">
           <input
             ref={fileInputRef}
             type="file"
@@ -73,49 +74,40 @@ export default function BackgroundRemover() {
           />
           <label
             htmlFor="bg-remover-input"
-            className="inline-block cursor-pointer px-6 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors"
+              className="btn-primary h-11 cursor-pointer gap-2 px-6"
           >
-            {m.common_selectImage()}
-          </label>
-          <p className="text-xs text-slate-500 mt-3">{m.common_supportedImageFormats()}</p>
+              <Upload className="h-4 w-4" aria-hidden="true" />{m.common_selectImage()}</label>
+            <p className="mt-3 text-xs font-medium text-foreground-muted">{m.common_supportedImageFormats()}</p>
         </div>
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Original */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-              <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{m.tool_originalImage()}</div>
-              <div className="bg-slate-100 dark:bg-slate-800 rounded p-2 flex items-center justify-center min-h-[200px]">
-                <img src={imageUrl} alt={m.tool_originalImage()} className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
+            <div className="panel p-4">
+              <div className="panel-title mb-2">{m.tool_originalImage()}</div>
+              <div className="panel-muted flex min-h-[220px] items-center justify-center p-2">
+                <img src={imageUrl} alt="Original" className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
               </div>
             </div>
 
-            {/* Result */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+            <div className="panel p-4">
               <div className="flex items-center justify-between mb-2">
-                <div className="text-sm font-medium text-slate-700 dark:text-slate-300">{m.tool_backgroundRemoved()}</div>
+                <div className="panel-title">{m.tool_backgroundRemoved()}</div>
                 {result && (
-                  <span className="text-xs text-slate-500">
+                    <span className="font-utility text-xs text-foreground-muted">
                     {result.width} × {result.height}
                   </span>
                 )}
               </div>
-              <div
-                className="rounded p-2 flex items-center justify-center min-h-[200px]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(45deg, #f1f5f9 25%, transparent 25%), linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f1f5f9 75%), linear-gradient(-45deg, transparent 75%, #f1f5f9 75%)",
-                  backgroundSize: "16px 16px",
-                  backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
-                }}
-              >
+                <div className="checkerboard flex min-h-[220px] items-center justify-center rounded-md p-2">
                 {loading ? (
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto mb-2" />
-                    <p className="text-sm text-slate-500">{m.tool_processingWithProgress({ progress: progress.toString() })}</p>
-                    <div className="w-32 h-1 bg-slate-200 dark:bg-slate-800 rounded mt-2 mx-auto overflow-hidden">
+                      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
+                        <Wand2 className="h-5 w-5 animate-pulse" aria-hidden="true" />
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{m.tool_processingWithProgress({ progress: progress.toString() })}</p>
+                      <div className="mx-auto mt-3 h-1 w-32 overflow-hidden rounded-full bg-[hsl(var(--secondary))]">
                       <div
-                        className="h-full bg-slate-900 transition-all"
+                          className="h-full bg-[hsl(var(--primary))] transition-all"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -123,45 +115,45 @@ export default function BackgroundRemover() {
                 ) : result ? (
                   <img src={result.url} alt={m.tool_backgroundRemoved()} className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
                 ) : (
-                  <p className="text-sm text-slate-400">{m.tool_backgroundRemoverEmptyResult()}</p>
+                    <p className="text-sm font-medium text-foreground-muted">{m.tool_backgroundRemoverEmptyResult()}</p>
                 )}
               </div>
             </div>
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 rounded">
-              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+              <div className="error-banner">
+                <p>{error}</p>
             </div>
           )}
 
           <div className="flex gap-2 justify-end">
             <button
               onClick={handleReset}
-              className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="btn-secondary h-10 gap-2 px-4"
             >
-              {m.common_reselectImage()}
-            </button>
+                <RefreshCw className="h-4 w-4" aria-hidden="true" />{m.common_reselectImage()}</button>
             {!result && (
               <button
                 onClick={handleRemove}
                 disabled={loading}
-                className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
+                  className="btn-primary h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-50"
               >
+                  <Wand2 className="h-4 w-4" aria-hidden="true" />
                 {loading ? m.common_processing() : m.tool_startProcessing()}
               </button>
             )}
             {result && (
               <button
                 onClick={handleDownload}
-                className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
+                  className="btn-primary h-10 gap-2 px-4"
               >
-                {m.tool_downloadPng()}
-              </button>
+                  <Download className="h-4 w-4" aria-hidden="true" />{m.tool_downloadPng()}</button>
             )}
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

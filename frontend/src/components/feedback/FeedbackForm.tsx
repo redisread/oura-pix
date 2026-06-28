@@ -104,15 +104,15 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+    <div className="panel p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">{m.feedback_title()}</h3>
+        <h3 className="panel-title">{m.feedback_title()}</h3>
         {stats && stats.count > 0 && (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
+          <div className="flex items-center gap-2 text-sm text-foreground-muted">
             <span>{m.feedback_reviewCount({ count: stats.count.toString() })}</span>
             <span className="flex items-center gap-1">
-              <span className="text-yellow-500">★</span>
-              <span className="font-medium text-slate-700 dark:text-slate-300">
+              <span className="font-medium text-[hsl(var(--accent))]">★</span>
+              <span className="font-medium text-foreground">
                 {stats.avgRating?.toFixed(1) ?? "-"}
               </span>
             </span>
@@ -121,27 +121,27 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
       </div>
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-2 rounded mb-3">
-          <p className="text-xs text-red-700 dark:text-red-300">{error}</p>
+        <div className="error-banner mb-3 p-2">
+          <p className="text-xs">{error}</p>
         </div>
       )}
 
       {showThanks ? (
-        <p className="text-sm text-green-600 dark:text-green-400 text-center py-2">{m.feedback_thanks()}</p>
+        <p className="success-banner py-2 text-center text-sm">{m.feedback_thanks()}</p>
       ) : showForm ? (
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="block text-xs text-slate-500 mb-1">{m.feedback_rating()}</label>
+            <label className="panel-label mb-1 block">{m.feedback_rating()}</label>
             <RatingStars value={rating} onChange={setRating} />
           </div>
           <div className="mb-3">
-            <label className="block text-xs text-slate-500 mb-1">{m.feedback_commentOptional()}</label>
+            <label className="panel-label mb-1 block">{m.feedback_commentOptional()}</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
               maxLength={2000}
-              className="w-full px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
+              className="input"
               placeholder={m.feedback_commentPlaceholder()}
             />
           </div>
@@ -149,14 +149,14 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded"
+              className="btn-secondary h-9 px-3"
             >
               {m.common_cancel()}
             </button>
             <button
               type="submit"
               disabled={rating === 0 || submitting}
-              className="px-3 py-1.5 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
+              className="btn-primary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? m.feedback_submitting() : m.feedback_submit()}
             </button>
@@ -165,29 +165,25 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
       ) : (
         <button
           onClick={() => setShowForm(true)}
-          className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
-        >
-          {m.feedback_submitLink()}
-        </button>
+          className="text-sm font-semibold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))]"
+        >{m.feedback_submitButton()}</button>
       )}
 
       {loading && list.length === 0 ? (
-        <p className="text-xs text-slate-400 mt-3">{m.feedback_loading()}</p>
+        <p className="mt-3 text-xs text-foreground-muted">{m.feedback_loading()}</p>
       ) : list.length > 0 ? (
         <div className="mt-4 space-y-2">
           {list.slice(0, 5).map((f) => (
-            <div key={f.id} className="border-t border-slate-100 dark:border-slate-800 pt-2">
+            <div key={f.id} className="border-t border-[hsl(var(--border))] pt-2">
               <div className="flex items-center gap-2 mb-1">
                 <RatingStars value={f.rating} readonly />
-                <span className="text-xs text-slate-400">{formatDate(f.createdAt)}</span>
+                <span className="font-utility text-xs text-foreground-muted">{formatDate(f.createdAt)}</span>
               </div>
-              {f.comment && <p className="text-sm text-slate-600 dark:text-slate-400">{f.comment}</p>}
+              {f.comment && <p className="text-sm text-foreground-muted">{f.comment}</p>}
             </div>
           ))}
           {list.length > 5 && (
-            <p className="text-xs text-slate-400 text-center">
-              {m.feedback_more({ count: (list.length - 5).toString() })}
-            </p>
+            <p className="text-center text-xs text-foreground-muted">{m.feedback_more({ count: String(list.length - 5) })}</p>
           )}
         </div>
       ) : null}

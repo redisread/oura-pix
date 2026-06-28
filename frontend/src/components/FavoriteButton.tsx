@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { Heart } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { useFavorites } from "@/hooks/useFavorites";
 
@@ -69,7 +70,7 @@ export default function FavoriteButton({
 
   if (isLoading) {
     return (
-      <div className={`w-8 h-8 rounded-full bg-white/80 animate-pulse ${className}`} />
+      <div className={`h-8 w-8 animate-pulse rounded-full bg-[hsl(var(--card)/0.8)] ${className}`} />
     );
   }
 
@@ -79,24 +80,17 @@ export default function FavoriteButton({
       disabled={isToggling}
       className={`p-1.5 rounded-full transition-all duration-200 ${
         isFavorited
-          ? "text-red-500 hover:text-red-600"
+          ? "text-[hsl(var(--color-error))] hover:text-[hsl(var(--color-error))]"
           : "text-white/80 hover:text-white"
       } ${isToggling ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
       title={isFavorited ? m.favorite_remove() : m.favorite_add()}
+      aria-label={isFavorited ? m.favorite_remove() : m.favorite_add()}
     >
-      <svg
-        className={`w-5 h-5 transition-transform ${isToggling ? "scale-90" : "scale-100"}`}
+      <Heart
+        className={`h-5 w-5 transition-transform ${isToggling ? "scale-90" : "scale-100"}`}
         fill={isFavorited ? "currentColor" : "none"}
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-        />
-      </svg>
+        aria-hidden="true"
+      />
     </button>
   );
 }

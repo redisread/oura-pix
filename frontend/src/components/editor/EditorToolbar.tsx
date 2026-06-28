@@ -4,6 +4,7 @@
  * Toolbar for image editing operations
  */
 
+import { FlipHorizontal, FlipVertical, RotateCcw, RotateCw, Undo2, Redo2 } from "lucide-react";
 import type { EditState, CropPreset } from "@/hooks/useImageEdit";
 import { CROP_PRESETS, getCropPresetLabel } from "@/hooks/useImageEdit";
 import * as m from "@/paraglide/messages.js";
@@ -46,9 +47,9 @@ function Slider({
 }) {
   return (
     <div>
-      <label className="flex items-center justify-between text-xs text-stone-400 mb-1">
+      <label className="mb-1 flex items-center justify-between text-xs text-foreground-muted">
         <span>{label}</span>
-        <span>
+        <span className="font-utility">
           {value > 0 ? "+" : ""}
           {value}
           {unit ?? ""}
@@ -60,7 +61,7 @@ function Slider({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-2 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
+        className="range"
       />
     </div>
   );
@@ -87,56 +88,30 @@ export default function EditorToolbar({
   onRedo,
 }: EditorToolbarProps) {
   return (
-    <div className="flex flex-col gap-4 p-4 bg-stone-800 rounded-lg">
-      {/* Undo/Redo & Reset */}
-      <div className="flex gap-2 pb-4 border-b border-stone-700">
-        <button
-          onClick={onUndo}
-          disabled={!canUndo}
-          className="flex items-center gap-2 px-3 py-2 bg-stone-700 hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-          title={`${m.editor_undo()} (Ctrl+Z)`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-          </svg>
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex gap-2 border-b border-[hsl(var(--border))] pb-4">
+        <button onClick={onUndo} disabled={!canUndo} className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50" title={m.tool_actionUndo()}>
+          <Undo2 className="h-4 w-4" aria-hidden="true" />
           <span className="text-sm">{m.editor_undo()}</span>
         </button>
-        <button
-          onClick={onRedo}
-          disabled={!canRedo}
-          className="flex items-center gap-2 px-3 py-2 bg-stone-700 hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-          title={`${m.editor_redo()} (Ctrl+Y)`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
-          </svg>
+        <button onClick={onRedo} disabled={!canRedo} className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50" title={m.editor_redoTitle()}>
+          <Redo2 className="h-4 w-4" aria-hidden="true" />
           <span className="text-sm">{m.editor_redo()}</span>
         </button>
-        <button
-          onClick={onReset}
-          className="flex items-center gap-2 px-3 py-2 bg-stone-700 hover:bg-stone-600 rounded-lg transition-colors ml-auto"
-          title={m.editor_resetAllTitle()}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
+        <button onClick={onReset} className="btn-secondary ml-auto h-10 gap-2 px-3" title={m.editor_resetAllTitle()}>
+          <RotateCcw className="h-4 w-4" aria-hidden="true" />
           <span className="text-sm">{m.editor_reset()}</span>
         </button>
       </div>
 
-      {/* Crop Preset */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">{m.editor_cropRatio()}</h3>
+        <h3 className="panel-title mb-2">{m.editor_cropRatio()}</h3>
         <div className="grid grid-cols-5 gap-1.5">
           {CROP_PRESETS.map((preset) => (
             <button
               key={preset.value}
               onClick={() => onCropPresetChange(preset.value)}
-              className={`px-2 py-1.5 text-xs rounded transition-colors ${
-                state.cropPreset === preset.value
-                  ? "bg-amber-600 text-white"
-                  : "bg-stone-700 hover:bg-stone-600 text-stone-300"
-              }`}
+              className={`segmented-option ${state.cropPreset === preset.value ? "segmented-option-active" : ""}`}
             >
               {getCropPresetLabel(preset.value)}
             </button>
@@ -144,56 +119,36 @@ export default function EditorToolbar({
         </div>
       </div>
 
-      {/* Transform */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">{m.editor_transform()}</h3>
+        <h3 className="panel-title mb-2">{m.editor_transform()}</h3>
         <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={onRotateLeft}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-stone-700 hover:bg-stone-600 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-            </svg>
+          <button onClick={onRotateLeft} className="btn-secondary h-10 gap-2 px-3">
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
             <span className="text-sm">{m.editor_rotateLeft()}</span>
           </button>
-          <button
-            onClick={onRotateRight}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-stone-700 hover:bg-stone-600 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6" />
-            </svg>
+          <button onClick={onRotateRight} className="btn-secondary h-10 gap-2 px-3">
+            <RotateCw className="h-4 w-4" aria-hidden="true" />
             <span className="text-sm">{m.editor_rotateRight()}</span>
           </button>
           <button
             onClick={onFlipHorizontal}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-              state.flipHorizontal ? "bg-amber-600 hover:bg-amber-500" : "bg-stone-700 hover:bg-stone-600"
-            }`}
+            className={`h-10 gap-2 px-3 ${state.flipHorizontal ? "btn-primary" : "btn-secondary"}`}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
+            <FlipHorizontal className="h-4 w-4" aria-hidden="true" />
             <span className="text-sm">{m.editor_flipHorizontal()}</span>
           </button>
           <button
             onClick={onFlipVertical}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-              state.flipVertical ? "bg-amber-600 hover:bg-amber-500" : "bg-stone-700 hover:bg-stone-600"
-            }`}
+            className={`h-10 gap-2 px-3 ${state.flipVertical ? "btn-primary" : "btn-secondary"}`}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 17H4m0 0l4-4m-4 4l4 4m4-12h12m0 0l-4 4m4-4l-4-4" />
-            </svg>
+            <FlipVertical className="h-4 w-4" aria-hidden="true" />
             <span className="text-sm">{m.editor_flipVertical()}</span>
           </button>
         </div>
       </div>
 
-      {/* Adjustments */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">{m.editor_basicAdjustments()}</h3>
+        <h3 className="panel-title mb-2">{m.editor_basicAdjustments()}</h3>
         <div className="space-y-3">
           <Slider label={m.editor_brightness()} value={state.brightness} min={0} max={200} unit="%" onChange={onBrightnessChange} />
           <Slider label={m.editor_contrast()} value={state.contrast} min={0} max={200} unit="%" onChange={onContrastChange} />
@@ -201,33 +156,30 @@ export default function EditorToolbar({
         </div>
       </div>
 
-      {/* Color */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">{m.editor_color()}</h3>
+        <h3 className="panel-title mb-2">{m.editor_color()}</h3>
         <div className="space-y-3">
           <Slider label={m.editor_colorTemp()} value={state.colorTemp} min={-100} max={100} onChange={onColorTempChange} />
           <Slider label={m.editor_tint()} value={state.tint} min={-100} max={100} onChange={onTintChange} />
         </div>
       </div>
 
-      {/* Sharpen */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">{m.editor_details()}</h3>
+        <h3 className="panel-title mb-2">{m.editor_details()}</h3>
         <Slider label={m.editor_sharpen()} value={state.sharpen} min={0} max={100} unit="%" onChange={onSharpenChange} />
       </div>
 
-      {/* Watermark */}
       <div>
-        <h3 className="text-sm font-medium text-stone-300 mb-2">{m.editor_watermark()}</h3>
+        <h3 className="panel-title mb-2">{m.editor_watermark()}</h3>
         <div className="space-y-2">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={state.watermarkEnabled}
               onChange={(e) => onWatermarkChange(state.watermarkText, e.target.checked)}
-              className="w-4 h-4 rounded border-stone-600 bg-stone-700 text-amber-600 focus:ring-amber-600"
+              className="h-4 w-4 rounded border-[hsl(var(--border))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary)/0.28)]"
             />
-            <span className="text-sm text-stone-300">{m.editor_enableWatermark()}</span>
+            <span className="text-sm text-foreground">{m.editor_enableWatermark()}</span>
           </label>
           {state.watermarkEnabled && (
             <input
@@ -235,7 +187,7 @@ export default function EditorToolbar({
               value={state.watermarkText}
               onChange={(e) => onWatermarkChange(e.target.value, true)}
               placeholder={m.editor_watermarkPlaceholder()}
-              className="w-full px-3 py-2 bg-stone-700 border border-stone-600 rounded-lg text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-amber-600"
+              className="input"
             />
           )}
         </div>

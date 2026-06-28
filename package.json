@@ -7,13 +7,13 @@
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@oura-pix/api",
     "dev:web": "turbo run dev --filter=@oura-pix/frontend",
-    "build": "turbo run build",
+    "build": "corepack pnpm@9.0.0 --recursive --if-present run build",
     "build:api": "turbo run build --filter=@oura-pix/api",
     "build:web": "turbo run build --filter=@oura-pix/frontend",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
-    "test": "pnpm --filter=@oura-pix/api test -- --run",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "lint": "corepack pnpm@9.0.0 --recursive --if-present run lint",
+    "typecheck": "corepack pnpm@9.0.0 --recursive --if-present run typecheck",
+    "test": "corepack pnpm@9.0.0 --filter=@oura-pix/api test -- --run",
+    "verify": "corepack pnpm@9.0.0 lint && corepack pnpm@9.0.0 typecheck && corepack pnpm@9.0.0 test && corepack pnpm@9.0.0 build",
     "clean": "turbo run clean",
     "clean:state": "rm -rf .wrangler/state",
     "db:generate": "pnpm --filter=@oura-pix/database db:generate",
@@ -31,11 +31,29 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
-    "turbo": "^2.0.0",
+    "turbo": "^2.9.14",
     "typescript": "^5.6.3"
   },
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "pnpm": {
+    "overrides": {
+      "@babel/core": "^7.29.7",
+      "esbuild@<=0.24.2": "0.25.12",
+      "esbuild@>=0.27.3 <0.28.1": "0.28.1",
+      "form-data": "^4.0.6",
+      "js-yaml": "4.2.0",
+      "kysely": "^0.29.2",
+      "next": "^15.5.15",
+      "postcss": "^8.5.15",
+      "qs": "^6.15.3",
+      "solid-js": "^1.9.4",
+      "uuid@<11.1.1": "11.1.1",
+      "vite@>=7.1.0 <=7.3.1": "7.3.6",
+      "picomatch@<2.3.2": "2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": "4.0.4"
+    }
+  }
 }

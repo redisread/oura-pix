@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
+import { Menu, X, ChevronDown, PackageCheck } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import LanguageSelector from "./LanguageSelector";
@@ -86,23 +86,17 @@ export default function Navbar() {
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "glass border-b border-[hsl(var(--border))] shadow-lg"
-          : "bg-transparent"
+          ? "glass border-b border-[hsl(var(--border))] shadow-sm"
+          : "bg-[hsl(var(--background)/0.86)] backdrop-blur-md"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <a href={localizeHref("/")} className="flex items-center gap-3 group">
-          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
-            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80 blur-xl" />
-            {/* Icon */}
-            <span className="relative text-lg font-bold text-white">
-              <Sparkles className="h-4 w-4" />
-            </span>
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-[hsl(var(--background))] shadow-sm">
+            <PackageCheck className="h-5 w-5" aria-hidden="true" />
           </div>
-          <span className="text-lg font-semibold text-foreground tracking-tight">OuraPix</span>
+          <span className="font-display text-xl font-semibold text-foreground">OuraPix</span>
         </a>
 
         {/* Desktop Navigation */}
@@ -112,7 +106,7 @@ export default function Navbar() {
               <a
                 key={item.href}
                 href={localizeHref(item.href)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                className="rounded-md px-3 py-2 text-sm font-semibold text-foreground-muted transition-all duration-200 hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
               >
                 {item.label}
               </a>
@@ -124,11 +118,13 @@ export default function Navbar() {
                 onMouseLeave={handleMouseLeave}
               >
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setOpenDropdown(openDropdown === item.label ? null : item.label);
                   }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                  className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-foreground-muted transition-all duration-200 hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
+                  aria-expanded={openDropdown === item.label}
                 >
                   {item.label}
                   <ChevronDown
@@ -139,12 +135,12 @@ export default function Navbar() {
                 </button>
                 {openDropdown === item.label && (
                   <div className="absolute left-0 top-full pt-2 animate-scale-in origin-top-left">
-                    <div className="min-w-[160px] rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--popover))] p-1.5 shadow-xl">
+                    <div className="min-w-[180px] rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--popover))] p-1.5 shadow-xl">
                       {item.children.map((child) => (
                         <a
                           key={child.href}
                           href={localizeHref(child.href)}
-                          className="flex items-center px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                          className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
                         >
                           {child.label}
                         </a>
@@ -165,14 +161,14 @@ export default function Navbar() {
             <>
               <a
                 href={localizeHref("/profile")}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                className="rounded-md px-3 py-2 text-sm font-semibold text-foreground-muted transition-all duration-200 hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
               >
                 {m.profile()}
               </a>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
+                className="btn-primary px-4 py-2 text-sm"
               >
                 {m.logout()}
               </button>
@@ -182,13 +178,13 @@ export default function Navbar() {
               <>
                 <a
                   href={localizeHref("/login")}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-foreground-muted transition-all duration-200 hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                  className="rounded-md px-3 py-2 text-sm font-semibold text-foreground-muted transition-all duration-200 hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
                 >
                   {m.login()}
                 </a>
                 <a
                   href={localizeHref("/register")}
-                  className="btn-primary text-sm font-medium px-4 py-2 rounded-lg"
+                  className="btn-primary px-4 py-2 text-sm"
                 >
                   {m.register()}
                 </a>
@@ -199,8 +195,9 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
+          type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-foreground-muted hover:bg-[hsl(var(--foreground)/0.05)] transition-colors"
+          className="rounded-md p-2 text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] md:hidden"
           aria-label={isMenuOpen ? m.nav_closeMenu() : m.nav_openMenu()}
           aria-expanded={isMenuOpen}
         >
@@ -210,26 +207,28 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-[hsl(var(--border))] bg-[hsl(var(--background))]/95 backdrop-blur-xl px-4 py-4 animate-fade-in">
+        <div className="animate-fade-in border-t border-[hsl(var(--border))] bg-[hsl(var(--background))]/96 px-4 py-4 backdrop-blur-xl md:hidden">
           <nav className="flex flex-col gap-1">
             {navItems.map((item) =>
               item.type === "link" ? (
                 <a
                   key={item.href}
                   href={localizeHref(item.href)}
-                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                  className="rounded-md px-3 py-2.5 text-sm font-semibold text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
                 >
                   {item.label}
                 </a>
               ) : (
                 <div key={item.label}>
                   <button
+                    type="button"
                     onClick={() =>
                       setExpandedMobileGroup(
                         expandedMobileGroup === item.label ? null : item.label
                       )
                     }
-                    className="flex w-full items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                    className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-semibold text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
+                    aria-expanded={expandedMobileGroup === item.label}
                   >
                     {item.label}
                     <ChevronDown
@@ -244,7 +243,7 @@ export default function Navbar() {
                         <a
                           key={child.href}
                           href={localizeHref(child.href)}
-                          className="px-3 py-2 rounded-lg text-sm text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                          className="rounded-md px-3 py-2 text-sm text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
                         >
                           {child.label}
                         </a>
@@ -259,14 +258,14 @@ export default function Navbar() {
               <>
                 <a
                   href={localizeHref("/profile")}
-                  className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                  className="rounded-md px-3 py-2.5 text-sm font-semibold text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
                 >
                   {m.profile()}
                 </a>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
+                  className="btn-primary mt-1 px-4 py-2.5 text-center text-sm"
                 >
                   {m.logout()}
                 </button>
@@ -276,13 +275,13 @@ export default function Navbar() {
                 <>
                   <a
                     href={localizeHref("/login")}
-                    className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground-muted transition-colors hover:text-foreground hover:bg-[hsl(var(--foreground)/0.05)]"
+                    className="rounded-md px-3 py-2.5 text-sm font-semibold text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
                   >
                     {m.login()}
                   </a>
                   <a
                     href={localizeHref("/register")}
-                    className="btn-primary text-sm font-medium px-4 py-2.5 rounded-lg text-center mt-1"
+                    className="btn-primary mt-1 px-4 py-2.5 text-center text-sm"
                   >
                     {m.register()}
                   </a>

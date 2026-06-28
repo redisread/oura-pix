@@ -2,12 +2,14 @@
 import Layout from "../layouts/Layout.astro";
 import HistoryPage from "../components/HistoryPage";
 import ErrorBoundary from "../components/ErrorBoundary";
+import Navbar from "../components/Navbar";
 import * as m from "@/paraglide/messages.js";
 
 const isLoggedIn = true; // TODO: Check session
 ---
 
 <Layout title={m.history_title()}>
+  <Navbar client:load />
   <ErrorBoundary client:load>
     <HistoryPage client:load />
   </ErrorBoundary>

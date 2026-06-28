@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Sparkles, Upload, Settings, Eye, Check } from "lucide-react";
+import { Check, ClipboardCheck, Eye, Settings, Sparkles, Upload } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { getLocale } from "@/paraglide/runtime.js";
 import { localeToGenerationLanguage, type GenerationLanguage, type Locale } from "@oura-pix/i18n";
@@ -225,21 +225,41 @@ export default function GeneratePage() {
     <div className="flex min-h-screen flex-col">
       <main className="flex-1 bg-[hsl(var(--background))]">
         {/* Header */}
-        <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--background-secondary))]">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-bold text-foreground">{m.generation_title()}</h1>
-            <p className="mt-1 text-sm text-foreground-muted">
-              {m.generation_subtitle()}
-            </p>
+        <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+          <div className="proof-strip h-2" />
+          <div className="mx-auto grid max-w-7xl gap-5 px-4 py-7 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-end lg:px-8">
+            <div>
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--accent))]">
+                Generation bench
+              </p>
+              <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">
+                {m.generation_title()}
+              </h1>
+              <p className="mt-2 max-w-2xl text-sm text-foreground-muted">
+                {m.generation_subtitle()}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {["Upload", "Specify", "Review"].map((step) => (
+                <span
+                  key={step}
+                  className="rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--background)/0.55)] px-3 py-1 text-xs font-semibold text-foreground-muted"
+                >
+                  {step}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Main Content */}
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid items-start gap-6 lg:grid-cols-[0.9fr_1fr_1.08fr]">
             {/* Left: Upload Area */}
             <div className="space-y-6">
-              <div className="card p-6">
+              <div className="card overflow-hidden">
+                <div className="proof-strip h-1.5" />
+                <div className="p-5 sm:p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <Upload className="h-5 w-5 text-[hsl(var(--primary))]" />
                   <h2 className="text-lg font-semibold text-foreground">{m.generation_uploadSection()}</h2>
@@ -266,12 +286,13 @@ export default function GeneratePage() {
                     onFilesSelected={handleStyleImagesSelect}
                   />
                 </div>
+                </div>
               </div>
 
               {/* Tips */}
-              <div className="card p-4 border-[hsl(var(--primary)/0.2)]">
+              <div className="card border-[hsl(var(--primary)/0.2)] bg-[hsl(var(--primary)/0.06)] p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[hsl(var(--primary)/0.1)]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[hsl(var(--primary)/0.1)]">
                     <Sparkles className="h-5 w-5 text-[hsl(var(--primary))]" />
                   </div>
                   <div>
@@ -287,7 +308,9 @@ export default function GeneratePage() {
             </div>
 
             {/* Middle: Settings Panel */}
-            <div className="card p-6">
+            <div className="card overflow-hidden">
+              <div className="proof-strip h-1.5" />
+              <div className="p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-6">
                 <Settings className="h-5 w-5 text-[hsl(var(--primary))]" />
                 <h2 className="text-lg font-semibold text-foreground">{m.generation_settings()}</h2>
@@ -305,14 +328,17 @@ export default function GeneratePage() {
                       type="button"
                       onClick={() => setSettings({ ...settings, platform: platform.value })}
                       className={`
-                        flex flex-col items-center justify-center rounded-xl border-2 p-4 transition-all duration-200
+                        flex flex-col items-center justify-center rounded-lg border-2 p-4 transition-all duration-200
                         ${settings.platform === platform.value
                           ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)]"
                           : "border-[hsl(var(--border))] hover:border-[hsl(var(--foreground-muted)/0.3)]"
                         }
                       `}
                     >
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 text-sm font-bold text-white">
+                      <span
+                        className="flex h-8 w-8 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-sm font-bold text-[hsl(var(--background))]"
+                        aria-hidden="true"
+                      >
                         {platform.icon}
                       </span>
                       <span className="mt-2 text-sm font-medium text-foreground">
@@ -331,6 +357,7 @@ export default function GeneratePage() {
                 <div className="flex items-center gap-4">
                   <input
                     type="range"
+                    aria-label={m.generation_count()}
                     min={5}
                     max={10}
                     step={1}
@@ -357,7 +384,7 @@ export default function GeneratePage() {
                       type="button"
                       onClick={() => setSettings({ ...settings, style: style.value })}
                       className={`
-                        w-full flex items-center justify-between rounded-xl border-2 p-3 text-left transition-all duration-200
+                        w-full flex items-center justify-between rounded-lg border-2 p-3 text-left transition-all duration-200
                         ${settings.style === style.value
                           ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.1)]"
                           : "border-[hsl(var(--border))] hover:border-[hsl(var(--foreground-muted)/0.3)]"
@@ -397,7 +424,7 @@ export default function GeneratePage() {
               </div>
 
               {/* Image Generation Toggle */}
-              <div className="mb-6 rounded-xl border border-[hsl(var(--border))] p-4">
+              <div className="mb-6 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background)/0.42)] p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">
@@ -410,6 +437,8 @@ export default function GeneratePage() {
                   <button
                     type="button"
                     onClick={() => setSettings({ ...settings, generateImages: !settings.generateImages })}
+                    aria-label={m.generation_imageGen_title()}
+                    aria-pressed={settings.generateImages}
                     className={`
                       relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
                       ${settings.generateImages ? "bg-[hsl(var(--primary))]" : "bg-[hsl(var(--secondary))]"}
@@ -433,6 +462,7 @@ export default function GeneratePage() {
                       <div className="flex items-center gap-3">
                         <input
                           type="range"
+                          aria-label={m.generation_imageGen_count()}
                           min={3}
                           max={10}
                           step={1}
@@ -468,7 +498,7 @@ export default function GeneratePage() {
 
               {/* Error Message */}
               {error && (
-                <div className="mb-4 rounded-xl bg-[hsl(var(--color-error-light))] p-3 text-sm text-[hsl(var(--color-error))]">
+                <div className="mb-4 rounded-lg bg-[hsl(var(--color-error-light))] p-3 text-sm font-medium text-[hsl(var(--color-error))]">
                   {error}
                 </div>
               )}
@@ -479,7 +509,7 @@ export default function GeneratePage() {
                 onClick={handleGenerate}
                 disabled={!canGenerate}
                 className={`
-                  btn-primary w-full h-12 rounded-xl text-base font-medium flex items-center justify-center gap-2
+                  btn-primary w-full h-12 text-base flex items-center justify-center gap-2
                   ${canGenerate
                     ? ""
                     : "opacity-50 cursor-not-allowed"
@@ -506,10 +536,13 @@ export default function GeneratePage() {
                   </>
                 )}
               </button>
+              </div>
             </div>
 
             {/* Right: Preview Area */}
-            <div className="card p-6">
+            <div className="card overflow-hidden">
+              <div className="proof-strip h-1.5" />
+              <div className="p-5 sm:p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Eye className="h-5 w-5 text-[hsl(var(--primary))]" />
                 <h2 className="text-lg font-semibold text-foreground">{m.generation_preview()}</h2>
@@ -532,7 +565,7 @@ export default function GeneratePage() {
                 <div className="space-y-6">
                   {/* Demo Mode Banner */}
                   {generatedResults.some((r) => r.metadata?.mock) && (
-                    <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-400 flex items-center gap-2">
+                    <div className="flex items-center gap-2 rounded-lg border border-[hsl(var(--accent)/0.32)] bg-[hsl(var(--accent)/0.1)] p-3 text-sm font-medium text-[hsl(var(--accent))]">
                       <Sparkles className="w-4 h-4 flex-shrink-0" />
                       {m.generation_demoMode()}
                     </div>
@@ -542,7 +575,7 @@ export default function GeneratePage() {
                     <button
                       type="button"
                       onClick={() => setShowCompare(true)}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[hsl(var(--border))] p-3 text-sm font-medium text-foreground-muted hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))] transition-colors"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[hsl(var(--border))] p-3 text-sm font-semibold text-foreground-muted transition-colors hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
@@ -551,7 +584,7 @@ export default function GeneratePage() {
                     </button>
                   )}
                   {generatedResults.map((result, resultIndex) => (
-                    <div key={result.id || resultIndex} className="rounded-xl border border-[hsl(var(--border))] p-4">
+                    <div key={result.id || resultIndex} className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background)/0.38)] p-4">
                       <div className="mb-4">
                         <h3 className="text-base font-semibold text-foreground mb-2">
                           {result.title}
@@ -564,7 +597,7 @@ export default function GeneratePage() {
                             {result.tags.slice(0, 5).map((tag: string, tagIndex: number) => (
                               <span
                                 key={tagIndex}
-                                className="inline-flex items-center rounded-full bg-[hsl(var(--primary)/0.1)] px-2.5 py-0.5 text-xs text-[hsl(var(--primary))]"
+                                className="inline-flex items-center rounded-full bg-[hsl(var(--primary)/0.1)] px-2.5 py-0.5 text-xs font-semibold text-[hsl(var(--primary))]"
                               >
                                 {tag}
                               </span>
@@ -582,7 +615,7 @@ export default function GeneratePage() {
                             {result.sceneImages.map((img: SceneImage, imgIndex: number) => (
                               <div
                                 key={img.imageId || imgIndex}
-                                className="group relative aspect-square rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] overflow-hidden"
+                                className="group relative aspect-square overflow-hidden rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--secondary))]"
                               >
                                 <img
                                   src={img.url}
@@ -595,14 +628,14 @@ export default function GeneratePage() {
                                   <button
                                     type="button"
                                     onClick={() => window.open(img.url, "_blank")}
-                                    className="rounded-lg bg-[hsl(var(--primary))] px-3 py-1.5 text-xs font-medium text-white hover:bg-[hsl(var(--primary-hover))]"
+                                    className="rounded-md bg-[hsl(var(--primary))] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[hsl(var(--primary-hover))]"
                                   >
                                     {m.generation_viewLarge()}
                                   </button>
                                   <a
                                     href={img.url}
                                     download
-                                    className="rounded-lg bg-[hsl(var(--secondary))] px-3 py-1.5 text-xs font-medium text-foreground hover:bg-[hsl(var(--secondary-hover))]"
+                                    className="rounded-md bg-[hsl(var(--secondary))] px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-[hsl(var(--secondary-hover))]"
                                   >
                                     {m.generation_downloadImage()}
                                   </a>
@@ -620,14 +653,13 @@ export default function GeneratePage() {
                 </div>
               ) : !isGenerating ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[hsl(var(--primary)/0.1)] mb-4">
-                    <svg className="h-8 w-8 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-[hsl(var(--primary)/0.1)]">
+                    <ClipboardCheck className="h-8 w-8 text-[hsl(var(--primary))]" aria-hidden="true" />
                   </div>
                   <p className="text-sm text-foreground-muted">{m.generation_previewDesc()}</p>
                 </div>
               ) : null}
+              </div>
             </div>
           </div>
         </div>

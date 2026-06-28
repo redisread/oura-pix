@@ -17,8 +17,8 @@ export default function DistributionChart({ data, title, color = '#d97706' }: Di
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <div className="bg-white dark:bg-stone-800 rounded-lg shadow-sm border border-stone-200 dark:border-stone-700 p-6">
-      <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-4">
+    <div className="panel p-6">
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
         {title}
       </h3>
 
@@ -30,14 +30,14 @@ export default function DistributionChart({ data, title, color = '#d97706' }: Di
           return (
             <div key={index}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+                <span className="text-sm font-medium text-foreground">
                   {item.label}
                 </span>
-                <span className="text-sm text-stone-600 dark:text-stone-400">
+                <span className="font-utility text-sm text-foreground-muted">
                   {item.value} ({actualPercentage.toFixed(1)}%)
                 </span>
               </div>
-              <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
+              <div className="h-2 w-full rounded-full bg-[hsl(var(--secondary))]">
                 <div
                   className="h-2 rounded-full transition-all duration-500"
                   style={{
@@ -52,9 +52,7 @@ export default function DistributionChart({ data, title, color = '#d97706' }: Di
       </div>
 
       {data.length === 0 && (
-        <p className="text-sm text-stone-500 dark:text-stone-500 text-center py-8">
-          {m.stats_noData()}
-        </p>
+        <p className="py-8 text-center text-sm text-foreground-muted">{m.stats_noData()}</p>
       )}
     </div>
   );

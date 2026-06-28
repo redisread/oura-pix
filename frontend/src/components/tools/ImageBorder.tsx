@@ -7,14 +7,15 @@
 "use client";
 
 import { useRef } from "react";
+import { Download, ImagePlus } from "lucide-react";
 import {
-  useImageBorder,
-  BORDER_STYLES,
   BADGES,
-  getBorderStyleLabel,
+  BORDER_STYLES,
   getBadgeLabel,
-  type BorderStyle,
+  getBorderStyleLabel,
+  useImageBorder,
   type BadgeStyle,
+  type BorderStyle,
 } from "@/hooks/useImageBorder";
 import * as m from "@/paraglide/messages.js";
 
@@ -23,25 +24,22 @@ export default function ImageBorder() {
   const { options, setOptions, imageUrl, setImage, canvasRef, previewUrl, exporting, download } = useImageBorder();
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_borderTitle()}</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {m.tool_borderSubtitle()}
-        </p>
-      </div>
+    <div className="workbench-page">
+      <div className="workbench-container">
+        <header className="mb-8 max-w-3xl">
+          <p className="page-kicker">{m.tool_borderKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_borderTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_borderSubtitle()}</p>
+        </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Options */}
-        <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
+          <div className="panel space-y-4 p-4">
           <div>
-            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{m.tool_borderStyle()}</h2>
+              <h2 className="panel-title mb-2">{m.tool_borderStyle()}</h2>
             <div className="grid grid-cols-2 gap-1.5">
               <button
                 onClick={() => setOptions({ ...options, borderStyle: "none" })}
-                className={`px-2 py-1.5 text-xs rounded ${
-                  options.borderStyle === "none" ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
-                }`}
+                  className={`segmented-option ${options.borderStyle === "none" ? "segmented-option-active" : ""}`}
               >
                 {m.tool_none()}
               </button>
@@ -49,9 +47,7 @@ export default function ImageBorder() {
                 <button
                   key={key}
                   onClick={() => setOptions({ ...options, borderStyle: key })}
-                  className={`px-2 py-1.5 text-xs rounded ${
-                    options.borderStyle === key ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
-                  }`}
+                    className={`segmented-option ${options.borderStyle === key ? "segmented-option-active" : ""}`}
                 >
                   {getBorderStyleLabel(key)}
                 </button>
@@ -62,17 +58,18 @@ export default function ImageBorder() {
           {options.borderStyle !== "none" && (
             <>
               <div>
-                <label className="block text-xs text-slate-500 mb-1">{m.tool_borderColor()}</label>
+                  <label className="panel-label mb-1 block">{m.tool_borderColor()}</label>
                 <input
                   type="color"
                   value={options.borderColor}
                   onChange={(e) => setOptions({ ...options, borderColor: e.target.value })}
-                  className="w-full h-8 border border-slate-200 dark:border-slate-700 rounded"
+                    className="swatch"
+                    aria-label={m.tool_borderColorAria()}
                 />
               </div>
 
               <div>
-                <div className="flex justify-between text-xs text-slate-500 mb-1">
+                  <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
                   <span>{m.tool_padding()}</span>
                   <span>{options.outputPadding}px</span>
                 </div>
@@ -82,20 +79,19 @@ export default function ImageBorder() {
                   max="80"
                   value={options.outputPadding}
                   onChange={(e) => setOptions({ ...options, outputPadding: Number(e.target.value) })}
-                  className="w-full accent-slate-900"
+                    className="range"
+                    aria-label={m.tool_borderPaddingAria()}
                 />
               </div>
             </>
           )}
 
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{m.tool_badge()}</h2>
+            <div className="border-t border-[hsl(var(--border))] pt-4">
+              <h2 className="panel-title mb-2">{m.tool_badge()}</h2>
             <div className="grid grid-cols-3 gap-1.5">
               <button
                 onClick={() => setOptions({ ...options, badge: "none" })}
-                className={`px-2 py-1.5 text-xs rounded ${
-                  options.badge === "none" ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
-                }`}
+                  className={`segmented-option ${options.badge === "none" ? "segmented-option-active" : ""}`}
               >
                 {m.tool_none()}
               </button>
@@ -103,9 +99,7 @@ export default function ImageBorder() {
                 <button
                   key={key}
                   onClick={() => setOptions({ ...options, badge: key })}
-                  className={`px-2 py-1.5 text-xs rounded ${
-                    options.badge === key ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
-                  }`}
+                    className={`segmented-option ${options.badge === key ? "segmented-option-active" : ""}`}
                 >
                   {getBadgeLabel(key)}
                 </button>
@@ -116,15 +110,14 @@ export default function ImageBorder() {
           {options.badge !== "none" && (
             <>
               <div>
-                <h3 className="text-xs text-slate-500 mb-1">{m.tool_position()}</h3>
+                  <h3 className="panel-label mb-1">{m.tool_position()}</h3>
                 <div className="grid grid-cols-4 gap-1">
                   {(["tl", "tr", "bl", "br"] as const).map((pos) => (
                     <button
                       key={pos}
                       onClick={() => setOptions({ ...options, badgePosition: pos })}
-                      className={`h-8 text-xs rounded ${
-                        options.badgePosition === pos ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
-                      }`}
+                        className={`segmented-option h-8 ${options.badgePosition === pos ? "segmented-option-active" : ""}`}
+                        aria-label={m.tool_badgePositionAria({ position: pos })}
                     >
                       {pos === "tl" ? "↖" : pos === "tr" ? "↗" : pos === "bl" ? "↙" : "↘"}
                     </button>
@@ -133,7 +126,7 @@ export default function ImageBorder() {
               </div>
 
               <div>
-                <div className="flex justify-between text-xs text-slate-500 mb-1">
+                  <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
                   <span>{m.tool_size()}</span>
                   <span>{options.badgeSize}px</span>
                 </div>
@@ -143,7 +136,8 @@ export default function ImageBorder() {
                   max="120"
                   value={options.badgeSize}
                   onChange={(e) => setOptions({ ...options, badgeSize: Number(e.target.value) })}
-                  className="w-full accent-slate-900"
+                    className="range"
+                    aria-label={m.tool_badgeSizeAria()}
                 />
               </div>
             </>
@@ -151,8 +145,9 @@ export default function ImageBorder() {
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
+              className="btn-primary h-10 w-full gap-2"
           >
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />
             {imageUrl ? m.common_changeImage() : m.common_selectImage()}
           </button>
           <input
@@ -170,29 +165,29 @@ export default function ImageBorder() {
             <button
               onClick={download}
               disabled={exporting}
-              className="w-full px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
+                className="btn-secondary h-10 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
+                <Download className="h-4 w-4" aria-hidden="true" />
               {exporting ? m.tool_exporting() : m.tool_downloadPng()}
             </button>
           )}
         </div>
 
-        {/* Preview */}
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
-            <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded min-h-[500px]">
+            <div className="panel p-4">
+              <div className="panel-muted flex min-h-[500px] items-center justify-center">
               <canvas ref={canvasRef} className="hidden" />
               {previewUrl ? (
                 <img src={previewUrl} alt={m.tool_preview()} className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
               ) : (
-                <p className="text-slate-400 p-12 text-center">
-                  {m.tool_uploadImageStart()}<br />
+                  <p className="p-12 text-center text-sm font-medium text-foreground-muted">{m.tool_uploadImageStart()}<br />
                   <span className="text-xs">{m.common_supportedImageFormats()}</span>
                 </p>
               )}
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

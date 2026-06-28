@@ -212,7 +212,7 @@ export function useImageBorder() {
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       // Adjust font size for long text
-      const displayText = badge.text;
+      const displayText = getBadgeLabel(options.badge);
       if (displayText.length > 4) {
         ctx.font = `bold ${Math.floor(size * 0.22)}px sans-serif`;
       }

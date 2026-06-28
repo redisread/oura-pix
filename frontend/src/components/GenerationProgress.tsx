@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Loader2 } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 
 export type GenerationStage = "analyzing" | "generating_text" | "generating_images" | "uploading" | "completed";
@@ -48,7 +49,6 @@ export default function GenerationProgress({
 
   return (
     <div className="space-y-4">
-      {/* Stage Indicators */}
       <div className="flex items-center justify-between">
         {stages.map((stageItem, index) => {
           const isActive = index === currentStageIndex;
@@ -62,26 +62,20 @@ export default function GenerationProgress({
                   className={`
                     flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all
                     ${isCompleted
-                      ? "border-slate-900 bg-slate-900"
+                      ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary))]"
                       : isActive
-                      ? "border-slate-900 bg-white"
-                      : "border-slate-300 bg-white"
+                      ? "border-[hsl(var(--primary))] bg-[hsl(var(--card))]"
+                      : "border-[hsl(var(--border))] bg-[hsl(var(--card))]"
                     }
                   `}
                 >
                   {isCompleted ? (
-                    <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <Check className="h-4 w-4 text-white" aria-hidden="true" />
                   ) : (
                     <span
                       className={`
                         text-xs font-semibold
-                        ${isActive ? "text-slate-900" : "text-slate-400"}
+                        ${isActive ? "text-[hsl(var(--primary))]" : "text-foreground-muted"}
                       `}
                     >
                       {index + 1}
@@ -92,7 +86,7 @@ export default function GenerationProgress({
                 <span
                   className={`
                     mt-2 text-xs text-center
-                    ${isActive || isCompleted ? "text-slate-900 font-medium" : "text-slate-500"}
+                    ${isActive || isCompleted ? "font-semibold text-foreground" : "text-foreground-muted"}
                   `}
                 >
                   {stageItem.label}
@@ -103,7 +97,7 @@ export default function GenerationProgress({
                 <div
                   className={`
                     h-0.5 flex-1 -mt-6 transition-colors
-                    ${isCompleted ? "bg-slate-900" : "bg-slate-300"}
+                    ${isCompleted ? "bg-[hsl(var(--primary))]" : "bg-[hsl(var(--border))]"}
                   `}
                 />
               )}
@@ -115,43 +109,24 @@ export default function GenerationProgress({
       {/* Progress Bar */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-slate-600">{getStageText()}</span>
-          <span className="text-sm font-medium text-slate-900">{Math.round(progress)}%</span>
+          <span className="text-sm text-foreground-muted">{getStageText()}</span>
+          <span className="font-utility text-sm font-semibold text-foreground">{Math.round(progress)}%</span>
         </div>
-        <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-[hsl(var(--secondary))]">
           <div
-            className="h-2 rounded-full bg-slate-900 transition-all duration-500 ease-out"
+            className="h-2 rounded-full bg-[hsl(var(--primary))] transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      {/* Current Stage Description */}
       {stage === "generating_images" && totalImageCount > 0 && (
-        <div className="rounded-lg bg-blue-50 p-3">
+        <div className="info-banner">
           <div className="flex items-start gap-2">
-            <svg
-              className="h-5 w-5 text-blue-600 mt-0.5 shrink-0 animate-spin"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
+            <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin" aria-hidden="true" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-blue-900">{m.generation_generatingSceneImages()}</p>
-              <p className="text-xs text-blue-700 mt-1">
+              <p className="text-sm font-semibold">{m.generation_generatingSceneImages()}</p>
+              <p className="mt-1 text-xs">
                 {m.generation_aiCreatingImages()}
               </p>
             </div>

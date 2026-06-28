@@ -48,7 +48,7 @@ const singleMetricSchema = z.object({
   userAgent: z.string().max(500).optional(),
   deviceType: DeviceTypeSchema.optional(),
   connectionType: z.string().max(50).optional(),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 });
 
 /**

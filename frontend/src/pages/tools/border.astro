@@ -1,9 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import ImageBorder from '../../components/tools/ImageBorder';
 import * as m from "@/paraglide/messages.js";
+import ImageBorder from '../../components/tools/ImageBorder';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title={m.meta_toolBorderTitle()}>
+  <Navbar client:load />
   <ImageBorder client:load />
 </Layout>

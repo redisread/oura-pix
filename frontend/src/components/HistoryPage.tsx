@@ -5,6 +5,7 @@
  */
 
 import { useCallback, useState } from "react";
+import { PackageOpen, Plus } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useGenerations } from "@/hooks/useGenerations";
@@ -15,17 +16,17 @@ import { deleteGeneration } from "@/lib/api";
 
 function SkeletonCard() {
   return (
-    <div className="bg-white dark:bg-stone-800 rounded-xl overflow-hidden shadow-sm border border-stone-200 dark:border-stone-700 animate-pulse">
-      <div className="aspect-video bg-stone-200 dark:bg-stone-700" />
+    <div className="card animate-pulse overflow-hidden">
+      <div className="aspect-video bg-[hsl(var(--secondary))]" />
       <div className="p-3 space-y-2">
-        <div className="h-4 bg-stone-200 dark:bg-stone-700 rounded w-3/4" />
+        <div className="h-4 w-3/4 rounded bg-[hsl(var(--secondary))]" />
         <div className="flex justify-between">
-          <div className="h-3 bg-stone-200 dark:bg-stone-700 rounded w-1/4" />
-          <div className="h-3 bg-stone-200 dark:bg-stone-700 rounded w-1/4" />
+          <div className="h-3 w-1/4 rounded bg-[hsl(var(--secondary))]" />
+          <div className="h-3 w-1/4 rounded bg-[hsl(var(--secondary))]" />
         </div>
         <div className="flex gap-1">
-          <div className="h-5 bg-stone-200 dark:bg-stone-700 rounded w-12" />
-          <div className="h-5 bg-stone-200 dark:bg-stone-700 rounded w-12" />
+          <div className="h-5 w-12 rounded bg-[hsl(var(--secondary))]" />
+          <div className="h-5 w-12 rounded bg-[hsl(var(--secondary))]" />
         </div>
       </div>
     </div>
@@ -34,27 +35,19 @@ function SkeletonCard() {
 
 function EmptyState({ onGenerate }: { onGenerate: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-24 h-24 mb-6 text-stone-300 dark:text-stone-600">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1}
-            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-          />
-        </svg>
-      </div>
-      <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
+    <div className="panel-muted flex flex-col items-center justify-center px-4 py-16">
+      <PackageOpen className="mb-6 h-16 w-16 text-foreground-muted" aria-hidden="true" />
+      <h2 className="mb-2 text-lg font-semibold text-foreground">
         {m.history_empty()}
-      </h3>
-      <p className="text-stone-500 dark:text-stone-400 text-center mb-6 max-w-sm">
+      </h2>
+      <p className="mb-6 max-w-sm text-center text-sm text-foreground-muted">
         {m.history_emptyDescription()}
       </p>
       <button
         onClick={onGenerate}
-        className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
+        className="btn-primary h-10 gap-2 px-6"
       >
+        <Plus className="h-4 w-4" aria-hidden="true" />
         {m.history_startGenerate()}
       </button>
     </div>
@@ -109,30 +102,27 @@ export default function HistoryPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-stone-100 dark:bg-stone-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+    <div className="workbench-page">
+      <div className="workbench-container">
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100">
+            <p className="page-kicker">{m.history_kicker()}</p>
+            <h1 className="page-title mt-2">
               {m.history_title()}
             </h1>
-            <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">
+            <p className="page-description mt-2">
               {pagination ? m.history_totalRecords({ count: pagination.total.toString() }) : ""}
             </p>
           </div>
           <button
             onClick={handleGenerate}
-            className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+            className="btn-primary h-10 gap-2 px-4"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="h-4 w-4" aria-hidden="true" />
             {m.history_newGenerate()}
           </button>
-        </div>
+        </header>
 
-        {/* Filters */}
         <FilterBar
           timeFilter={filter}
           onTimeFilterChange={setFilter}
@@ -142,14 +132,13 @@ export default function HistoryPage() {
           onStatusFilterChange={setStatus}
         />
 
-        {/* Content */}
         <div className="mt-6">
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
-              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+            <div className="error-banner mb-4">
+              <p>{error}</p>
               <button
                 onClick={refresh}
-                className="mt-2 text-sm text-red-600 dark:text-red-400 underline hover:no-underline"
+                className="mt-2 text-sm font-semibold underline hover:no-underline"
               >
                 {m.common_retry()}
               </button>
@@ -179,23 +168,22 @@ export default function HistoryPage() {
                 ))}
               </div>
 
-              {/* Pagination */}
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-8">
                   <button
                     onClick={() => setPage(page - 1)}
                     disabled={page === 1}
-                    className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                    className="btn-secondary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {m.common_previousPage()}
                   </button>
-                  <span className="text-sm text-stone-600 dark:text-stone-400">
+                  <span className="font-utility text-sm text-foreground-muted">
                     {page} / {pagination.totalPages}
                   </span>
                   <button
                     onClick={() => setPage(page + 1)}
                     disabled={page === pagination.totalPages}
-                    className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                    className="btn-secondary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {m.common_nextPage()}
                   </button>

@@ -56,9 +56,9 @@ function LoadingMessage({ message, className }: LoadingState) {
     <div
       className={`flex flex-col items-center justify-center py-12 ${className ?? ""}`}
     >
-      <Loader2 className="h-8 w-8 animate-spin text-slate-400 dark:text-slate-500" />
+      <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--primary))]" />
       {message && (
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-3 text-sm font-medium text-foreground-muted">
           {message}
         </p>
       )}
@@ -68,17 +68,15 @@ function LoadingMessage({ message, className }: LoadingState) {
 
 function ErrorMessage({ message, onRetry, className }: ErrorState) {
   return (
-    <div
-      className={`rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20 ${className ?? ""}`}
-    >
+    <div className={`error-banner ${className ?? ""}`}>
       <div className="flex items-start gap-3">
-        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-red-700 dark:text-red-300">{message}</p>
+          <p>{message}</p>
           {onRetry && (
             <button
               onClick={onRetry}
-              className="mt-2 text-sm font-medium text-red-600 underline hover:no-underline dark:text-red-400"
+              className="mt-2 text-sm font-semibold underline hover:no-underline"
             >
               {m.common_retry()}
             </button>
@@ -98,23 +96,23 @@ function EmptyMessage({
 }: EmptyState) {
   return (
     <div
-      className={`flex flex-col items-center justify-center px-4 py-16 ${className ?? ""}`}
+      className={`panel-muted flex flex-col items-center justify-center px-4 py-16 ${className ?? ""}`}
     >
-      <div className="mb-6 text-slate-300 dark:text-slate-600">
+      <div className="mb-6 text-foreground-muted">
         {icon ?? <Inbox className="h-16 w-16" />}
       </div>
-      <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">
+      <h3 className="text-lg font-semibold text-foreground">
         {title}
       </h3>
       {description && (
-        <p className="mt-2 max-w-sm text-center text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-2 max-w-sm text-center text-sm text-foreground-muted">
           {description}
         </p>
       )}
       {action && (
         <button
           onClick={action.onClick}
-          className="mt-6 rounded-lg bg-amber-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-amber-700"
+          className="btn-primary mt-6 h-10 px-6"
         >
           {action.label}
         </button>

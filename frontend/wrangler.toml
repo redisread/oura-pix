@@ -2,7 +2,7 @@
 # Deploy: wrangler deploy (from frontend/ directory)
 
 name = "oura-pix-frontend"
-main = "dist/_worker.js"
+main = "@astrojs/cloudflare/entrypoints/server"
 compatibility_date = "2026-02-26"
 compatibility_flags = ["nodejs_compat"]
 
@@ -13,7 +13,7 @@ binding = "ASSETS"
 
 # Environment variables
 [vars]
-PUBLIC_API_URL = "https://oura-pix-api.wujiahong2013.workers.dev"
+PUBLIC_API_URL = "https://api.ourapix.jiahongw.com"
 
 # Observability
 [observability]

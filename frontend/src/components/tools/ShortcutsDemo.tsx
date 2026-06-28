@@ -8,6 +8,7 @@
 "use client";
 
 import { useState } from "react";
+import { Keyboard, Zap } from "lucide-react";
 import { useKeyboardShortcuts, ShortcutBadge } from "@/hooks/useKeyboardShortcuts";
 import * as m from "@/paraglide/messages.js";
 
@@ -41,18 +42,19 @@ export default function ShortcutsDemo() {
   });
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_shortcutsTitle()}</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {m.tool_shortcutsSubtitle()}
-        </p>
-      </div>
+    <div className="workbench-page">
+      <div className="workbench-container max-w-4xl">
+        <header className="mb-8 max-w-3xl">
+          <p className="page-kicker">{m.tool_shortcutsKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_shortcutsTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_shortcutsSubtitle()}</p>
+        </header>
 
       {lastAction && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded">
-          <p className="text-sm text-blue-800 dark:text-blue-200">
-            {m.tool_shortcutsLastTriggered({ action: lastAction })}
+          <div className="info-banner mb-4 flex items-center gap-2">
+            <Zap className="h-4 w-4" aria-hidden="true" />
+            <p>
+              {m.tool_shortcutsLastTriggered({ action: lastAction })}
           </p>
         </div>
       )}
@@ -64,18 +66,18 @@ export default function ShortcutsDemo() {
           return (
             <div
               key={cat.value}
-              className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
+                className="panel overflow-hidden"
             >
-              <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300">
+                <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--secondary)/0.52)] px-4 py-2 text-xs font-bold text-foreground">
                 {cat.label()}
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                <div>
                 {items.map((s) => (
                   <div
                     key={s.keys}
-                    className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                      className="data-row flex items-center justify-between px-4 py-3"
                   >
-                    <span className="text-sm text-slate-700 dark:text-slate-300">{s.label()}</span>
+                      <span className="text-sm font-medium text-foreground">{s.label()}</span>
                     <ShortcutBadge keys={s.keys} />
                   </div>
                 ))}
@@ -85,8 +87,10 @@ export default function ShortcutsDemo() {
         })}
       </div>
 
-      <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded text-sm text-amber-800 dark:text-amber-200">
-        💡 {m.tool_shortcutsTip()}
+        <div className="warning-banner mt-6 flex items-center gap-3">
+          <Keyboard className="h-5 w-5 shrink-0" aria-hidden="true" />
+          <p>{m.tool_shortcutsTip()}</p>
+        </div>
       </div>
     </div>
   );

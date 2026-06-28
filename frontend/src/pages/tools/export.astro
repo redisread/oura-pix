@@ -1,9 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import ExportDemo from '../../components/tools/ExportDemo';
 import * as m from "@/paraglide/messages.js";
+import ExportDemo from '../../components/tools/ExportDemo';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title={m.meta_toolExportTitle()}>
+  <Navbar client:load />
   <ExportDemo client:load />
 </Layout>

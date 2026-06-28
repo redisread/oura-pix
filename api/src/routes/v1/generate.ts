@@ -64,7 +64,7 @@ const validateCreateGeneration = zValidator("json", createSchema, (result, c) =>
         error: {
           code: "BAD_REQUEST",
           message: serverMessage(locale, "badRequest"),
-          details: result.error.flatten(),
+          details: z.flattenError(result.error),
         },
       },
       400

@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import StatsPage from '../components/stats/StatsPage';
 import * as m from "@/paraglide/messages.js";
+import StatsPage from '../components/stats/StatsPage';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title={m.meta_statsTitle()}>
+  <Navbar client:load />
   <StatsPage client:load />
 </Layout>

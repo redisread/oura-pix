@@ -1,9 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import CategoriesPage from '../components/categories/CategoriesPage';
 import * as m from "@/paraglide/messages.js";
+import CategoriesPage from '../components/categories/CategoriesPage';
+import Navbar from '../components/Navbar';
 ---
 
-<Layout title={m.meta_categoriesTitle()}>
+<Layout title={m.categories_title()}>
+  <Navbar client:load />
   <CategoriesPage client:load />
 </Layout>

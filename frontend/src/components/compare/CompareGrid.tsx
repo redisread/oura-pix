@@ -54,7 +54,7 @@ export default function CompareGrid({
 
   return (
     <div
-      className={`grid ${gridClass} gap-2 w-full h-full bg-stone-900 rounded-lg overflow-hidden`}
+      className={`grid ${gridClass} h-full w-full gap-2 overflow-hidden rounded-md bg-[hsl(var(--foreground))]`}
       onWheel={onWheel}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
@@ -68,7 +68,7 @@ export default function CompareGrid({
             layout === "single" ? "col-span-1 row-span-1" : ""
           } ${
             layout !== "single" && onSelectImage && idx === currentIndex
-              ? "ring-2 ring-amber-500"
+              ? "ring-2 ring-[hsl(var(--primary))]"
               : ""
           }`}
           onClick={() => onSelectImage?.(idx)}
@@ -86,7 +86,7 @@ export default function CompareGrid({
             draggable={false}
           />
           {/* Image Index Badge */}
-          <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 text-white text-xs rounded">
+          <div className="font-utility absolute left-2 top-2 rounded-md bg-[hsl(var(--foreground)/0.7)] px-2 py-0.5 text-xs text-[hsl(var(--background))]">
             {idx + 1}
           </div>
         </div>

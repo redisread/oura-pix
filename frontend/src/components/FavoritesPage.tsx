@@ -5,6 +5,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { Check, Download, Heart, Images, Sparkles, Trash2, X } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites, type Favorite } from "@/hooks/useFavorites";
@@ -13,28 +14,25 @@ import FavoriteCard from "./FavoriteCard";
 
 function SkeletonCard() {
   return (
-    <div className="aspect-square bg-stone-200 dark:bg-stone-700 rounded-xl animate-pulse" />
+    <div className="card aspect-square animate-pulse bg-[hsl(var(--secondary))]" />
   );
 }
 
 function EmptyState({ onBrowse }: { onBrowse: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="w-24 h-24 mb-6 text-stone-300 dark:text-stone-600">
-        <svg fill="currentColor" viewBox="0 0 24 24" className="w-full h-full">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
-      </div>
-      <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">
+    <div className="panel-muted flex flex-col items-center justify-center px-4 py-16">
+      <Images className="mb-6 h-16 w-16 text-foreground-muted" aria-hidden="true" />
+      <h2 className="mb-2 text-lg font-semibold text-foreground">
         {m.favorites_empty()}
-      </h3>
-      <p className="text-stone-500 dark:text-stone-400 text-center mb-6 max-w-sm">
+      </h2>
+      <p className="mb-6 max-w-sm text-center text-sm text-foreground-muted">
         {m.favorites_emptyDescription()}
       </p>
       <button
         onClick={onBrowse}
-        className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors"
+        className="btn-primary h-10 gap-2 px-6"
       >
+        <Sparkles className="h-4 w-4" aria-hidden="true" />
         {m.favorites_goGenerate()}
       </button>
     </div>
@@ -52,26 +50,24 @@ function ImageModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.72)] p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="favorite-modal-title"
     >
       <div
-        className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-stone-800 rounded-xl overflow-hidden shadow-2xl"
+        className="panel relative max-h-[90vh] max-w-4xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+          className="icon-button absolute right-4 top-4 z-10 h-10 w-10 bg-[hsl(var(--card)/0.88)] text-foreground hover:bg-[hsl(var(--card))]"
+          aria-label={m.favorites_closePreview()}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X className="h-5 w-5" aria-hidden="true" />
         </button>
 
-        {/* Image */}
         <img
           src={favorite.imageUrl}
           alt={m.favorite_imageAlt()}
@@ -79,10 +75,9 @@ function ImageModal({
           decoding="async"
         />
 
-        {/* Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between">
-          <div className="text-white text-sm">
-            <span className="font-medium">
+        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-[hsl(var(--foreground)/0.78)] p-4">
+          <div id="favorite-modal-title" className="text-sm text-[hsl(var(--background))]">
+            <span className="font-semibold">
               {favorite.generation?.settings?.targetPlatform || m.common_custom()}
             </span>
             <span className="ml-4 opacity-75">
@@ -93,8 +88,9 @@ function ImageModal({
             <a
               href={favorite.imageUrl}
               download
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-sm transition-colors"
+              className="btn-secondary h-10 gap-2 bg-[hsl(var(--card)/0.9)] px-4 text-foreground"
             >
+              <Download className="h-4 w-4" aria-hidden="true" />
               {m.favorites_download()}
             </a>
             <button
@@ -102,8 +98,9 @@ function ImageModal({
                 onRemove(favorite.id);
                 onClose();
               }}
-              className="px-4 py-2 bg-red-500/80 hover:bg-red-500 text-white rounded-lg text-sm transition-colors"
+              className="btn-primary h-10 gap-2 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))]"
             >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
               {m.favorite_remove()}
             </button>
           </div>
@@ -166,37 +163,36 @@ export default function FavoritesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-stone-100 dark:bg-stone-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+    <div className="workbench-page">
+      <div className="workbench-container">
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <svg className="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
+            <p className="page-kicker">{m.favorites_kicker()}</p>
+            <h1 className="page-title mt-2 flex items-center gap-3">
+              <Heart className="h-8 w-8 text-[hsl(var(--color-error))]" aria-hidden="true" />
               {m.favorites_title()}
             </h1>
-            <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">
+            <p className="page-description mt-2">
               {pagination ? m.favorites_total({ count: pagination.total.toString() }) : ""}
             </p>
           </div>
 
-          {/* Selection Controls */}
           <div className="flex items-center gap-2">
             {selectionMode ? (
               <>
                 <button
                   onClick={selectAll}
-                  className="px-3 py-1.5 text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+                  className="btn-secondary h-9 gap-2 px-3"
                 >
+                  <Check className="h-4 w-4" aria-hidden="true" />
                   {selectedIds.size === favorites.length ? m.favorites_deselectAll() : m.favorites_selectAll()}
                 </button>
                 <button
                   onClick={handleBatchRemove}
                   disabled={selectedIds.size === 0}
-                  className="px-4 py-1.5 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="btn-primary h-9 gap-2 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))] disabled:cursor-not-allowed disabled:opacity-50"
                 >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
                   {m.favorite_remove()} ({selectedIds.size})
                 </button>
                 <button
@@ -204,7 +200,7 @@ export default function FavoritesPage() {
                     setSelectionMode(false);
                     setSelectedIds(new Set());
                   }}
-                  className="px-3 py-1.5 text-sm text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+                  className="btn-ghost h-9 px-3"
                 >
                   {m.common_cancel()}
                 </button>
@@ -213,22 +209,21 @@ export default function FavoritesPage() {
               favorites.length > 0 && (
                 <button
                   onClick={() => setSelectionMode(true)}
-                  className="px-4 py-1.5 text-sm bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-300 rounded-lg transition-colors"
+                  className="btn-secondary h-9 px-4"
                 >
                   {m.favorites_batchManage()}
                 </button>
               )
             )}
           </div>
-        </div>
+        </header>
 
-        {/* Content */}
         {error && (
-          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
-            <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+          <div className="error-banner mb-4">
+            <p>{error}</p>
             <button
               onClick={refresh}
-              className="mt-2 text-sm text-red-600 dark:text-red-400 underline hover:no-underline"
+              className="mt-2 text-sm font-semibold underline hover:no-underline"
             >
               {m.common_retry()}
             </button>
@@ -259,23 +254,22 @@ export default function FavoritesPage() {
               ))}
             </div>
 
-            {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8">
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
-                  className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                  className="btn-secondary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {m.common_previousPage()}
                 </button>
-                <span className="text-sm text-stone-600 dark:text-stone-400">
+                <span className="font-utility text-sm text-foreground-muted">
                   {page} / {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page === pagination.totalPages}
-                  className="px-3 py-1.5 text-sm rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors"
+                  className="btn-secondary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {m.common_nextPage()}
                 </button>
