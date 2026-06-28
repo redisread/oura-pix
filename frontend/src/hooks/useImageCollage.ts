@@ -5,17 +5,35 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import * as m from "@/paraglide/messages.js";
 
 export type LayoutTemplate = "1x1" | "1x2" | "1x3" | "2x2" | "2x3" | "3x3";
 
-export const LAYOUTS: Record<LayoutTemplate, { label: string; rows: number; cols: number; cellCount: number }> = {
-  "1x1": { label: "1 张", rows: 1, cols: 1, cellCount: 1 },
-  "1x2": { label: "1×2 (2 张)", rows: 1, cols: 2, cellCount: 2 },
-  "1x3": { label: "1×3 (3 张)", rows: 1, cols: 3, cellCount: 3 },
-  "2x2": { label: "2×2 (4 张)", rows: 2, cols: 2, cellCount: 4 },
-  "2x3": { label: "2×3 (6 张)", rows: 2, cols: 3, cellCount: 6 },
-  "3x3": { label: "3×3 (9 张)", rows: 3, cols: 3, cellCount: 9 },
+export const LAYOUTS: Record<LayoutTemplate, { rows: number; cols: number; cellCount: number }> = {
+  "1x1": { rows: 1, cols: 1, cellCount: 1 },
+  "1x2": { rows: 1, cols: 2, cellCount: 2 },
+  "1x3": { rows: 1, cols: 3, cellCount: 3 },
+  "2x2": { rows: 2, cols: 2, cellCount: 4 },
+  "2x3": { rows: 2, cols: 3, cellCount: 6 },
+  "3x3": { rows: 3, cols: 3, cellCount: 9 },
 };
+
+export function getLayoutLabel(layout: LayoutTemplate): string {
+  switch (layout) {
+    case "1x1":
+      return m.tool_layout1();
+    case "1x2":
+      return m.tool_layout2();
+    case "1x3":
+      return m.tool_layout3();
+    case "2x2":
+      return m.tool_layout4();
+    case "2x3":
+      return m.tool_layout6();
+    case "3x3":
+      return m.tool_layout9();
+  }
+}
 
 export interface CollageCell {
   imageUrl: string | null;

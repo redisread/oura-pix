@@ -9,31 +9,37 @@
 
 import { useState } from "react";
 import { Download, X } from "lucide-react";
+import * as m from "@/paraglide/messages.js";
 
 export type ExportFormat = "image/png" | "image/jpeg" | "image/webp";
 
 export interface SizePreset {
-  label: string;
+  label: () => string;
   width: number;
   height: number;
 }
 
 const DEFAULT_PRESETS: SizePreset[] = [
-  { label: "原图", width: 0, height: 0 },
-  { label: "Amazon 主图 (2000×2000)", width: 2000, height: 2000 },
-  { label: "Shopify (2048×2048)", width: 2048, height: 2048 },
-  { label: "eBay (1600×1600)", width: 1600, height: 1600 },
-  { label: "Instagram 1:1 (1080×1080)", width: 1080, height: 1080 },
-  { label: "Instagram 4:5 (1080×1350)", width: 1080, height: 1350 },
-  { label: "小红书 3:4 (1080×1440)", width: 1080, height: 1440 },
-  { label: "抖音小店 (750×1000)", width: 750, height: 1000 },
+  { label: m.tool_presetOriginal, width: 0, height: 0 },
+  { label: m.tool_presetAmazonMain, width: 2000, height: 2000 },
+  { label: () => "Shopify (2048×2048)", width: 2048, height: 2048 },
+  { label: () => "eBay (1600×1600)", width: 1600, height: 1600 },
+  { label: () => "Instagram 1:1 (1080×1080)", width: 1080, height: 1080 },
+  { label: () => "Instagram 4:5 (1080×1350)", width: 1080, height: 1350 },
+  { label: m.tool_presetXiaohongshu, width: 1080, height: 1440 },
+  { label: m.tool_presetDouyinShop, width: 750, height: 1000 },
 ];
 
-const FORMAT_LABELS: Record<ExportFormat, string> = {
-  "image/png": "PNG (透明背景)",
-  "image/jpeg": "JPEG (小文件)",
-  "image/webp": "WebP (现代压缩)",
-};
+function getFormatLabel(format: ExportFormat): string {
+  switch (format) {
+    case "image/png":
+      return m.tool_formatPng();
+    case "image/jpeg":
+      return m.tool_formatJpeg();
+    case "image/webp":
+      return m.tool_formatWebp();
+  }
+}
 
 export interface ExportDialogProps {
   imageUrl: string | null;
@@ -99,7 +105,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
       onClose();
     } catch (err) {
       console.error("Export failed:", err);
-      alert(`导出失败: ${err instanceof Error ? err.message : "Unknown error"}`);
+      alert(m.tool_exportFailed({ message: err instanceof Error ? err.message : m.common_unknownError() }));
     } finally {
       setExporting(false);
     }
@@ -121,39 +127,35 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
         <div className="p-6">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <p className="page-kicker">Export proof</p>
-              <h2 id="export-dialog-title" className="font-display mt-1 text-2xl font-semibold text-foreground">
-                导出图片
-              </h2>
+              <p className="page-kicker">{m.tool_exportProofKicker()}</p>
+              <h2 id="export-dialog-title" className="font-display mt-1 text-2xl font-semibold text-foreground">{m.tool_exportDialogTitle()}</h2>
             </div>
-            <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label="关闭导出弹窗">
+            <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label={m.tool_exportCloseAria()}>
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
         <div className="space-y-4">
           <div>
-              <label className="mb-2 block text-sm font-semibold text-foreground">
-              格式
-            </label>
+              <label className="mb-2 block text-sm font-semibold text-foreground">{m.tool_format()}</label>
             <div className="grid grid-cols-3 gap-1.5">
-              {(Object.keys(FORMAT_LABELS) as ExportFormat[]).map((f) => (
+              {(["image/png", "image/jpeg", "image/webp"] as ExportFormat[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFormat(f)}
                     className={`segmented-option ${format === f ? "segmented-option-active" : ""}`}
                 >
-                  {FORMAT_LABELS[f].split(" ")[0]}
+                  {getFormatLabel(f).split(" ")[0]}
                 </button>
               ))}
             </div>
-              <p className="mt-1 text-xs font-medium text-foreground-muted">{FORMAT_LABELS[format]}</p>
+              <p className="mt-1 text-xs font-medium text-foreground-muted">{getFormatLabel(format)}</p>
           </div>
 
           {format !== "image/png" && (
             <div>
                 <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
-                <span>质量</span>
+                <span>{m.tool_quality()}</span>
                 <span>{Math.round(quality * 100)}%</span>
               </div>
               <input
@@ -164,15 +166,13 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
                 value={quality}
                 onChange={(e) => setQuality(Number(e.target.value))}
                   className="range"
-                  aria-label="导出质量"
+                  aria-label={m.tool_exportQualityAria()}
               />
             </div>
           )}
 
           <div>
-              <label className="mb-2 block text-sm font-semibold text-foreground">
-              尺寸预设
-            </label>
+              <label className="mb-2 block text-sm font-semibold text-foreground">{m.tool_sizePreset()}</label>
             <select
               value={presetIdx}
               onChange={(e) => setPresetIdx(Number(e.target.value))}
@@ -180,7 +180,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
             >
               {DEFAULT_PRESETS.map((p, i) => (
                 <option key={i} value={i}>
-                  {p.label}
+                  {p.label()}
                 </option>
               ))}
             </select>
@@ -192,7 +192,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
             onClick={onClose}
               className="btn-secondary h-10 px-4"
           >
-            取消
+            {m.common_cancel()}
           </button>
           <button
             onClick={handleExport}
@@ -200,7 +200,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
               className="btn-primary h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-50"
           >
               <Download className="h-4 w-4" aria-hidden="true" />
-            {exporting ? "导出中..." : "下载"}
+            {exporting ? m.tool_exporting() : m.common_download()}
           </button>
         </div>
         </div>

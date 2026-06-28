@@ -6,11 +6,19 @@
 
 import { useState } from "react";
 import { ExternalLink, Link2, Plus, Save, Trash2, X } from "lucide-react";
-import { useCompetitors, PLATFORM_LABELS, type Platform, type Competitor } from "@/hooks/useCompetitors";
+import {
+  getPlatformLabel,
+  PLATFORMS,
+  useCompetitors,
+  type Competitor,
+  type Platform,
+} from "@/hooks/useCompetitors";
 import { StateMessage } from "@/components/StateMessage";
+import { formatLocaleDate } from "@/lib/locale";
+import * as m from "@/paraglide/messages.js";
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("zh-CN", {
+  return formatLocaleDate(dateString, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -42,7 +50,7 @@ function CompetitorForm({
       setScreenshots((prev) => [...prev, trimmed]);
       setScreenshotInput("");
     } catch {
-      alert("请输入有效的 URL");
+      alert(m.competitors_invalidUrl());
     }
   };
 
@@ -64,20 +72,20 @@ function CompetitorForm({
     <form onSubmit={handleSubmit} className="space-y-4" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-start justify-between gap-4">
         <h2 className="font-display text-2xl font-semibold text-foreground">
-          {initial ? "编辑竞品" : "添加竞品"}
+          {initial ? m.competitors_formEditTitle() : m.competitors_formAddTitle()}
         </h2>
-        <button type="button" onClick={onCancel} className="icon-button h-9 w-9" aria-label="关闭">
+        <button type="button" onClick={onCancel} className="icon-button h-9 w-9" aria-label={m.common_close()}>
           <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
       <div>
-        <label className="panel-label mb-1 block">名称</label>
+        <label className="panel-label mb-1 block">{m.competitors_nameLabel()}</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="如：Anker Soundcore 旗舰店"
+          placeholder={m.competitors_namePlaceholder()}
           className="input"
           maxLength={200}
           required
@@ -85,7 +93,7 @@ function CompetitorForm({
       </div>
 
       <div>
-        <label className="panel-label mb-1 block">链接</label>
+        <label className="panel-label mb-1 block">{m.competitors_urlLabel()}</label>
         <input
           type="url"
           value={url}
@@ -98,26 +106,26 @@ function CompetitorForm({
       </div>
 
       <div>
-        <label className="panel-label mb-1 block">平台</label>
+        <label className="panel-label mb-1 block">{m.competitors_platformLabel()}</label>
         <select
           value={platform}
           onChange={(e) => setPlatform(e.target.value as Platform)}
           className="input"
         >
-          {Object.entries(PLATFORM_LABELS).map(([key, label]) => (
+          {PLATFORMS.map((key) => (
             <option key={key} value={key}>
-              {label}
+              {getPlatformLabel(key)}
             </option>
           ))}
         </select>
       </div>
 
       <div>
-        <label className="panel-label mb-1 block">笔记</label>
+        <label className="panel-label mb-1 block">{m.competitors_notesLabel()}</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="可记录差异化点、定价、风格观察等"
+          placeholder={m.competitors_notesPlaceholder()}
           rows={3}
           className="input"
           maxLength={2000}
@@ -125,7 +133,7 @@ function CompetitorForm({
       </div>
 
       <div>
-        <label className="panel-label mb-1 block">截图 URL（每行一个，最多 20 个）</label>
+        <label className="panel-label mb-1 block">{m.competitors_screenshotLabel()}</label>
         <div className="mb-2 flex gap-2">
           <input
             type="url"
@@ -137,12 +145,10 @@ function CompetitorForm({
                 addScreenshot();
               }
             }}
-            placeholder="https://... 回车添加"
+            placeholder={m.competitors_screenshotPlaceholder()}
             className="input flex-1"
           />
-          <button type="button" onClick={addScreenshot} className="btn-secondary h-10 px-3">
-            添加
-          </button>
+          <button type="button" onClick={addScreenshot} className="btn-secondary h-10 px-3">{m.common_add()}</button>
         </div>
         {screenshots.length > 0 && (
           <div className="space-y-1">
@@ -153,7 +159,7 @@ function CompetitorForm({
                   type="button"
                   onClick={() => setScreenshots((prev) => prev.filter((_, idx) => idx !== i))}
                   className="icon-button h-7 w-7 hover:text-[hsl(var(--color-error))]"
-                  aria-label="移除截图 URL"
+                  aria-label={m.competitors_removeScreenshotAria()}
                 >
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
@@ -164,16 +170,14 @@ function CompetitorForm({
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
-        <button type="button" onClick={onCancel} className="btn-secondary h-10 px-4">
-          取消
-        </button>
+        <button type="button" onClick={onCancel} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
         <button
           type="submit"
           disabled={!name.trim() || !url.trim() || submitting}
           className="btn-primary h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Save className="h-4 w-4" aria-hidden="true" />
-          {submitting ? "保存中..." : "保存"}
+          {submitting ? m.common_saving() : m.common_save()}
         </button>
       </div>
     </form>
@@ -190,9 +194,9 @@ export default function CompetitorsPage() {
       <div className="workbench-container max-w-6xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Market / Competitors</p>
-            <h1 className="page-title mt-2">竞品分析</h1>
-            <p className="page-description mt-3">记录竞品链接、平台和笔记</p>
+            <p className="page-kicker">{m.competitors_kicker()}</p>
+            <h1 className="page-title mt-2">{m.competitors_title()}</h1>
+            <p className="page-description mt-3">{m.competitors_subtitle()}</p>
           </div>
           <button
             onClick={() => {
@@ -201,20 +205,18 @@ export default function CompetitorsPage() {
             }}
             className="btn-primary h-10 gap-2 px-4"
           >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            添加竞品
-          </button>
+            <Plus className="h-4 w-4" aria-hidden="true" />{m.competitors_formAddTitle()}</button>
         </header>
 
         {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
         {loading && competitors.length === 0 ? (
-          <StateMessage variant="loading" message="加载竞品..." />
+          <StateMessage variant="loading" message={m.competitors_loading()} />
         ) : competitors.length === 0 ? (
           <StateMessage
             variant="empty"
-            title="还没有竞品记录"
-            description="点击右上角添加第一个竞品"
+            title={m.competitors_emptyTitle()}
+            description={m.competitors_emptyDescription()}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -234,7 +236,7 @@ export default function CompetitorsPage() {
                     </a>
                   </div>
                   <span className="status-badge status-badge-neutral flex-shrink-0">
-                    {PLATFORM_LABELS[c.platform]}
+                    {getPlatformLabel(c.platform)}
                   </span>
                 </div>
                 {c.notes && (
@@ -264,16 +266,16 @@ export default function CompetitorsPage() {
                         setShowForm(true);
                       }}
                       className="icon-button h-8 w-8"
-                      aria-label="编辑竞品"
+                      aria-label={m.competitors_formEditTitle()}
                     >
                       <Link2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       onClick={async () => {
-                        if (confirm(`确定删除 "${c.name}"?`)) await deleteCompetitor(c.id);
+                        if (confirm(m.competitors_deleteConfirm({ name: c.name }))) await deleteCompetitor(c.id);
                       }}
                       className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
-                      aria-label="删除竞品"
+                      aria-label={m.competitors_deleteAria()}
                     >
                       <Trash2 className="h-4 w-4" aria-hidden="true" />
                     </button>

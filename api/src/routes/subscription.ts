@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import Stripe from "stripe";
 import { createDb, schema, eq } from "@oura-pix/database";
 import { getUser } from "../middleware/auth";
+import { apiMessage } from "../lib/i18n";
 
 const router = new Hono<{
   Bindings: {
@@ -31,7 +32,7 @@ router.get("/", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );
@@ -64,7 +65,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "UNAUTHORIZED", message: "User not found" },
+          error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
         },
         401
       );
@@ -84,7 +85,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "BAD_REQUEST", message: "Invalid plan" },
+          error: { code: "BAD_REQUEST", message: apiMessage(c, "invalidPlan") },
         },
         400
       );
@@ -123,7 +124,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "STRIPE_ERROR", message: "Failed to create checkout session" },
+          error: { code: "STRIPE_ERROR", message: apiMessage(c, "stripeError") },
         },
         500
       );
@@ -138,7 +139,7 @@ router.post("/portal", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );
@@ -154,7 +155,7 @@ router.post("/portal", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "NOT_FOUND", message: "No active subscription found" },
+        error: { code: "NOT_FOUND", message: apiMessage(c, "noActiveSubscription") },
       },
       404
     );
@@ -184,7 +185,7 @@ router.post("/portal", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "STRIPE_ERROR", message: "Failed to create portal session" },
+        error: { code: "STRIPE_ERROR", message: apiMessage(c, "stripeError") },
       },
       500
     );

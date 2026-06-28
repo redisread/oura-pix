@@ -13,33 +13,57 @@ import {
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 
-const proofRows = [
-  { label: "Input", value: "1 product photo", tone: "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" },
-  { label: "Market", value: "Amazon, Shopify, eBay", tone: "bg-[hsl(var(--accent)/0.12)] text-[hsl(var(--accent))]" },
-  { label: "Output", value: "Copy, image scenes, tags", tone: "bg-[hsl(var(--foreground)/0.08)] text-foreground" },
-];
-
-const workflow = [
-  {
-    icon: Camera,
-    title: "Drop in the hero image",
-    copy: "Start with the product photo your team already has. Add reference shots only when the brand direction needs it.",
-  },
-  {
-    icon: ScanLine,
-    title: "Set marketplace constraints",
-    copy: "Choose platform, language, aspect ratio, scene count, and style before a generation starts.",
-  },
-  {
-    icon: PackageCheck,
-    title: "Review listing-ready assets",
-    copy: "Scan the generated title, selling points, tags, and scene images in the same workspace.",
-  },
-];
-
 const platformBadges = ["Amazon", "Shopify", "eBay", "Etsy"];
 
 export default function HomePage() {
+  const proofRows = [
+    {
+      label: m.home_proofInputLabel(),
+      value: m.home_proofInputValue(),
+      tone: "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]",
+    },
+    {
+      label: m.home_proofMarketLabel(),
+      value: m.home_proofMarketValue(),
+      tone: "bg-[hsl(var(--accent)/0.12)] text-[hsl(var(--accent))]",
+    },
+    {
+      label: m.home_proofOutputLabel(),
+      value: m.home_proofOutputValue(),
+      tone: "bg-[hsl(var(--foreground)/0.08)] text-foreground",
+    },
+  ];
+
+  const workflow = [
+    {
+      icon: Camera,
+      title: m.home_workflowImageTitle(),
+      copy: m.home_workflowImageCopy(),
+    },
+    {
+      icon: ScanLine,
+      title: m.home_workflowMarketTitle(),
+      copy: m.home_workflowMarketCopy(),
+    },
+    {
+      icon: PackageCheck,
+      title: m.home_workflowReviewTitle(),
+      copy: m.home_workflowReviewCopy(),
+    },
+  ];
+
+  const sampleTags = [
+    m.home_sampleTagBpa(),
+    m.home_sampleTagCommute(),
+    m.home_sampleTagGiftable(),
+  ];
+
+  const exportChecks = [
+    m.home_exportLocalizedCopy(),
+    m.home_exportSceneRatios(),
+    m.home_exportSeoTags(),
+  ];
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
@@ -49,14 +73,13 @@ export default function HomePage() {
           <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:pb-20 lg:pt-20">
             <div className="flex flex-col justify-center">
               <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--accent))]">
-                Product photo to listing bench
+                {m.home_heroKicker()}
               </p>
               <h1 className="font-display mt-5 max-w-3xl text-5xl font-semibold text-foreground sm:text-6xl lg:text-7xl">
-                Turn one product shot into a marketplace-ready detail page.
+                {m.home_heroTitle()}
               </h1>
               <p className="mt-6 max-w-2xl text-lg text-foreground-muted">
-                OuraPix helps cross-border teams turn product imagery into copy, visual scenes,
-                tags, and exportable detail-page material without leaving the browser.
+                {m.home_heroDescription()}
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -76,7 +99,7 @@ export default function HomePage() {
                 </a>
               </div>
 
-              <div className="mt-8 flex flex-wrap gap-2" aria-label="Supported marketplaces">
+              <div className="mt-8 flex flex-wrap gap-2" aria-label={m.home_supportedMarketplacesAria()}>
                 {platformBadges.map((platform) => (
                   <span
                     key={platform}
@@ -88,7 +111,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <aside className="relative" aria-label="OuraPix generation specimen">
+            <aside className="relative" aria-label={m.home_specimenAria()}>
               <div className="card specimen-shadow overflow-hidden border-2 border-[hsl(var(--foreground)/0.14)]">
                 <div className="proof-strip h-3" />
                 <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[1fr_0.88fr]">
@@ -96,10 +119,10 @@ export default function HomePage() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
-                          Source image
+                          {m.home_sourceImage()}
                         </p>
                         <h2 className="mt-1 text-xl font-semibold text-foreground">
-                          Travel mug set
+                          {m.home_sampleProduct()}
                         </h2>
                       </div>
                       <BadgeCheck className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
@@ -109,7 +132,7 @@ export default function HomePage() {
                       <div className="bench-grid flex h-full items-center justify-center p-8">
                         <img
                           src="/logo.png"
-                          alt="OuraPix product preview placeholder"
+                          alt={m.home_productPreviewAlt()}
                           className="h-full max-h-48 w-full object-contain"
                           loading="eager"
                         />
@@ -136,16 +159,16 @@ export default function HomePage() {
                   <div className="flex flex-col gap-3">
                     <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
                       <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
-                        Generated listing
+                        {m.home_generatedListing()}
                       </p>
                       <h3 className="mt-3 text-2xl font-semibold text-foreground">
-                        Leakproof mug for daily carry
+                        {m.home_listingTitle()}
                       </h3>
                       <p className="mt-3 text-sm text-foreground-muted">
-                        Compact silhouette, textured grip, and insulated body described for marketplace search.
+                        {m.home_listingDescription()}
                       </p>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {["BPA free", "commute", "giftable"].map((tag) => (
+                        {sampleTags.map((tag) => (
                           <span key={tag} className="badge">
                             {tag}
                           </span>
@@ -156,12 +179,12 @@ export default function HomePage() {
                     <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--foreground))] p-4 text-[hsl(var(--background))]">
                       <div className="flex items-center justify-between gap-3">
                         <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.68)]">
-                          Export check
+                          {m.home_exportCheck()}
                         </p>
                         <Globe2 className="h-5 w-5 text-[hsl(var(--background))]" aria-hidden="true" />
                       </div>
                       <div className="mt-5 space-y-3">
-                        {["Localized copy", "Scene ratios", "SEO tags"].map((item) => (
+                        {exportChecks.map((item) => (
                           <div key={item} className="flex items-center gap-2 text-sm font-semibold">
                             <CheckCircle2 className="h-4 w-4 text-[hsl(var(--accent))]" aria-hidden="true" />
                             {item}
@@ -181,10 +204,10 @@ export default function HomePage() {
             <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
               <div>
                 <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--primary))]">
-                  Operating line
+                  {m.home_workflowKicker()}
                 </p>
                 <h2 className="font-display mt-3 text-4xl font-semibold text-foreground">
-                  Built around the actual listing workflow.
+                  {m.home_workflowTitle()}
                 </h2>
               </div>
               <div className="grid gap-3 md:grid-cols-3">
@@ -207,10 +230,10 @@ export default function HomePage() {
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
             <div>
               <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.62)]">
-                Ready at the bench
+                {m.home_readyKicker()}
               </p>
               <h2 className="font-display mt-3 text-4xl font-semibold">
-                Start with the product image you already have.
+                {m.home_readyTitle()}
               </h2>
             </div>
             <a

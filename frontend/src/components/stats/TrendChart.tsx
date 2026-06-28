@@ -4,6 +4,8 @@
  * Line chart for generation trend over time
  */
 
+import * as m from '@/paraglide/messages.js';
+
 interface TrendChartProps {
   data: { date: string; count: number }[];
   title: string;
@@ -16,9 +18,7 @@ export default function TrendChart({ data, title }: TrendChartProps) {
         <h3 className="mb-4 text-lg font-semibold text-foreground">
           {title}
         </h3>
-        <p className="py-8 text-center text-sm text-foreground-muted">
-          暂无数据
-        </p>
+        <p className="py-8 text-center text-sm text-foreground-muted">{m.stats_noData()}</p>
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function TrendChart({ data, title }: TrendChartProps) {
               fill="#d97706"
               className="hover:r-2 transition-all"
             >
-              <title>{`${p.date}: ${p.count} 次`}</title>
+              <title>{`${p.date}: ${p.count} ${m.stats_times()}`}</title>
             </circle>
           ))}
 
@@ -127,15 +127,15 @@ export default function TrendChart({ data, title }: TrendChartProps) {
       {/* Summary */}
       <div className="mt-4 border-t border-[hsl(var(--border))] pt-4">
         <div className="flex justify-between text-sm">
-          <span className="text-foreground-muted">总计</span>
+          <span className="text-foreground-muted">{m.stats_total()}</span>
           <span className="font-semibold text-foreground">
-            {data.reduce((sum, d) => sum + d.count, 0)} 次
+            {m.stats_times({ count: data.reduce((sum, d) => sum + d.count, 0).toString() })}
           </span>
         </div>
         <div className="flex justify-between text-sm mt-2">
-          <span className="text-foreground-muted">平均</span>
+          <span className="text-foreground-muted">{m.stats_average()}</span>
           <span className="font-semibold text-foreground">
-            {(data.reduce((sum, d) => sum + d.count, 0) / data.length).toFixed(1)} 次/天
+            {m.stats_timesPerDay({ count: (data.reduce((sum, d) => sum + d.count, 0) / data.length).toFixed(1) })}
           </span>
         </div>
       </div>

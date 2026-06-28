@@ -1,10 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import BackgroundRemover from '../../components/tools/BackgroundRemover';
 import Navbar from '../../components/Navbar';
 ---
 
-<Layout title="智能去背景">
+<Layout title={m.meta_toolBackgroundRemoverTitle()}>
   <Navbar client:load />
   <BackgroundRemover client:load />
 </Layout>

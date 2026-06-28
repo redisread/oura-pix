@@ -1,10 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import BatchProcessor from '../../components/tools/BatchProcessor';
 import Navbar from '../../components/Navbar';
 ---
 
-<Layout title="批量处理">
+<Layout title={m.meta_toolBatchTitle()}>
   <Navbar client:load />
   <BatchProcessor client:load />
 </Layout>

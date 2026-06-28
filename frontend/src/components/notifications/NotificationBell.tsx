@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Bell } from "lucide-react";
 import { useNotifications } from "@/hooks/useNotifications";
 import NotificationPanel from "./NotificationPanel";
+import * as m from "@/paraglide/messages.js";
 
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +21,7 @@ export default function NotificationBell() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="icon-button relative h-9 w-9"
-        aria-label="Notifications"
+        aria-label={m.notification_title()}
       >
         <Bell className="h-5 w-5" aria-hidden="true" />
 

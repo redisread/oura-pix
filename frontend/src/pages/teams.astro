@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import TeamsPage from '../components/teams/TeamsPage';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Navbar from '../components/Navbar';
 ---
 
-<Layout title="团队">
+<Layout title={m.teams_title()}>
   <Navbar client:load />
   <ErrorBoundary client:load>
     <TeamsPage client:load />

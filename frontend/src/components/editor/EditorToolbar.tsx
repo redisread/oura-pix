@@ -6,7 +6,8 @@
 
 import { FlipHorizontal, FlipVertical, RotateCcw, RotateCw, Undo2, Redo2 } from "lucide-react";
 import type { EditState, CropPreset } from "@/hooks/useImageEdit";
-import { CROP_PRESETS } from "@/hooks/useImageEdit";
+import { CROP_PRESETS, getCropPresetLabel } from "@/hooks/useImageEdit";
+import * as m from "@/paraglide/messages.js";
 
 interface EditorToolbarProps {
   state: EditState;
@@ -89,22 +90,22 @@ export default function EditorToolbar({
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex gap-2 border-b border-[hsl(var(--border))] pb-4">
-        <button onClick={onUndo} disabled={!canUndo} className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50" title="撤销 (Ctrl+Z)">
+        <button onClick={onUndo} disabled={!canUndo} className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50" title={m.tool_actionUndo()}>
           <Undo2 className="h-4 w-4" aria-hidden="true" />
-          <span className="text-sm">撤销</span>
+          <span className="text-sm">{m.editor_undo()}</span>
         </button>
-        <button onClick={onRedo} disabled={!canRedo} className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50" title="重做 (Ctrl+Y)">
+        <button onClick={onRedo} disabled={!canRedo} className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50" title={m.editor_redoTitle()}>
           <Redo2 className="h-4 w-4" aria-hidden="true" />
-          <span className="text-sm">重做</span>
+          <span className="text-sm">{m.editor_redo()}</span>
         </button>
-        <button onClick={onReset} className="btn-secondary ml-auto h-10 gap-2 px-3" title="重置所有编辑">
+        <button onClick={onReset} className="btn-secondary ml-auto h-10 gap-2 px-3" title={m.editor_resetAllTitle()}>
           <RotateCcw className="h-4 w-4" aria-hidden="true" />
-          <span className="text-sm">重置</span>
+          <span className="text-sm">{m.editor_reset()}</span>
         </button>
       </div>
 
       <div>
-        <h3 className="panel-title mb-2">裁剪比例</h3>
+        <h3 className="panel-title mb-2">{m.editor_cropRatio()}</h3>
         <div className="grid grid-cols-5 gap-1.5">
           {CROP_PRESETS.map((preset) => (
             <button
@@ -112,64 +113,64 @@ export default function EditorToolbar({
               onClick={() => onCropPresetChange(preset.value)}
               className={`segmented-option ${state.cropPreset === preset.value ? "segmented-option-active" : ""}`}
             >
-              {preset.label}
+              {getCropPresetLabel(preset.value)}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <h3 className="panel-title mb-2">变换</h3>
+        <h3 className="panel-title mb-2">{m.editor_transform()}</h3>
         <div className="grid grid-cols-2 gap-2">
           <button onClick={onRotateLeft} className="btn-secondary h-10 gap-2 px-3">
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
-            <span className="text-sm">左旋转</span>
+            <span className="text-sm">{m.editor_rotateLeft()}</span>
           </button>
           <button onClick={onRotateRight} className="btn-secondary h-10 gap-2 px-3">
             <RotateCw className="h-4 w-4" aria-hidden="true" />
-            <span className="text-sm">右旋转</span>
+            <span className="text-sm">{m.editor_rotateRight()}</span>
           </button>
           <button
             onClick={onFlipHorizontal}
             className={`h-10 gap-2 px-3 ${state.flipHorizontal ? "btn-primary" : "btn-secondary"}`}
           >
             <FlipHorizontal className="h-4 w-4" aria-hidden="true" />
-            <span className="text-sm">水平翻转</span>
+            <span className="text-sm">{m.editor_flipHorizontal()}</span>
           </button>
           <button
             onClick={onFlipVertical}
             className={`h-10 gap-2 px-3 ${state.flipVertical ? "btn-primary" : "btn-secondary"}`}
           >
             <FlipVertical className="h-4 w-4" aria-hidden="true" />
-            <span className="text-sm">垂直翻转</span>
+            <span className="text-sm">{m.editor_flipVertical()}</span>
           </button>
         </div>
       </div>
 
       <div>
-        <h3 className="panel-title mb-2">基础调整</h3>
+        <h3 className="panel-title mb-2">{m.editor_basicAdjustments()}</h3>
         <div className="space-y-3">
-          <Slider label="亮度" value={state.brightness} min={0} max={200} unit="%" onChange={onBrightnessChange} />
-          <Slider label="对比度" value={state.contrast} min={0} max={200} unit="%" onChange={onContrastChange} />
-          <Slider label="饱和度" value={state.saturation} min={0} max={200} unit="%" onChange={onSaturationChange} />
+          <Slider label={m.editor_brightness()} value={state.brightness} min={0} max={200} unit="%" onChange={onBrightnessChange} />
+          <Slider label={m.editor_contrast()} value={state.contrast} min={0} max={200} unit="%" onChange={onContrastChange} />
+          <Slider label={m.editor_saturation()} value={state.saturation} min={0} max={200} unit="%" onChange={onSaturationChange} />
         </div>
       </div>
 
       <div>
-        <h3 className="panel-title mb-2">色彩</h3>
+        <h3 className="panel-title mb-2">{m.editor_color()}</h3>
         <div className="space-y-3">
-          <Slider label="色温" value={state.colorTemp} min={-100} max={100} onChange={onColorTempChange} />
-          <Slider label="色调" value={state.tint} min={-100} max={100} onChange={onTintChange} />
+          <Slider label={m.editor_colorTemp()} value={state.colorTemp} min={-100} max={100} onChange={onColorTempChange} />
+          <Slider label={m.editor_tint()} value={state.tint} min={-100} max={100} onChange={onTintChange} />
         </div>
       </div>
 
       <div>
-        <h3 className="panel-title mb-2">细节</h3>
-        <Slider label="锐化" value={state.sharpen} min={0} max={100} unit="%" onChange={onSharpenChange} />
+        <h3 className="panel-title mb-2">{m.editor_details()}</h3>
+        <Slider label={m.editor_sharpen()} value={state.sharpen} min={0} max={100} unit="%" onChange={onSharpenChange} />
       </div>
 
       <div>
-        <h3 className="panel-title mb-2">水印</h3>
+        <h3 className="panel-title mb-2">{m.editor_watermark()}</h3>
         <div className="space-y-2">
           <label className="flex items-center gap-2">
             <input
@@ -178,14 +179,14 @@ export default function EditorToolbar({
               onChange={(e) => onWatermarkChange(state.watermarkText, e.target.checked)}
               className="h-4 w-4 rounded border-[hsl(var(--border))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary)/0.28)]"
             />
-            <span className="text-sm text-foreground">启用文字水印</span>
+            <span className="text-sm text-foreground">{m.editor_enableWatermark()}</span>
           </label>
           {state.watermarkEnabled && (
             <input
               type="text"
               value={state.watermarkText}
               onChange={(e) => onWatermarkChange(e.target.value, true)}
-              placeholder="输入水印文字"
+              placeholder={m.editor_watermarkPlaceholder()}
               className="input"
             />
           )}

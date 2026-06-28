@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import GeneratePage from '../components/GeneratePage';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Navbar from '../components/Navbar';
 
-const title = "Generate - OuraPix";
-const description = "Generate stunning product detail pages with AI";
+const title = m.meta_generateTitle();
+const description = m.meta_generateDescription();
 ---
 
 <Layout title={title} description={description}>

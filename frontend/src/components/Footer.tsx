@@ -2,6 +2,7 @@
 
 import { PackageCheck } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
+import * as m from "@/paraglide/messages.js";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -25,7 +26,7 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <h3 className="font-utility text-xs font-semibold uppercase text-foreground">Product</h3>
+            <h3 className="font-utility text-xs font-semibold uppercase text-foreground">{m.footer_product()}</h3>
             <ul className="mt-4 space-y-2">
               <li>
                 <a href={localizeHref("/generate")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
@@ -41,7 +42,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="font-utility text-xs font-semibold uppercase text-foreground">Support</h3>
+            <h3 className="font-utility text-xs font-semibold uppercase text-foreground">{m.footer_support()}</h3>
             <ul className="mt-4 space-y-2">
               <li>
                 <a href={localizeHref("/docs")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
@@ -60,7 +61,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 border-t border-[hsl(var(--border))] pt-8">
           <p className="text-center text-sm text-foreground-muted">
-            © {currentYear} OuraPix. All rights reserved.
+            {m.footer_copyright({ year: currentYear.toString() })}
           </p>
         </div>
       </div>

@@ -11,6 +11,7 @@ import { createMiddleware } from "hono/factory";
 import { createDb, schema, type User as DBUser } from "@oura-pix/database";
 import { eq } from "drizzle-orm";
 import { validateApiKey } from "../services/apiKeyService";
+import { apiMessage } from "../lib/i18n";
 
 export type ApiKeyContext = {
   Bindings: {
@@ -30,14 +31,14 @@ export const apiKeyAuth = createMiddleware<ApiKeyContext>(async (c, next) => {
   const authHeader = c.req.header("Authorization") ?? "";
   const match = authHeader.match(/^Bearer\s+(op_[a-f0-9]{64})$/i);
   if (!match) {
-    return c.json({ error: "Missing or malformed API key. Use: Authorization: Bearer op_xxx" }, 401);
+    return c.json({ error: apiMessage(c, "unauthorized") }, 401);
   }
 
   const key = match[1]!;
   const db = createDb(c.env.DB);
   const record = await validateApiKey(db, key);
   if (!record) {
-    return c.json({ error: "Invalid or revoked API key" }, 401);
+    return c.json({ error: apiMessage(c, "unauthorized") }, 401);
   }
 
   // Load the user record
@@ -48,7 +49,7 @@ export const apiKeyAuth = createMiddleware<ApiKeyContext>(async (c, next) => {
     .limit(1);
 
   if (users.length === 0) {
-    return c.json({ error: "API key owner not found" }, 401);
+    return c.json({ error: apiMessage(c, "userNotFound") }, 401);
   }
 
   c.set("apiKey", { id: record.id, userId: record.userId, name: record.name });

@@ -1,10 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import ProfilePage from '../components/ProfilePage';
 import Navbar from '../components/Navbar';
 
-const title = "Profile - OuraPix";
-const description = "Manage your account and generation history";
+const title = m.meta_profileTitle();
+const description = m.meta_profileDescription();
 ---
 
 <Layout title={title} description={description}>

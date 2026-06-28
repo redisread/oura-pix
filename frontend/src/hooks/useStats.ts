@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export type TimeRange = '7d' | '30d' | '90d' | 'all';
 
@@ -36,7 +37,7 @@ export function useStats(initialRange: TimeRange = '30d') {
       try {
         setData(await apiJson<StatsData>(`/api/stats?range=${range}`));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch statistics');
+        setError(err instanceof Error ? err.message : m.common_loadFailed());
       } finally {
         setLoading(false);
       }

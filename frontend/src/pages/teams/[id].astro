@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import TeamDetailPage from '../../components/teams/TeamDetailPage';
 import Navbar from '../../components/Navbar';
 
@@ -8,7 +9,7 @@ export const prerender = false;
 const { id } = Astro.params;
 ---
 
-<Layout title="团队详情">
+<Layout title={m.meta_teamDetailTitle()}>
   <Navbar client:load />
   <TeamDetailPage teamId={id ?? ''} client:load />
 </Layout>

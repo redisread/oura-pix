@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export interface ApiKey {
   id: string;
@@ -31,7 +32,7 @@ export function useApiKeys() {
     try {
       setKeys(await apiJson<ApiKey[]>("/api/keys"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load API keys");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ export function useApiKeys() {
         await fetchKeys();
         return created;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create API key");
+        setError(err instanceof Error ? err.message : m.common_createFailed());
         return null;
       }
     },
@@ -66,7 +67,7 @@ export function useApiKeys() {
         await apiJson(`/api/keys/${id}`, { method: "DELETE" });
         await fetchKeys();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to revoke API key");
+        setError(err instanceof Error ? err.message : m.common_updateFailed());
       }
     },
     [fetchKeys]

@@ -65,7 +65,7 @@ export default function Navbar() {
         { href: "/stats", label: m.stats_title() },
         { href: "/metrics", label: m.nav_metrics() },
         { href: "/errors", label: m.nav_errors() },
-        { href: "/api-keys", label: "API Keys" },
+        { href: "/api-keys", label: m.nav_apiKeys() },
         { href: "/categories", label: m.nav_categories() },
       ],
     },

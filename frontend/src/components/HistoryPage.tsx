@@ -106,7 +106,7 @@ export default function HistoryPage() {
       <div className="workbench-container">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Library / Generation history</p>
+            <p className="page-kicker">{m.history_kicker()}</p>
             <h1 className="page-title mt-2">
               {m.history_title()}
             </h1>

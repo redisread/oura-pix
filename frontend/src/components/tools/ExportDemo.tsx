@@ -9,6 +9,7 @@
 import { useState, useRef } from "react";
 import { Download, ImagePlus, Replace } from "lucide-react";
 import ExportDialog from "./ExportDialog";
+import * as m from "@/paraglide/messages.js";
 
 export default function ExportDemo() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -19,9 +20,9 @@ export default function ExportDemo() {
     <div className="workbench-page">
       <div className="workbench-container max-w-4xl">
         <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">Tool bench / Export</p>
-          <h1 className="page-title mt-2">导出格式与质量</h1>
-          <p className="page-description mt-3">多格式输出 + 质量预设 + 平台尺寸</p>
+          <p className="page-kicker">{m.tool_exportKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_exportTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_exportSubtitle()}</p>
         </header>
 
       {imageUrl ? (
@@ -34,16 +35,12 @@ export default function ExportDemo() {
               onClick={() => fileInputRef.current?.click()}
                 className="btn-secondary h-10 gap-2 px-4"
             >
-                <Replace className="h-4 w-4" aria-hidden="true" />
-              更换图片
-            </button>
+                <Replace className="h-4 w-4" aria-hidden="true" />{m.common_changeImage()}</button>
             <button
               onClick={() => setShowDialog(true)}
                 className="btn-primary h-10 gap-2 px-4"
             >
-                <Download className="h-4 w-4" aria-hidden="true" />
-              导出
-            </button>
+                <Download className="h-4 w-4" aria-hidden="true" />{m.tool_exportAction()}</button>
           </div>
         </div>
       ) : (
@@ -63,10 +60,8 @@ export default function ExportDemo() {
             htmlFor="export-input"
               className="btn-primary h-11 cursor-pointer gap-2 px-6"
           >
-              <ImagePlus className="h-4 w-4" aria-hidden="true" />
-            选择图片
-          </label>
-            <p className="mt-3 text-xs font-medium text-foreground-muted">支持 PNG / JPG / WebP</p>
+              <ImagePlus className="h-4 w-4" aria-hidden="true" />{m.common_selectImage()}</label>
+            <p className="mt-3 text-xs font-medium text-foreground-muted">{m.common_supportedImageFormats()}</p>
         </div>
       )}
 

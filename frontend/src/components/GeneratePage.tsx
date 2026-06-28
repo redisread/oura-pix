@@ -418,7 +418,7 @@ export default function GeneratePage() {
                   className="input"
                 >
                   <option value="zh">{m.language_zh()}</option>
-                  <option value="en">English</option>
+                  <option value="en">{m.language_en()}</option>
                   <option value="ja">{m.language_ja()}</option>
                 </select>
               </div>
@@ -619,7 +619,7 @@ export default function GeneratePage() {
                               >
                                 <img
                                   src={img.url}
-                                  alt={`Scene ${img.variation}`}
+                                  alt={m.generation_sceneImageAlt({ index: String(img.variation) })}
                                   className="h-full w-full object-cover"
                                   loading="lazy"
                                   decoding="async"

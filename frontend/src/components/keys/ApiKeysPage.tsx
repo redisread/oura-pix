@@ -10,10 +10,12 @@ import { useState } from "react";
 import { AlertTriangle, Ban, Check, Copy, KeyRound, Plus, X } from "lucide-react";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { StateMessage } from "@/components/StateMessage";
+import { formatLocaleDateTime } from "@/lib/locale";
+import * as m from "@/paraglide/messages.js";
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("zh-CN", {
+  return formatLocaleDateTime(dateString, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -73,28 +75,28 @@ function NewKeyModal({
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <p className="page-kicker">Credential issued</p>
+            <p className="page-kicker">{m.apiKeys_createdKicker()}</p>
             <h2 id="new-key-modal-title" className="font-display mt-1 text-2xl font-semibold text-foreground">
-              API Key 已创建
+              {m.apiKeys_createdTitle()}
             </h2>
           </div>
-          <button onClick={onClose} className="icon-button h-9 w-9" aria-label="关闭">
+          <button onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
         <div className="warning-banner mb-4 flex gap-2">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-          <p>请立即保存这个 Key。出于安全考虑，关闭此弹窗后无法再次查看完整 Key。</p>
+          <p>{m.apiKeys_createdWarning()}</p>
         </div>
         <div className="panel-muted mb-4 p-3">
-          <p className="panel-label mb-2">完整 Key</p>
+          <p className="panel-label mb-2">{m.apiKeys_fullKey()}</p>
           <CopyableKey value={fullKey} />
           <p className="font-utility mt-2 text-xs text-foreground-muted">
-            前缀: <code>{prefix}</code>
+            {m.apiKeys_prefix()} <code>{prefix}</code>
           </p>
         </div>
         <div className="panel-muted mb-4 p-3">
-          <p className="panel-label mb-1">使用示例</p>
+          <p className="panel-label mb-1">{m.apiKeys_usageExample()}</p>
           <pre className="font-utility overflow-x-auto whitespace-pre text-xs text-foreground">
 {`curl -X POST https://api.ourapix.jiahongw.com/api/v1/generate \\
   -H "Authorization: Bearer ${prefix}..." \\
@@ -102,9 +104,7 @@ function NewKeyModal({
   -d '{ "productImageId": "...", "settings": { ... } }'`}
           </pre>
         </div>
-        <button onClick={onClose} className="btn-primary h-10 w-full">
-          我已保存，关闭
-        </button>
+        <button onClick={onClose} className="btn-primary h-10 w-full">{m.apiKeys_savedClose()}</button>
       </div>
     </div>
   );
@@ -136,15 +136,15 @@ export default function ApiKeysPage() {
       <div className="workbench-container max-w-6xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Developer / API keys</p>
-            <h1 className="page-title mt-2">API Keys</h1>
+            <p className="page-kicker">{m.apiKeys_developerKicker()}</p>
+            <h1 className="page-title mt-2">{m.apiKeys_title()}</h1>
             <p className="page-description mt-3">
-              通过 API Key 访问 <code className="font-utility text-sm">/api/v1/*</code> 端点
+              {m.apiKeys_subtitle({ path: "/api/v1/*" })}
             </p>
           </div>
           <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
             <Plus className="h-4 w-4" aria-hidden="true" />
-            创建 API Key
+            {m.apiKeys_createButton()}
           </button>
         </header>
 
@@ -152,24 +152,24 @@ export default function ApiKeysPage() {
 
         <div className="table-shell">
           {loading && keys.length === 0 ? (
-            <StateMessage variant="loading" message="加载 API Keys..." />
+            <StateMessage variant="loading" message={m.apiKeys_loading()} />
           ) : keys.length === 0 ? (
             <StateMessage
               variant="empty"
-              title="还没有 API Key"
-              description="点击右上角创建第一个 API Key"
+              title={m.apiKeys_emptyTitle()}
+              description={m.apiKeys_emptyDescription()}
             />
           ) : (
             <table className="w-full text-sm">
               <thead className="bg-[hsl(var(--secondary)/0.72)] text-xs uppercase text-foreground-muted">
                 <tr>
-                  <th className="px-4 py-3 text-left">名称</th>
-                  <th className="px-4 py-3 text-left">Key</th>
-                  <th className="px-4 py-3 text-left">状态</th>
-                  <th className="px-4 py-3 text-left">最后使用</th>
-                  <th className="px-4 py-3 text-left">过期时间</th>
-                  <th className="px-4 py-3 text-left">创建时间</th>
-                  <th className="w-20 px-4 py-3 text-right">操作</th>
+                  <th className="px-4 py-3 text-left">{m.apiKeys_columnName()}</th>
+                  <th className="px-4 py-3 text-left">{m.apiKeys_columnKeyShort()}</th>
+                  <th className="px-4 py-3 text-left">{m.apiKeys_columnStatus()}</th>
+                  <th className="px-4 py-3 text-left">{m.apiKeys_columnLastUsed()}</th>
+                  <th className="px-4 py-3 text-left">{m.apiKeys_columnExpiresAt()}</th>
+                  <th className="px-4 py-3 text-left">{m.apiKeys_columnCreatedAt()}</th>
+                  <th className="w-20 px-4 py-3 text-right">{m.apiKeys_columnActions()}</th>
                 </tr>
               </thead>
               <tbody>
@@ -183,11 +183,11 @@ export default function ApiKeysPage() {
                     </td>
                     <td className="px-4 py-3">
                       {k.isRevoked ? (
-                        <span className="status-badge status-badge-error">已吊销</span>
+                        <span className="status-badge status-badge-error">{m.apiKeys_statusRevoked()}</span>
                       ) : k.expiresAt && new Date(k.expiresAt) < new Date() ? (
-                        <span className="status-badge status-badge-warning">已过期</span>
+                        <span className="status-badge status-badge-warning">{m.apiKeys_statusExpired()}</span>
                       ) : (
-                        <span className="status-badge status-badge-success">有效</span>
+                        <span className="status-badge status-badge-success">{m.apiKeys_statusActive()}</span>
                       )}
                     </td>
                     <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.lastUsedAt)}</td>
@@ -197,10 +197,10 @@ export default function ApiKeysPage() {
                       {!k.isRevoked && (
                         <button
                           onClick={async () => {
-                            if (confirm(`确定吊销 "${k.name}"?`)) await revokeKey(k.id);
+                            if (confirm(m.apiKeys_revokeConfirm({ name: k.name }))) await revokeKey(k.id);
                           }}
                           className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
-                          aria-label="吊销 API Key"
+                          aria-label={m.apiKeys_revokeAria()}
                         >
                           <Ban className="h-4 w-4" aria-hidden="true" />
                         </button>
@@ -214,12 +214,12 @@ export default function ApiKeysPage() {
         </div>
 
         <div className="info-banner mt-6">
-          <h2 className="mb-1 font-semibold">使用说明</h2>
+          <h2 className="mb-1 font-semibold">{m.apiKeys_helpTitle()}</h2>
           <ul className="list-inside list-disc space-y-1 text-xs">
-            <li>API Key 格式：<code className="font-utility rounded bg-[hsl(var(--card)/0.7)] px-1">op_</code> + 64 位十六进制</li>
-            <li>认证方式：HTTP Header <code className="font-utility rounded bg-[hsl(var(--card)/0.7)] px-1">Authorization: Bearer op_xxx</code></li>
-            <li>完整 Key 仅在创建时显示一次，请立即保存</li>
-            <li>可吊销 Key 而非删除（吊销后无法恢复，但保留审计记录）</li>
+            <li>{m.apiKeys_formatHelp({ prefix: "op_" })}</li>
+            <li>{m.apiKeys_authHelp({ header: "Authorization: Bearer op_xxx" })}</li>
+            <li>{m.apiKeys_saveHelp()}</li>
+            <li>{m.apiKeys_revokeHelp()}</li>
           </ul>
         </div>
 
@@ -238,19 +238,19 @@ export default function ApiKeysPage() {
             >
               <div className="mb-4 flex items-start justify-between gap-4">
                 <h2 id="create-key-title" className="font-display text-2xl font-semibold text-foreground">
-                  创建 API Key
+                  {m.apiKeys_createButton()}
                 </h2>
-                <button type="button" onClick={() => setShowCreate(false)} className="icon-button h-9 w-9" aria-label="关闭">
+                <button type="button" onClick={() => setShowCreate(false)} className="icon-button h-9 w-9" aria-label={m.common_close()}>
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
               <div className="mb-4">
-                <label className="panel-label mb-1 block">名称</label>
+                <label className="panel-label mb-1 block">{m.apiKeys_columnName()}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="如：production-server"
+                  placeholder={m.apiKeys_namePlaceholder()}
                   className="input"
                   maxLength={100}
                   required
@@ -258,28 +258,26 @@ export default function ApiKeysPage() {
                 />
               </div>
               <div className="mb-6">
-                <label className="panel-label mb-1 block">过期天数（可选）</label>
+                <label className="panel-label mb-1 block">{m.apiKeys_expiresLabel()}</label>
                 <input
                   type="number"
                   value={expiresInDays}
                   onChange={(e) => setExpiresInDays(e.target.value)}
-                  placeholder="留空表示永不过期"
+                  placeholder={m.apiKeys_expiresPlaceholder()}
                   min={1}
                   max={365}
                   className="input"
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary h-10 px-4">
-                  取消
-                </button>
+                <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
                 <button
                   type="submit"
                   disabled={!name.trim() || submitting}
                   className="btn-primary h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <KeyRound className="h-4 w-4" aria-hidden="true" />
-                  {submitting ? "创建中..." : "创建"}
+                  {submitting ? m.apiKeys_creating() : m.apiKeys_create()}
                 </button>
               </div>
             </form>

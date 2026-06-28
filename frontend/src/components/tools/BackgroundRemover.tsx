@@ -10,6 +10,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Download, RefreshCw, Upload, Wand2 } from "lucide-react";
 import { useBackgroundRemoval } from "@/hooks/useBackgroundRemoval";
+import * as m from "@/paraglide/messages.js";
 
 export default function BackgroundRemover() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -56,11 +57,9 @@ export default function BackgroundRemover() {
     <div className="workbench-page">
       <div className="workbench-container">
         <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">Tool bench / Background</p>
-          <h1 className="page-title mt-2">智能去背景</h1>
-          <p className="page-description mt-3">
-          浏览器内运行，无需上传服务器。基于 @imgly/background-removal（WASM）。
-        </p>
+          <p className="page-kicker">{m.tool_backgroundKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_backgroundRemoverTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_backgroundRemoverSubtitle()}</p>
         </header>
 
         {!imageUrl ? (
@@ -77,16 +76,14 @@ export default function BackgroundRemover() {
             htmlFor="bg-remover-input"
               className="btn-primary h-11 cursor-pointer gap-2 px-6"
           >
-              <Upload className="h-4 w-4" aria-hidden="true" />
-            选择图片
-          </label>
-            <p className="mt-3 text-xs font-medium text-foreground-muted">支持 PNG / JPG / WebP</p>
+              <Upload className="h-4 w-4" aria-hidden="true" />{m.common_selectImage()}</label>
+            <p className="mt-3 text-xs font-medium text-foreground-muted">{m.common_supportedImageFormats()}</p>
         </div>
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="panel p-4">
-              <div className="panel-title mb-2">原图</div>
+              <div className="panel-title mb-2">{m.tool_originalImage()}</div>
               <div className="panel-muted flex min-h-[220px] items-center justify-center p-2">
                 <img src={imageUrl} alt="Original" className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
               </div>
@@ -94,7 +91,7 @@ export default function BackgroundRemover() {
 
             <div className="panel p-4">
               <div className="flex items-center justify-between mb-2">
-                <div className="panel-title">去背景后</div>
+                <div className="panel-title">{m.tool_backgroundRemoved()}</div>
                 {result && (
                     <span className="font-utility text-xs text-foreground-muted">
                     {result.width} × {result.height}
@@ -107,7 +104,7 @@ export default function BackgroundRemover() {
                       <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
                         <Wand2 className="h-5 w-5 animate-pulse" aria-hidden="true" />
                       </div>
-                      <p className="text-sm font-semibold text-foreground">处理中... {progress}%</p>
+                      <p className="text-sm font-semibold text-foreground">{m.tool_processingWithProgress({ progress: progress.toString() })}</p>
                       <div className="mx-auto mt-3 h-1 w-32 overflow-hidden rounded-full bg-[hsl(var(--secondary))]">
                       <div
                           className="h-full bg-[hsl(var(--primary))] transition-all"
@@ -116,9 +113,9 @@ export default function BackgroundRemover() {
                     </div>
                   </div>
                 ) : result ? (
-                  <img src={result.url} alt="Result" className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
+                  <img src={result.url} alt={m.tool_backgroundRemoved()} className="max-w-full max-h-96 object-contain" loading="lazy" decoding="async" />
                 ) : (
-                    <p className="text-sm font-medium text-foreground-muted">点击"开始处理"生成结果</p>
+                    <p className="text-sm font-medium text-foreground-muted">{m.tool_backgroundRemoverEmptyResult()}</p>
                 )}
               </div>
             </div>
@@ -135,9 +132,7 @@ export default function BackgroundRemover() {
               onClick={handleReset}
                 className="btn-secondary h-10 gap-2 px-4"
             >
-                <RefreshCw className="h-4 w-4" aria-hidden="true" />
-              重新选择
-            </button>
+                <RefreshCw className="h-4 w-4" aria-hidden="true" />{m.common_reselectImage()}</button>
             {!result && (
               <button
                 onClick={handleRemove}
@@ -145,7 +140,7 @@ export default function BackgroundRemover() {
                   className="btn-primary h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-50"
               >
                   <Wand2 className="h-4 w-4" aria-hidden="true" />
-                {loading ? "处理中..." : "开始处理"}
+                {loading ? m.common_processing() : m.tool_startProcessing()}
               </button>
             )}
             {result && (
@@ -153,9 +148,7 @@ export default function BackgroundRemover() {
                 onClick={handleDownload}
                   className="btn-primary h-10 gap-2 px-4"
               >
-                  <Download className="h-4 w-4" aria-hidden="true" />
-                下载 PNG
-              </button>
+                  <Download className="h-4 w-4" aria-hidden="true" />{m.tool_downloadPng()}</button>
             )}
           </div>
         </div>

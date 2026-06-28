@@ -8,7 +8,7 @@ type LanguageTag = Locale;
 
 const languages: { tag: LanguageTag; label: string; flag: string }[] = [
   { tag: "zh-CN", label: m.language_zh(), flag: "🇨🇳" },
-  { tag: "en", label: "English", flag: "🇺🇸" },
+  { tag: "en", label: m.language_en(), flag: "🇺🇸" },
   { tag: "ja", label: m.language_ja(), flag: "🇯🇵" },
 ];
 

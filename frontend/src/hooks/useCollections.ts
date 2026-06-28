@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export interface Collection {
   id: string;
@@ -27,7 +28,7 @@ export function useCollections() {
       const data = await apiJson<Collection[]>("/api/collections");
       setCollections(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load collections");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }
@@ -48,7 +49,7 @@ export function useCollections() {
         await fetchCollections();
         return created;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create");
+        setError(err instanceof Error ? err.message : m.common_createFailed());
         return null;
       }
     },
@@ -66,7 +67,7 @@ export function useCollections() {
         await fetchCollections();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update");
+        setError(err instanceof Error ? err.message : m.common_updateFailed());
         return false;
       }
     },
@@ -80,7 +81,7 @@ export function useCollections() {
         await fetchCollections();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to delete");
+        setError(err instanceof Error ? err.message : m.common_deleteFailed());
         return false;
       }
     },

@@ -8,6 +8,7 @@ import { useState, type ReactNode } from "react";
 import { Sparkles, X } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useCategories, useCategoryTemplates, type Category, type Template } from "@/hooks/useCategories";
+import * as m from "@/paraglide/messages.js";
 
 function TemplateCard({
   template,
@@ -28,7 +29,7 @@ function TemplateCard({
       <div className="mb-2 flex items-start justify-between gap-3">
         <h3 className="font-semibold text-foreground">{template.name}</h3>
         <span className={`status-badge ${template.isPreset ? "status-badge-info" : "status-badge-neutral"}`}>
-          {template.isPreset ? "预设" : "自定义"}
+          {template.isPreset ? m.categories_preset() : m.categories_custom()}
         </span>
       </div>
       {template.description && (
@@ -42,7 +43,7 @@ function TemplateCard({
         ))}
       </div>
       {template.usageCount > 0 && (
-        <p className="font-utility mt-3 text-xs text-foreground-muted">使用 {template.usageCount} 次</p>
+        <p className="font-utility mt-3 text-xs text-foreground-muted">{m.categories_usageCount({ count: template.usageCount.toString() })}</p>
       )}
     </button>
   );
@@ -57,9 +58,7 @@ export default function CategoriesPage() {
   if (loading && categories.length === 0) {
     return (
       <CategoriesShell>
-        <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted" aria-busy="true">
-          加载商品类目...
-        </div>
+        <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted" aria-busy="true">{m.categories_loading()}</div>
       </CategoriesShell>
     );
   }
@@ -68,21 +67,19 @@ export default function CategoriesPage() {
     return (
       <CategoriesShell>
         <div className="error-banner" role="alert">
-          <p className="font-semibold">无法加载商品类目</p>
+          <p className="font-semibold">{m.categories_loadErrorTitle()}</p>
           <p className="mt-1 text-sm">{error}</p>
         </div>
         <div className="panel-muted mt-4 flex min-h-[240px] flex-col items-center justify-center p-8 text-center">
-          <h2 className="text-lg font-semibold text-foreground">类目模板暂时不可用</h2>
+          <h2 className="text-lg font-semibold text-foreground">{m.categories_unavailableTitle()}</h2>
           <p className="mt-2 max-w-md text-sm text-foreground-muted">
-            确认 API 服务可访问后刷新页面，已保存的导航和页面上下文不会丢失。
+            {m.categories_unavailableDescription()}
           </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="btn-secondary mt-6 h-10 px-5"
-          >
-            重新加载
-          </button>
+          >{m.categories_reload()}</button>
         </div>
       </CategoriesShell>
     );
@@ -92,15 +89,13 @@ export default function CategoriesPage() {
     <CategoriesShell>
       {error && (
         <div className="error-banner mb-4" role="alert">
-          <p className="font-semibold">部分类目信息未更新</p>
+          <p className="font-semibold">{m.categories_partialErrorTitle()}</p>
           <p className="mt-1 text-sm">{error}</p>
         </div>
       )}
 
       {categories.length === 0 ? (
-        <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted">
-          暂无类目模板
-        </div>
+        <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted">{m.categories_emptyTemplates()}</div>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           <aside className="lg:col-span-3">
@@ -119,7 +114,7 @@ export default function CategoriesPage() {
                   <span className="text-2xl" aria-hidden="true">{cat.icon}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold text-foreground">{cat.name}</span>
-                    <span className="font-utility text-xs text-foreground-muted">{cat.templateCount ?? 0} 模板</span>
+                    <span className="font-utility text-xs text-foreground-muted">{m.categories_templateCount({ count: String(cat.templateCount ?? 0) })}</span>
                   </span>
                 </button>
               ))}
@@ -130,9 +125,7 @@ export default function CategoriesPage() {
             {selected ? (
               <CategoryDetail key={selected.id} category={selected} tab={tab} setTab={setTab} />
             ) : (
-              <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted">
-                选择一个类目查看模板和最佳实践
-              </div>
+              <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted">{m.categories_selectPrompt()}</div>
             )}
           </main>
         </div>
@@ -146,9 +139,9 @@ function CategoriesShell({ children }: { children: ReactNode }) {
     <div className="workbench-page">
       <div className="workbench-container">
         <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">Catalog / Templates</p>
-          <h1 className="page-title mt-2">商品类目与模板</h1>
-          <p className="page-description mt-3">选择类目，使用预设模板快速生成</p>
+          <p className="page-kicker">{m.categories_kicker()}</p>
+          <h1 className="page-title mt-2">{m.categories_title()}</h1>
+          <p className="page-description mt-3">{m.categories_subtitle()}</p>
         </header>
 
         {children}
@@ -184,13 +177,13 @@ function CategoryDetail({
             onClick={() => setTab("templates")}
             className={`segmented-option ${tab === "templates" ? "segmented-option-active" : ""}`}
           >
-            模板 ({templates.length})
+            {m.categories_templatesTab({ count: templates.length.toString() })}
           </button>
           <button
             onClick={() => setTab("practices")}
             className={`segmented-option ${tab === "practices" ? "segmented-option-active" : ""}`}
           >
-            最佳实践
+            {m.categories_practicesTab()}
           </button>
         </div>
       </div>
@@ -204,9 +197,9 @@ function CategoryDetail({
               </div>
             )}
             {loading && templates.length === 0 ? (
-              <p className="py-8 text-center text-foreground-muted">加载中...</p>
+              <p className="py-8 text-center text-foreground-muted">{m.common_loading()}</p>
             ) : templates.length === 0 ? (
-              <p className="py-8 text-center text-foreground-muted">暂无模板</p>
+              <p className="py-8 text-center text-foreground-muted">{m.categories_noTemplates()}</p>
             ) : (
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 {templates.map((t) => (
@@ -222,25 +215,23 @@ function CategoryDetail({
             {selectedTemplate && (
               <div className="panel-muted mt-6 p-4">
                 <div className="mb-3 flex items-start justify-between gap-3">
-                  <h3 className="font-semibold text-foreground">使用模板: {selectedTemplate.name}</h3>
+                  <h3 className="font-semibold text-foreground">{m.categories_useTemplate({ name: selectedTemplate.name })}</h3>
                   <button
                     onClick={() => setSelectedTemplate(null)}
                     className="icon-button h-8 w-8"
-                    aria-label="Close"
+                    aria-label={m.common_close()}
                   >
                     <X className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
                 <a href={localizeHref(`/generate?template=${selectedTemplate.id}`)} className="btn-primary h-10 gap-2 px-4">
-                  <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  用此模板生成
-                </a>
+                  <Sparkles className="h-4 w-4" aria-hidden="true" />{m.categories_generateWithTemplateShort()}</a>
               </div>
             )}
           </>
         ) : (
           <pre className="panel-muted whitespace-pre-wrap p-4 text-sm text-foreground">
-            {category.bestPractices ?? "暂无最佳实践"}
+            {category.bestPractices ?? m.categories_noBestPractices()}
           </pre>
         )}
       </div>

@@ -32,26 +32,28 @@ interface GenerationRecord {
   status: "completed" | "processing" | "failed";
 }
 
-const mockHistory: GenerationRecord[] = [
-  {
-    id: "1",
-    prompt: "高端无线蓝牙耳机",
-    platform: "Amazon",
-    style: "简约现代",
-    language: "中文",
-    createdAt: "2024-01-15 10:30",
-    status: "completed",
-  },
-  {
-    id: "2",
-    prompt: "智能手表",
-    platform: "Temu",
-    style: "科技感",
-    language: "英文",
-    createdAt: "2024-01-14 15:20",
-    status: "completed",
-  },
-];
+function getMockHistory(): GenerationRecord[] {
+  return [
+    {
+      id: "1",
+      prompt: m.profile_mockPromptHeadphones(),
+      platform: "Amazon",
+      style: m.style_minimal_label(),
+      language: m.profile_languageChinese(),
+      createdAt: "2024-01-15 10:30",
+      status: "completed",
+    },
+    {
+      id: "2",
+      prompt: m.profile_mockPromptWatch(),
+      platform: "Temu",
+      style: m.profile_styleTech(),
+      language: m.profile_languageEnglish(),
+      createdAt: "2024-01-14 15:20",
+      status: "completed",
+    },
+  ];
+}
 
 function statusClass(status: GenerationRecord["status"]) {
   if (status === "completed") return "status-badge-success";
@@ -87,7 +89,7 @@ function StatsCards() {
     },
     {
       label: m.profile_stats_favoriteStyle(),
-      value: "简约现代",
+      value: m.profile_styleMinimalModern(),
       icon: Palette,
       tone: "text-foreground bg-[hsl(var(--secondary))]",
     },
@@ -142,6 +144,8 @@ function UserInfoCard() {
 }
 
 function GenerationHistory() {
+  const mockHistory = getMockHistory();
+
   const handleDelete = (_id: string) => {
     // TODO: Implement delete functionality
   };
@@ -303,6 +307,7 @@ function SettingsForm() {
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
   const { user, isLoading: isAuthLoading } = useAuth();
+  const mockHistory = getMockHistory();
 
   if (isAuthLoading) {
     return (
@@ -326,7 +331,7 @@ export default function ProfilePage() {
       <div className="workbench-container">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Account / Seller bench</p>
+            <p className="page-kicker">{m.profile_kicker()}</p>
             <h1 className="page-title mt-2">{m.profile_title()}</h1>
             <p className="page-description mt-2">{m.profile_subtitle()}</p>
           </div>

@@ -13,6 +13,20 @@ describe("API smoke routes", () => {
     expect(Number.isNaN(Date.parse(body.timestamp ?? ""))).toBe(false);
   });
 
+  it("localizes API test route messages", async () => {
+    const zhResponse = await app.request("/api/test", {
+      headers: { "X-Oura-Locale": "zh-CN" },
+    });
+    const enResponse = await app.request("/api/test", {
+      headers: { "X-Oura-Locale": "en" },
+    });
+    const zhBody = await zhResponse.json() as { message?: string };
+    const enBody = await enResponse.json() as { message?: string };
+
+    expect(zhBody.message).toBe("测试路由正常");
+    expect(enBody.message).toBe("Test route works");
+  });
+
   it("returns the standard JSON envelope for unknown routes", async () => {
     const response = await app.request("/missing-route");
     const body = await response.json() as {

@@ -13,6 +13,7 @@ import {
   markAllNotificationsRead,
   deleteNotification,
 } from "../services/notificationService";
+import { apiMessage } from "../lib/i18n";
 
 const notifications = new Hono<{
   Bindings: {
@@ -31,7 +32,7 @@ const notifications = new Hono<{
 notifications.get("/", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   const limit = Number(c.req.query("limit")) || 20;
@@ -56,7 +57,7 @@ notifications.get("/", async (c) => {
     });
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to fetch notifications" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -67,7 +68,7 @@ notifications.get("/", async (c) => {
 notifications.put("/:id/read", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   const id = c.req.param("id");
@@ -77,13 +78,13 @@ notifications.put("/:id/read", async (c) => {
     const success = await markNotificationRead(db, id, user.id);
 
     if (!success) {
-      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Notification not found" } }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") } }, 404);
     }
 
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to mark notification as read:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to mark notification as read" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -94,7 +95,7 @@ notifications.put("/:id/read", async (c) => {
 notifications.put("/read-all", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   try {
@@ -107,7 +108,7 @@ notifications.put("/read-all", async (c) => {
     });
   } catch (error) {
     console.error("Failed to mark all notifications as read:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to mark all notifications as read" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -118,7 +119,7 @@ notifications.put("/read-all", async (c) => {
 notifications.delete("/:id", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   const id = c.req.param("id");
@@ -128,13 +129,13 @@ notifications.delete("/:id", async (c) => {
     const success = await deleteNotification(db, id, user.id);
 
     if (!success) {
-      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Notification not found" } }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") } }, 404);
     }
 
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to delete notification:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete notification" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 

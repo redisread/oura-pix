@@ -9,6 +9,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb, schema, eq, and, desc, count, inArray } from "@oura-pix/database";
 import { getUser } from "../middleware/auth";
+import { apiMessage } from "../lib/i18n";
 
 const router = new Hono<{
   Bindings: {
@@ -34,7 +35,7 @@ router.get("/", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );
@@ -110,7 +111,7 @@ router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );
@@ -131,7 +132,7 @@ router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "ALREADY_EXISTS", message: "Already favorited" },
+        error: { code: "ALREADY_EXISTS", message: apiMessage(c, "alreadyFavorited") },
       },
       409
     );
@@ -149,7 +150,7 @@ router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "NOT_FOUND", message: "Generation not found" },
+        error: { code: "NOT_FOUND", message: apiMessage(c, "generationNotFound") },
       },
       404
     );
@@ -179,7 +180,7 @@ router.delete("/:id", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );
@@ -200,7 +201,7 @@ router.delete("/:id", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "NOT_FOUND", message: "Favorite not found" },
+        error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") },
       },
       404
     );
@@ -220,7 +221,7 @@ router.post("/batch-delete", zValidator("json", z.object({ ids: z.array(z.string
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );
@@ -260,7 +261,7 @@ router.get("/check/:imageUrl", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UNAUTHORIZED", message: "User not found" },
+        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
       },
       401
     );

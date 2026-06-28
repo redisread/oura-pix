@@ -1,10 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import ErrorsDashboard from '../components/errors/ErrorsDashboard';
 import Navbar from '../components/Navbar';
 ---
 
-<Layout title="错误追踪">
+<Layout title={m.errors_title()}>
   <Navbar client:load />
   <ErrorsDashboard client:load />
 </Layout>

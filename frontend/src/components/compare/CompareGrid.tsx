@@ -4,6 +4,7 @@
  * Displays images in various grid layouts
  */
 
+import * as m from "@/paraglide/messages.js";
 import type { CompareImage, LayoutMode } from "@/hooks/useCompare";
 
 interface CompareGridProps {
@@ -74,7 +75,7 @@ export default function CompareGrid({
         >
           <img
             src={img.url}
-            alt={img.title || `图片 ${idx + 1}`}
+            alt={img.title || m.compare_imageAlt({ index: String(idx + 1) })}
             className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
             loading="lazy"
             decoding="async"

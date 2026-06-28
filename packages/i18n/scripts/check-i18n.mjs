@@ -8,59 +8,44 @@ const packageRoot = path.resolve(new URL("..", import.meta.url).pathname);
 const repoRoot = path.resolve(packageRoot, "../..");
 const locales = ["zh-CN", "en", "ja"];
 const hardcodedScanRoots = ["frontend/src", "api/src"];
+const apiScanRoots = ["api/src/routes", "api/src/middleware", "api/src/lib"];
+const apiScanFiles = ["api/src/index.ts"];
 const hardcodedAllowlist = new Set([
   // Base Chinese seed data is intentionally retained for no-migration preset matching.
   "api/src/services/categoryService.ts",
-
-  // Not yet fully migrated: admin, tools, and account recovery surfaces.
-  "frontend/src/components/ForgotPasswordPage.tsx",
-  "frontend/src/components/ProfilePage.tsx",
-  "frontend/src/components/ResetPasswordPage.tsx",
-  "frontend/src/components/categories/CategoriesPage.tsx",
-  "frontend/src/components/collections/CollectionsPage.tsx",
-  "frontend/src/components/compare/CompareGrid.tsx",
-  "frontend/src/components/compare/CompareToolbar.tsx",
-  "frontend/src/components/compare/CompareView.tsx",
-  "frontend/src/components/competitors/CompetitorsPage.tsx",
-  "frontend/src/components/editor/EditorToolbar.tsx",
-  "frontend/src/components/editor/ImageEditor.tsx",
-  "frontend/src/components/errors/ErrorsDashboard.tsx",
-  "frontend/src/components/feedback/FeedbackForm.tsx",
-  "frontend/src/components/keys/ApiKeysPage.tsx",
-  "frontend/src/components/metrics/MetricsDashboard.tsx",
-  "frontend/src/components/stats/DistributionChart.tsx",
-  "frontend/src/components/stats/StatsPage.tsx",
-  "frontend/src/components/stats/TrendChart.tsx",
-  "frontend/src/components/teams/TeamDetailPage.tsx",
-  "frontend/src/components/teams/TeamsPage.tsx",
-  "frontend/src/components/tools/BackgroundRemover.tsx",
-  "frontend/src/components/tools/BatchProcessor.tsx",
-  "frontend/src/components/tools/CollageMaker.tsx",
-  "frontend/src/components/tools/ExportDemo.tsx",
-  "frontend/src/components/tools/ExportDialog.tsx",
-  "frontend/src/components/tools/ImageBorder.tsx",
-  "frontend/src/components/tools/ImageCutout.tsx",
-  "frontend/src/components/tools/ShortcutsDemo.tsx",
-  "frontend/src/hooks/useCompetitors.ts",
-  "frontend/src/hooks/useImageBorder.ts",
-  "frontend/src/hooks/useImageCollage.ts",
-  "frontend/src/hooks/useImageEdit.ts",
-  "frontend/src/pages/categories.astro",
-  "frontend/src/pages/collections.astro",
-  "frontend/src/pages/competitors.astro",
-  "frontend/src/pages/errors.astro",
-  "frontend/src/pages/metrics.astro",
-  "frontend/src/pages/stats.astro",
-  "frontend/src/pages/teams.astro",
-  "frontend/src/pages/teams/[id].astro",
-  "frontend/src/pages/tools/background-remover.astro",
-  "frontend/src/pages/tools/batch.astro",
-  "frontend/src/pages/tools/border.astro",
-  "frontend/src/pages/tools/collage.astro",
-  "frontend/src/pages/tools/cutout.astro",
-  "frontend/src/pages/tools/export.astro",
-  "frontend/src/pages/tools/shortcuts.astro",
 ]);
+
+const userVisibleEnglishAllowlist = new Set([
+  // Brand/product names and technical tokens that should remain stable.
+  "OuraPix",
+  "API",
+  "Amazon",
+  "Shopify",
+  "eBay",
+  "Etsy",
+  "Web Vitals",
+  "JSON",
+  "CSV",
+  "PNG",
+  "JPEG",
+  "WebP",
+  "URL",
+  "ID",
+  "Google",
+  "GitHub",
+  "Light",
+  "Dark",
+  "Auto",
+]);
+
+function isAllowedUserVisibleEnglish(text) {
+  if (!text) return true;
+  if (userVisibleEnglishAllowlist.has(text)) return true;
+  if (/\p{Script=Han}/u.test(text)) return true;
+  if (/^[A-Z0-9_ -]+$/.test(text)) return true;
+  if (/^https?:\/\//.test(text)) return true;
+  return false;
+}
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
@@ -147,9 +132,197 @@ function assertNoUnexpectedHardcodedChinese() {
   }
 }
 
+function assertNoFixedLocaleFormatting() {
+  const violations = [];
+  const root = path.join(repoRoot, "frontend/src");
+  if (!fs.existsSync(root)) return;
+
+  for (const file of walkFiles(root)) {
+    const relative = path.relative(repoRoot, file);
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    lines.forEach((line, index) => {
+      if (/\.toLocale(?:String|DateString|TimeString)\(\s*["']zh-CN["']/.test(line)) {
+        violations.push(`${relative}:${index + 1}: ${line.trim()}`);
+      }
+    });
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Fixed zh-CN date/time formatting found in frontend code:\n${violations.join("\n")}`
+    );
+  }
+}
+
+function assertNoHardcodedApiErrorMessages() {
+  const violations = [];
+
+  for (const root of apiScanRoots) {
+    const absoluteRoot = path.join(repoRoot, root);
+    if (!fs.existsSync(absoluteRoot)) continue;
+
+    for (const file of walkFiles(absoluteRoot)) {
+      const relative = path.relative(repoRoot, file);
+      const lines = fs.readFileSync(file, "utf8").split("\n");
+      lines.forEach((line, index) => {
+        if (/\bmessage:\s*["'][A-Z][^"']*[a-z][^"']*["']/.test(line)) {
+          violations.push(`${relative}:${index + 1}: ${line.trim()}`);
+        }
+      });
+    }
+  }
+  for (const relative of apiScanFiles) {
+    const file = path.join(repoRoot, relative);
+    if (!fs.existsSync(file)) continue;
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    lines.forEach((line, index) => {
+      if (/\bmessage:\s*["'][A-Z][^"']*[a-z][^"']*["']/.test(line)) {
+        violations.push(`${relative}:${index + 1}: ${line.trim()}`);
+      }
+    });
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Hardcoded API error messages found. Use serverMessage(locale, key):\n${violations
+        .slice(0, 120)
+        .join("\n")}${violations.length > 120 ? `\n...and ${violations.length - 120} more` : ""}`
+    );
+  }
+}
+
+function assertNoHardcodedPageMetadata() {
+  const violations = [];
+  const root = path.join(repoRoot, "frontend/src/pages");
+  if (!fs.existsSync(root)) return;
+
+  for (const file of walkFiles(root)) {
+    if (!file.endsWith(".astro")) continue;
+    const relative = path.relative(repoRoot, file);
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    lines.forEach((line, index) => {
+      if (
+        /const\s+(title|description)\s*=\s*["']/.test(line) ||
+        /<Layout[^>]*\btitle=["']/.test(line) ||
+        /<Layout[^>]*\bdescription=["']/.test(line)
+      ) {
+        violations.push(`${relative}:${index + 1}: ${line.trim()}`);
+      }
+    });
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Hardcoded page metadata found. Use Paraglide messages instead:\n${violations.join("\n")}`
+    );
+  }
+}
+
+function assertNoVisibleEnglishInLocalizedUi() {
+  const violations = [];
+  const root = path.join(repoRoot, "frontend/src");
+  if (!fs.existsSync(root)) return;
+
+  const visibleTextPattern = />\s*([^<>{}`]*[A-Za-z][^<>{}`]*)\s*</g;
+
+  for (const file of walkFiles(root)) {
+    const relative = path.relative(repoRoot, file);
+    if (!/\.(astro|tsx|jsx)$/.test(file)) continue;
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+
+    lines.forEach((line, index) => {
+      if (
+        /=>|Promise<|interface |type |:\s*\{|Authorization:|op_xxx|curl |[<>]=?\s*["']/.test(line)
+      ) {
+        return;
+      }
+      let match;
+      while ((match = visibleTextPattern.exec(line)) !== null) {
+        const text = match[1].trim();
+        if (isAllowedUserVisibleEnglish(text)) continue;
+        violations.push(`${relative}:${index + 1}: ${text}`);
+      }
+    });
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Hardcoded visible English text found in localized UI:\n${violations
+        .slice(0, 120)
+        .join("\n")}${violations.length > 120 ? `\n...and ${violations.length - 120} more` : ""}`
+    );
+  }
+}
+
+function assertNoHardcodedLocalizedUiStringLiterals() {
+  const violations = [];
+  const root = path.join(repoRoot, "frontend/src");
+  if (!fs.existsSync(root)) return;
+
+  const propertyTextPattern =
+    /\b(?:label|title|description|placeholder|message|text|heading|subtitle|empty|error|success|warning|tooltip|ariaLabel|alt)\s*:\s*["']([A-Z][^"']*[A-Za-z][^"']*)["']/g;
+  const returnTextPattern = /\breturn\s+["']([A-Z][^"']*[A-Za-z][^"']*)["']/g;
+  const fallbackTextPattern = /\|\|\s*["']([A-Za-z][^"']*\s+[^"']*[A-Za-z][^"']*)["']/g;
+
+  for (const file of walkFiles(root)) {
+    const relative = path.relative(repoRoot, file);
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+
+    lines.forEach((line, index) => {
+      if (/interface |type |Promise<|Authorization:|Content-Type|curl /.test(line)) return;
+
+      for (const pattern of [propertyTextPattern, returnTextPattern, fallbackTextPattern]) {
+        pattern.lastIndex = 0;
+        let match;
+        while ((match = pattern.exec(line)) !== null) {
+          const text = match[1].trim();
+          if (isAllowedUserVisibleEnglish(text)) continue;
+          violations.push(`${relative}:${index + 1}: ${text}`);
+        }
+      }
+    });
+  }
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Hardcoded localized UI string literals found. Use Paraglide messages instead:\n${violations
+        .slice(0, 120)
+        .join("\n")}${violations.length > 120 ? `\n...and ${violations.length - 120} more` : ""}`
+    );
+  }
+}
+
+function assertNoHardcodedMailCopy() {
+  const violations = [];
+  const file = path.join(repoRoot, "api/src/lib/mail.ts");
+  if (!fs.existsSync(file)) return;
+
+  const lines = fs.readFileSync(file, "utf8").split("\n");
+  lines.forEach((line, index) => {
+    if (/subject:\s*(["'`])/.test(line) && !line.includes("mailText(")) {
+      violations.push(`api/src/lib/mail.ts:${index + 1}: ${line.trim()}`);
+    }
+    if (/<(?:h2|p|a)\b[^>]*>\s*[A-Za-z][^<{]*<\/(?:h2|p|a)>/.test(line)) {
+      violations.push(`api/src/lib/mail.ts:${index + 1}: ${line.trim()}`);
+    }
+  });
+
+  if (violations.length > 0) {
+    throw new Error(
+      `Hardcoded email copy found. Use mailMessage(locale, key):\n${violations.join("\n")}`
+    );
+  }
+}
+
 assertComplete("ui");
 assertComplete("server");
 assertNoUnexpectedHardcodedChinese();
+assertNoFixedLocaleFormatting();
+assertNoHardcodedApiErrorMessages();
+assertNoHardcodedPageMetadata();
+assertNoVisibleEnglishInLocalizedUi();
+assertNoHardcodedLocalizedUiStringLiterals();
+assertNoHardcodedMailCopy();
 
 const outdir = fs.mkdtempSync(path.join(os.tmpdir(), "oura-pix-paraglide-"));
 execFileSync(

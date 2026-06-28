@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { resetPassword } from "@/lib/auth";
+import * as m from "@/paraglide/messages.js";
 
 function BrandLink() {
   return (
@@ -36,7 +37,7 @@ function RecoveryAside({
       <div className="bench-grid absolute inset-0 opacity-40" />
       <div className="relative z-10 flex min-h-screen flex-col justify-center px-12 xl:px-20">
         <BrandLink />
-        <p className="page-kicker mt-12">Credential proof</p>
+        <p className="page-kicker mt-12">{m.resetPassword_sideKicker()}</p>
         <h2 className="font-display mt-4 max-w-xl text-5xl font-semibold leading-none text-foreground">
           {title}
         </h2>
@@ -44,7 +45,7 @@ function RecoveryAside({
         <div className="card mt-10 overflow-hidden">
           <div className="proof-strip h-2" />
           <div className="space-y-4 p-5">
-            {["新密码至少 8 位", "重置完成后回到登录台", "商品与团队数据保持不变"].map((item) => (
+            {[m.resetPassword_requirementLength(), m.resetPassword_requirementLogin(), m.resetPassword_requirementData()].map((item) => (
               <div key={item} className="flex items-center gap-3 text-sm font-semibold text-foreground">
                 <CheckCircle2 className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
                 {item}
@@ -74,7 +75,7 @@ function PasswordInput({
         type="button"
         className="absolute right-0 top-0 flex h-full items-center px-3 text-foreground-muted transition-colors hover:text-foreground"
         onClick={() => setShowPassword(!showPassword)}
-        aria-label={showPassword ? "Hide password" : "Show password"}
+        aria-label={showPassword ? m.resetPassword_hidePassword() : m.resetPassword_showPassword()}
       >
         {showPassword ? (
           <EyeOff className="h-4 w-4" aria-hidden="true" />
@@ -107,17 +108,17 @@ export default function ResetPasswordPage({ token }: Props) {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("两次输入的密码不一致");
+      setError(m.resetPassword_errorMismatch());
       return;
     }
 
     if (password.length < 8) {
-      setError("密码长度至少8位");
+      setError(m.resetPassword_errorTooShort());
       return;
     }
 
     if (!token) {
-      setError("无效的重置链接");
+      setError(m.resetPassword_errorInvalidLink());
       return;
     }
 
@@ -126,7 +127,7 @@ export default function ResetPasswordPage({ token }: Props) {
     try {
       const result = await resetPassword(token, password);
       if (!result.success) {
-        setError(result.error || "重置失败");
+        setError(result.error || m.resetPassword_errorFailed());
       } else {
         setIsSuccess(true);
         setTimeout(() => {
@@ -134,7 +135,7 @@ export default function ResetPasswordPage({ token }: Props) {
         }, 3000);
       }
     } catch {
-      setError("重置失败，请重试");
+      setError(m.resetPassword_errorFailed());
     } finally {
       setIsLoading(false);
     }
@@ -144,8 +145,8 @@ export default function ResetPasswordPage({ token }: Props) {
     return (
       <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
         <RecoveryAside
-          title="Expired links stay outside the listing bench."
-          description="链接失效时不再接受密码改写，避免过期邮件继续打开账户入口。"
+          title={m.resetPassword_invalidSideTitle()}
+          description={m.resetPassword_invalidSideDescription()}
         />
         <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
           <div className="mx-auto w-full max-w-md text-center">
@@ -155,14 +156,10 @@ export default function ResetPasswordPage({ token }: Props) {
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-[hsl(var(--color-error-light))] text-[hsl(var(--color-error))]">
               <AlertTriangle className="h-8 w-8" aria-hidden="true" />
             </div>
-            <p className="page-kicker">Invalid reset link</p>
-            <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">
-              链接已失效
-            </h1>
-            <p className="mt-3 text-foreground-muted">该密码重置链接已过期或无效。</p>
-            <a href={localizeHref("/forgot-password")} className="btn-primary mt-8 h-11 px-6">
-              重新申请
-            </a>
+            <p className="page-kicker">{m.resetPassword_invalidKicker()}</p>
+            <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">{m.resetPassword_invalidHeroTitle()}</h1>
+            <p className="mt-3 text-foreground-muted">{m.resetPassword_invalidDescription()}</p>
+            <a href={localizeHref("/forgot-password")} className="btn-primary mt-8 h-11 px-6">{m.resetPassword_requestAgain()}</a>
           </div>
         </main>
       </div>
@@ -173,8 +170,8 @@ export default function ResetPasswordPage({ token }: Props) {
     return (
       <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
         <RecoveryAside
-          title="The account is cleared back onto the workbench."
-          description="新密码已生效，几秒后会带您回到登录入口继续处理商品图。"
+          title={m.resetPassword_successSideTitle()}
+          description={m.resetPassword_successSideDescription()}
         />
         <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
           <div className="mx-auto w-full max-w-md text-center">
@@ -184,14 +181,10 @@ export default function ResetPasswordPage({ token }: Props) {
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-[hsl(var(--color-success-light))] text-[hsl(var(--color-success))]">
               <CheckCircle2 className="h-8 w-8" aria-hidden="true" />
             </div>
-            <p className="page-kicker">Password updated</p>
-            <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">
-              重置成功
-            </h1>
-            <p className="mt-3 text-foreground-muted">您的密码已重置，即将跳转到登录页面。</p>
-            <a href={localizeHref("/login")} className="btn-primary mt-8 h-11 px-6">
-              立即登录
-            </a>
+            <p className="page-kicker">{m.resetPassword_successKicker()}</p>
+            <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">{m.resetPassword_successTitle()}</h1>
+            <p className="mt-3 text-foreground-muted">{m.resetPassword_successDescription()}</p>
+            <a href={localizeHref("/login")} className="btn-primary mt-8 h-11 px-6">{m.resetPassword_loginNow()}</a>
           </div>
         </main>
       </div>
@@ -201,8 +194,8 @@ export default function ResetPasswordPage({ token }: Props) {
   return (
     <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
       <RecoveryAside
-        title="Set a fresh key before returning to production work."
-        description="用新密码恢复账户访问，再继续生成、导出和复用商品详情页素材。"
+        title={m.resetPassword_formSideTitle()}
+        description={m.resetPassword_formSideDescription()}
       />
 
       <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
@@ -212,11 +205,9 @@ export default function ResetPasswordPage({ token }: Props) {
           </div>
 
           <div className="mb-8">
-            <p className="page-kicker">Set password</p>
-            <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">
-              设置新密码
-            </h1>
-            <p className="mt-2 text-foreground-muted">请输入您的新密码。</p>
+            <p className="page-kicker">{m.resetPassword_formKicker()}</p>
+            <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">{m.resetPassword_heroTitle()}</h1>
+            <p className="mt-2 text-foreground-muted">{m.resetPassword_formDescription()}</p>
           </div>
 
           {error && (
@@ -227,9 +218,7 @@ export default function ResetPasswordPage({ token }: Props) {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-semibold text-foreground">
-                新密码
-              </label>
+              <label htmlFor="password" className="text-sm font-semibold text-foreground">{m.resetPassword_newPassword()}</label>
               <PasswordInput
                 id="password"
                 name="password"
@@ -237,14 +226,12 @@ export default function ResetPasswordPage({ token }: Props) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="请输入新密码"
+                placeholder={m.resetPassword_newPasswordPlaceholder()}
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="text-sm font-semibold text-foreground">
-                确认密码
-              </label>
+              <label htmlFor="confirmPassword" className="text-sm font-semibold text-foreground">{m.resetPassword_confirmPassword()}</label>
               <PasswordInput
                 id="confirmPassword"
                 name="confirmPassword"
@@ -252,7 +239,7 @@ export default function ResetPasswordPage({ token }: Props) {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="请再次输入新密码"
+                placeholder={m.resetPassword_confirmPasswordPlaceholder()}
               />
             </div>
 
@@ -262,7 +249,7 @@ export default function ResetPasswordPage({ token }: Props) {
               className="btn-primary h-11 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <LockKeyhole className="h-4 w-4" aria-hidden="true" />
-              {isLoading ? "重置中..." : "重置密码"}
+              {isLoading ? m.resetPassword_loading() : m.resetPassword_submit()}
             </button>
           </form>
 
@@ -270,9 +257,7 @@ export default function ResetPasswordPage({ token }: Props) {
             <a
               href={localizeHref("/login")}
               className="text-sm font-semibold text-[hsl(var(--primary))] transition-colors hover:text-[hsl(var(--primary-hover))]"
-            >
-              返回登录
-            </a>
+            >{m.resetPassword_backToLogin()}</a>
           </div>
         </div>
       </main>

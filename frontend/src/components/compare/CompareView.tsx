@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useCallback, useRef, useState } from "react";
+import * as m from "@/paraglide/messages.js";
 import { useCompare, type CompareImage } from "@/hooks/useCompare";
 import CompareGrid from "./CompareGrid";
 import CompareToolbar from "./CompareToolbar";
@@ -185,12 +186,12 @@ export default function CompareView({ images, onClose }: CompareViewProps) {
       </div>
 
       <div className="flex items-center justify-center gap-4 border-t border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-2 text-xs text-foreground-muted">
-        <span>滚轮缩放</span>
-        <span>拖拽平移</span>
-        <span>← → 切换图片</span>
-        <span>+/- 缩放</span>
-        <span>F 全屏</span>
-        <span>ESC 关闭</span>
+        <span>{m.compare_helpWheel()}</span>
+        <span>{m.compare_helpDrag()}</span>
+        <span>{m.compare_helpArrow()}</span>
+        <span>{m.compare_helpZoom()}</span>
+        <span>{m.compare_helpFullscreen()}</span>
+        <span>{m.compare_helpEsc()}</span>
       </div>
     </div>
   );

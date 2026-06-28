@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Save, X } from "lucide-react";
 import { useImageEdit } from "@/hooks/useImageEdit";
 import EditorToolbar from "./EditorToolbar";
+import * as m from "@/paraglide/messages.js";
 
 interface ImageEditorProps {
   imageUrl: string;
@@ -82,22 +83,20 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.78)]" role="dialog" aria-modal="true">
       <div className="panel flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden">
         <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-6 py-4">
-          <h2 className="font-display text-2xl font-semibold text-foreground">图片编辑器</h2>
+          <h2 className="font-display text-2xl font-semibold text-foreground">{m.editor_title()}</h2>
           <div className="flex gap-3">
             <button
               onClick={onClose}
               className="btn-secondary h-10 gap-2 px-4"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
-              取消
-            </button>
+              <X className="h-4 w-4" aria-hidden="true" />{m.editor_cancel()}</button>
             <button
               onClick={handleSave}
               disabled={isSaving}
               className="btn-primary h-10 gap-2 px-6 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save className="h-4 w-4" aria-hidden="true" />
-              {isSaving ? "保存中..." : "保存"}
+              {isSaving ? m.editor_saving() : m.editor_save()}
             </button>
           </div>
         </div>
@@ -107,7 +106,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
             <div className="relative">
               <img
                 src={imageUrl}
-                alt="Editing"
+                alt={m.editor_imageAlt()}
                 className="max-w-full max-h-[60vh] object-contain"
                 decoding="async"
                 style={{
@@ -154,7 +153,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
         </div>
 
         <div className="border-t border-[hsl(var(--border))] px-6 py-3 text-xs text-foreground-muted">
-          <span>快捷键: Ctrl+Z 撤销 | Ctrl+Y/Ctrl+Shift+Z 重做</span>
+          <span>{m.editor_shortcuts()}</span>
         </div>
       </div>
     </div>

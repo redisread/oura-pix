@@ -10,6 +10,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Download, PackageOpen, Trash2, Upload, Wand2, X } from "lucide-react";
 import { useBatchProcess, type OutputFormat, type BatchItem } from "@/hooks/useBatchProcess";
+import * as m from "@/paraglide/messages.js";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -68,19 +69,17 @@ export default function BatchProcessor() {
     <div className="workbench-page">
       <div className="workbench-container">
         <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">Tool bench / Batch</p>
-          <h1 className="page-title mt-2">批量处理工具</h1>
-          <p className="page-description mt-3">
-          浏览器内批量处理图片：调整尺寸、压缩、添加水印、格式转换。
-        </p>
+          <p className="page-kicker">{m.tool_batchKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_batchTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_batchSubtitle()}</p>
         </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
-            <h2 className="panel-title">处理选项</h2>
+            <h2 className="panel-title">{m.tool_processingOptions()}</h2>
 
           <div>
-              <label className="panel-label mb-1 block">输出格式</label>
+              <label className="panel-label mb-1 block">{m.tool_outputFormat()}</label>
             <select
               value={options.format}
               onChange={(e) => setOptions({ ...options, format: e.target.value as OutputFormat })}
@@ -94,22 +93,22 @@ export default function BatchProcessor() {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-                <label className="panel-label mb-1 block">宽 (px)</label>
+                <label className="panel-label mb-1 block">{m.tool_widthPx()}</label>
               <input
                 type="number"
                 value={options.resizeWidth ?? ""}
                 onChange={(e) => setOptions({ ...options, resizeWidth: e.target.value ? Number(e.target.value) : undefined })}
-                placeholder="原图"
+                placeholder={m.tool_originalImage()}
                   className="input py-1.5"
               />
             </div>
             <div>
-                <label className="panel-label mb-1 block">高 (px)</label>
+                <label className="panel-label mb-1 block">{m.tool_heightPx()}</label>
               <input
                 type="number"
                 value={options.resizeHeight ?? ""}
                 onChange={(e) => setOptions({ ...options, resizeHeight: e.target.value ? Number(e.target.value) : undefined })}
-                placeholder="原图"
+                placeholder={m.tool_originalImage()}
                   className="input py-1.5"
               />
             </div>
@@ -118,7 +117,7 @@ export default function BatchProcessor() {
           {options.format !== "image/png" && (
             <div>
                 <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
-                <span>质量</span>
+                <span>{m.tool_quality()}</span>
                 <span>{Math.round(options.quality * 100)}%</span>
               </div>
               <input
@@ -129,7 +128,7 @@ export default function BatchProcessor() {
                 value={options.quality}
                 onChange={(e) => setOptions({ ...options, quality: Number(e.target.value) })}
                   className="range"
-                  aria-label="输出质量"
+                  aria-label={m.tool_outputQualityAria()}
               />
             </div>
           )}
@@ -142,14 +141,14 @@ export default function BatchProcessor() {
                 onChange={(e) => setOptions({ ...options, watermarkEnabled: e.target.checked })}
                   className="h-4 w-4 rounded border-[hsl(var(--border))] text-[hsl(var(--primary))] focus:ring-[hsl(var(--primary)/0.28)]"
               />
-                <span className="text-sm font-medium text-foreground">添加水印</span>
+                <span className="text-sm font-medium text-foreground">{m.tool_addWatermark()}</span>
             </label>
             {options.watermarkEnabled && (
               <input
                 type="text"
                 value={options.watermarkText}
                 onChange={(e) => setOptions({ ...options, watermarkText: e.target.value })}
-                placeholder="水印文字"
+                placeholder={m.tool_watermarkText()}
                   className="input py-1.5"
               />
             )}
@@ -161,7 +160,7 @@ export default function BatchProcessor() {
               className="btn-primary h-10 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
               <Wand2 className="h-4 w-4" aria-hidden="true" />
-            {processing ? `处理中 ${progress}%` : `开始处理 (${items.length})`}
+            {processing ? m.tool_batchProgress({ progress: progress.toString() }) : m.tool_startProcessingCount({ count: items.length.toString() })}
           </button>
 
           {completedCount > 0 && (
@@ -170,7 +169,7 @@ export default function BatchProcessor() {
                 className="btn-secondary h-10 w-full gap-2"
             >
                 <Download className="h-4 w-4" aria-hidden="true" />
-              下载 ZIP ({completedCount})
+              {m.tool_downloadZip({ count: completedCount.toString() })}
             </button>
           )}
         </div>
@@ -196,26 +195,22 @@ export default function BatchProcessor() {
               htmlFor="batch-input"
                 className="btn-primary h-10 cursor-pointer gap-2 px-4"
             >
-                <Upload className="h-4 w-4" aria-hidden="true" />
-              选择多张图片
-            </label>
-              <p className="mt-2 text-xs font-medium text-foreground-muted">或拖放图片到这里</p>
+                <Upload className="h-4 w-4" aria-hidden="true" />{m.tool_selectMultipleImages()}</label>
+              <p className="mt-2 text-xs font-medium text-foreground-muted">{m.tool_dropImagesHere()}</p>
           </div>
 
           {items.length > 0 && (
               <div className="panel overflow-hidden">
                 <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-4 py-3">
                   <div className="text-sm font-semibold text-foreground">
-                  共 {items.length} 张 · 完成 {completedCount}
-                  {totalSavings > 0 && ` · 节省 ${formatBytes(totalSavings)}`}
+                  {m.tool_batchSummary({ total: items.length.toString(), completed: completedCount.toString() })}
+                  {totalSavings > 0 && m.tool_batchSavings({ size: formatBytes(totalSavings) })}
                 </div>
                 <button
                   onClick={clearAll}
                     className="icon-button h-8 gap-1 px-2 text-xs"
                 >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                  清空
-                </button>
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />{m.common_clear()}</button>
               </div>
                 <div className="max-h-[500px] overflow-y-auto">
                 {items.map((item) => (
@@ -227,8 +222,8 @@ export default function BatchProcessor() {
             {items.length === 0 && (
               <div className="panel-muted flex min-h-[260px] flex-col items-center justify-center p-8 text-center">
                 <PackageOpen className="mb-4 h-10 w-10 text-foreground-muted" aria-hidden="true" />
-                <p className="font-semibold text-foreground">还没有待处理图片</p>
-                <p className="mt-1 text-sm text-foreground-muted">选择或拖入图片后，这里会显示处理队列。</p>
+                <p className="font-semibold text-foreground">{m.tool_batchEmptyTitle()}</p>
+                <p className="mt-1 text-sm text-foreground-muted">{m.tool_batchEmptyDescription()}</p>
               </div>
             )}
           </div>
@@ -265,16 +260,20 @@ function BatchItemRow({ item, onRemove, onDownload }: { item: BatchItem; onRemov
           item.status === "processing" ? "status-badge-info" :
           "status-badge-neutral"
         }`}>
-          {item.status === "done" ? "完成" : item.status === "error" ? "失败" : item.status === "processing" ? "处理中" : "等待"}
+          {item.status === "done"
+            ? m.common_done()
+            : item.status === "error"
+            ? m.common_failed()
+            : item.status === "processing"
+            ? m.common_processing()
+            : m.common_waiting()}
         </span>
         {item.status === "done" && (
           <button
             onClick={() => onDownload(item)}
             className="icon-button h-8 gap-1 px-2 text-xs"
           >
-            <Download className="h-3.5 w-3.5" aria-hidden="true" />
-            下载
-          </button>
+            <Download className="h-3.5 w-3.5" aria-hidden="true" />{m.common_download()}</button>
         )}
         <button
           onClick={() => onRemove(item.id)}

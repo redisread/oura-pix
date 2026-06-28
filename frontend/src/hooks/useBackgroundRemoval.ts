@@ -7,6 +7,7 @@
 
 import { useState, useCallback } from "react";
 import { removeBackground } from "@imgly/background-removal";
+import * as m from "@/paraglide/messages.js";
 
 export interface RemovalResult {
   // PNG blob (transparent background)
@@ -52,7 +53,7 @@ export function useBackgroundRemoval() {
       setProgress(100);
     } catch (err) {
       console.error("Background removal failed:", err);
-      setError(err instanceof Error ? err.message : "Background removal failed");
+      setError(err instanceof Error ? err.message : m.common_processingFailed());
     } finally {
       setLoading(false);
     }

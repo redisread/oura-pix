@@ -8,7 +8,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Download, ImagePlus, X } from "lucide-react";
-import { useImageCollage, LAYOUTS, type LayoutTemplate, type CollageCell } from "@/hooks/useImageCollage";
+import {
+  getLayoutLabel,
+  LAYOUTS,
+  useImageCollage,
+  type CollageCell,
+  type LayoutTemplate,
+} from "@/hooks/useImageCollage";
+import * as m from "@/paraglide/messages.js";
 
 export default function CollageMaker() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,16 +71,14 @@ export default function CollageMaker() {
     <div className="workbench-page">
       <div className="workbench-container">
         <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">Tool bench / Collage</p>
-          <h1 className="page-title mt-2">图片拼图</h1>
-          <p className="page-description mt-3">
-          浏览器内多图组合，导出 PNG
-        </p>
+          <p className="page-kicker">{m.tool_collageKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_collageTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_collageSubtitle()}</p>
         </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
-            <h2 className="panel-title">布局</h2>
+            <h2 className="panel-title">{m.tool_layout()}</h2>
           <div className="grid grid-cols-2 gap-2">
             {(Object.keys(LAYOUTS) as LayoutTemplate[]).map((key) => (
               <button
@@ -81,12 +86,12 @@ export default function CollageMaker() {
                 onClick={() => setOptions({ ...options, layout: key })}
                   className={`segmented-option ${options.layout === key ? "segmented-option-active" : ""}`}
               >
-                {LAYOUTS[key].label}
+                {getLayoutLabel(key)}
               </button>
             ))}
           </div>
 
-            <h2 className="panel-title border-t border-[hsl(var(--border))] pt-4">输出尺寸</h2>
+            <h2 className="panel-title border-t border-[hsl(var(--border))] pt-4">{m.tool_outputSize()}</h2>
           <div className="grid grid-cols-2 gap-2">
             <select
               value={String(options.outputWidth)}
@@ -102,13 +107,13 @@ export default function CollageMaker() {
               value={options.backgroundColor}
               onChange={(e) => setOptions({ ...options, backgroundColor: e.target.value })}
                 className="swatch"
-                aria-label="拼图背景色"
+                aria-label={m.tool_collageBackgroundAria()}
             />
           </div>
 
           <div>
               <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
-              <span>间距</span>
+              <span>{m.tool_gap()}</span>
               <span>{options.gap}px</span>
             </div>
             <input
@@ -118,13 +123,13 @@ export default function CollageMaker() {
               value={options.gap}
               onChange={(e) => setOptions({ ...options, gap: Number(e.target.value) })}
                 className="range"
-                aria-label="拼图间距"
+                aria-label={m.tool_collageGapAria()}
             />
           </div>
 
           <div>
               <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
-              <span>圆角</span>
+              <span>{m.tool_borderRadius()}</span>
               <span>{options.borderRadius}px</span>
             </div>
             <input
@@ -134,7 +139,7 @@ export default function CollageMaker() {
               value={options.borderRadius}
               onChange={(e) => setOptions({ ...options, borderRadius: Number(e.target.value) })}
                 className="range"
-                aria-label="拼图圆角"
+                aria-label={m.tool_collageRadiusAria()}
             />
           </div>
 
@@ -143,7 +148,7 @@ export default function CollageMaker() {
               className="btn-primary h-10 w-full gap-2"
           >
               <ImagePlus className="h-4 w-4" aria-hidden="true" />
-            添加图片 ({filledCount}/{cells.length})
+            {m.tool_addImagesCount({ filled: filledCount.toString(), total: cells.length.toString() })}
           </button>
           <input
             ref={fileInputRef}
@@ -160,7 +165,7 @@ export default function CollageMaker() {
               className="btn-secondary h-10 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
               <Download className="h-4 w-4" aria-hidden="true" />
-            {exporting ? "导出中..." : "下载 PNG"}
+            {exporting ? m.tool_exporting() : m.tool_downloadPng()}
           </button>
         </div>
 
@@ -173,9 +178,9 @@ export default function CollageMaker() {
                 style={{ display: "none" }}
               />
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
+                <img src={previewUrl} alt={m.tool_preview()} className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
               ) : (
-                  <p className="p-12 text-sm font-medium text-foreground-muted">添加图片开始</p>
+                  <p className="p-12 text-sm font-medium text-foreground-muted">{m.tool_collageEmpty()}</p>
               )}
             </div>
           </div>
@@ -217,14 +222,14 @@ function CellEditor({
         <button
           onClick={onRemove}
           className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md bg-[hsl(var(--color-error))] text-white opacity-0 transition-opacity group-hover:opacity-100"
-          aria-label={`移除第 ${index + 1} 张图片`}
+          aria-label={m.tool_collageRemoveImageAria({ index: (index + 1).toString() })}
         >
           <X className="h-3.5 w-3.5" aria-hidden="true" />
         </button>
       </div>
       <div className="space-y-0.5">
         <div className="flex items-center gap-1">
-          <span className="w-6 text-[10px] text-foreground-muted">缩放</span>
+          <span className="w-6 text-[10px] text-foreground-muted">{m.tool_scale()}</span>
           <input
             type="range"
             min="1"
@@ -233,7 +238,7 @@ function CellEditor({
             value={cell.scale}
             onChange={(e) => onUpdate({ scale: Number(e.target.value) })}
             className="range flex-1"
-            aria-label={`第 ${index + 1} 张图片缩放`}
+            aria-label={m.tool_collageScaleImageAria({ index: (index + 1).toString() })}
           />
         </div>
       </div>

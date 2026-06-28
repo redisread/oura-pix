@@ -31,12 +31,12 @@ export default function ForgotPasswordPage() {
     try {
       const result = await requestPasswordReset(email);
       if (!result.success) {
-        setError(result.error || "Failed to send reset email");
+        setError(result.error || m.common_requestFailed());
       } else {
         setIsSent(true);
       }
     } catch {
-      setError("Failed to send reset email");
+      setError(m.common_requestFailed());
     } finally {
       setIsLoading(false);
     }
@@ -49,17 +49,17 @@ export default function ForgotPasswordPage() {
         <div className="bench-grid absolute inset-0 opacity-40" />
         <div className="relative z-10 flex min-h-screen flex-col justify-center px-12 xl:px-20">
           <BrandLink />
-          <p className="page-kicker mt-12">Account recovery</p>
+          <p className="page-kicker mt-12">{m.forgotPassword_sideKicker()}</p>
           <h2 className="font-display mt-4 max-w-xl text-5xl font-semibold leading-none text-foreground">
-            Return the seller bench to the right operator.
+            {m.forgotPassword_sideTitle()}
           </h2>
           <p className="mt-6 max-w-md text-lg text-foreground-muted">
-            发送一次性重置链接，避免商品图、模板和团队访问被锁在错误的登录状态里。
+            {m.forgotPassword_sideDescription()}
           </p>
           <div className="card mt-10 overflow-hidden">
             <div className="proof-strip h-2" />
             <div className="space-y-4 p-5">
-              {["链接发送到注册邮箱", "重置后可继续访问历史生成", "不改变现有团队权限"].map((item) => (
+              {[m.forgotPassword_proofEmail(), m.forgotPassword_proofHistory(), m.forgotPassword_proofTeams()].map((item) => (
                 <div key={item} className="flex items-center gap-3 text-sm font-semibold text-foreground">
                   <CheckCircle2 className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
                   {item}
@@ -81,27 +81,17 @@ export default function ForgotPasswordPage() {
               <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-md bg-[hsl(var(--color-success-light))] text-[hsl(var(--color-success))]">
                 <MailCheck className="h-8 w-8" aria-hidden="true" />
               </div>
-              <p className="page-kicker">Reset link sent</p>
-              <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">
-                邮件已发送
-              </h1>
-              <p className="mt-3 text-foreground-muted">
-                请检查您的邮箱，点击邮件中的链接重置密码。
-              </p>
-              <a href={localizeHref("/login")} className="btn-primary mt-8 h-11 px-6">
-                返回登录
-              </a>
+              <p className="page-kicker">{m.forgotPassword_sentKicker()}</p>
+              <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">{m.forgotPassword_sentTitle()}</h1>
+              <p className="mt-3 text-foreground-muted">{m.forgotPassword_sentDescription()}</p>
+              <a href={localizeHref("/login")} className="btn-primary mt-8 h-11 px-6">{m.forgotPassword_backToLogin()}</a>
             </section>
           ) : (
             <>
               <div className="mb-8">
-                <p className="page-kicker">Reset password</p>
-                <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">
-                  重置密码
-                </h1>
-                <p className="mt-2 text-foreground-muted">
-                  输入您的邮箱地址，我们将发送重置链接。
-                </p>
+                <p className="page-kicker">{m.forgotPassword_formKicker()}</p>
+                <h1 className="font-display mt-2 text-4xl font-semibold text-foreground">{m.forgotPassword_formTitle()}</h1>
+                <p className="mt-2 text-foreground-muted">{m.forgotPassword_formDescription()}</p>
               </div>
 
               {error && (
@@ -134,7 +124,7 @@ export default function ForgotPasswordPage() {
                   className="btn-primary h-11 w-full gap-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Send className="h-4 w-4" aria-hidden="true" />
-                  {isLoading ? "发送中..." : "发送重置链接"}
+                  {isLoading ? m.forgotPassword_sending() : m.forgotPassword_submit()}
                 </button>
               </form>
 
@@ -142,9 +132,7 @@ export default function ForgotPasswordPage() {
                 <a
                   href={localizeHref("/login")}
                   className="text-sm font-semibold text-[hsl(var(--primary))] transition-colors hover:text-[hsl(var(--primary-hover))]"
-                >
-                  返回登录
-                </a>
+                >{m.forgotPassword_backToLogin()}</a>
               </div>
             </>
           )}

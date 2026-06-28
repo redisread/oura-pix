@@ -20,6 +20,7 @@ import {
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
+import { formatLocaleDate } from "@/lib/locale";
 
 interface NotificationPanelProps {
   onClose: () => void;
@@ -37,7 +38,7 @@ function formatTimeAgo(dateString: string): string {
   if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
   if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
   if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return date.toLocaleDateString("zh-CN");
+  return formatLocaleDate(date);
 }
 
 function NotificationTypeIcon({ type }: { type: string }) {

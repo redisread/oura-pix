@@ -6,6 +6,7 @@
 
 import { Hono } from "hono";
 import { createAuth, normalizeLocalSetCookie } from "../lib/auth";
+import { apiMessage, contextLocale } from "../lib/i18n";
 
 const router = new Hono<{
   Bindings: {
@@ -96,7 +97,7 @@ router.post("/sign-up", async (c) => {
   try {
     data = text ? JSON.parse(text) : { success: true };
   } catch {
-    data = { success: false, error: "Invalid response" };
+    data = { success: false, error: apiMessage(c, "internalError") };
   }
 
   // Use 200 status code if Better Auth returns success
@@ -154,7 +155,7 @@ router.get("/session", async (c) => {
 
 // Forgot password (maps to Better Auth's /request-password-reset endpoint)
 router.post("/forgot-password", async (c) => {
-  const auth = createAuth(c.env, c.req.url);
+  const auth = createAuth(c.env, c.req.url, contextLocale(c));
   const bodyText = await c.req.text();
 
   // Rewrite path to match Better Auth's expected endpoint

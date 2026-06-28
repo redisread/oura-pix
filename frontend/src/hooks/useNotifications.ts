@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export interface Notification {
   id: string;
@@ -50,7 +51,7 @@ export function useNotifications(): UseNotificationsReturn {
       setNotifications(data.notifications);
       setUnreadCount(data.unreadCount);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch notifications");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }

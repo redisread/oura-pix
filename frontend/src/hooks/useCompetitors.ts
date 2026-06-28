@@ -4,20 +4,34 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export type Platform = "amazon" | "shopify" | "etsy" | "ebay" | "taobao" | "jd" | "tmall" | "self" | "other";
 
-export const PLATFORM_LABELS: Record<Platform, string> = {
-  amazon: "Amazon",
-  shopify: "Shopify",
-  etsy: "Etsy",
-  ebay: "eBay",
-  taobao: "淘宝",
-  jd: "京东",
-  tmall: "天猫",
-  self: "自营网站",
-  other: "其他",
-};
+export const PLATFORMS: Platform[] = ["amazon", "shopify", "etsy", "ebay", "taobao", "jd", "tmall", "self", "other"];
+
+export function getPlatformLabel(platform: Platform): string {
+  switch (platform) {
+    case "amazon":
+      return m.competitors_platformAmazon();
+    case "shopify":
+      return m.competitors_platformShopify();
+    case "etsy":
+      return m.competitors_platformEtsy();
+    case "ebay":
+      return m.competitors_platformEbay();
+    case "taobao":
+      return m.competitors_platformTaobao();
+    case "jd":
+      return m.competitors_platformJd();
+    case "tmall":
+      return m.competitors_platformTmall();
+    case "self":
+      return m.competitors_platformSelf();
+    case "other":
+      return m.competitors_platformOther();
+  }
+}
 
 export interface Competitor {
   id: string;
@@ -41,7 +55,7 @@ export function useCompetitors() {
       const data = await apiJson<Competitor[]>("/api/competitors");
       setCompetitors(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load competitors");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }
@@ -62,7 +76,7 @@ export function useCompetitors() {
         await fetchCompetitors();
         return created;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create");
+        setError(err instanceof Error ? err.message : m.common_createFailed());
         return null;
       }
     },
@@ -80,7 +94,7 @@ export function useCompetitors() {
         await fetchCompetitors();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update");
+        setError(err instanceof Error ? err.message : m.common_updateFailed());
         return false;
       }
     },
@@ -94,7 +108,7 @@ export function useCompetitors() {
         await fetchCompetitors();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to delete");
+        setError(err instanceof Error ? err.message : m.common_deleteFailed());
         return false;
       }
     },

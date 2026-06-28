@@ -7,6 +7,7 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
 import { createDb, schema, eq } from "@oura-pix/database";
+import { apiMessage } from "../../lib/i18n";
 
 const router = new Hono<{
   Bindings: {
@@ -25,7 +26,7 @@ router.post("/stripe", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "BAD_REQUEST", message: "Missing stripe-signature header" },
+        error: { code: "BAD_REQUEST", message: apiMessage(c, "badRequest") },
       },
       400
     );
@@ -42,7 +43,7 @@ router.post("/stripe", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "BAD_REQUEST", message: "Invalid signature" },
+        error: { code: "BAD_REQUEST", message: apiMessage(c, "badRequest") },
       },
       400
     );
@@ -188,7 +189,7 @@ router.post("/stripe", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "INTERNAL_ERROR", message: "Webhook processing failed" },
+        error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") },
       },
       500
     );

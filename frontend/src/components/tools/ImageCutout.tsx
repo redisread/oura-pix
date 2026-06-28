@@ -10,6 +10,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Download, Eraser, ImagePlus, Scissors } from "lucide-react";
 import { useImageCutout, type CutoutMode } from "@/hooks/useImageCutout";
+import * as m from "@/paraglide/messages.js";
 
 export default function ImageCutout() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,26 +81,26 @@ export default function ImageCutout() {
     <div className="workbench-page">
       <div className="workbench-container">
         <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">Tool bench / Cutout</p>
-          <h1 className="page-title mt-2">智能抠图</h1>
-          <p className="page-description mt-3">矩形或画笔选区 → 边缘羽化 → 导出透明 PNG</p>
+          <p className="page-kicker">{m.tool_cutoutKicker()}</p>
+          <h1 className="page-title mt-2">{m.tool_cutoutTitle()}</h1>
+          <p className="page-description mt-3">{m.tool_cutoutSubtitle()}</p>
         </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
           <div>
-              <h2 className="panel-title mb-2">选区模式</h2>
+              <h2 className="panel-title mb-2">{m.tool_selectionMode()}</h2>
             <div className="grid grid-cols-2 gap-1.5">
-              {(["rectangle", "brush"] as CutoutMode[]).map((m) => (
+              {(["rectangle", "brush"] as CutoutMode[]).map((mode) => (
                 <button
-                  key={m}
+                  key={mode}
                   onClick={() => {
-                    setOptions({ ...options, mode: m });
+                    setOptions({ ...options, mode });
                     clearSelection();
                   }}
-                    className={`segmented-option ${options.mode === m ? "segmented-option-active" : ""}`}
+                    className={`segmented-option ${options.mode === mode ? "segmented-option-active" : ""}`}
                 >
-                  {m === "rectangle" ? "矩形" : "画笔"}
+                  {mode === "rectangle" ? m.tool_rectangle() : m.tool_brush()}
                 </button>
               ))}
             </div>
@@ -108,7 +109,7 @@ export default function ImageCutout() {
           {options.mode === "brush" && (
             <div>
                 <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
-                <span>画笔大小</span>
+                <span>{m.tool_brushSize()}</span>
                 <span>{options.brushSize}px</span>
               </div>
               <input
@@ -118,14 +119,14 @@ export default function ImageCutout() {
                 value={options.brushSize}
                 onChange={(e) => setOptions({ ...options, brushSize: Number(e.target.value) })}
                   className="range"
-                  aria-label="画笔大小"
+                  aria-label={m.tool_brushSize()}
               />
             </div>
           )}
 
           <div>
               <div className="mb-1 flex justify-between text-xs font-medium text-foreground-muted">
-              <span>边缘羽化</span>
+              <span>{m.tool_feather()}</span>
               <span>{options.feather}px</span>
             </div>
             <input
@@ -135,7 +136,7 @@ export default function ImageCutout() {
               value={options.feather}
               onChange={(e) => setOptions({ ...options, feather: Number(e.target.value) })}
                 className="range"
-                aria-label="边缘羽化"
+                aria-label={m.tool_feather()}
             />
           </div>
 
@@ -145,16 +146,14 @@ export default function ImageCutout() {
                 className="btn-primary h-10 flex-1 gap-2"
             >
                 <ImagePlus className="h-4 w-4" aria-hidden="true" />
-              {imageUrl ? "更换图片" : "选择图片"}
+              {imageUrl ? m.common_changeImage() : m.common_selectImage()}
             </button>
             <button
               onClick={clearSelection}
               disabled={!selection && brushPath.length === 0}
                 className="btn-secondary h-10 gap-2 px-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
-                <Eraser className="h-4 w-4" aria-hidden="true" />
-              清除
-            </button>
+                <Eraser className="h-4 w-4" aria-hidden="true" />{m.tool_clearSelection()}</button>
           </div>
           <input
             ref={fileInputRef}
@@ -173,9 +172,7 @@ export default function ImageCutout() {
               onClick={download}
                 className="btn-secondary h-10 w-full gap-2"
             >
-                <Download className="h-4 w-4" aria-hidden="true" />
-              下载 PNG
-            </button>
+                <Download className="h-4 w-4" aria-hidden="true" />{m.tool_downloadPng()}</button>
           )}
 
           {previewUrl && (
@@ -184,7 +181,7 @@ export default function ImageCutout() {
               download="cutout.png"
                 className="block text-center text-xs font-semibold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))]"
             >
-              重新下载
+              {m.tool_redownload()}
             </a>
           )}
         </div>
@@ -211,14 +208,13 @@ export default function ImageCutout() {
               </div>
             ) : (
                 <div className="flex min-h-[500px] flex-col items-center justify-center py-12 text-center text-foreground-muted">
-                  <Scissors className="mb-4 h-10 w-10" aria-hidden="true" />
-                上传图片开始<br />
-                <span className="text-xs">支持 PNG / JPG / WebP</span>
+                  <Scissors className="mb-4 h-10 w-10" aria-hidden="true" />{m.tool_uploadImageStart()}<br />
+                <span className="text-xs">{m.common_supportedImageFormats()}</span>
               </div>
             )}
           </div>
             <p className="mt-2 text-center text-xs font-medium text-foreground-muted">
-            {options.mode === "rectangle" ? "拖动鼠标绘制矩形选区" : "拖动鼠标绘制选区"} · 羽化软化边缘
+            {options.mode === "rectangle" ? m.tool_cutoutRectangleInstruction() : m.tool_cutoutBrushInstruction()} · {m.tool_featherSoftensEdges()}
           </p>
         </div>
       </div>

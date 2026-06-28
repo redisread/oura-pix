@@ -1,10 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import MetricsDashboard from '../components/metrics/MetricsDashboard';
 import Navbar from '../components/Navbar';
 ---
 
-<Layout title="性能监控">
+<Layout title={m.metrics_title()}>
   <Navbar client:load />
   <MetricsDashboard client:load />
 </Layout>

@@ -10,6 +10,7 @@ import { useState } from "react";
 import { FolderPlus, Pencil, Save, Trash2, X } from "lucide-react";
 import { useCollections, type Collection } from "@/hooks/useCollections";
 import { StateMessage } from "@/components/StateMessage";
+import * as m from "@/paraglide/messages.js";
 
 const COLORS = [
   "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
@@ -26,25 +27,23 @@ export default function CollectionsPage() {
       <div className="workbench-container max-w-5xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Library / Collections</p>
-            <h1 className="page-title mt-2">收藏夹</h1>
-            <p className="page-description mt-3">用收藏夹整理你的图片</p>
+            <p className="page-kicker">{m.collections_kicker()}</p>
+            <h1 className="page-title mt-2">{m.collections_title()}</h1>
+            <p className="page-description mt-3">{m.collections_subtitle()}</p>
           </div>
           <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
-            <FolderPlus className="h-4 w-4" aria-hidden="true" />
-            新建收藏夹
-          </button>
+            <FolderPlus className="h-4 w-4" aria-hidden="true" />{m.collections_newButton()}</button>
         </header>
 
         {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
         {loading && collections.length === 0 ? (
-          <StateMessage variant="loading" message="加载收藏夹..." />
+          <StateMessage variant="loading" message={m.collections_loading()} />
         ) : collections.length === 0 ? (
           <StateMessage
             variant="empty"
-            title="还没有收藏夹"
-            description="点击右上角创建第一个收藏夹"
+            title={m.collections_emptyTitle()}
+            description={m.collections_emptyDescription()}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -61,7 +60,7 @@ export default function CollectionsPage() {
                   return ok;
                 }}
                 onDelete={async () => {
-                  if (confirm(`确定删除收藏夹 "${c.name}"? 其中的图片会变为未分类。`)) {
+                  if (confirm(m.collections_deleteConfirm({ name: c.name }))) {
                     await deleteCollection(c.id);
                   }
                 }}
@@ -146,22 +145,18 @@ function CollectionCard({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="描述（可选）"
+          placeholder={m.collections_descriptionPlaceholder()}
           rows={2}
           maxLength={200}
           className="input"
         />
         <div className="flex justify-end gap-2">
-          <button onClick={onCancel} className="btn-secondary h-9 px-3">
-            取消
-          </button>
+          <button onClick={onCancel} className="btn-secondary h-9 px-3">{m.common_cancel()}</button>
           <button
             onClick={() => onUpdate({ name: name.trim(), color, description: description.trim() || undefined })}
             className="btn-primary h-9 gap-2 px-3"
           >
-            <Save className="h-4 w-4" aria-hidden="true" />
-            保存
-          </button>
+            <Save className="h-4 w-4" aria-hidden="true" />{m.common_save()}</button>
         </div>
       </div>
     );
@@ -178,10 +173,10 @@ function CollectionCard({
           <h2 className="truncate font-semibold text-foreground">{collection.name}</h2>
         </div>
         <div className="flex flex-shrink-0 gap-1">
-          <button onClick={onEdit} className="icon-button h-8 w-8" aria-label="编辑收藏夹">
+          <button onClick={onEdit} className="icon-button h-8 w-8" aria-label={m.collections_editAria()}>
             <Pencil className="h-4 w-4" aria-hidden="true" />
           </button>
-          <button onClick={onDelete} className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]" aria-label="删除收藏夹">
+          <button onClick={onDelete} className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]" aria-label={m.collections_deleteAria()}>
             <Trash2 className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
@@ -190,7 +185,7 @@ function CollectionCard({
         <p className="mb-3 line-clamp-2 text-sm text-foreground-muted">{collection.description}</p>
       )}
       <div className="font-utility text-xs text-foreground-muted">
-        {collection.itemCount ?? 0} 张图片
+        {m.collections_itemCount({ count: String(collection.itemCount ?? 0) })}
       </div>
     </div>
   );
@@ -230,21 +225,19 @@ function CreateCollectionModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 id="collection-modal-title" className="font-display text-2xl font-semibold text-foreground">
-            新建收藏夹
-          </h2>
-          <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label="关闭">
+          <h2 id="collection-modal-title" className="font-display text-2xl font-semibold text-foreground">{m.collections_newButton()}</h2>
+          <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
 
         <div>
-          <label className="panel-label mb-1 block">名称</label>
+          <label className="panel-label mb-1 block">{m.collections_nameLabel()}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="如：白底主图"
+            placeholder={m.collections_namePlaceholder()}
             maxLength={50}
             className="input"
             required
@@ -253,12 +246,12 @@ function CreateCollectionModal({
         </div>
 
         <div>
-          <label className="panel-label mb-2 block">颜色</label>
+          <label className="panel-label mb-2 block">{m.collections_colorLabel()}</label>
           <ColorSwatches value={color} onChange={setColor} />
         </div>
 
         <div>
-          <label className="panel-label mb-1 block">描述（可选）</label>
+          <label className="panel-label mb-1 block">{m.collections_descriptionPlaceholder()}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -269,15 +262,13 @@ function CreateCollectionModal({
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="btn-secondary h-10 px-4">
-            取消
-          </button>
+          <button type="button" onClick={onClose} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
           <button
             type="submit"
             disabled={!name.trim() || submitting}
             className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting ? "创建中..." : "创建"}
+            {submitting ? m.collections_creating() : m.collections_create()}
           </button>
         </div>
       </form>

@@ -92,10 +92,10 @@ app.get("/health", (c) => {
 
 // Debug test route
 app.get("/api/test", (c) => {
-  return c.json({ message: "Test route works", path: c.req.path });
+  return c.json({ message: serverMessage(c.get("locale"), "testRouteWorks"), path: c.req.path });
 });
 app.post("/api/test", (c) => {
-  return c.json({ message: "Test POST route works", path: c.req.path });
+  return c.json({ message: serverMessage(c.get("locale"), "testPostRouteWorks"), path: c.req.path });
 });
 
 // ============================================

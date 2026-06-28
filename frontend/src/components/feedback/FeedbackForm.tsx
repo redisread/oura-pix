@@ -8,6 +8,8 @@
 
 import { useState } from "react";
 import { useFeedback } from "@/hooks/useFeedback";
+import { formatLocaleDateTime } from "@/lib/locale";
+import * as m from "@/paraglide/messages.js";
 
 interface FeedbackFormProps {
   generationId: string;
@@ -60,7 +62,7 @@ function RatingStars({ value, onChange, readonly = false }: { value: number; onC
             });
           }}
           className={readonly ? "cursor-default" : "cursor-pointer hover:scale-110 transition-transform"}
-          aria-label={`${n} star${n > 1 ? "s" : ""}`}
+          aria-label={m.feedback_starLabel({ count: n.toString() })}
         >
           <StarIcon filled={n <= value} />
         </button>
@@ -70,7 +72,7 @@ function RatingStars({ value, onChange, readonly = false }: { value: number; onC
 }
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleString("zh-CN", {
+  return formatLocaleDateTime(dateString, {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -104,10 +106,10 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
   return (
     <div className="panel p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="panel-title">用户反馈</h3>
+        <h3 className="panel-title">{m.feedback_title()}</h3>
         {stats && stats.count > 0 && (
           <div className="flex items-center gap-2 text-sm text-foreground-muted">
-            <span>{stats.count} 条评价</span>
+            <span>{m.feedback_reviewCount({ count: stats.count.toString() })}</span>
             <span className="flex items-center gap-1">
               <span className="font-medium text-[hsl(var(--accent))]">★</span>
               <span className="font-medium text-foreground">
@@ -125,22 +127,22 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
       )}
 
       {showThanks ? (
-        <p className="success-banner py-2 text-center text-sm">感谢您的反馈！</p>
+        <p className="success-banner py-2 text-center text-sm">{m.feedback_thanks()}</p>
       ) : showForm ? (
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="panel-label mb-1 block">评分</label>
+            <label className="panel-label mb-1 block">{m.feedback_rating()}</label>
             <RatingStars value={rating} onChange={setRating} />
           </div>
           <div className="mb-3">
-            <label className="panel-label mb-1 block">评论（可选）</label>
+            <label className="panel-label mb-1 block">{m.feedback_commentOptional()}</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={3}
               maxLength={2000}
               className="input"
-              placeholder="说说你的感受..."
+              placeholder={m.feedback_commentPlaceholder()}
             />
           </div>
           <div className="flex gap-2 justify-end">
@@ -149,14 +151,14 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
               onClick={() => setShowForm(false)}
               className="btn-secondary h-9 px-3"
             >
-              取消
+              {m.common_cancel()}
             </button>
             <button
               type="submit"
               disabled={rating === 0 || submitting}
               className="btn-primary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {submitting ? "提交中..." : "提交"}
+              {submitting ? m.feedback_submitting() : m.feedback_submit()}
             </button>
           </div>
         </form>
@@ -164,13 +166,11 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
         <button
           onClick={() => setShowForm(true)}
           className="text-sm font-semibold text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))]"
-        >
-          提交反馈
-        </button>
+        >{m.feedback_submitButton()}</button>
       )}
 
       {loading && list.length === 0 ? (
-        <p className="mt-3 text-xs text-foreground-muted">加载反馈...</p>
+        <p className="mt-3 text-xs text-foreground-muted">{m.feedback_loading()}</p>
       ) : list.length > 0 ? (
         <div className="mt-4 space-y-2">
           {list.slice(0, 5).map((f) => (
@@ -183,7 +183,7 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
             </div>
           ))}
           {list.length > 5 && (
-            <p className="text-center text-xs text-foreground-muted">还有 {list.length - 5} 条反馈...</p>
+            <p className="text-center text-xs text-foreground-muted">{m.feedback_more({ count: String(list.length - 5) })}</p>
           )}
         </div>
       ) : null}

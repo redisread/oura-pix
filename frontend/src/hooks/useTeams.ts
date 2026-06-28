@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export type TeamRole = "owner" | "admin" | "member";
 
@@ -46,7 +47,7 @@ export function useTeams() {
       const data = await apiJson<Team[]>("/api/teams");
       setTeams(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load teams");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }
@@ -67,7 +68,7 @@ export function useTeams() {
         await fetchTeams();
         return team;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to create team");
+        setError(err instanceof Error ? err.message : m.common_createFailed());
         return null;
       }
     },
@@ -85,7 +86,7 @@ export function useTeams() {
         await fetchTeams();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to join team");
+        setError(err instanceof Error ? err.message : m.common_requestFailed());
         return false;
       }
     },
@@ -108,7 +109,7 @@ export function useTeam(teamId: string | null) {
       const data = await apiJson<TeamDetail>(`/api/teams/${teamId}`);
       setTeam(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load team");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }
@@ -130,7 +131,7 @@ export function useTeam(teamId: string | null) {
         await fetchTeam();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update");
+        setError(err instanceof Error ? err.message : m.common_updateFailed());
         return false;
       }
     },
@@ -149,7 +150,7 @@ export function useTeam(teamId: string | null) {
         await fetchTeam();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to update role");
+        setError(err instanceof Error ? err.message : m.common_updateFailed());
         return false;
       }
     },
@@ -164,7 +165,7 @@ export function useTeam(teamId: string | null) {
         await fetchTeam();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to remove");
+        setError(err instanceof Error ? err.message : m.common_deleteFailed());
         return false;
       }
     },
@@ -177,7 +178,7 @@ export function useTeam(teamId: string | null) {
       await apiJson(`/api/teams/${teamId}/leave`, { method: "POST" });
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to leave");
+      setError(err instanceof Error ? err.message : m.common_requestFailed());
       return false;
     }
   }, [teamId]);
@@ -188,7 +189,7 @@ export function useTeam(teamId: string | null) {
       await apiJson(`/api/teams/${teamId}`, { method: "DELETE" });
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete");
+      setError(err instanceof Error ? err.message : m.common_deleteFailed());
       return false;
     }
   }, [teamId]);

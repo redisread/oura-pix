@@ -10,6 +10,7 @@ import { zValidator } from "@hono/zod-validator";
 import { createDb, schema } from "@oura-pix/database";
 import { eq, and, desc } from "drizzle-orm";
 import { getUser } from "../middleware/auth";
+import { apiMessage } from "../lib/i18n";
 
 const competitors = new Hono<{
   Bindings: {
@@ -60,7 +61,7 @@ function toResponse(row: typeof schema.competitors.$inferSelect) {
  */
 competitors.get("/", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
 
   try {
     const db = createDb(c.env.DB);
@@ -72,7 +73,7 @@ competitors.get("/", async (c) => {
     return c.json({ success: true, data: rows.map(toResponse) });
   } catch (error) {
     console.error("Failed to list competitors:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list competitors" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -81,7 +82,7 @@ competitors.get("/", async (c) => {
  */
 competitors.post("/", zValidator("json", createSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
 
   const input = c.req.valid("json");
 
@@ -103,7 +104,7 @@ competitors.post("/", zValidator("json", createSchema), async (c) => {
     return c.json({ success: true, data: toResponse(created!) }, 201);
   } catch (error) {
     console.error("Failed to create competitor:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create competitor" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -112,7 +113,7 @@ competitors.post("/", zValidator("json", createSchema), async (c) => {
  */
 competitors.put("/:id", zValidator("json", updateSchema), async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
 
   const id = c.req.param("id");
   const input = c.req.valid("json");
@@ -132,11 +133,11 @@ competitors.put("/:id", zValidator("json", updateSchema), async (c) => {
       .where(and(eq(schema.competitors.id, id), eq(schema.competitors.userId, user.id)))
       .returning();
 
-    if (!updated) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Not found" } }, 404);
+    if (!updated) return c.json({ success: false, error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") } }, 404);
     return c.json({ success: true, data: toResponse(updated) });
   } catch (error) {
     console.error("Failed to update competitor:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to update competitor" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -145,7 +146,7 @@ competitors.put("/:id", zValidator("json", updateSchema), async (c) => {
  */
 competitors.delete("/:id", async (c) => {
   const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
 
   const id = c.req.param("id");
 
@@ -155,11 +156,11 @@ competitors.delete("/:id", async (c) => {
       .delete(schema.competitors)
       .where(and(eq(schema.competitors.id, id), eq(schema.competitors.userId, user.id)))
       .returning();
-    if (result.length === 0) return c.json({ success: false, error: { code: "NOT_FOUND", message: "Not found" } }, 404);
+    if (result.length === 0) return c.json({ success: false, error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") } }, 404);
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to delete competitor:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete competitor" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 

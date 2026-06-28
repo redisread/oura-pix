@@ -9,6 +9,7 @@ import { Check, Download, Heart, Images, Sparkles, Trash2, X } from "lucide-reac
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites, type Favorite } from "@/hooks/useFavorites";
+import { formatLocaleDate } from "@/lib/locale";
 import FavoriteCard from "./FavoriteCard";
 
 function SkeletonCard() {
@@ -62,7 +63,7 @@ function ImageModal({
         <button
           onClick={onClose}
           className="icon-button absolute right-4 top-4 z-10 h-10 w-10 bg-[hsl(var(--card)/0.88)] text-foreground hover:bg-[hsl(var(--card))]"
-          aria-label="关闭预览"
+          aria-label={m.favorites_closePreview()}
         >
           <X className="h-5 w-5" aria-hidden="true" />
         </button>
@@ -80,7 +81,7 @@ function ImageModal({
               {favorite.generation?.settings?.targetPlatform || m.common_custom()}
             </span>
             <span className="ml-4 opacity-75">
-              {new Date(favorite.createdAt).toLocaleDateString("zh-CN")}
+              {formatLocaleDate(favorite.createdAt)}
             </span>
           </div>
           <div className="flex gap-2">
@@ -166,7 +167,7 @@ export default function FavoritesPage() {
       <div className="workbench-container">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Library / Favorites</p>
+            <p className="page-kicker">{m.favorites_kicker()}</p>
             <h1 className="page-title mt-2 flex items-center gap-3">
               <Heart className="h-8 w-8 text-[hsl(var(--color-error))]" aria-hidden="true" />
               {m.favorites_title()}

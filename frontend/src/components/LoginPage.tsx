@@ -53,7 +53,7 @@ function SocialLoginButtons() {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-[hsl(var(--background))] px-3 text-foreground-muted">
-            or continue with
+            {m.auth_continueWith()}
           </span>
         </div>
       </div>

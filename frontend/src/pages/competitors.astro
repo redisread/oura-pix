@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import CompetitorsPage from '../components/competitors/CompetitorsPage';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Navbar from '../components/Navbar';
 ---
 
-<Layout title="竞品分析">
+<Layout title={m.competitors_title()}>
   <Navbar client:load />
   <ErrorBoundary client:load>
     <CompetitorsPage client:load />

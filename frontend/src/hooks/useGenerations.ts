@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { getGenerations } from "@/lib/api";
 import type { GenerationsListParams } from "@oura-pix/api-client";
+import * as m from "@/paraglide/messages.js";
 
 export type TimeFilter = "all" | "today" | "week" | "month";
 export type PlatformFilter = "all" | "amazon" | "shopify" | "ebay" | "etsy" | "generic";
@@ -102,10 +103,10 @@ export function useGenerations(options: UseGenerationsOptions = {}): UseGenerati
         setGenerations(data);
         setPagination(response.pagination as Pagination);
       } else {
-        setError(response.error?.message || "Failed to fetch generations");
+        setError(response.error?.message || m.common_loadFailed());
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : m.common_unknownError());
     } finally {
       setIsLoading(false);
     }

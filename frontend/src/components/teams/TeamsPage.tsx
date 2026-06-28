@@ -11,20 +11,27 @@ import { Check, Copy, Plus, UserPlus, Users, X } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useTeams, type Team } from "@/hooks/useTeams";
 import { StateMessage } from "@/components/StateMessage";
+import { formatLocaleDate } from "@/lib/locale";
+import * as m from "@/paraglide/messages.js";
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("zh-CN", {
+  return formatLocaleDate(dateString, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
 }
 
-const ROLE_LABELS: Record<Team["role"], string> = {
-  owner: "所有者",
-  admin: "管理员",
-  member: "成员",
-};
+function getRoleLabel(role: Team["role"]): string {
+  switch (role) {
+    case "owner":
+      return m.teams_role_owner();
+    case "admin":
+      return m.teams_role_admin();
+    case "member":
+      return m.teams_role_member();
+  }
+}
 
 const ROLE_BADGES: Record<Team["role"], string> = {
   owner: "status-badge-info",
@@ -48,7 +55,7 @@ function CopyableCode({ code }: { code: string }) {
         }
       }}
       className="panel-muted inline-flex items-center gap-1 px-2 py-0.5 text-xs"
-      aria-label="复制邀请码"
+      aria-label={m.teams_copyInviteAria()}
     >
       <code>{code}</code>
       {copied ? (
@@ -92,31 +99,27 @@ export default function TeamsPage() {
       <div className="workbench-container max-w-6xl">
         <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="page-kicker">Team / Collaboration</p>
-            <h1 className="page-title mt-2">团队</h1>
-            <p className="page-description mt-3">协作共享生成历史</p>
+            <p className="page-kicker">{m.teams_kicker()}</p>
+            <h1 className="page-title mt-2">{m.teams_title()}</h1>
+            <p className="page-description mt-3">{m.teams_subtitle()}</p>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setShowJoin(true)} className="btn-secondary h-10 gap-2 px-4">
-              <UserPlus className="h-4 w-4" aria-hidden="true" />
-              加入团队
-            </button>
+              <UserPlus className="h-4 w-4" aria-hidden="true" />{m.teams_joinTeam()}</button>
             <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              创建团队
-            </button>
+              <Plus className="h-4 w-4" aria-hidden="true" />{m.teams_createTitle()}</button>
           </div>
         </header>
 
         {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
         {loading && teams.length === 0 ? (
-          <StateMessage variant="loading" message="加载团队..." />
+          <StateMessage variant="loading" message={m.teams_loading()} />
         ) : teams.length === 0 ? (
           <StateMessage
             variant="empty"
-            title="还没有加入任何团队"
-            description="创建或加入团队开始协作"
+            title={m.teams_emptyTitle()}
+            description={m.teams_emptyDescription()}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -131,14 +134,14 @@ export default function TeamsPage() {
                     <h2 className="truncate font-semibold text-foreground">{team.name}</h2>
                   </a>
                   <span className={`status-badge ${ROLE_BADGES[team.role]}`}>
-                    {ROLE_LABELS[team.role]}
+                    {getRoleLabel(team.role)}
                   </span>
                 </div>
                 <p className="mb-3 text-xs text-foreground-muted">
-                  {team.memberCount} 成员 · 创建于 {formatDate(team.createdAt)}
+                  {m.teams_memberCountCreated({ count: team.memberCount.toString(), date: formatDate(team.createdAt) })}
                 </p>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-foreground-muted">邀请码:</span>
+                  <span className="text-foreground-muted">{m.teams_inviteCode()}</span>
                   <CopyableCode code={team.inviteCode} />
                 </div>
               </div>
@@ -147,27 +150,25 @@ export default function TeamsPage() {
         )}
 
         {showCreate && (
-          <TeamModal title="创建团队" onClose={() => setShowCreate(false)} onSubmit={handleCreate}>
-            <label className="panel-label mb-1 block">团队名称</label>
+          <TeamModal title={m.teams_createTitle()} onClose={() => setShowCreate(false)} onSubmit={handleCreate}>
+            <label className="panel-label mb-1 block">{m.teams_teamName()}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="如：电商产品组"
+              placeholder={m.teams_teamNamePlaceholder()}
               className="input"
               maxLength={100}
               required
               autoFocus
             />
-            <button type="submit" disabled={!name.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">
-              创建
-            </button>
+            <button type="submit" disabled={!name.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">{m.teams_create()}</button>
           </TeamModal>
         )}
 
         {showJoin && (
-          <TeamModal title="加入团队" onClose={() => setShowJoin(false)} onSubmit={handleJoin}>
-            <label className="panel-label mb-1 block">邀请码</label>
+          <TeamModal title={m.teams_joinTeam()} onClose={() => setShowJoin(false)} onSubmit={handleJoin}>
+            <label className="panel-label mb-1 block">{m.teams_inviteCodeLabel()}</label>
             <input
               type="text"
               value={inviteCode}
@@ -177,9 +178,7 @@ export default function TeamsPage() {
               required
               autoFocus
             />
-            <button type="submit" disabled={!inviteCode.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">
-              加入
-            </button>
+            <button type="submit" disabled={!inviteCode.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">{m.teams_join()}</button>
           </TeamModal>
         )}
       </div>
@@ -212,15 +211,13 @@ function TeamModal({
       >
         <div className="flex items-start justify-between gap-4">
           <h2 className="font-display text-2xl font-semibold text-foreground">{title}</h2>
-          <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label="关闭">
+          <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
             <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
         {children}
         <div className="flex justify-end">
-          <button type="button" onClick={onClose} className="btn-secondary h-10 px-4">
-            取消
-          </button>
+          <button type="button" onClick={onClose} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
         </div>
       </form>
     </div>

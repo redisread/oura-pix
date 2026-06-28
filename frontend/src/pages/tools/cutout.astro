@@ -1,10 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import * as m from "@/paraglide/messages.js";
 import ImageCutout from '../../components/tools/ImageCutout';
 import Navbar from '../../components/Navbar';
 ---
 
-<Layout title="智能抠图">
+<Layout title={m.meta_toolCutoutTitle()}>
   <Navbar client:load />
   <ImageCutout client:load />
 </Layout>
