@@ -1,6 +1,12 @@
 name: Migrate Database
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'drizzle/migrations/*.sql'
+      - 'drizzle/migrations/meta/*.json'
   workflow_dispatch:
 
 permissions:
