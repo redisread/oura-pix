@@ -7,6 +7,7 @@
 "use client";
 
 import { useState } from "react";
+import { AlertTriangle, Ban, Check, Copy, KeyRound, Plus, X } from "lucide-react";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { StateMessage } from "@/components/StateMessage";
 
@@ -37,10 +38,14 @@ function CopyableKey({ value }: { value: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="inline-flex items-center gap-2 px-2 py-1 text-xs font-mono bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"
+      className="panel-muted inline-flex max-w-full items-center gap-2 px-2 py-1 text-xs"
     >
       <code className="break-all">{value}</code>
-      <span className="text-slate-500">{copied ? "✓" : "📋"}</span>
+      {copied ? (
+        <Check className="h-3.5 w-3.5 text-[hsl(var(--color-success))]" aria-hidden="true" />
+      ) : (
+        <Copy className="h-3.5 w-3.5 text-foreground-muted" aria-hidden="true" />
+      )}
     </button>
   );
 }
@@ -56,41 +61,48 @@ function NewKeyModal({
 }) {
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="new-key-modal-title"
     >
       <div
-        className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-xl w-full p-6"
+        className="panel w-full max-w-xl overflow-hidden p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-          API Key 已创建
-        </h2>
-        <p className="text-sm text-slate-500 mb-4">
-          ⚠️ 请立即保存这个 Key。出于安全考虑，<strong>关闭此弹窗后无法再次查看完整 Key</strong>。
-        </p>
-        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded p-3 mb-4">
-          <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">完整 Key：</p>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p className="page-kicker">Credential issued</p>
+            <h2 id="new-key-modal-title" className="font-display mt-1 text-2xl font-semibold text-foreground">
+              API Key 已创建
+            </h2>
+          </div>
+          <button onClick={onClose} className="icon-button h-9 w-9" aria-label="关闭">
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+        <div className="warning-banner mb-4 flex gap-2">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <p>请立即保存这个 Key。出于安全考虑，关闭此弹窗后无法再次查看完整 Key。</p>
+        </div>
+        <div className="panel-muted mb-4 p-3">
+          <p className="panel-label mb-2">完整 Key</p>
           <CopyableKey value={fullKey} />
-          <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
+          <p className="font-utility mt-2 text-xs text-foreground-muted">
             前缀: <code>{prefix}</code>
           </p>
         </div>
-        <div className="bg-slate-50 dark:bg-slate-800 rounded p-3 mb-4">
-          <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">使用示例：</p>
-          <pre className="text-xs font-mono overflow-x-auto whitespace-pre">
+        <div className="panel-muted mb-4 p-3">
+          <p className="panel-label mb-1">使用示例</p>
+          <pre className="font-utility overflow-x-auto whitespace-pre text-xs text-foreground">
 {`curl -X POST https://api.ourapix.jiahongw.com/api/v1/generate \\
   -H "Authorization: Bearer ${prefix}..." \\
   -H "Content-Type: application/json" \\
   -d '{ "productImageId": "...", "settings": { ... } }'`}
           </pre>
         </div>
-        <button
-          onClick={onClose}
-          className="w-full px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800"
-        >
+        <button onClick={onClose} className="btn-primary h-10 w-full">
           我已保存，关闭
         </button>
       </div>
@@ -120,173 +132,168 @@ export default function ApiKeysPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">API Keys</h1>
-          <p className="text-sm text-slate-500 mt-1">通过 API Key 访问 <code className="text-xs">/api/v1/*</code> 端点</p>
-        </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800"
-        >
-          + 创建 API Key
-        </button>
-      </div>
+    <div className="workbench-page">
+      <div className="workbench-container max-w-6xl">
+        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="page-kicker">Developer / API keys</p>
+            <h1 className="page-title mt-2">API Keys</h1>
+            <p className="page-description mt-3">
+              通过 API Key 访问 <code className="font-utility text-sm">/api/v1/*</code> 端点
+            </p>
+          </div>
+          <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            创建 API Key
+          </button>
+        </header>
 
-      {error && <StateMessage variant="error" message={error} className="mb-4" />}
+        {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
-        {loading && keys.length === 0 ? (
-          <StateMessage variant="loading" message="加载 API Keys..." />
-        ) : keys.length === 0 ? (
-          <StateMessage
-            variant="empty"
-            title="还没有 API Key"
-            description="点击右上角创建第一个 API Key"
-          />
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
-              <tr>
-                <th className="px-4 py-3 text-left">名称</th>
-                <th className="px-4 py-3 text-left">Key</th>
-                <th className="px-4 py-3 text-left">状态</th>
-                <th className="px-4 py-3 text-left">最后使用</th>
-                <th className="px-4 py-3 text-left">过期时间</th>
-                <th className="px-4 py-3 text-left">创建时间</th>
-                <th className="px-4 py-3 text-right w-20">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {keys.map((k) => (
-                <tr key={k.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-100">
-                    {k.name}
-                  </td>
-                  <td className="px-4 py-3">
-                    <code className="text-xs text-slate-600 dark:text-slate-400 font-mono">
-                      {k.keyPrefix}…
-                    </code>
-                  </td>
-                  <td className="px-4 py-3">
-                    {k.isRevoked ? (
-                      <span className="px-2 py-0.5 text-xs rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                        已吊销
-                      </span>
-                    ) : k.expiresAt && new Date(k.expiresAt) < new Date() ? (
-                      <span className="px-2 py-0.5 text-xs rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
-                        已过期
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                        有效
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 text-xs">{formatDate(k.lastUsedAt)}</td>
-                  <td className="px-4 py-3 text-slate-500 text-xs">{formatDate(k.expiresAt)}</td>
-                  <td className="px-4 py-3 text-slate-500 text-xs">{formatDate(k.createdAt)}</td>
-                  <td className="px-4 py-3 text-right">
-                    {!k.isRevoked && (
-                      <button
-                        onClick={async () => {
-                          if (confirm(`确定吊销 "${k.name}"?`)) await revokeKey(k.id);
-                        }}
-                        className="text-xs text-slate-500 hover:text-red-500"
-                      >
-                        吊销
-                      </button>
-                    )}
-                  </td>
+        <div className="table-shell">
+          {loading && keys.length === 0 ? (
+            <StateMessage variant="loading" message="加载 API Keys..." />
+          ) : keys.length === 0 ? (
+            <StateMessage
+              variant="empty"
+              title="还没有 API Key"
+              description="点击右上角创建第一个 API Key"
+            />
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-[hsl(var(--secondary)/0.72)] text-xs uppercase text-foreground-muted">
+                <tr>
+                  <th className="px-4 py-3 text-left">名称</th>
+                  <th className="px-4 py-3 text-left">Key</th>
+                  <th className="px-4 py-3 text-left">状态</th>
+                  <th className="px-4 py-3 text-left">最后使用</th>
+                  <th className="px-4 py-3 text-left">过期时间</th>
+                  <th className="px-4 py-3 text-left">创建时间</th>
+                  <th className="w-20 px-4 py-3 text-right">操作</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {keys.map((k) => (
+                  <tr key={k.id} className="data-row">
+                    <td className="px-4 py-3 font-semibold text-foreground">{k.name}</td>
+                    <td className="px-4 py-3">
+                      <code className="font-utility text-xs text-foreground-muted">
+                        {k.keyPrefix}…
+                      </code>
+                    </td>
+                    <td className="px-4 py-3">
+                      {k.isRevoked ? (
+                        <span className="status-badge status-badge-error">已吊销</span>
+                      ) : k.expiresAt && new Date(k.expiresAt) < new Date() ? (
+                        <span className="status-badge status-badge-warning">已过期</span>
+                      ) : (
+                        <span className="status-badge status-badge-success">有效</span>
+                      )}
+                    </td>
+                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.lastUsedAt)}</td>
+                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.expiresAt)}</td>
+                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.createdAt)}</td>
+                    <td className="px-4 py-3 text-right">
+                      {!k.isRevoked && (
+                        <button
+                          onClick={async () => {
+                            if (confirm(`确定吊销 "${k.name}"?`)) await revokeKey(k.id);
+                          }}
+                          className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
+                          aria-label="吊销 API Key"
+                        >
+                          <Ban className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="info-banner mt-6">
+          <h2 className="mb-1 font-semibold">使用说明</h2>
+          <ul className="list-inside list-disc space-y-1 text-xs">
+            <li>API Key 格式：<code className="font-utility rounded bg-[hsl(var(--card)/0.7)] px-1">op_</code> + 64 位十六进制</li>
+            <li>认证方式：HTTP Header <code className="font-utility rounded bg-[hsl(var(--card)/0.7)] px-1">Authorization: Bearer op_xxx</code></li>
+            <li>完整 Key 仅在创建时显示一次，请立即保存</li>
+            <li>可吊销 Key 而非删除（吊销后无法恢复，但保留审计记录）</li>
+          </ul>
+        </div>
+
+        {showCreate && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
+            onClick={() => setShowCreate(false)}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-key-title"
+          >
+            <form
+              onSubmit={handleCreate}
+              className="panel w-full max-w-md p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <h2 id="create-key-title" className="font-display text-2xl font-semibold text-foreground">
+                  创建 API Key
+                </h2>
+                <button type="button" onClick={() => setShowCreate(false)} className="icon-button h-9 w-9" aria-label="关闭">
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="mb-4">
+                <label className="panel-label mb-1 block">名称</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="如：production-server"
+                  className="input"
+                  maxLength={100}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className="mb-6">
+                <label className="panel-label mb-1 block">过期天数（可选）</label>
+                <input
+                  type="number"
+                  value={expiresInDays}
+                  onChange={(e) => setExpiresInDays(e.target.value)}
+                  placeholder="留空表示永不过期"
+                  min={1}
+                  max={365}
+                  className="input"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary h-10 px-4">
+                  取消
+                </button>
+                <button
+                  type="submit"
+                  disabled={!name.trim() || submitting}
+                  className="btn-primary h-10 gap-2 px-4 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <KeyRound className="h-4 w-4" aria-hidden="true" />
+                  {submitting ? "创建中..." : "创建"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {newlyCreated && (
+          <NewKeyModal
+            fullKey={newlyCreated.key}
+            prefix={newlyCreated.keyPrefix}
+            onClose={() => setNewlyCreated(null)}
+          />
         )}
       </div>
-
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-800 dark:text-blue-300">
-        <h3 className="font-medium mb-1">使用说明</h3>
-        <ul className="text-xs space-y-1 list-disc list-inside">
-          <li>API Key 格式：<code className="bg-blue-100 dark:bg-blue-900/40 px-1 rounded">op_</code> + 64 位十六进制</li>
-          <li>认证方式：HTTP Header <code className="bg-blue-100 dark:bg-blue-900/40 px-1 rounded">Authorization: Bearer op_xxx</code></li>
-          <li>完整 Key 仅在创建时显示一次，请立即保存</li>
-          <li>可吊销 Key 而非删除（吊销后无法恢复，但保留审计记录）</li>
-        </ul>
-      </div>
-
-      {showCreate && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowCreate(false)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <form
-            onSubmit={handleCreate}
-            className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              创建 API Key
-            </h2>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                名称
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="如：production-server"
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
-                maxLength={100}
-                required
-                autoFocus
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                过期天数（可选）
-              </label>
-              <input
-                type="number"
-                value={expiresInDays}
-                onChange={(e) => setExpiresInDays(e.target.value)}
-                placeholder="留空表示永不过期"
-                min={1}
-                max={365}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
-              />
-            </div>
-            <div className="flex gap-2 justify-end">
-              <button
-                type="button"
-                onClick={() => setShowCreate(false)}
-                className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
-              >
-                取消
-              </button>
-              <button
-                type="submit"
-                disabled={!name.trim() || submitting}
-                className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
-              >
-                {submitting ? "创建中..." : "创建"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {newlyCreated && (
-        <NewKeyModal
-          fullKey={newlyCreated.key}
-          prefix={newlyCreated.keyPrefix}
-          onClose={() => setNewlyCreated(null)}
-        />
-      )}
     </div>
   );
 }

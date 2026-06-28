@@ -6,6 +6,7 @@ import { paraglideVitePlugin } from '@inlang/paraglide-js';
 
 export default defineConfig({
   output: 'server',
+  publicDir: '../public',
   adapter: cloudflare({
     imageService: 'passthrough',
   }),

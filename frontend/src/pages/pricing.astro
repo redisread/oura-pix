@@ -1,11 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PricingPage from '../components/PricingPage';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const title = "Pricing - OuraPix";
 const description = "Choose the right plan for your needs";
 ---
 
 <Layout title={title} description={description}>
+  <Navbar client:load />
   <PricingPage client:visible />
+  <Footer />
 </Layout>

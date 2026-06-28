@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Save, X } from "lucide-react";
 import { useImageEdit } from "@/hooks/useImageEdit";
 import EditorToolbar from "./EditorToolbar";
 
@@ -78,32 +79,31 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center" role="dialog" aria-modal="true">
-      <div className="w-full h-full max-w-7xl max-h-[90vh] bg-stone-900 rounded-lg overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-700">
-          <h2 className="text-xl font-semibold text-stone-100">图片编辑器</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.78)]" role="dialog" aria-modal="true">
+      <div className="panel flex h-full max-h-[90vh] w-full max-w-7xl flex-col overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[hsl(var(--border))] px-6 py-4">
+          <h2 className="font-display text-2xl font-semibold text-foreground">图片编辑器</h2>
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-stone-300 hover:text-stone-100 transition-colors"
+              className="btn-secondary h-10 gap-2 px-4"
             >
+              <X className="h-4 w-4" aria-hidden="true" />
               取消
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-6 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              className="btn-primary h-10 gap-2 px-6 disabled:cursor-not-allowed disabled:opacity-50"
             >
+              <Save className="h-4 w-4" aria-hidden="true" />
               {isSaving ? "保存中..." : "保存"}
             </button>
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Canvas Area */}
-          <div className="flex-1 flex items-center justify-center p-8 bg-stone-950 overflow-auto">
+          <div className="flex flex-1 items-center justify-center overflow-auto bg-[hsl(var(--foreground))] p-8">
             <div className="relative">
               <img
                 src={imageUrl}
@@ -129,8 +129,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
             </div>
           </div>
 
-          {/* Toolbar Sidebar */}
-          <div className="w-80 border-l border-stone-700 overflow-y-auto">
+          <div className="w-80 overflow-y-auto border-l border-[hsl(var(--border))] bg-[hsl(var(--card))]">
             <EditorToolbar
               state={state}
               canUndo={canUndo}
@@ -154,8 +153,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
           </div>
         </div>
 
-        {/* Footer Info */}
-        <div className="px-6 py-3 border-t border-stone-700 text-xs text-stone-500">
+        <div className="border-t border-[hsl(var(--border))] px-6 py-3 text-xs text-foreground-muted">
           <span>快捷键: Ctrl+Z 撤销 | Ctrl+Y/Ctrl+Shift+Z 重做</span>
         </div>
       </div>

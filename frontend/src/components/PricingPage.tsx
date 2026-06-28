@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight, CheckCircle2, CircleMinus, PackageCheck } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 
@@ -73,196 +74,201 @@ export default function PricingPage() {
     { feature: m.pricingFeatures_templates(), free: m.pricingFeatures_basicTemplates(), pro: m.pricingFeatures_allTemplates(), enterprise: m.pricingFeatures_customTemplates() },
     { feature: m.pricingFeatures_platforms(), free: m.pricingFeatures_amazon(), pro: m.pricingFeatures_multiPlatform(), enterprise: m.pricingFeatures_allPlatforms() },
     { feature: m.pricingFeatures_batchGeneration(), free: m.pricingFeatures_notAvailable(), pro: m.pricingFeatures_batch10(), enterprise: m.pricingFeatures_unlimited() },
-    { feature: m.pricingFeatures_apiAccess(), free: m.pricingFeatures_notAvailable(), pro: "✓", enterprise: "✓" },
+    { feature: m.pricingFeatures_apiAccess(), free: m.pricingFeatures_notAvailable(), pro: "Yes", enterprise: "Yes" },
     { feature: m.pricingFeatures_generationSpeed(), free: m.pricingFeatures_standardSpeed(), pro: m.pricingFeatures_priority(), enterprise: m.pricingFeatures_highestPriority() },
     { feature: m.pricingFeatures_support(), free: m.pricingFeatures_community(), pro: m.pricingFeatures_prioritySupport(), enterprise: m.pricingFeatures_dedicatedManager() },
   ];
 
   const faqs = [
-    {
-      question: m.pricing_faq1_question(),
-      answer: m.pricing_faq1_answer(),
-    },
-    {
-      question: m.pricing_faq2_question(),
-      answer: m.pricing_faq2_answer(),
-    },
-    {
-      question: m.pricing_faq3_question(),
-      answer: m.pricing_faq3_answer(),
-    },
-    {
-      question: m.pricing_faq4_question(),
-      answer: m.pricing_faq4_answer(),
-    },
+    { question: m.pricing_faq1_question(), answer: m.pricing_faq1_answer() },
+    { question: m.pricing_faq2_question(), answer: m.pricing_faq2_answer() },
+    { question: m.pricing_faq3_question(), answer: m.pricing_faq3_answer() },
+    { question: m.pricing_faq4_question(), answer: m.pricing_faq4_answer() },
   ];
 
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
-        {/* Header */}
-        <div className="bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-bold text-slate-900 sm:text-5xl">
-              {m.pricing_title()}
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-              {m.pricing_subtitle()}
-            </p>
-          </div>
-        </div>
-
-        {/* Pricing Cards */}
-        <div className="bg-slate-50 py-12">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-8 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <div
-                  key={plan.key}
-                  className={`
-                    relative flex flex-col rounded-2xl bg-white p-8 shadow-sm
-                    ${plan.popular ? "ring-2 ring-slate-900" : "border border-slate-200"}
-                  `}
-                >
-                  {/* Popular Badge */}
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <span className="inline-flex items-center rounded-full bg-slate-900 px-3 py-1 text-xs font-medium text-white">
-                        {m.pricing_mostPopular()}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Plan Info */}
-                  <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-slate-900">{plan.name}</h3>
-                    <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
+        <section className="border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]">
+          <div className="proof-strip h-2" />
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:px-8">
+            <div>
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--accent))]">
+                Listing capacity rate card
+              </p>
+              <h1 className="font-display mt-3 max-w-3xl text-5xl font-semibold text-foreground sm:text-6xl">
+                {m.pricing_title()}
+              </h1>
+              <p className="mt-5 max-w-2xl text-lg text-foreground-muted">
+                {m.pricing_subtitle()}
+              </p>
+            </div>
+            <div className="card overflow-hidden">
+              <div className="proof-strip h-2" />
+              <div className="p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-[hsl(var(--background))]">
+                    <PackageCheck className="h-5 w-5" aria-hidden="true" />
                   </div>
-
-                  {/* Price */}
-                  <div className="mb-6">
-                    <div className="flex items-baseline">
-                      <span className="text-3xl font-bold text-slate-900">¥</span>
-                      <span className="text-5xl font-bold text-slate-900">{plan.price}</span>
-                      <span className="ml-1 text-slate-500">{plan.period}</span>
-                    </div>
+                  <div>
+                    <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
+                      Best fit
+                    </p>
+                    <p className="text-lg font-semibold text-foreground">{m.pricing_pro_name()}</p>
                   </div>
-
-                  {/* Features */}
-                  <ul className="mb-8 flex-1 space-y-3">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        {feature.included ? (
-                          <svg className="h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        ) : (
-                          <svg className="h-5 w-5 shrink-0 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                        <span className={feature.included ? "text-slate-700" : "text-slate-400"}>
-                          {feature.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA Button */}
-                  <a
-                    href={plan.ctaLink.startsWith("/") ? localizeHref(plan.ctaLink) : plan.ctaLink}
-                    className={`
-                      block w-full rounded-lg px-4 py-3 text-center text-sm font-medium transition-all
-                      ${plan.popular
-                        ? "bg-slate-900 text-white hover:bg-slate-800"
-                        : "bg-slate-100 text-slate-900 hover:bg-slate-200"
-                      }
-                    `}
-                  >
-                    {plan.cta}
-                  </a>
                 </div>
+                <p className="mt-4 text-sm text-foreground-muted">
+                  200 monthly generations with batch support and priority output speed for active shops.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid items-stretch gap-5 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <article
+                  key={plan.key}
+                  className={`card flex flex-col overflow-hidden ${
+                    plan.popular ? "border-[hsl(var(--primary))] shadow-lg" : ""
+                  }`}
+                >
+                  <div className={plan.popular ? "proof-strip h-2" : "h-2 bg-[hsl(var(--background-secondary))]"} />
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-2xl font-semibold text-foreground">{plan.name}</h2>
+                        <p className="mt-2 text-sm text-foreground-muted">{plan.description}</p>
+                      </div>
+                      {plan.popular && (
+                        <span className="badge shrink-0">{m.pricing_mostPopular()}</span>
+                      )}
+                    </div>
+
+                    <div className="mt-7 flex items-end gap-1 border-b border-[hsl(var(--border))] pb-6">
+                      <span className="pb-2 text-2xl font-semibold text-foreground">¥</span>
+                      <span className="font-display text-6xl font-semibold leading-none text-foreground">
+                        {plan.price}
+                      </span>
+                      <span className="pb-2 text-sm font-medium text-foreground-muted">{plan.period}</span>
+                    </div>
+
+                    <ul className="mt-6 flex-1 space-y-3">
+                      {plan.features.map((feature) => (
+                        <li key={feature.text} className="flex items-start gap-3 text-sm">
+                          {feature.included ? (
+                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--primary))]" aria-hidden="true" />
+                          ) : (
+                            <CircleMinus className="mt-0.5 h-4 w-4 shrink-0 text-foreground-muted" aria-hidden="true" />
+                          )}
+                          <span className={feature.included ? "text-foreground" : "text-foreground-muted"}>
+                            {feature.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <a
+                      href={plan.ctaLink.startsWith("/") ? localizeHref(plan.ctaLink) : plan.ctaLink}
+                      className={`${plan.popular ? "btn-primary" : "btn-secondary"} mt-8 w-full gap-2 px-4 py-3 text-center`}
+                    >
+                      {plan.cta}
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Feature Comparison */}
-        <div className="bg-white py-16">
+        <section className="border-y border-[hsl(var(--border))] bg-[hsl(var(--card))] py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900">{m.pricing_comparison()}</h2>
-              <p className="mt-2 text-slate-600">{m.pricing_comparisonSubtitle()}</p>
+            <div className="max-w-3xl">
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--primary))]">
+                Comparison sheet
+              </p>
+              <h2 className="font-display mt-3 text-4xl font-semibold text-foreground">
+                {m.pricing_comparison()}
+              </h2>
+              <p className="mt-3 text-foreground-muted">{m.pricing_comparisonSubtitle()}</p>
             </div>
 
-            <div className="mt-10 overflow-x-auto rounded-xl border border-slate-200">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900">{m.pricingFeatures_feature()}</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">{m.pricing_free_name()}</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900 bg-slate-100">{m.pricing_pro_name()}</th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-slate-900">{m.pricing_enterprise_name()}</th>
+            <div className="card mt-8 overflow-x-auto">
+              <table className="w-full min-w-[760px]">
+                <thead>
+                  <tr className="border-b border-[hsl(var(--border))] bg-[hsl(var(--background-secondary)/0.52)]">
+                    <th className="px-5 py-4 text-left text-sm font-semibold text-foreground">{m.pricingFeatures_feature()}</th>
+                    <th className="px-5 py-4 text-center text-sm font-semibold text-foreground">{m.pricing_free_name()}</th>
+                    <th className="px-5 py-4 text-center text-sm font-semibold text-[hsl(var(--primary))]">{m.pricing_pro_name()}</th>
+                    <th className="px-5 py-4 text-center text-sm font-semibold text-foreground">{m.pricing_enterprise_name()}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {comparisons.map((row, index) => (
-                    <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
-                      <td className="px-6 py-4 text-sm text-slate-700">{row.feature}</td>
-                      <td className="px-6 py-4 text-center text-sm text-slate-600">{row.free}</td>
-                      <td className="px-6 py-4 text-center text-sm font-medium text-slate-900 bg-slate-50">{row.pro}</td>
-                      <td className="px-6 py-4 text-center text-sm text-slate-600">{row.enterprise}</td>
+                <tbody className="divide-y divide-[hsl(var(--border))]">
+                  {comparisons.map((row) => (
+                    <tr key={row.feature}>
+                      <td className="px-5 py-4 text-sm font-medium text-foreground">{row.feature}</td>
+                      <td className="px-5 py-4 text-center text-sm text-foreground-muted">{row.free}</td>
+                      <td className="bg-[hsl(var(--primary)/0.06)] px-5 py-4 text-center text-sm font-semibold text-foreground">
+                        {row.pro}
+                      </td>
+                      <td className="px-5 py-4 text-center text-sm text-foreground-muted">{row.enterprise}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* FAQ */}
-        <div className="bg-slate-50 py-16">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-slate-900">{m.pricing_faq()}</h2>
+        <section className="py-16">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.7fr_1.3fr] lg:px-8">
+            <div>
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--accent))]">
+                Notes
+              </p>
+              <h2 className="font-display mt-3 text-4xl font-semibold text-foreground">
+                {m.pricing_faq()}
+              </h2>
             </div>
-
-            <div className="mt-10 space-y-4">
-              {faqs.map((faq, index) => (
-                <div key={index} className="rounded-xl bg-white p-6 shadow-sm">
-                  <h3 className="text-base font-semibold text-slate-900">{faq.question}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{faq.answer}</p>
-                </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {faqs.map((faq) => (
+                <article key={faq.question} className="card p-5">
+                  <h3 className="text-base font-semibold text-foreground">{faq.question}</h3>
+                  <p className="mt-3 text-sm text-foreground-muted">{faq.answer}</p>
+                </article>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* CTA Section */}
-        <div className="bg-slate-900 py-16">
-          <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-white">
-              {m.pricing_ctaTitle()}
-            </h2>
-            <p className="mt-4 text-lg text-slate-300">
-              {m.pricing_ctaSubtitle()}
-            </p>
-            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+        <section className="bg-[hsl(var(--foreground))] py-14 text-[hsl(var(--background))]">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+            <div>
+              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.62)]">
+                Start the bench
+              </p>
+              <h2 className="font-display mt-3 text-4xl font-semibold">{m.pricing_ctaTitle()}</h2>
+              <p className="mt-3 max-w-2xl text-[hsl(var(--background)/0.72)]">{m.pricing_ctaSubtitle()}</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
               <a
                 href={localizeHref("/generate")}
-                className="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-medium text-slate-900 transition-all hover:bg-slate-100"
+                className="inline-flex items-center justify-center rounded-md bg-[hsl(var(--background))] px-6 py-3 text-base font-semibold text-foreground transition hover:bg-[hsl(var(--background-secondary))]"
               >
                 {m.pricing_ctaFree()}
               </a>
               <a
                 href="mailto:sales@ourapix.com"
-                className="inline-flex items-center justify-center rounded-lg border border-slate-600 bg-transparent px-6 py-3 text-base font-medium text-white transition-all hover:bg-slate-800"
+                className="inline-flex items-center justify-center rounded-md border border-[hsl(var(--background)/0.32)] px-6 py-3 text-base font-semibold text-[hsl(var(--background))] transition hover:bg-[hsl(var(--background)/0.08)]"
               >
                 {m.pricing_ctaContact()}
               </a>
             </div>
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );

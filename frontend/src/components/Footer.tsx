@@ -1,42 +1,39 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { PackageCheck } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-[hsl(var(--border))] bg-[hsl(var(--background))]">
+    <footer className="border-t border-[hsl(var(--border))] bg-[hsl(var(--card))]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-4">
           {/* Logo & Description */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2">
-              <div className="relative flex h-8 w-8 items-center justify-center rounded-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--primary))] to-violet-500 opacity-80" />
-                <span className="relative text-sm font-bold text-white">
-                  <Sparkles className="h-4 w-4" />
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-[hsl(var(--background))]">
+                <PackageCheck className="h-4 w-4" aria-hidden="true" />
               </div>
-              <span className="text-lg font-semibold text-foreground">OuraPix</span>
+              <span className="font-display text-xl font-semibold text-foreground">OuraPix</span>
             </div>
             <p className="mt-4 text-sm text-foreground-muted max-w-sm">
-              AI-powered cross-border e-commerce product detail page generator
+              A product photo workbench for cross-border listings, scene assets, and marketplace-ready copy.
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Product</h3>
+            <h3 className="font-utility text-xs font-semibold uppercase text-foreground">Product</h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <a href={localizeHref("/generate")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/generate")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
                   Generate
                 </a>
               </li>
               <li>
-                <a href={localizeHref("/pricing")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/pricing")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
                   Pricing
                 </a>
               </li>
@@ -44,15 +41,15 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Support</h3>
+            <h3 className="font-utility text-xs font-semibold uppercase text-foreground">Support</h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <a href={localizeHref("/docs")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/docs")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
                   Documentation
                 </a>
               </li>
               <li>
-                <a href={localizeHref("/blog")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
+                <a href={localizeHref("/blog")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
                   Blog
                 </a>
               </li>

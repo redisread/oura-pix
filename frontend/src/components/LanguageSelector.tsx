@@ -43,9 +43,11 @@ export default function LanguageSelector() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+        className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-semibold text-foreground-muted transition-colors hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
         aria-label={m.language_selector()}
+        aria-expanded={isOpen}
       >
         <span>{currentLanguage.flag}</span>
         <span className="hidden sm:inline">{currentLanguage.label}</span>
@@ -60,24 +62,25 @@ export default function LanguageSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 rounded-lg bg-white shadow-lg border border-slate-200 py-1 z-50">
+        <div className="absolute right-0 z-50 mt-2 w-40 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--popover))] py-1 shadow-lg">
           {languages.map((lang) => (
             <button
               key={lang.tag}
+              type="button"
               onClick={() => {
                 handleLanguageChange(lang.tag);
                 setIsOpen(false);
               }}
               className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
                 currentLang === lang.tag
-                  ? "bg-slate-100 text-slate-900"
-                  : "text-slate-600 hover:bg-slate-50"
+                  ? "bg-[hsl(var(--primary)/0.1)] text-foreground"
+                  : "text-foreground-muted hover:bg-[hsl(var(--foreground)/0.06)] hover:text-foreground"
               }`}
             >
               <span>{lang.flag}</span>
               <span>{lang.label}</span>
               {currentLang === lang.tag && (
-                <svg className="h-4 w-4 ml-auto text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="ml-auto h-4 w-4 text-[hsl(var(--accent))]" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               )}

@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import CollectionsPage from '../components/collections/CollectionsPage';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="收藏夹">
+  <Navbar client:load />
   <CollectionsPage client:load />
 </Layout>

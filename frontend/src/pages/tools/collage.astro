@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CollageMaker from '../../components/tools/CollageMaker';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title="图片拼图">
+  <Navbar client:load />
   <CollageMaker client:load />
 </Layout>

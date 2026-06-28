@@ -2,9 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import TeamsPage from '../components/teams/TeamsPage';
 import ErrorBoundary from '../components/ErrorBoundary';
+import Navbar from '../components/Navbar';
 ---
 
 <Layout title="团队">
+  <Navbar client:load />
   <ErrorBoundary client:load>
     <TeamsPage client:load />
   </ErrorBoundary>

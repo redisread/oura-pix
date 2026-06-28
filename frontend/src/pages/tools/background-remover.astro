@@ -1,8 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BackgroundRemover from '../../components/tools/BackgroundRemover';
+import Navbar from '../../components/Navbar';
 ---
 
 <Layout title="智能去背景">
+  <Navbar client:load />
   <BackgroundRemover client:load />
 </Layout>
