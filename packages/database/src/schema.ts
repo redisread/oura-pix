@@ -758,3 +758,121 @@ export const templates = sqliteTable("templates", {
   isPresetIdx: index("templates_isPreset_idx").on(table.isPreset),
   createdByIdx: index("templates_createdBy_idx").on(table.createdBy),
 }));
+
+/**
+ * 问卷类型枚举
+ */
+export const QuestionnaireType = {
+  ONBOARDING: "onboarding",
+  PRE_GENERATION: "pre_generation",
+  FEEDBACK: "feedback",
+} as const;
+
+export type QuestionnaireTypeType = typeof QuestionnaireType[keyof typeof QuestionnaireType];
+
+/**
+ * 问题类型枚举
+ */
+export const QuestionType = {
+  SINGLE_CHOICE: "single_choice",
+  MULTIPLE_CHOICE: "multiple_choice",
+  TEXT: "text",
+  RATING: "rating",
+} as const;
+
+export type QuestionTypeType = typeof QuestionType[keyof typeof QuestionType];
+
+/**
+ * 问卷表 (questionnaires)
+ * 定义问卷模板，包括 onboarding(新手引导)、pre_generation(生成前偏好)、feedback(生成后反馈) 三种类型
+ */
+export const questionnaires = sqliteTable("questionnaires", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // 问卷类型：onboarding / pre_generation / feedback
+  type: text("type", {
+    enum: ["onboarding", "pre_generation", "feedback"],
+  }).notNull(),
+  // 问卷标题
+  title: text("title").notNull(),
+  // 问卷描述
+  description: text("description"),
+  // 是否启用
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  typeIdx: index("questionnaires_type_idx").on(table.type),
+  isActiveIdx: index("questionnaires_isActive_idx").on(table.isActive),
+}));
+
+/**
+ * 问题表 (questions)
+ */
+export const questions = sqliteTable("questions", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  questionnaireId: text("questionnaire_id")
+    .notNull()
+    .references(() => questionnaires.id, { onDelete: "cascade" }),
+  // 问题文本
+  questionText: text("question_text").notNull(),
+  // 问题类型：single_choice / multiple_choice / text / rating
+  questionType: text("question_type", {
+    enum: ["single_choice", "multiple_choice", "text", "rating"],
+  }).notNull(),
+  // 选项（JSON 数组，用于 choice 类问题）
+  options: text("options").$type<string[]>().default([]),
+  // 是否必填
+  isRequired: integer("is_required", { mode: "boolean" }).notNull().default(false),
+  // 排序序号
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  questionnaireIdIdx: index("questions_questionnaireId_idx").on(table.questionnaireId),
+  questionnaireSortOrderIdx: index("questions_questionnaireId_sortOrder_idx").on(table.questionnaireId, table.sortOrder),
+}));
+
+/**
+ * 用户回答表 (user_responses)
+ *
+ * 存储用户对问卷的回答。responses 列以 JSON 存储 question_id → answer 的键值映射。
+ * generation_id 可选：onboarding/pre_generation 问卷无关联，feedback 问卷关联到具体生成任务。
+ */
+export const userResponses = sqliteTable("user_responses", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 关联的问卷
+  questionnaireId: text("questionnaire_id")
+    .notNull()
+    .references(() => questionnaires.id, { onDelete: "cascade" }),
+  // 关联的生成记录（反馈问卷使用）
+  generationId: text("generation_id")
+    .references(() => generations.id, { onDelete: "set null" }),
+  // 回答内容（JSON，question_id → answer 的映射）
+  responses: text("responses", { mode: "json" }).$type<Record<string, unknown>>().notNull().default({}),
+  // 完成时间
+  completedAt: integer("completed_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("user_responses_userId_idx").on(table.userId),
+  questionnaireIdIdx: index("user_responses_questionnaireId_idx").on(table.questionnaireId),
+  generationIdIdx: index("user_responses_generationId_idx").on(table.generationId),
+  // 同一用户对同一问卷同一生成任务只允许一条回答
+  uniqueResponse: uniqueIndex("user_responses_unique_idx").on(
+    table.userId, table.questionnaireId, table.generationId
+  ),
+}));
