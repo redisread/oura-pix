@@ -19,12 +19,12 @@ export default function ForgotPasswordPage() {
     try {
       const result = await requestPasswordReset(email);
       if (!result.success) {
-        setError(result.error || "Failed to send reset email");
+        setError(result.error || m.common_requestFailed());
       } else {
         setIsSent(true);
       }
     } catch {
-      setError("Failed to send reset email");
+      setError(m.common_requestFailed());
     } finally {
       setIsLoading(false);
     }
@@ -61,14 +61,14 @@ export default function ForgotPasswordPage() {
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-            忘记密码？<br />
+            {m.forgotPassword_heroTitle()}<br />
             <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              别担心
+              {m.forgotPassword_heroHighlight()}
             </span>
           </h1>
 
           <p className="text-lg text-slate-300 mb-8 max-w-md">
-            我们会向您发送一封包含重置链接的邮件，帮您快速找回账户访问权限。
+            {m.forgotPassword_heroDescription()}
           </p>
 
           <div className="flex items-center gap-3 text-slate-300">
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <span>检查收件箱，邮件可能被归类到垃圾邮件</span>
+            <span>{m.forgotPassword_hint()}</span>
           </div>
         </div>
       </div>
@@ -103,16 +103,16 @@ export default function ForgotPasswordPage() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                邮件已发送
+                {m.forgotPassword_sentTitle()}
               </h2>
               <p className="text-slate-500 mb-8">
-                请检查您的邮箱，点击邮件中的链接重置密码。
+                {m.forgotPassword_sentDescription()}
               </p>
               <a
                 href={localizeHref("/login")}
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors"
               >
-                返回登录
+                {m.forgotPassword_backToLogin()}
               </a>
             </div>
           ) : (
@@ -120,10 +120,10 @@ export default function ForgotPasswordPage() {
               {/* Title */}
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                  重置密码
+                  {m.forgotPassword_formTitle()}
                 </h2>
                 <p className="text-slate-500">
-                  输入您的邮箱地址，我们将发送重置链接。
+                  {m.forgotPassword_formDescription()}
                 </p>
               </div>
 
@@ -164,10 +164,10 @@ export default function ForgotPasswordPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      发送中...
+                      {m.forgotPassword_sending()}
                     </>
                   ) : (
-                    "发送重置链接"
+                    m.forgotPassword_submit()
                   )}
                 </button>
               </form>
@@ -179,7 +179,7 @@ export default function ForgotPasswordPage() {
                     href={localizeHref("/login")}
                     className="font-medium text-slate-900 hover:text-slate-700 transition-colors"
                   >
-                    返回登录
+                    {m.forgotPassword_backToLogin()}
                   </a>
                 </p>
               </div>

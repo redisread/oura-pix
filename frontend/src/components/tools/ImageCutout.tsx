@@ -9,6 +9,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useImageCutout, type CutoutMode } from "@/hooks/useImageCutout";
+import * as m from "@/paraglide/messages.js";
 
 export default function ImageCutout() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,27 +79,27 @@ export default function ImageCutout() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">智能抠图</h1>
-        <p className="text-sm text-slate-500 mt-1">矩形或画笔选区 → 边缘羽化 → 导出透明 PNG</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_cutoutTitle()}</h1>
+        <p className="text-sm text-slate-500 mt-1">{m.tool_cutoutSubtitle()}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
           <div>
-            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">选区模式</h2>
+            <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{m.tool_selectionMode()}</h2>
             <div className="grid grid-cols-2 gap-1.5">
-              {(["rectangle", "brush"] as CutoutMode[]).map((m) => (
+              {(["rectangle", "brush"] as CutoutMode[]).map((mode) => (
                 <button
-                  key={m}
+                  key={mode}
                   onClick={() => {
-                    setOptions({ ...options, mode: m });
+                    setOptions({ ...options, mode });
                     clearSelection();
                   }}
                   className={`px-2 py-1.5 text-xs rounded ${
-                    options.mode === m ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
+                    options.mode === mode ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 >
-                  {m === "rectangle" ? "矩形" : "画笔"}
+                  {mode === "rectangle" ? m.tool_rectangle() : m.tool_brush()}
                 </button>
               ))}
             </div>
@@ -107,7 +108,7 @@ export default function ImageCutout() {
           {options.mode === "brush" && (
             <div>
               <div className="flex justify-between text-xs text-slate-500 mb-1">
-                <span>画笔大小</span>
+                <span>{m.tool_brushSize()}</span>
                 <span>{options.brushSize}px</span>
               </div>
               <input
@@ -123,7 +124,7 @@ export default function ImageCutout() {
 
           <div>
             <div className="flex justify-between text-xs text-slate-500 mb-1">
-              <span>边缘羽化</span>
+              <span>{m.tool_feather()}</span>
               <span>{options.feather}px</span>
             </div>
             <input
@@ -141,14 +142,14 @@ export default function ImageCutout() {
               onClick={() => fileInputRef.current?.click()}
               className="flex-1 px-3 py-1.5 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
             >
-              {imageUrl ? "更换图片" : "选择图片"}
+              {imageUrl ? m.common_changeImage() : m.common_selectImage()}
             </button>
             <button
               onClick={clearSelection}
               disabled={!selection && brushPath.length === 0}
               className="px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
             >
-              清除
+              {m.common_clear()}
             </button>
           </div>
           <input
@@ -168,7 +169,7 @@ export default function ImageCutout() {
               onClick={download}
               className="w-full px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              下载 PNG
+              {m.tool_downloadPng()}
             </button>
           )}
 
@@ -178,7 +179,7 @@ export default function ImageCutout() {
               download="cutout.png"
               className="block text-center text-xs text-blue-600 dark:text-blue-400 hover:underline"
             >
-              重新下载
+              {m.tool_redownload()}
             </a>
           )}
         </div>
@@ -211,13 +212,13 @@ export default function ImageCutout() {
               </div>
             ) : (
               <div className="text-center py-12 text-slate-400">
-                上传图片开始<br />
-                <span className="text-xs">支持 PNG / JPG / WebP</span>
+                {m.tool_uploadImageStart()}<br />
+                <span className="text-xs">{m.common_supportedImageFormats()}</span>
               </div>
             )}
           </div>
           <p className="text-xs text-slate-500 mt-2 text-center">
-            {options.mode === "rectangle" ? "拖动鼠标绘制矩形选区" : "拖动鼠标绘制选区"} · 羽化软化边缘
+            {options.mode === "rectangle" ? m.tool_cutoutRectangleInstruction() : m.tool_cutoutBrushInstruction()} · {m.tool_featherSoftensEdges()}
           </p>
         </div>
       </div>

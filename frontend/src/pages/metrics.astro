@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import MetricsDashboard from '../components/metrics/MetricsDashboard';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="性能监控">
+<Layout title={m.meta_metricsTitle()}>
   <MetricsDashboard client:load />
 </Layout>

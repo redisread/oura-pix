@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import StatsPage from '../components/stats/StatsPage';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="生成统计">
+<Layout title={m.meta_statsTitle()}>
   <StatsPage client:load />
 </Layout>

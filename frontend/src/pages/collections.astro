@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import CollectionsPage from '../components/collections/CollectionsPage';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="收藏夹">
+<Layout title={m.meta_collectionsTitle()}>
   <CollectionsPage client:load />
 </Layout>

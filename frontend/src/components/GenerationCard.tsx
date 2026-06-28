@@ -7,6 +7,7 @@
 import { useState } from "react";
 import * as m from "@/paraglide/messages.js";
 import type { GenerationRecord } from "@/hooks/useGenerations";
+import { formatLocaleDate } from "@/lib/locale";
 
 interface GenerationCardProps {
   generation: GenerationRecord;
@@ -28,7 +29,7 @@ function formatTime(dateString: string): string {
   if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
   if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
   if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return date.toLocaleDateString("zh-CN");
+  return formatLocaleDate(date);
 }
 
 function getStatusInfo(status: string): { label: string; color: string; bg: string } {

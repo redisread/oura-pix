@@ -9,6 +9,7 @@
 import { useState } from "react";
 import { useNotifications } from "@/hooks/useNotifications";
 import NotificationPanel from "./NotificationPanel";
+import * as m from "@/paraglide/messages.js";
 
 export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function NotificationBell() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-        aria-label="Notifications"
+        aria-label={m.notification_title()}
       >
         <svg
           className="w-6 h-6"

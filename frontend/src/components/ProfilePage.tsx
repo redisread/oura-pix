@@ -18,26 +18,28 @@ interface GenerationRecord {
   status: "completed" | "processing" | "failed";
 }
 
-const mockHistory: GenerationRecord[] = [
-  {
-    id: "1",
-    prompt: "高端无线蓝牙耳机",
-    platform: "Amazon",
-    style: "简约现代",
-    language: "中文",
-    createdAt: "2024-01-15 10:30",
-    status: "completed",
-  },
-  {
-    id: "2",
-    prompt: "智能手表",
-    platform: "Temu",
-    style: "科技感",
-    language: "英文",
-    createdAt: "2024-01-14 15:20",
-    status: "completed",
-  },
-];
+function getMockHistory(): GenerationRecord[] {
+  return [
+    {
+      id: "1",
+      prompt: m.profile_mockPromptHeadphones(),
+      platform: "Amazon",
+      style: m.style_minimal_label(),
+      language: m.profile_languageChinese(),
+      createdAt: "2024-01-15 10:30",
+      status: "completed",
+    },
+    {
+      id: "2",
+      prompt: m.profile_mockPromptWatch(),
+      platform: "Temu",
+      style: m.profile_styleTech(),
+      language: m.profile_languageEnglish(),
+      createdAt: "2024-01-14 15:20",
+      status: "completed",
+    },
+  ];
+}
 
 // Stats Cards Component
 function StatsCards() {
@@ -74,7 +76,7 @@ function StatsCards() {
     },
     {
       label: m.profile_stats_favoriteStyle(),
-      value: "简约现代",
+      value: m.style_minimal_label(),
       icon: (
         <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
@@ -118,11 +120,11 @@ function UserInfoCard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-sm text-slate-500">{m.profile_userInfo_username()}</p>
-            <p className="text-base font-medium text-slate-900">{user?.name || "User"}</p>
+            <p className="text-base font-medium text-slate-900">{user?.name || m.profile_userInfo_defaultName()}</p>
           </div>
           <div>
             <p className="text-sm text-slate-500">{m.profile_userInfo_email()}</p>
-            <p className="text-base font-medium text-slate-900">{user?.email || "user@example.com"}</p>
+            <p className="text-base font-medium text-slate-900">{user?.email || m.profile_userInfo_defaultEmail()}</p>
           </div>
           <div>
             <p className="text-sm text-slate-500">{m.profile_userInfo_memberSince()}</p>
@@ -140,6 +142,8 @@ function UserInfoCard() {
 
 // Generation History Component
 function GenerationHistory() {
+  const mockHistory = getMockHistory();
+
   const handleDelete = (_id: string) => {
     // TODO: Implement delete functionality
   };
@@ -335,6 +339,7 @@ function SettingsForm() {
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
   const { user, isLoading: isAuthLoading } = useAuth();
+  const mockHistory = getMockHistory();
 
   if (isAuthLoading) {
     return (

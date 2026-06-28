@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createDb, schema } from "@oura-pix/database";
+import { DEFAULT_LOCALE, type Locale } from "@oura-pix/i18n";
 import { sendPasswordResetEmail } from "./mail";
 
 export interface AuthEnv {
@@ -26,7 +27,11 @@ export function requestBaseUrl(requestUrl: string): string {
   return `${url.protocol}//${url.host}`;
 }
 
-export function createAuth(env: AuthEnv, requestUrl?: string) {
+export function createAuth(
+  env: AuthEnv,
+  requestUrl?: string,
+  locale: Locale = DEFAULT_LOCALE
+) {
   const db = createDb(env.DB);
   const requestIsLocal = requestUrl ? isLocalAuthUrl(requestUrl) : false;
   const envIsLocal = isLocalAuthUrl(env.BETTER_AUTH_URL);
@@ -79,7 +84,8 @@ export function createAuth(env: AuthEnv, requestUrl?: string) {
             RESEND_API_KEY: env.RESEND_API_KEY,
             FROM_EMAIL: env.FROM_EMAIL,
             FROM_NAME: env.FROM_NAME,
-          }
+          },
+          locale
         );
       },
     },

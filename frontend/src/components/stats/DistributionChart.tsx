@@ -4,6 +4,8 @@
  * Simple bar chart for platform/style distribution
  */
 
+import * as m from '@/paraglide/messages.js';
+
 interface DistributionChartProps {
   data: { label: string; value: number }[];
   title: string;
@@ -51,7 +53,7 @@ export default function DistributionChart({ data, title, color = '#d97706' }: Di
 
       {data.length === 0 && (
         <p className="text-sm text-stone-500 dark:text-stone-500 text-center py-8">
-          暂无数据
+          {m.stats_noData()}
         </p>
       )}
     </div>

@@ -2,9 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import TeamsPage from '../components/teams/TeamsPage';
 import ErrorBoundary from '../components/ErrorBoundary';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="团队">
+<Layout title={m.meta_teamsTitle()}>
   <ErrorBoundary client:load>
     <TeamsPage client:load />
   </ErrorBoundary>

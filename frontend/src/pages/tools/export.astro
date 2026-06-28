@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ExportDemo from '../../components/tools/ExportDemo';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="导出图片">
+<Layout title={m.meta_toolExportTitle()}>
   <ExportDemo client:load />
 </Layout>

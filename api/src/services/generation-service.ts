@@ -6,7 +6,7 @@
 
 import { eq, and, gte, desc, sql, count, inArray } from "drizzle-orm";
 import { createDb, schema, type GenerationSettings, type GenerationResult } from "@oura-pix/database";
-import { generationLanguageToLocale } from "@oura-pix/i18n";
+import { DEFAULT_LOCALE, generationLanguageToLocale, serverMessage, type Locale } from "@oura-pix/i18n";
 import { generateProductCopy } from "./geminiService";
 import { notifyGenerationComplete, notifyGenerationFailed } from "./notificationService";
 
@@ -69,6 +69,10 @@ export interface UserStats {
   remainingCredits: number;
   favoriteStyle: string;
 }
+
+type GenerationMutationResult =
+  | { success: true }
+  | { success: false; reason: "not_found" | "completed" };
 
 function getFilterStartDate(filter: TimeFilter): Date | null {
   const now = new Date();
@@ -233,14 +237,14 @@ export async function deleteGeneration(
   db: ReturnType<typeof createDb>,
   id: string,
   userId: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<GenerationMutationResult> {
   const record = await db.query.generations.findFirst({
     where: and(eq(schema.generations.id, id), eq(schema.generations.userId, userId)),
     columns: { id: true },
   });
 
   if (!record) {
-    return { success: false, error: "Record not found" };
+    return { success: false, reason: "not_found" };
   }
 
   await db.delete(schema.generations).where(eq(schema.generations.id, id));
@@ -251,24 +255,25 @@ export async function deleteGeneration(
 export async function cancelGeneration(
   db: ReturnType<typeof createDb>,
   id: string,
-  userId: string
-): Promise<{ success: boolean; error?: string }> {
+  userId: string,
+  locale: Locale = DEFAULT_LOCALE
+): Promise<GenerationMutationResult> {
   const record = await db.query.generations.findFirst({
     where: and(eq(schema.generations.id, id), eq(schema.generations.userId, userId)),
   });
 
   if (!record) {
-    return { success: false, error: "Record not found" };
+    return { success: false, reason: "not_found" };
   }
   if (record.status === "completed") {
-    return { success: false, error: "Completed generation cannot be cancelled" };
+    return { success: false, reason: "completed" };
   }
 
   await db
     .update(schema.generations)
     .set({
       status: "failed",
-      errorMessage: "Generation cancelled",
+      errorMessage: serverMessage(locale, "generationCancelled"),
       completedAt: new Date(),
       updatedAt: new Date(),
     })
@@ -388,6 +393,9 @@ export async function processGeneration(
     })
     .where(eq(schema.generations.id, generationId));
 
+  const settings = record.settings as GenerationSettings;
+  const notificationLocale = settings.uiLocale ?? generationLanguageToLocale(settings.language);
+
   try {
     const productImage = record.productImageId
       ? await db.query.images.findFirst({ where: eq(schema.images.id, record.productImageId) })
@@ -397,8 +405,6 @@ export async function processGeneration(
       ? await db.query.images.findMany({ where: inArray(schema.images.id, referenceIds) })
       : [];
 
-    const settings = record.settings as GenerationSettings;
-    const notificationLocale = settings.uiLocale ?? generationLanguageToLocale(settings.language);
     const results = await generateProductCopy({
       env,
       productImage: productImage
@@ -422,7 +428,7 @@ export async function processGeneration(
         generatedImageCount: results.filter((result) => Boolean(result.imageUrl)).length,
         imageGenerationStatus: "skipped",
         imageGenerationError: settings.generateImages
-          ? "Image generation is not configured in the current Worker pipeline; text assets were generated."
+          ? serverMessage(notificationLocale, "imageGenerationUnavailable")
           : null,
         completedAt,
         updatedAt: completedAt,
@@ -433,7 +439,8 @@ export async function processGeneration(
       console.error("[Generation] Completion notification failed:", error);
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Generation failed";
+    console.error("[Generation] Processing failed:", error);
+    const message = serverMessage(notificationLocale, "generationFailed");
     const failedAt = new Date();
     await db
       .update(schema.generations)
@@ -448,8 +455,6 @@ export async function processGeneration(
       })
       .where(eq(schema.generations.id, generationId));
 
-    const settings = record.settings as GenerationSettings;
-    const notificationLocale = settings.uiLocale ?? generationLanguageToLocale(settings.language);
     await notifyGenerationFailed(db, record.userId, generationId, message, notificationLocale).catch((notifyError) => {
       console.error("[Generation] Failure notification failed:", notifyError);
     });

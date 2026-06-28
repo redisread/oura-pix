@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CollageMaker from '../../components/tools/CollageMaker';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="图片拼图">
+<Layout title={m.meta_toolCollageTitle()}>
   <CollageMaker client:load />
 </Layout>

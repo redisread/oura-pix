@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ImageBorder from '../../components/tools/ImageBorder';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="智能边框">
+<Layout title={m.meta_toolBorderTitle()}>
   <ImageBorder client:load />
 </Layout>

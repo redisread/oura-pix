@@ -3,6 +3,11 @@
  */
 
 import { Resend } from "resend";
+import {
+  DEFAULT_LOCALE,
+  mailMessage,
+  type Locale,
+} from "@oura-pix/i18n";
 
 interface Env {
   RESEND_API_KEY: string;
@@ -20,38 +25,65 @@ interface ResetPasswordInfo {
   userName: string;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function mailText(
+  locale: Locale,
+  key: string,
+  values: Record<string, string | number> = {}
+): string {
+  return mailMessage(locale, key, values);
+}
+
+function mailHtml(
+  locale: Locale,
+  key: string,
+  values: Record<string, string | number> = {}
+): string {
+  return escapeHtml(mailText(locale, key, values));
+}
+
 /**
  * Send password reset email
  */
 export async function sendPasswordResetEmail(
   user: UserInfo,
   info: ResetPasswordInfo,
-  env: Env
+  env: Env,
+  locale: Locale = DEFAULT_LOCALE
 ) {
   const resend = new Resend(env.RESEND_API_KEY);
+  const displayName = user.name || info.userName || mailText(locale, "fallbackName");
 
   try {
     await resend.emails.send({
       from: `${env.FROM_NAME} <${env.FROM_EMAIL}>`,
       to: user.email,
-      subject: "Reset your password",
+      subject: mailText(locale, "passwordResetSubject"),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Password Reset Request</h2>
-          <p>Hi ${user.name || "there"},</p>
-          <p>You requested to reset your password. Click the button below to proceed:</p>
+          <h2>${mailHtml(locale, "passwordResetTitle")}</h2>
+          <p>${mailHtml(locale, "passwordResetGreeting", { name: displayName })}</p>
+          <p>${mailHtml(locale, "passwordResetIntro")}</p>
           <p>
-            <a href="${info.resetUrl}"
+            <a href="${escapeHtml(info.resetUrl)}"
                style="display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: #ffffff; text-decoration: none; border-radius: 6px;">
-              Reset Password
+              ${mailHtml(locale, "passwordResetButton")}
             </a>
           </p>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="word-break: break-all; color: #666;">${info.resetUrl}</p>
-          <p>This link will expire in 1 hour.</p>
-          <p>If you didn't request this, you can safely ignore this email.</p>
+          <p>${mailHtml(locale, "passwordResetCopy")}</p>
+          <p style="word-break: break-all; color: #666;">${escapeHtml(info.resetUrl)}</p>
+          <p>${mailHtml(locale, "passwordResetExpiry")}</p>
+          <p>${mailHtml(locale, "passwordResetIgnore")}</p>
           <hr style="margin-top: 24px; border: none; border-top: 1px solid #eee;" />
-          <p style="color: #999; font-size: 12px;">${env.FROM_NAME}</p>
+          <p style="color: #999; font-size: 12px;">${escapeHtml(env.FROM_NAME)}</p>
         </div>
       `,
     });
@@ -66,22 +98,27 @@ export async function sendPasswordResetEmail(
 /**
  * Send welcome email
  */
-export async function sendWelcomeEmail(user: UserInfo, env: Env) {
+export async function sendWelcomeEmail(
+  user: UserInfo,
+  env: Env,
+  locale: Locale = DEFAULT_LOCALE
+) {
   const resend = new Resend(env.RESEND_API_KEY);
+  const displayName = user.name || mailText(locale, "fallbackName");
 
   try {
     await resend.emails.send({
       from: `${env.FROM_NAME} <${env.FROM_EMAIL}>`,
       to: user.email,
-      subject: `Welcome to ${env.FROM_NAME}!`,
+      subject: mailText(locale, "welcomeSubject", { appName: env.FROM_NAME }),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Welcome to ${env.FROM_NAME}!</h2>
-          <p>Hi ${user.name || "there"},</p>
-          <p>Thank you for joining us. We're excited to have you on board!</p>
-          <p>Get started by exploring our features and creating your first AI-generated product detail page.</p>
+          <h2>${mailHtml(locale, "welcomeTitle", { appName: env.FROM_NAME })}</h2>
+          <p>${mailHtml(locale, "welcomeGreeting", { name: displayName })}</p>
+          <p>${mailHtml(locale, "welcomeIntro")}</p>
+          <p>${mailHtml(locale, "welcomeGetStarted")}</p>
           <hr style="margin-top: 24px; border: none; border-top: 1px solid #eee;" />
-          <p style="color: #999; font-size: 12px;">${env.FROM_NAME}</p>
+          <p style="color: #999; font-size: 12px;">${escapeHtml(env.FROM_NAME)}</p>
         </div>
       `,
     });

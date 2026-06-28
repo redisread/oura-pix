@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useImageEdit } from "@/hooks/useImageEdit";
 import EditorToolbar from "./EditorToolbar";
+import * as m from "@/paraglide/messages.js";
 
 interface ImageEditorProps {
   imageUrl: string;
@@ -82,20 +83,20 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
       <div className="w-full h-full max-w-7xl max-h-[90vh] bg-stone-900 rounded-lg overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-700">
-          <h2 className="text-xl font-semibold text-stone-100">图片编辑器</h2>
+          <h2 className="text-xl font-semibold text-stone-100">{m.editor_title()}</h2>
           <div className="flex gap-3">
             <button
               onClick={onClose}
               className="px-4 py-2 text-stone-300 hover:text-stone-100 transition-colors"
             >
-              取消
+              {m.editor_cancel()}
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
               className="px-6 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-800 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
-              {isSaving ? "保存中..." : "保存"}
+              {isSaving ? m.editor_saving() : m.editor_save()}
             </button>
           </div>
         </div>
@@ -107,7 +108,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
             <div className="relative">
               <img
                 src={imageUrl}
-                alt="Editing"
+                alt={m.editor_imageAlt()}
                 className="max-w-full max-h-[60vh] object-contain"
                 decoding="async"
                 style={{
@@ -156,7 +157,7 @@ export default function ImageEditor({ imageUrl, onSave, onClose }: ImageEditorPr
 
         {/* Footer Info */}
         <div className="px-6 py-3 border-t border-stone-700 text-xs text-stone-500">
-          <span>快捷键: Ctrl+Z 撤销 | Ctrl+Y/Ctrl+Shift+Z 重做</span>
+          <span>{m.editor_shortcuts()}</span>
         </div>
       </div>
     </div>

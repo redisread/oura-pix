@@ -8,6 +8,7 @@ import { useState, useCallback } from "react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites, type Favorite } from "@/hooks/useFavorites";
+import { formatLocaleDate } from "@/lib/locale";
 import FavoriteCard from "./FavoriteCard";
 
 function SkeletonCard() {
@@ -85,7 +86,7 @@ function ImageModal({
               {favorite.generation?.settings?.targetPlatform || m.common_custom()}
             </span>
             <span className="ml-4 opacity-75">
-              {new Date(favorite.createdAt).toLocaleDateString("zh-CN")}
+              {formatLocaleDate(favorite.createdAt)}
             </span>
           </div>
           <div className="flex gap-2">

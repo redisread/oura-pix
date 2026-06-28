@@ -226,7 +226,7 @@ router.post("/:id/cancel", async (c) => {
 
   const id = c.req.param("id");
   const db = createDb(c.env.DB);
-  const result = await cancelGeneration(db, id, user.id);
+  const result = await cancelGeneration(db, id, user.id, locale);
 
   if (!result.success) {
     return c.json(
@@ -236,11 +236,11 @@ router.post("/:id/cancel", async (c) => {
           code: "CANCEL_FAILED",
           message: serverMessage(
             locale,
-            result.error === "Record not found" ? "generationNotFound" : "badRequest"
+            result.reason === "not_found" ? "generationNotFound" : "badRequest"
           ),
         },
       },
-      result.error === "Record not found" ? 404 : 409
+      result.reason === "not_found" ? 404 : 409
     );
   }
 

@@ -55,7 +55,7 @@ function SocialLoginButtons() {
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-white px-3 text-slate-400">
-            or continue with
+            {m.auth_continueWith()}
           </span>
         </div>
       </div>

@@ -4,6 +4,7 @@
  */
 
 import { api, API_BASE_URL } from "./api";
+import * as m from "@/paraglide/messages.js";
 
 export interface User {
   id: string;
@@ -49,7 +50,7 @@ export async function signIn(
     const err = error as { response?: { data?: { message?: string; code?: string } } };
     return {
       success: false,
-      error: err.response?.data?.message || "Sign in failed",
+      error: err.response?.data?.message || m.login_error(),
     };
   }
 }
@@ -69,7 +70,7 @@ export async function signUp(
     const err = error as { response?: { data?: { message?: string; code?: string } } };
     return {
       success: false,
-      error: err.response?.data?.message || "Sign up failed",
+      error: err.response?.data?.message || m.common_createFailed(),
     };
   }
 }
@@ -94,7 +95,7 @@ export async function requestPasswordReset(
     const err = error as { response?: { data?: { message?: string; code?: string } } };
     return {
       success: false,
-      error: err.response?.data?.message || "Password reset failed",
+      error: err.response?.data?.message || m.common_requestFailed(),
     };
   }
 }
@@ -113,7 +114,7 @@ export async function resetPassword(
     const err = error as { response?: { data?: { message?: string; code?: string } } };
     return {
       success: false,
-      error: err.response?.data?.message || "Password reset failed",
+      error: err.response?.data?.message || m.resetPassword_errorFailed(),
     };
   }
 }

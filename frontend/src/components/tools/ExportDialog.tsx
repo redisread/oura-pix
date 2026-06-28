@@ -8,31 +8,37 @@
 "use client";
 
 import { useState } from "react";
+import * as m from "@/paraglide/messages.js";
 
 export type ExportFormat = "image/png" | "image/jpeg" | "image/webp";
 
 export interface SizePreset {
-  label: string;
+  label: () => string;
   width: number;
   height: number;
 }
 
 const DEFAULT_PRESETS: SizePreset[] = [
-  { label: "原图", width: 0, height: 0 },
-  { label: "Amazon 主图 (2000×2000)", width: 2000, height: 2000 },
-  { label: "Shopify (2048×2048)", width: 2048, height: 2048 },
-  { label: "eBay (1600×1600)", width: 1600, height: 1600 },
-  { label: "Instagram 1:1 (1080×1080)", width: 1080, height: 1080 },
-  { label: "Instagram 4:5 (1080×1350)", width: 1080, height: 1350 },
-  { label: "小红书 3:4 (1080×1440)", width: 1080, height: 1440 },
-  { label: "抖音小店 (750×1000)", width: 750, height: 1000 },
+  { label: m.tool_presetOriginal, width: 0, height: 0 },
+  { label: m.tool_presetAmazonMain, width: 2000, height: 2000 },
+  { label: () => "Shopify (2048×2048)", width: 2048, height: 2048 },
+  { label: () => "eBay (1600×1600)", width: 1600, height: 1600 },
+  { label: () => "Instagram 1:1 (1080×1080)", width: 1080, height: 1080 },
+  { label: () => "Instagram 4:5 (1080×1350)", width: 1080, height: 1350 },
+  { label: m.tool_presetXiaohongshu, width: 1080, height: 1440 },
+  { label: m.tool_presetDouyinShop, width: 750, height: 1000 },
 ];
 
-const FORMAT_LABELS: Record<ExportFormat, string> = {
-  "image/png": "PNG (透明背景)",
-  "image/jpeg": "JPEG (小文件)",
-  "image/webp": "WebP (现代压缩)",
-};
+function getFormatLabel(format: ExportFormat): string {
+  switch (format) {
+    case "image/png":
+      return m.tool_formatPng();
+    case "image/jpeg":
+      return m.tool_formatJpeg();
+    case "image/webp":
+      return m.tool_formatWebp();
+  }
+}
 
 export interface ExportDialogProps {
   imageUrl: string | null;
@@ -98,7 +104,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
       onClose();
     } catch (err) {
       console.error("Export failed:", err);
-      alert(`导出失败: ${err instanceof Error ? err.message : "Unknown error"}`);
+      alert(m.tool_exportFailed({ message: err instanceof Error ? err.message : m.common_unknownError() }));
     } finally {
       setExporting(false);
     }
@@ -116,16 +122,16 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-          导出图片
+          {m.tool_exportDialogTitle()}
         </h2>
 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              格式
+              {m.tool_format()}
             </label>
             <div className="grid grid-cols-3 gap-1.5">
-              {(Object.keys(FORMAT_LABELS) as ExportFormat[]).map((f) => (
+              {(["image/png", "image/jpeg", "image/webp"] as ExportFormat[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFormat(f)}
@@ -133,17 +139,17 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
                     format === f ? "bg-slate-900 text-white" : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 >
-                  {FORMAT_LABELS[f].split(" ")[0]}
+                  {getFormatLabel(f).split(" ")[0]}
                 </button>
               ))}
             </div>
-            <p className="text-xs text-slate-500 mt-1">{FORMAT_LABELS[format]}</p>
+            <p className="text-xs text-slate-500 mt-1">{getFormatLabel(format)}</p>
           </div>
 
           {format !== "image/png" && (
             <div>
               <div className="flex justify-between text-xs text-slate-500 mb-1">
-                <span>质量</span>
+                <span>{m.tool_quality()}</span>
                 <span>{Math.round(quality * 100)}%</span>
               </div>
               <input
@@ -160,7 +166,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              尺寸预设
+              {m.tool_sizePreset()}
             </label>
             <select
               value={presetIdx}
@@ -169,7 +175,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
             >
               {DEFAULT_PRESETS.map((p, i) => (
                 <option key={i} value={i}>
-                  {p.label}
+                  {p.label()}
                 </option>
               ))}
             </select>
@@ -181,14 +187,14 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
             onClick={onClose}
             className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
           >
-            取消
+            {m.common_cancel()}
           </button>
           <button
             onClick={handleExport}
             disabled={!imageUrl || exporting}
             className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
           >
-            {exporting ? "导出中..." : "下载"}
+            {exporting ? m.tool_exporting() : m.common_download()}
           </button>
         </div>
       </div>

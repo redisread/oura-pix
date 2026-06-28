@@ -7,6 +7,7 @@
 
 import { useState, useCallback } from "react";
 import JSZip from "jszip";
+import * as m from "@/paraglide/messages.js";
 
 export type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
 
@@ -184,7 +185,7 @@ export function useBatchProcess() {
         setItems((prev) =>
           prev.map((i) =>
             i.id === item.id
-              ? { ...i, status: "error", error: err instanceof Error ? err.message : "Error" }
+              ? { ...i, status: "error", error: err instanceof Error ? err.message : m.common_unknownError() }
               : i
           )
         );

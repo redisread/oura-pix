@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { ENDPOINTS } from "@oura-pix/api-client";
+import * as m from "@/paraglide/messages.js";
 
 export interface Favorite {
   id: string;
@@ -67,10 +68,10 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
         setFavorites(response.data.data);
         setPagination(response.data.pagination);
       } else {
-        setError(response.data.error?.message || "Failed to fetch favorites");
+        setError(response.data.error?.message || m.common_loadFailed());
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      setError(err instanceof Error ? err.message : m.common_unknownError());
     } finally {
       setIsLoading(false);
     }

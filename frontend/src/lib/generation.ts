@@ -4,6 +4,7 @@
  */
 
 import { api } from "./api";
+import * as m from "@/paraglide/messages.js";
 import type { GenerationLanguage, Locale } from "@oura-pix/i18n";
 
 interface GenerationSettings {
@@ -34,6 +35,15 @@ export interface CreateGenerationResponse {
     estimatedTime: number;
   };
   error?: string;
+}
+
+function apiErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object" && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string") return message;
+  }
+  return fallback;
 }
 
 export interface GetGenerationResponse {
@@ -94,7 +104,7 @@ export async function createGeneration(
     if (!data.success || !data.data) {
       return {
         success: false,
-        error: data.error || "Failed to create generation",
+        error: apiErrorMessage(data.error, m.common_createFailed()),
       };
     }
 
@@ -109,7 +119,7 @@ export async function createGeneration(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create generation",
+      error: error instanceof Error ? error.message : m.common_createFailed(),
     };
   }
 }
@@ -127,7 +137,7 @@ export async function getGeneration(
     if (!data.success) {
       return {
         success: false,
-        error: data.error || "Failed to get generation",
+        error: apiErrorMessage(data.error, m.common_loadFailed()),
       };
     }
 
@@ -138,7 +148,7 @@ export async function getGeneration(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to get generation",
+      error: error instanceof Error ? error.message : m.common_loadFailed(),
     };
   }
 }
@@ -156,7 +166,7 @@ export async function cancelGeneration(
     if (!data.success) {
       return {
         success: false,
-        error: data.error || "Failed to cancel generation",
+        error: apiErrorMessage(data.error, m.common_requestFailed()),
       };
     }
 
@@ -164,7 +174,7 @@ export async function cancelGeneration(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to cancel generation",
+      error: error instanceof Error ? error.message : m.common_requestFailed(),
     };
   }
 }
@@ -182,7 +192,7 @@ export async function deleteGeneration(
     if (!data.success) {
       return {
         success: false,
-        error: data.error || "Failed to delete generation",
+        error: apiErrorMessage(data.error, m.common_deleteFailed()),
       };
     }
 
@@ -190,7 +200,7 @@ export async function deleteGeneration(
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete generation",
+      error: error instanceof Error ? error.message : m.common_deleteFailed(),
     };
   }
 }

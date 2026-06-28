@@ -9,6 +9,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb, schema } from "@oura-pix/database";
 import { getUser } from "../middleware/auth";
+import { apiMessage } from "../lib/i18n";
 
 const router = new Hono<{
   Bindings: {
@@ -38,7 +39,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "UNAUTHORIZED", message: "User not found" },
+          error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
         },
         401
       );
@@ -79,7 +80,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "UPLOAD_ERROR", message: "Failed to create upload URL" },
+          error: { code: "UPLOAD_ERROR", message: apiMessage(c, "uploadError") },
         },
         500
       );
@@ -96,7 +97,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "UNAUTHORIZED", message: "User not found" },
+          error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
         },
         401
       );
@@ -110,7 +111,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "BAD_REQUEST", message: "No file provided" },
+          error: { code: "BAD_REQUEST", message: apiMessage(c, "badRequest") },
         },
         400
       );
@@ -181,7 +182,7 @@ router.post(
       return c.json(
         {
           success: false,
-          error: { code: "UPLOAD_ERROR", message: "Failed to upload file" },
+          error: { code: "UPLOAD_ERROR", message: apiMessage(c, "uploadError") },
         },
         500
       );

@@ -7,7 +7,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useImageCollage, LAYOUTS, type LayoutTemplate, type CollageCell } from "@/hooks/useImageCollage";
+import { useImageCollage, LAYOUTS, getLayoutLabel, type LayoutTemplate, type CollageCell } from "@/hooks/useImageCollage";
+import * as m from "@/paraglide/messages.js";
 
 export default function CollageMaker() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,16 +63,16 @@ export default function CollageMaker() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">图片拼图</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_collageTitle()}</h1>
         <p className="text-sm text-slate-500 mt-1">
-          浏览器内多图组合，导出 PNG
+          {m.tool_collageSubtitle()}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Options */}
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">布局</h2>
+          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{m.tool_layout()}</h2>
           <div className="grid grid-cols-2 gap-2">
             {(Object.keys(LAYOUTS) as LayoutTemplate[]).map((key) => (
               <button
@@ -83,12 +84,12 @@ export default function CollageMaker() {
                     : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
               >
-                {LAYOUTS[key].label}
+                {getLayoutLabel(key)}
               </button>
             ))}
           </div>
 
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">输出尺寸</h2>
+          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300 pt-2 border-t border-slate-100 dark:border-slate-800">{m.tool_outputSize()}</h2>
           <div className="grid grid-cols-2 gap-2">
             <select
               value={String(options.outputWidth)}
@@ -109,7 +110,7 @@ export default function CollageMaker() {
 
           <div>
             <div className="flex justify-between text-xs text-slate-500 mb-1">
-              <span>间距</span>
+              <span>{m.tool_gap()}</span>
               <span>{options.gap}px</span>
             </div>
             <input
@@ -124,7 +125,7 @@ export default function CollageMaker() {
 
           <div>
             <div className="flex justify-between text-xs text-slate-500 mb-1">
-              <span>圆角</span>
+              <span>{m.tool_borderRadius()}</span>
               <span>{options.borderRadius}px</span>
             </div>
             <input
@@ -141,7 +142,7 @@ export default function CollageMaker() {
             onClick={() => fileInputRef.current?.click()}
             className="w-full px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
           >
-            添加图片 ({filledCount}/{cells.length})
+            {m.tool_addImagesCount({ filled: filledCount.toString(), total: cells.length.toString() })}
           </button>
           <input
             ref={fileInputRef}
@@ -157,7 +158,7 @@ export default function CollageMaker() {
             disabled={filledCount === 0 || exporting}
             className="w-full px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
           >
-            {exporting ? "导出中..." : "下载 PNG"}
+            {exporting ? m.tool_exporting() : m.tool_downloadPng()}
           </button>
         </div>
 
@@ -171,9 +172,9 @@ export default function CollageMaker() {
                 style={{ display: "none" }}
               />
               {previewUrl ? (
-                <img src={previewUrl} alt="Preview" className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
+                <img src={previewUrl} alt={m.tool_preview()} className="max-w-full max-h-[600px] object-contain" loading="lazy" decoding="async" />
               ) : (
-                <p className="text-slate-400 p-12">添加图片开始</p>
+                <p className="text-slate-400 p-12">{m.tool_collageEmpty()}</p>
               )}
             </div>
           </div>
@@ -211,7 +212,7 @@ function CellEditor({
   return (
     <div className="space-y-1">
       <div className="aspect-square rounded overflow-hidden bg-slate-100 dark:bg-slate-800 relative group">
-        <img src={cell.imageUrl} alt={`Cell ${index + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        <img src={cell.imageUrl} alt={m.tool_cellImageAlt({ index: (index + 1).toString() })} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         <button
           onClick={onRemove}
           className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100"
@@ -221,7 +222,7 @@ function CellEditor({
       </div>
       <div className="space-y-0.5">
         <div className="flex items-center gap-1">
-          <span className="text-[10px] text-slate-500 w-6">缩放</span>
+          <span className="text-[10px] text-slate-500 w-6">{m.tool_scale()}</span>
           <input
             type="range"
             min="1"

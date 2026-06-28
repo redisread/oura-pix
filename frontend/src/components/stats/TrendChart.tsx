@@ -4,6 +4,8 @@
  * Line chart for generation trend over time
  */
 
+import * as m from '@/paraglide/messages.js';
+
 interface TrendChartProps {
   data: { date: string; count: number }[];
   title: string;
@@ -17,7 +19,7 @@ export default function TrendChart({ data, title }: TrendChartProps) {
           {title}
         </h3>
         <p className="text-sm text-stone-500 dark:text-stone-500 text-center py-8">
-          暂无数据
+          {m.stats_noData()}
         </p>
       </div>
     );
@@ -97,7 +99,7 @@ export default function TrendChart({ data, title }: TrendChartProps) {
               fill="#d97706"
               className="hover:r-2 transition-all"
             >
-              <title>{`${p.date}: ${p.count} 次`}</title>
+              <title>{`${p.date}: ${p.count} ${m.stats_times()}`}</title>
             </circle>
           ))}
 
@@ -127,15 +129,15 @@ export default function TrendChart({ data, title }: TrendChartProps) {
       {/* Summary */}
       <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
         <div className="flex justify-between text-sm">
-          <span className="text-stone-600 dark:text-stone-400">总计</span>
+          <span className="text-stone-600 dark:text-stone-400">{m.stats_total()}</span>
           <span className="font-semibold text-stone-900 dark:text-stone-100">
-            {data.reduce((sum, d) => sum + d.count, 0)} 次
+            {data.reduce((sum, d) => sum + d.count, 0)} {m.stats_times()}
           </span>
         </div>
         <div className="flex justify-between text-sm mt-2">
-          <span className="text-stone-600 dark:text-stone-400">平均</span>
+          <span className="text-stone-600 dark:text-stone-400">{m.stats_average()}</span>
           <span className="font-semibold text-stone-900 dark:text-stone-100">
-            {(data.reduce((sum, d) => sum + d.count, 0) / data.length).toFixed(1)} 次/天
+            {(data.reduce((sum, d) => sum + d.count, 0) / data.length).toFixed(1)} {m.stats_timesPerDay()}
           </span>
         </div>
       </div>

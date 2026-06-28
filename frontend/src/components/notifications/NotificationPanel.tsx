@@ -10,6 +10,7 @@ import { useEffect, useRef } from "react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
+import { formatLocaleDate } from "@/lib/locale";
 
 interface NotificationPanelProps {
   onClose: () => void;
@@ -27,7 +28,7 @@ function formatTimeAgo(dateString: string): string {
   if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
   if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
   if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return date.toLocaleDateString("zh-CN");
+  return formatLocaleDate(date);
 }
 
 function getNotificationIcon(type: string): string {
@@ -92,7 +93,7 @@ function NotificationItem({
                 onDelete(notification.id);
               }}
               className="text-slate-400 hover:text-red-500 transition-colors flex-shrink-0"
-              aria-label="Delete notification"
+              aria-label={m.notification_delete()}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

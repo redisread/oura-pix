@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ShortcutsDemo from '../../components/tools/ShortcutsDemo';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="快捷键参考">
+<Layout title={m.meta_toolShortcutsTitle()}>
   <ShortcutsDemo client:load />
 </Layout>

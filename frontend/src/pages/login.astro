@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import LoginPage from '../components/LoginPage';
+import * as m from "@/paraglide/messages.js";
 
-const title = "Sign In - OuraPix";
-const description = "Sign in to your OuraPix account";
+const title = m.meta_loginTitle();
+const description = m.meta_loginDescription();
 ---
 
 <Layout title={title} description={description}>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
+import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 
 export default function Footer() {
@@ -22,38 +23,38 @@ export default function Footer() {
               <span className="text-lg font-semibold text-foreground">OuraPix</span>
             </div>
             <p className="mt-4 text-sm text-foreground-muted max-w-sm">
-              AI-powered cross-border e-commerce product detail page generator
+              {m.footer_description()}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Product</h3>
+            <h3 className="text-sm font-semibold text-foreground">{m.footer_product()}</h3>
             <ul className="mt-4 space-y-2">
               <li>
                 <a href={localizeHref("/generate")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
-                  Generate
+                  {m.generate()}
                 </a>
               </li>
               <li>
                 <a href={localizeHref("/pricing")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
-                  Pricing
+                  {m.pricing()}
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Support</h3>
+            <h3 className="text-sm font-semibold text-foreground">{m.footer_support()}</h3>
             <ul className="mt-4 space-y-2">
               <li>
                 <a href={localizeHref("/docs")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
-                  Documentation
+                  {m.footer_documentation()}
                 </a>
               </li>
               <li>
                 <a href={localizeHref("/blog")} className="text-sm text-foreground-muted hover:text-foreground transition-colors">
-                  Blog
+                  {m.footer_blog()}
                 </a>
               </li>
             </ul>
@@ -63,7 +64,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="mt-12 border-t border-[hsl(var(--border))] pt-8">
           <p className="text-center text-sm text-foreground-muted">
-            © {currentYear} OuraPix. All rights reserved.
+            {m.footer_copyright({ year: currentYear.toString() })}
           </p>
         </div>
       </div>

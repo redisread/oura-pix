@@ -4,6 +4,7 @@
  * Toolbar for comparison view controls
  */
 
+import * as m from "@/paraglide/messages.js";
 import type { LayoutMode } from "@/hooks/useCompare";
 
 interface CompareToolbarProps {
@@ -24,13 +25,6 @@ interface CompareToolbarProps {
   onClose: () => void;
 }
 
-const layouts: { value: LayoutMode; label: string; icon: string }[] = [
-  { value: "grid-2x2", label: "2×2", icon: "⊞" },
-  { value: "grid-1x4", label: "1×4", icon: "☰" },
-  { value: "grid-4x1", label: "4×1", icon: "▤" },
-  { value: "single", label: "单图", icon: "□" },
-];
-
 export default function CompareToolbar({
   layout,
   onLayoutChange,
@@ -48,6 +42,13 @@ export default function CompareToolbar({
   canNext,
   onClose,
 }: CompareToolbarProps) {
+  const layouts: { value: LayoutMode; label: string; icon: string }[] = [
+    { value: "grid-2x2", label: m.compare_layout2x2(), icon: "⊞" },
+    { value: "grid-1x4", label: m.compare_layout1x4(), icon: "☰" },
+    { value: "grid-4x1", label: m.compare_layout4x1(), icon: "▤" },
+    { value: "single", label: m.compare_layoutSingle(), icon: "□" },
+  ];
+
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-stone-800 border-b border-stone-700">
       {/* Left: Layout Selection */}
@@ -75,7 +76,7 @@ export default function CompareToolbar({
           onClick={onZoomOut}
           disabled={zoom <= 0.5}
           className="p-1.5 rounded bg-stone-700 text-stone-300 hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          title="缩小"
+          title={m.compare_zoomOut()}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -88,7 +89,7 @@ export default function CompareToolbar({
           onClick={onZoomIn}
           disabled={zoom >= 5}
           className="p-1.5 rounded bg-stone-700 text-stone-300 hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          title="放大"
+          title={m.compare_zoomIn()}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -97,9 +98,9 @@ export default function CompareToolbar({
         <button
           onClick={onResetView}
           className="px-2 py-1 text-xs rounded bg-stone-700 text-stone-300 hover:bg-stone-600 transition-colors"
-          title="重置视图"
+          title={m.compare_reset()}
         >
-          重置
+          {m.compare_reset()}
         </button>
       </div>
 
@@ -112,7 +113,7 @@ export default function CompareToolbar({
               onClick={onPrev}
               disabled={!canPrev}
               className="p-1.5 rounded bg-stone-700 text-stone-300 hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              title="上一张"
+              title={m.compare_prev()}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -125,7 +126,7 @@ export default function CompareToolbar({
               onClick={onNext}
               disabled={!canNext}
               className="p-1.5 rounded bg-stone-700 text-stone-300 hover:bg-stone-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              title="下一张"
+              title={m.compare_next()}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -138,7 +139,7 @@ export default function CompareToolbar({
         <button
           onClick={onFullscreen}
           className="p-1.5 rounded bg-stone-700 text-stone-300 hover:bg-stone-600 transition-colors"
-          title={isFullscreen ? "退出全屏" : "全屏"}
+          title={isFullscreen ? m.compare_exitFullscreen() : m.compare_fullscreen()}
         >
           {isFullscreen ? (
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +156,7 @@ export default function CompareToolbar({
         <button
           onClick={onClose}
           className="p-1.5 rounded bg-stone-700 text-stone-300 hover:bg-red-600 hover:text-white transition-colors"
-          title="关闭 (ESC)"
+          title={m.compare_helpEsc()}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { useCategories, useCategoryTemplates, type Category, type Template } from "@/hooks/useCategories";
+import * as m from "@/paraglide/messages.js";
 
 function TemplateCard({ template, isSelected, onClick }: { template: Template; isSelected: boolean; onClick: () => void }) {
   return (
@@ -20,9 +21,9 @@ function TemplateCard({ template, isSelected, onClick }: { template: Template; i
       <div className="flex items-start justify-between mb-1">
         <h4 className="font-medium text-slate-900 dark:text-slate-100">{template.name}</h4>
         {template.isPreset ? (
-          <span className="px-1.5 py-0.5 text-xs rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">预设</span>
+          <span className="px-1.5 py-0.5 text-xs rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{m.categories_preset()}</span>
         ) : (
-          <span className="px-1.5 py-0.5 text-xs rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">自定义</span>
+          <span className="px-1.5 py-0.5 text-xs rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">{m.categories_custom()}</span>
         )}
       </div>
       {template.description && <p className="text-xs text-slate-500 mb-2">{template.description}</p>}
@@ -33,7 +34,11 @@ function TemplateCard({ template, isSelected, onClick }: { template: Template; i
           </span>
         ))}
       </div>
-      {template.usageCount > 0 && <p className="text-xs text-slate-400 mt-2">使用 {template.usageCount} 次</p>}
+      {template.usageCount > 0 && (
+        <p className="text-xs text-slate-400 mt-2">
+          {m.categories_usageCount({ count: template.usageCount.toString() })}
+        </p>
+      )}
     </button>
   );
 }
@@ -45,7 +50,7 @@ export default function CategoriesPage() {
   const selected = categories.find((c) => c.id === selectedId) ?? null;
 
   if (loading && categories.length === 0) {
-    return <div className="max-w-6xl mx-auto p-6 text-center text-slate-500">加载中...</div>;
+    return <div className="max-w-6xl mx-auto p-6 text-center text-slate-500">{m.common_loading()}</div>;
   }
 
   if (error) {
@@ -61,8 +66,8 @@ export default function CategoriesPage() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">商品类目与模板</h1>
-        <p className="text-sm text-slate-500 mt-1">选择类目，使用预设模板快速生成</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.categories_title()}</h1>
+        <p className="text-sm text-slate-500 mt-1">{m.categories_subtitle()}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -80,7 +85,9 @@ export default function CategoriesPage() {
                   <span className="text-2xl">{cat.icon}</span>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-slate-900 dark:text-slate-100">{cat.name}</div>
-                    <div className="text-xs text-slate-500">{cat.templateCount ?? 0} 模板</div>
+                    <div className="text-xs text-slate-500">
+                      {m.categories_templateCount({ count: String(cat.templateCount ?? 0) })}
+                    </div>
                   </div>
                 </div>
               </button>
@@ -93,7 +100,7 @@ export default function CategoriesPage() {
             <CategoryDetail key={selected.id} category={selected} tab={tab} setTab={setTab} />
           ) : (
             <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-12 text-center text-slate-500">
-              ← 选择一个类目查看模板和最佳实践
+              {m.categories_selectPrompt()}
             </div>
           )}
         </main>
@@ -121,13 +128,13 @@ function CategoryDetail({ category, tab, setTab }: { category: Category; tab: "t
             onClick={() => setTab("templates")}
             className={`px-3 py-1.5 text-sm rounded ${tab === "templates" ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
           >
-            模板 ({templates.length})
+            {m.categories_templatesTab({ count: templates.length.toString() })}
           </button>
           <button
             onClick={() => setTab("practices")}
             className={`px-3 py-1.5 text-sm rounded ${tab === "practices" ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900" : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
           >
-            最佳实践
+            {m.categories_practicesTab()}
           </button>
         </div>
       </div>
@@ -141,9 +148,9 @@ function CategoryDetail({ category, tab, setTab }: { category: Category; tab: "t
               </div>
             )}
             {loading && templates.length === 0 ? (
-              <p className="text-center text-slate-500 py-8">加载中...</p>
+              <p className="text-center text-slate-500 py-8">{m.common_loading()}</p>
             ) : templates.length === 0 ? (
-              <p className="text-center text-slate-500 py-8">暂无模板</p>
+              <p className="text-center text-slate-500 py-8">{m.categories_noTemplates()}</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {templates.map((t) => (
@@ -154,18 +161,20 @@ function CategoryDetail({ category, tab, setTab }: { category: Category; tab: "t
             {selectedTemplate && (
               <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-slate-900 dark:text-slate-100">使用模板: {selectedTemplate.name}</h3>
-                  <button onClick={() => setSelectedTemplate(null)} className="text-slate-400 hover:text-slate-600" aria-label="Close">✕</button>
+                  <h3 className="font-medium text-slate-900 dark:text-slate-100">
+                    {m.categories_useTemplate({ name: selectedTemplate.name })}
+                  </h3>
+                  <button onClick={() => setSelectedTemplate(null)} className="text-slate-400 hover:text-slate-600" aria-label={m.common_close()}>✕</button>
                 </div>
                 <a href={`/generate?template=${selectedTemplate.id}`} className="inline-block mt-2 px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800">
-                  用此模板生成 →
+                  {m.categories_generateWithTemplate()}
                 </a>
               </div>
             )}
           </>
         ) : (
           <pre className="text-xs whitespace-pre-wrap font-sans bg-slate-50 dark:bg-slate-800 p-3 rounded text-slate-700 dark:text-slate-300">
-            {category.bestPractices ?? "暂无最佳实践"}
+            {category.bestPractices ?? m.categories_noBestPractices()}
           </pre>
         )}
       </div>

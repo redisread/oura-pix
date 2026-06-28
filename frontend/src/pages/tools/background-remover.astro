@@ -1,8 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import BackgroundRemover from '../../components/tools/BackgroundRemover';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="智能去背景">
+<Layout title={m.meta_toolBackgroundRemoverTitle()}>
   <BackgroundRemover client:load />
 </Layout>

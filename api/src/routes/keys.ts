@@ -17,6 +17,7 @@ import {
   revokeApiKey,
   deleteApiKey,
 } from "../services/apiKeyService";
+import { apiMessage } from "../lib/i18n";
 
 const keys = new Hono<{
   Bindings: {
@@ -35,7 +36,7 @@ const keys = new Hono<{
 keys.get("/", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   try {
@@ -55,7 +56,7 @@ keys.get("/", async (c) => {
     });
   } catch (error) {
     console.error("Failed to list api keys:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to list API keys" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -71,7 +72,7 @@ const createSchema = z.object({
 keys.post("/", zValidator("json", createSchema), async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   const input = c.req.valid("json");
@@ -85,7 +86,7 @@ keys.post("/", zValidator("json", createSchema), async (c) => {
     return c.json({ success: true, data: result });
   } catch (error) {
     console.error("Failed to create api key:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to create API key" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -96,7 +97,7 @@ keys.post("/", zValidator("json", createSchema), async (c) => {
 keys.delete("/:id", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   const id = c.req.param("id");
@@ -105,12 +106,12 @@ keys.delete("/:id", async (c) => {
     const db = createDb(c.env.DB);
     const success = await revokeApiKey(db, id, user.id);
     if (!success) {
-      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Key not found" } }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") } }, 404);
     }
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to revoke api key:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to revoke API key" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 
@@ -121,7 +122,7 @@ keys.delete("/:id", async (c) => {
 keys.delete("/:id/hard", async (c) => {
   const user = await getUser(c);
   if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: "Unauthorized" } }, 401);
+    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
   }
 
   const id = c.req.param("id");
@@ -130,12 +131,12 @@ keys.delete("/:id/hard", async (c) => {
     const db = createDb(c.env.DB);
     const success = await deleteApiKey(db, id, user.id);
     if (!success) {
-      return c.json({ success: false, error: { code: "NOT_FOUND", message: "Key not found" } }, 404);
+      return c.json({ success: false, error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") } }, 404);
     }
     return c.json({ success: true });
   } catch (error) {
     console.error("Failed to delete api key:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: "Failed to delete API key" } }, 500);
+    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
   }
 });
 

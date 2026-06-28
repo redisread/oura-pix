@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { resetPassword } from "@/lib/auth";
 
@@ -24,6 +25,7 @@ function PasswordInput({
         className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:text-slate-600"
         onClick={() => setShowPassword(!showPassword)}
         tabIndex={-1}
+        aria-label={showPassword ? m.resetPassword_hidePassword() : m.resetPassword_showPassword()}
       >
         {showPassword ? (
           <EyeOff className="h-4 w-4" />
@@ -60,17 +62,17 @@ export default function ResetPasswordPage({ token }: Props) {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("两次输入的密码不一致");
+      setError(m.resetPassword_errorMismatch());
       return;
     }
 
     if (password.length < 8) {
-      setError("密码长度至少8位");
+      setError(m.resetPassword_errorTooShort());
       return;
     }
 
     if (!token) {
-      setError("无效的重置链接");
+      setError(m.resetPassword_errorInvalidLink());
       return;
     }
 
@@ -79,7 +81,7 @@ export default function ResetPasswordPage({ token }: Props) {
     try {
       const result = await resetPassword(token, password);
       if (!result.success) {
-        setError(result.error || "重置失败");
+        setError(result.error || m.resetPassword_errorFailed());
       } else {
         setIsSuccess(true);
         setTimeout(() => {
@@ -87,7 +89,7 @@ export default function ResetPasswordPage({ token }: Props) {
         }, 3000);
       }
     } catch {
-      setError("重置失败，请重试");
+      setError(m.resetPassword_errorFailed());
     } finally {
       setIsLoading(false);
     }
@@ -118,9 +120,9 @@ export default function ResetPasswordPage({ token }: Props) {
               </a>
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-              链接已失效<br />
+              {m.resetPassword_invalidHeroTitle()}<br />
               <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
-                请重新申请
+                {m.resetPassword_invalidHeroHighlight()}
               </span>
             </h1>
           </div>
@@ -144,16 +146,16 @@ export default function ResetPasswordPage({ token }: Props) {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                链接已失效
+                {m.resetPassword_invalidTitle()}
               </h2>
               <p className="text-slate-500 mb-8">
-                该密码重置链接已过期或无效。
+                {m.resetPassword_invalidDescription()}
               </p>
               <a
                 href={localizeHref("/forgot-password")}
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors"
               >
-                重新申请
+                {m.resetPassword_requestAgain()}
               </a>
             </div>
           </div>
@@ -187,9 +189,9 @@ export default function ResetPasswordPage({ token }: Props) {
               </a>
             </div>
             <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-              密码重置成功！<br />
+              {m.resetPassword_successHeroTitle()}<br />
               <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                即将跳转登录
+                {m.resetPassword_successHeroHighlight()}
               </span>
             </h1>
           </div>
@@ -213,16 +215,16 @@ export default function ResetPasswordPage({ token }: Props) {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-slate-900 mb-3">
-                重置成功
+                {m.resetPassword_successTitle()}
               </h2>
               <p className="text-slate-500 mb-8">
-                您的密码已重置，即将跳转到登录页面。
+                {m.resetPassword_successDescription()}
               </p>
               <a
                 href={localizeHref("/login")}
                 className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium transition-colors"
               >
-                立即登录
+                {m.resetPassword_loginNow()}
               </a>
             </div>
           </div>
@@ -262,14 +264,14 @@ export default function ResetPasswordPage({ token }: Props) {
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-6">
-            设置新密码<br />
+            {m.resetPassword_heroTitle()}<br />
             <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-              保护您的账户
+              {m.resetPassword_heroHighlight()}
             </span>
           </h1>
 
           <p className="text-lg text-slate-300 mb-8 max-w-md">
-            请输入您的新密码，确保密码长度至少8位，包含字母和数字。
+            {m.resetPassword_heroDescription()}
           </p>
 
           <div className="flex items-center gap-3 text-slate-300">
@@ -278,7 +280,7 @@ export default function ResetPasswordPage({ token }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <span>安全加密，保护您的隐私</span>
+            <span>{m.resetPassword_securityHint()}</span>
           </div>
         </div>
       </div>
@@ -299,10 +301,10 @@ export default function ResetPasswordPage({ token }: Props) {
           {/* Title */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">
-              设置新密码
+              {m.resetPassword_formTitle()}
             </h2>
             <p className="text-slate-500">
-              请输入您的新密码。
+              {m.resetPassword_formDescription()}
             </p>
           </div>
 
@@ -317,7 +319,7 @@ export default function ResetPasswordPage({ token }: Props) {
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium text-slate-700">
-                新密码
+                {m.resetPassword_newPassword()}
               </label>
               <PasswordInput
                 id="password"
@@ -326,13 +328,13 @@ export default function ResetPasswordPage({ token }: Props) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="请输入新密码"
+                placeholder={m.resetPassword_newPasswordPlaceholder()}
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
-                确认密码
+                {m.resetPassword_confirmPassword()}
               </label>
               <PasswordInput
                 id="confirmPassword"
@@ -341,7 +343,7 @@ export default function ResetPasswordPage({ token }: Props) {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="请再次输入新密码"
+                placeholder={m.resetPassword_confirmPasswordPlaceholder()}
               />
             </div>
 
@@ -356,10 +358,10 @@ export default function ResetPasswordPage({ token }: Props) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  重置中...
+                  {m.resetPassword_loading()}
                 </>
               ) : (
-                "重置密码"
+                m.resetPassword_submit()
               )}
             </button>
           </form>
@@ -371,7 +373,7 @@ export default function ResetPasswordPage({ token }: Props) {
                 href={localizeHref("/login")}
                 className="font-medium text-slate-900 hover:text-slate-700 transition-colors"
               >
-                返回登录
+                {m.resetPassword_backToLogin()}
               </a>
             </p>
           </div>

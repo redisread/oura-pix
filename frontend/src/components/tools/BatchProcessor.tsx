@@ -9,6 +9,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useBatchProcess, type OutputFormat, type BatchItem } from "@/hooks/useBatchProcess";
+import * as m from "@/paraglide/messages.js";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -66,19 +67,19 @@ export default function BatchProcessor() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">批量处理工具</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_batchTitle()}</h1>
         <p className="text-sm text-slate-500 mt-1">
-          浏览器内批量处理图片：调整尺寸、压缩、添加水印、格式转换。
+          {m.tool_batchSubtitle()}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Options panel */}
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-4 space-y-4">
-          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">处理选项</h2>
+          <h2 className="text-sm font-medium text-slate-700 dark:text-slate-300">{m.tool_processingOptions()}</h2>
 
           <div>
-            <label className="block text-xs text-slate-500 mb-1">输出格式</label>
+            <label className="block text-xs text-slate-500 mb-1">{m.tool_outputFormat()}</label>
             <select
               value={options.format}
               onChange={(e) => setOptions({ ...options, format: e.target.value as OutputFormat })}
@@ -92,22 +93,22 @@ export default function BatchProcessor() {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">宽 (px)</label>
+              <label className="block text-xs text-slate-500 mb-1">{m.tool_widthPx()}</label>
               <input
                 type="number"
                 value={options.resizeWidth ?? ""}
                 onChange={(e) => setOptions({ ...options, resizeWidth: e.target.value ? Number(e.target.value) : undefined })}
-                placeholder="原图"
+                placeholder={m.tool_originalSize()}
                 className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">高 (px)</label>
+              <label className="block text-xs text-slate-500 mb-1">{m.tool_heightPx()}</label>
               <input
                 type="number"
                 value={options.resizeHeight ?? ""}
                 onChange={(e) => setOptions({ ...options, resizeHeight: e.target.value ? Number(e.target.value) : undefined })}
-                placeholder="原图"
+                placeholder={m.tool_originalSize()}
                 className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
               />
             </div>
@@ -116,7 +117,7 @@ export default function BatchProcessor() {
           {options.format !== "image/png" && (
             <div>
               <div className="flex justify-between text-xs text-slate-500 mb-1">
-                <span>质量</span>
+                <span>{m.tool_quality()}</span>
                 <span>{Math.round(options.quality * 100)}%</span>
               </div>
               <input
@@ -139,14 +140,14 @@ export default function BatchProcessor() {
                 onChange={(e) => setOptions({ ...options, watermarkEnabled: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-sm text-slate-700 dark:text-slate-300">添加水印</span>
+              <span className="text-sm text-slate-700 dark:text-slate-300">{m.tool_addWatermark()}</span>
             </label>
             {options.watermarkEnabled && (
               <input
                 type="text"
                 value={options.watermarkText}
                 onChange={(e) => setOptions({ ...options, watermarkText: e.target.value })}
-                placeholder="水印文字"
+                placeholder={m.tool_watermarkText()}
                 className="w-full px-2 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
               />
             )}
@@ -157,7 +158,9 @@ export default function BatchProcessor() {
             disabled={items.length === 0 || processing}
             className="w-full px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
           >
-            {processing ? `处理中 ${progress}%` : `开始处理 (${items.length})`}
+            {processing
+              ? m.tool_processingWithProgress({ progress: progress.toString() })
+              : m.tool_startProcessingCount({ count: items.length.toString() })}
           </button>
 
           {completedCount > 0 && (
@@ -165,7 +168,7 @@ export default function BatchProcessor() {
               onClick={downloadZip}
               className="w-full px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              下载 ZIP ({completedCount})
+              {m.tool_downloadZip({ count: completedCount.toString() })}
             </button>
           )}
         </div>
@@ -195,23 +198,26 @@ export default function BatchProcessor() {
               htmlFor="batch-input"
               className="inline-block cursor-pointer px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800"
             >
-              选择多张图片
+              {m.tool_selectMultipleImages()}
             </label>
-            <p className="text-xs text-slate-500 mt-2">或拖放图片到这里</p>
+            <p className="text-xs text-slate-500 mt-2">{m.tool_dropImagesHere()}</p>
           </div>
 
           {items.length > 0 && (
             <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                 <div className="text-sm">
-                  共 {items.length} 张 · 完成 {completedCount}
-                  {totalSavings > 0 && ` · 节省 ${formatBytes(totalSavings)}`}
+                  {m.tool_batchSummary({
+                    total: items.length.toString(),
+                    completed: completedCount.toString(),
+                  })}
+                  {totalSavings > 0 && m.tool_batchSavings({ size: formatBytes(totalSavings) })}
                 </div>
                 <button
                   onClick={clearAll}
                   className="text-xs text-slate-500 hover:text-red-500"
                 >
-                  清空
+                  {m.common_clear()}
                 </button>
               </div>
               <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[500px] overflow-y-auto">
@@ -254,20 +260,26 @@ function BatchItemRow({ item, onRemove, onDownload }: { item: BatchItem; onRemov
           item.status === "processing" ? "bg-blue-100 text-blue-700" :
           "bg-slate-100 text-slate-700"
         }`}>
-          {item.status === "done" ? "完成" : item.status === "error" ? "失败" : item.status === "processing" ? "处理中" : "等待"}
+          {item.status === "done"
+            ? m.common_done()
+            : item.status === "error"
+            ? m.common_failed()
+            : item.status === "processing"
+            ? m.common_processing()
+            : m.common_waiting()}
         </span>
         {item.status === "done" && (
           <button
             onClick={() => onDownload(item)}
             className="text-xs text-blue-600 hover:underline"
           >
-            下载
+            {m.common_download()}
           </button>
         )}
         <button
           onClick={() => onRemove(item.id)}
           className="text-slate-400 hover:text-red-500"
-          aria-label="Remove"
+          aria-label={m.common_delete()}
         >
           ✕
         </button>

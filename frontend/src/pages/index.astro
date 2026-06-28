@@ -3,10 +3,11 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import HomePage from '../components/HomePage';
+import * as m from "@/paraglide/messages.js";
 
 // Page metadata
-const title = "OuraPix - AI Product Detail Page Generator";
-const description = "Generate stunning product detail pages with AI";
+const title = m.meta_homeTitle();
+const description = m.meta_homeDescription();
 ---
 
 <Layout title={title} description={description}>

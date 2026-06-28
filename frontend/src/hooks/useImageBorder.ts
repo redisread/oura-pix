@@ -6,28 +6,65 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import * as m from "@/paraglide/messages.js";
 
 export type BorderStyle = "none" | "minimal" | "shadow" | "rounded" | "double" | "gradient" | "thick" | "polaroid";
 export type BadgeStyle = "none" | "new" | "hot" | "discount" | "free-shipping" | "limited" | "best-seller";
 
-export const BORDER_STYLES: Record<Exclude<BorderStyle, "none">, { label: string; css: string }> = {
-  minimal: { label: "简约边框", css: "1px solid #e5e7eb" },
-  shadow: { label: "投影", css: "0 10px 30px rgba(0,0,0,0.15)" },
-  rounded: { label: "圆角", css: "0 0 0 8px #fff, 0 0 0 12px #e2e8f0" },
-  double: { label: "双线", css: "0 0 0 4px #fff, 0 0 0 6px #1e293b, 0 0 0 10px #fff" },
-  gradient: { label: "渐变", css: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
-  thick: { label: "粗边", css: "0 0 0 16px #1e293b" },
-  polaroid: { label: "拍立得", css: "0 0 0 8px #fff, 0 8px 24px rgba(0,0,0,0.2)" },
+export const BORDER_STYLES: Record<Exclude<BorderStyle, "none">, { css: string }> = {
+  minimal: { css: "1px solid #e5e7eb" },
+  shadow: { css: "0 10px 30px rgba(0,0,0,0.15)" },
+  rounded: { css: "0 0 0 8px #fff, 0 0 0 12px #e2e8f0" },
+  double: { css: "0 0 0 4px #fff, 0 0 0 6px #1e293b, 0 0 0 10px #fff" },
+  gradient: { css: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+  thick: { css: "0 0 0 16px #1e293b" },
+  polaroid: { css: "0 0 0 8px #fff, 0 8px 24px rgba(0,0,0,0.2)" },
 };
 
-export const BADGES: Record<Exclude<BadgeStyle, "none">, { label: string; bg: string; text: string }> = {
-  new: { label: "新品", bg: "#10b981", text: "NEW" },
-  hot: { label: "热卖", bg: "#ef4444", text: "HOT" },
-  discount: { label: "折扣", bg: "#f59e0b", text: "SALE" },
-  "free-shipping": { label: "包邮", bg: "#3b82f6", text: "FREE" },
-  limited: { label: "限量", bg: "#8b5cf6", text: "LIMITED" },
-  "best-seller": { label: "爆款", bg: "#dc2626", text: "#1" },
+export const BADGES: Record<Exclude<BadgeStyle, "none">, { bg: string; text: string }> = {
+  new: { bg: "#10b981", text: "NEW" },
+  hot: { bg: "#ef4444", text: "HOT" },
+  discount: { bg: "#f59e0b", text: "SALE" },
+  "free-shipping": { bg: "#3b82f6", text: "FREE" },
+  limited: { bg: "#8b5cf6", text: "LIMITED" },
+  "best-seller": { bg: "#dc2626", text: "#1" },
 };
+
+export function getBorderStyleLabel(style: Exclude<BorderStyle, "none">): string {
+  switch (style) {
+    case "minimal":
+      return m.tool_borderMinimal();
+    case "shadow":
+      return m.tool_borderShadow();
+    case "rounded":
+      return m.tool_borderRounded();
+    case "double":
+      return m.tool_borderDouble();
+    case "gradient":
+      return m.tool_borderGradient();
+    case "thick":
+      return m.tool_borderThick();
+    case "polaroid":
+      return m.tool_borderPolaroid();
+  }
+}
+
+export function getBadgeLabel(badge: Exclude<BadgeStyle, "none">): string {
+  switch (badge) {
+    case "new":
+      return m.tool_badgeNew();
+    case "hot":
+      return m.tool_badgeHot();
+    case "discount":
+      return m.tool_badgeDiscount();
+    case "free-shipping":
+      return m.tool_badgeFreeShipping();
+    case "limited":
+      return m.tool_badgeLimited();
+    case "best-seller":
+      return m.tool_badgeBestSeller();
+  }
+}
 
 export interface BorderOptions {
   borderStyle: BorderStyle;

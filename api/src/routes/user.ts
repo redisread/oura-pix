@@ -6,6 +6,7 @@
 
 import { Hono } from "hono";
 import { createAuth, getSessionTokenFromHeaders } from "../lib/auth";
+import { apiMessage } from "../lib/i18n";
 
 const router = new Hono<{
   Bindings: {
@@ -26,7 +27,7 @@ router.put("/profile", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "Name is required" },
+        error: { code: "VALIDATION_ERROR", message: apiMessage(c, "badRequest") },
       },
       400
     );
@@ -38,7 +39,7 @@ router.put("/profile", async (c) => {
       return c.json(
         {
           success: false,
-          error: { code: "UNAUTHORIZED", message: "No session" },
+          error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") },
         },
         401
       );
@@ -57,7 +58,7 @@ router.put("/profile", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UPDATE_FAILED", message: "Failed to update profile" },
+        error: { code: "UPDATE_FAILED", message: apiMessage(c, "internalError") },
       },
       500
     );
@@ -75,7 +76,7 @@ router.put("/avatar", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "VALIDATION_ERROR", message: "Image URL is required" },
+        error: { code: "VALIDATION_ERROR", message: apiMessage(c, "badRequest") },
       },
       400
     );
@@ -87,7 +88,7 @@ router.put("/avatar", async (c) => {
       return c.json(
         {
           success: false,
-          error: { code: "UNAUTHORIZED", message: "No session" },
+          error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") },
         },
         401
       );
@@ -106,7 +107,7 @@ router.put("/avatar", async (c) => {
     return c.json(
       {
         success: false,
-        error: { code: "UPDATE_FAILED", message: "Failed to update avatar" },
+        error: { code: "UPDATE_FAILED", message: apiMessage(c, "internalError") },
       },
       500
     );

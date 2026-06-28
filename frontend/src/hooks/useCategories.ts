@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export interface Category {
   id: string;
@@ -40,7 +41,7 @@ export function useCategories() {
       const data = await apiJson<Category[]>("/api/categories");
       setCategories(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load categories");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally { setLoading(false); }
   }, []);
 
@@ -60,7 +61,7 @@ export function useCategoryTemplates(categoryId: string | null) {
       const data = await apiJson<Template[]>(`/api/categories/${categoryId}/templates`);
       setTemplates(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load templates");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally { setLoading(false); }
   }, [categoryId]);
 

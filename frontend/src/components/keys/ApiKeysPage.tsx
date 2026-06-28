@@ -7,12 +7,14 @@
 "use client";
 
 import { useState } from "react";
+import * as m from "@/paraglide/messages.js";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { StateMessage } from "@/components/StateMessage";
+import { formatLocaleDateTime } from "@/lib/locale";
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("zh-CN", {
+  return formatLocaleDateTime(dateString, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -66,20 +68,20 @@ function NewKeyModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-          API Key 已创建
+          {m.apiKeys_createdTitle()}
         </h2>
         <p className="text-sm text-slate-500 mb-4">
-          ⚠️ 请立即保存这个 Key。出于安全考虑，<strong>关闭此弹窗后无法再次查看完整 Key</strong>。
+          {m.apiKeys_createdWarning()}
         </p>
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded p-3 mb-4">
-          <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">完整 Key：</p>
+          <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">{m.apiKeys_fullKey()}</p>
           <CopyableKey value={fullKey} />
           <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
-            前缀: <code>{prefix}</code>
+            {m.apiKeys_prefix()} <code>{prefix}</code>
           </p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800 rounded p-3 mb-4">
-          <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">使用示例：</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{m.apiKeys_usageExample()}</p>
           <pre className="text-xs font-mono overflow-x-auto whitespace-pre">
 {`curl -X POST https://api.ourapix.jiahongw.com/api/v1/generate \\
   -H "Authorization: Bearer ${prefix}..." \\
@@ -91,7 +93,7 @@ function NewKeyModal({
           onClick={onClose}
           className="w-full px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800"
         >
-          我已保存，关闭
+          {m.apiKeys_savedClose()}
         </button>
       </div>
     </div>
@@ -123,14 +125,16 @@ export default function ApiKeysPage() {
     <div className="max-w-5xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">API Keys</h1>
-          <p className="text-sm text-slate-500 mt-1">通过 API Key 访问 <code className="text-xs">/api/v1/*</code> 端点</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.apiKeys_title()}</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            {m.apiKeys_subtitle({ path: "/api/v1/*" })}
+          </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
           className="px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800"
         >
-          + 创建 API Key
+          + {m.apiKeys_createButton()}
         </button>
       </div>
 
@@ -138,24 +142,24 @@ export default function ApiKeysPage() {
 
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
         {loading && keys.length === 0 ? (
-          <StateMessage variant="loading" message="加载 API Keys..." />
+          <StateMessage variant="loading" message={m.apiKeys_loading()} />
         ) : keys.length === 0 ? (
           <StateMessage
             variant="empty"
-            title="还没有 API Key"
-            description="点击右上角创建第一个 API Key"
+            title={m.apiKeys_emptyTitle()}
+            description={m.apiKeys_emptyDescription()}
           />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3 text-left">名称</th>
-                <th className="px-4 py-3 text-left">Key</th>
-                <th className="px-4 py-3 text-left">状态</th>
-                <th className="px-4 py-3 text-left">最后使用</th>
-                <th className="px-4 py-3 text-left">过期时间</th>
-                <th className="px-4 py-3 text-left">创建时间</th>
-                <th className="px-4 py-3 text-right w-20">操作</th>
+                <th className="px-4 py-3 text-left">{m.apiKeys_columnName()}</th>
+                <th className="px-4 py-3 text-left">{m.apiKeys_columnKey()}</th>
+                <th className="px-4 py-3 text-left">{m.apiKeys_columnStatus()}</th>
+                <th className="px-4 py-3 text-left">{m.apiKeys_columnLastUsed()}</th>
+                <th className="px-4 py-3 text-left">{m.apiKeys_columnExpiresAt()}</th>
+                <th className="px-4 py-3 text-left">{m.apiKeys_columnCreatedAt()}</th>
+                <th className="px-4 py-3 text-right w-20">{m.apiKeys_columnActions()}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -172,15 +176,15 @@ export default function ApiKeysPage() {
                   <td className="px-4 py-3">
                     {k.isRevoked ? (
                       <span className="px-2 py-0.5 text-xs rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                        已吊销
+                        {m.apiKeys_statusRevoked()}
                       </span>
                     ) : k.expiresAt && new Date(k.expiresAt) < new Date() ? (
                       <span className="px-2 py-0.5 text-xs rounded bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
-                        已过期
+                        {m.apiKeys_statusExpired()}
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 text-xs rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                        有效
+                        {m.apiKeys_statusActive()}
                       </span>
                     )}
                   </td>
@@ -191,11 +195,11 @@ export default function ApiKeysPage() {
                     {!k.isRevoked && (
                       <button
                         onClick={async () => {
-                          if (confirm(`确定吊销 "${k.name}"?`)) await revokeKey(k.id);
+                          if (confirm(m.apiKeys_revokeConfirm({ name: k.name }))) await revokeKey(k.id);
                         }}
                         className="text-xs text-slate-500 hover:text-red-500"
                       >
-                        吊销
+                        {m.apiKeys_revoke()}
                       </button>
                     )}
                   </td>
@@ -207,12 +211,12 @@ export default function ApiKeysPage() {
       </div>
 
       <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-sm text-blue-800 dark:text-blue-300">
-        <h3 className="font-medium mb-1">使用说明</h3>
+        <h3 className="font-medium mb-1">{m.apiKeys_helpTitle()}</h3>
         <ul className="text-xs space-y-1 list-disc list-inside">
-          <li>API Key 格式：<code className="bg-blue-100 dark:bg-blue-900/40 px-1 rounded">op_</code> + 64 位十六进制</li>
-          <li>认证方式：HTTP Header <code className="bg-blue-100 dark:bg-blue-900/40 px-1 rounded">Authorization: Bearer op_xxx</code></li>
-          <li>完整 Key 仅在创建时显示一次，请立即保存</li>
-          <li>可吊销 Key 而非删除（吊销后无法恢复，但保留审计记录）</li>
+          <li>{m.apiKeys_formatHelp({ prefix: "op_" })}</li>
+          <li>{m.apiKeys_authHelp({ header: "Authorization: Bearer op_xxx" })}</li>
+          <li>{m.apiKeys_saveHelp()}</li>
+          <li>{m.apiKeys_revokeHelp()}</li>
         </ul>
       </div>
 
@@ -229,17 +233,17 @@ export default function ApiKeysPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              创建 API Key
+              {m.apiKeys_createModalTitle()}
             </h2>
             <div className="mb-4">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                名称
+                {m.apiKeys_nameLabel()}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="如：production-server"
+                placeholder={m.apiKeys_namePlaceholder()}
                 className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
                 maxLength={100}
                 required
@@ -248,13 +252,13 @@ export default function ApiKeysPage() {
             </div>
             <div className="mb-6">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                过期天数（可选）
+                {m.apiKeys_expiresLabel()}
               </label>
               <input
                 type="number"
                 value={expiresInDays}
                 onChange={(e) => setExpiresInDays(e.target.value)}
-                placeholder="留空表示永不过期"
+                placeholder={m.apiKeys_expiresPlaceholder()}
                 min={1}
                 max={365}
                 className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
@@ -266,14 +270,14 @@ export default function ApiKeysPage() {
                 onClick={() => setShowCreate(false)}
                 className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
               >
-                取消
+                {m.common_cancel()}
               </button>
               <button
                 type="submit"
                 disabled={!name.trim() || submitting}
                 className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
               >
-                {submitting ? "创建中..." : "创建"}
+                {submitting ? m.apiKeys_creating() : m.apiKeys_create()}
               </button>
             </div>
           </form>

@@ -6,6 +6,7 @@
 
 import { createClient, ENDPOINTS } from "@oura-pix/api-client";
 import { LOCALE_HEADER, type Locale } from "@oura-pix/i18n";
+import * as m from "@/paraglide/messages.js";
 import { getLocale } from "@/paraglide/runtime.js";
 import type {
   SignInInput,
@@ -62,7 +63,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
     const message =
       typeof error === "string"
         ? error
-        : error?.message ?? error?.code ?? `Request failed: ${response.status}`;
+        : error?.message ?? error?.code ?? m.common_requestFailed();
     throw new Error(message);
   }
   if (!json.success) {
@@ -70,7 +71,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
     const message =
       typeof error === "string"
         ? error
-        : error?.message ?? error?.code ?? "Request failed";
+        : error?.message ?? error?.code ?? m.common_requestFailed();
     throw new Error(message);
   }
   return json.data as T;

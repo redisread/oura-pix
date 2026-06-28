@@ -9,20 +9,27 @@
 import { useState } from "react";
 import { useTeams, type Team } from "@/hooks/useTeams";
 import { StateMessage } from "@/components/StateMessage";
+import { formatLocaleDate } from "@/lib/locale";
+import * as m from "@/paraglide/messages.js";
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("zh-CN", {
+  return formatLocaleDate(dateString, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
 }
 
-const ROLE_LABELS: Record<Team["role"], string> = {
-  owner: "所有者",
-  admin: "管理员",
-  member: "成员",
-};
+function getRoleLabel(role: Team["role"]): string {
+  switch (role) {
+    case "owner":
+      return m.teams_role_owner();
+    case "admin":
+      return m.teams_role_admin();
+    case "member":
+      return m.teams_role_member();
+  }
+}
 
 const ROLE_COLORS: Record<Team["role"], string> = {
   owner: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
@@ -82,21 +89,21 @@ export default function TeamsPage() {
     <div className="max-w-5xl mx-auto p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">团队</h1>
-          <p className="text-sm text-slate-500 mt-1">协作共享生成历史</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.teams_title()}</h1>
+          <p className="text-sm text-slate-500 mt-1">{m.teams_subtitle()}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setShowJoin(true)}
             className="px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
           >
-            加入团队
+            {m.teams_joinTeam()}
           </button>
           <button
             onClick={() => setShowCreate(true)}
             className="px-3 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
           >
-            + 创建团队
+            {m.teams_createTeam()}
           </button>
         </div>
       </div>
@@ -104,12 +111,12 @@ export default function TeamsPage() {
       {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
       {loading && teams.length === 0 ? (
-        <StateMessage variant="loading" message="加载团队..." />
+        <StateMessage variant="loading" message={m.teams_loading()} />
       ) : teams.length === 0 ? (
         <StateMessage
           variant="empty"
-          title="还没有加入任何团队"
-          description="创建或加入团队开始协作"
+          title={m.teams_emptyTitle()}
+          description={m.teams_emptyDescription()}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -124,14 +131,17 @@ export default function TeamsPage() {
                   {team.name}
                 </h3>
                 <span className={`px-2 py-0.5 text-xs rounded ${ROLE_COLORS[team.role]}`}>
-                  {ROLE_LABELS[team.role]}
+                  {getRoleLabel(team.role)}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mb-2">
-                {team.memberCount} 成员 · 创建于 {formatDate(team.createdAt)}
+                {m.teams_memberCountCreated({
+                  count: team.memberCount.toString(),
+                  date: formatDate(team.createdAt),
+                })}
               </p>
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-500">邀请码:</span>
+                <span className="text-slate-500">{m.teams_inviteCode()}</span>
                 <CopyableCode code={team.inviteCode} />
               </div>
             </a>
@@ -152,17 +162,17 @@ export default function TeamsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              创建团队
+              {m.teams_createTitle()}
             </h2>
             <div className="mb-4">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                团队名称
+                {m.teams_teamName()}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="如：电商产品组"
+                placeholder={m.teams_teamNamePlaceholder()}
                 className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800"
                 maxLength={100}
                 required
@@ -175,14 +185,14 @@ export default function TeamsPage() {
                 onClick={() => setShowCreate(false)}
                 className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
               >
-                取消
+                {m.common_cancel()}
               </button>
               <button
                 type="submit"
                 disabled={!name.trim()}
                 className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
               >
-                创建
+                {m.teams_create()}
               </button>
             </div>
           </form>
@@ -202,11 +212,11 @@ export default function TeamsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              加入团队
+              {m.teams_joinTitle()}
             </h2>
             <div className="mb-4">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                邀请码
+                {m.teams_inviteCodeLabel()}
               </label>
               <input
                 type="text"
@@ -224,14 +234,14 @@ export default function TeamsPage() {
                 onClick={() => setShowJoin(false)}
                 className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
               >
-                取消
+                {m.common_cancel()}
               </button>
               <button
                 type="submit"
                 disabled={!inviteCode.trim()}
                 className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50"
               >
-                加入
+                {m.teams_join()}
               </button>
             </div>
           </form>

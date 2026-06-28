@@ -5,6 +5,37 @@ import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 
 export default function HomePage() {
+  const features = [
+    {
+      key: "ai",
+      icon: Sparkles,
+      title: m.home_featureAiTitle(),
+      desc: m.home_featureAiDesc(),
+      color: "from-[hsl(var(--primary))] to-violet-500",
+    },
+    {
+      key: "language",
+      icon: Globe,
+      title: m.home_featureLanguageTitle(),
+      desc: m.home_featureLanguageDesc(),
+      color: "from-cyan-500 to-blue-500",
+    },
+    {
+      key: "export",
+      icon: Zap,
+      title: m.home_featureExportTitle(),
+      desc: m.home_featureExportDesc(),
+      color: "from-amber-500 to-orange-500",
+    },
+    {
+      key: "secure",
+      icon: Shield,
+      title: m.home_featureSecureTitle(),
+      desc: m.home_featureSecureDesc(),
+      color: "from-emerald-500 to-green-500",
+    },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
@@ -23,7 +54,7 @@ export default function HomePage() {
               {/* Badge */}
               <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[hsl(var(--primary)/0.3)] bg-[hsl(var(--primary)/0.1)] px-4 py-1.5 text-sm animate-fade-in-up">
                 <span className="status-dot status-dot-online" />
-                <span className="text-foreground-muted">AI Powered Product Generation</span>
+                <span className="text-foreground-muted">{m.home_badge()}</span>
               </div>
 
               {/* Title */}
@@ -38,8 +69,7 @@ export default function HomePage() {
 
               {/* Subtitle */}
               <p className="mt-6 max-w-2xl text-lg text-foreground-muted animate-fade-in-up stagger-3">
-                Transform your product images into stunning detail pages with AI.
-                Generate professional content for Amazon, Shopify, eBay, and more.
+                {m.home_subtitle()}
               </p>
 
               {/* CTA Buttons */}
@@ -69,42 +99,17 @@ export default function HomePage() {
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-foreground sm:text-4xl animate-fade-in-up">
-                Everything you need
+                {m.home_featuresTitle()}
               </h2>
               <p className="mt-4 text-lg text-foreground-muted">
-                Create stunning product pages in minutes
+                {m.home_featuresSubtitle()}
               </p>
             </div>
 
             <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                {
-                  icon: Sparkles,
-                  title: "AI Generation",
-                  desc: "Generate pages with AI",
-                  color: "from-[hsl(var(--primary))] to-violet-500",
-                },
-                {
-                  icon: Globe,
-                  title: "Multi-language",
-                  desc: "Support for multiple languages",
-                  color: "from-cyan-500 to-blue-500",
-                },
-                {
-                  icon: Zap,
-                  title: "Fast Export",
-                  desc: "Export in multiple formats",
-                  color: "from-amber-500 to-orange-500",
-                },
-                {
-                  icon: Shield,
-                  title: "Secure & Private",
-                  desc: "Your data stays protected",
-                  color: "from-emerald-500 to-green-500",
-                },
-              ].map((feature, index) => (
+              {features.map((feature, index) => (
                 <div
-                  key={feature.title}
+                  key={feature.key}
                   className="card card-hover p-6 animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -126,10 +131,10 @@ export default function HomePage() {
               <div className="absolute inset-0 gradient-radial opacity-50" />
               <div className="relative">
                 <h2 className="text-3xl font-bold text-foreground sm:text-4xl">
-                  Ready to get started?
+                  {m.home_ctaTitle()}
                 </h2>
                 <p className="mt-4 text-lg text-foreground-muted">
-                  Create your first product page in minutes
+                  {m.home_ctaSubtitle()}
                 </p>
                 <div className="mt-10">
                   <a
@@ -137,7 +142,7 @@ export default function HomePage() {
                     className="btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-medium"
                   >
                     <Sparkles className="h-5 w-5" />
-                    Start Generating
+                    {m.home_ctaButton()}
                     <ArrowRight className="h-4 w-4" />
                   </a>
                 </div>

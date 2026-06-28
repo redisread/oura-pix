@@ -8,6 +8,7 @@
 type ErrorContext = Record<string, unknown>;
 
 import { apiFetch } from "./api";
+import * as m from "@/paraglide/messages.js";
 
 interface ReportErrorPayload {
   message: string;
@@ -61,7 +62,7 @@ async function send(payload: ReportErrorPayload): Promise<void> {
 function toErrorPayload(error: unknown, context: ErrorContext = {}): ReportErrorPayload {
   if (error instanceof Error) {
     return {
-      message: error.message || error.name || "Unknown error",
+      message: error.message || error.name || m.common_unknownError(),
       stack: error.stack,
       severity: inferSeverity(error.message),
       type: inferType(error.message, error.stack),
@@ -74,7 +75,7 @@ function toErrorPayload(error: unknown, context: ErrorContext = {}): ReportError
     };
   }
   return {
-    message: typeof error === "string" ? error : "Unknown error",
+    message: typeof error === "string" ? error : m.common_unknownError(),
     severity: "medium",
     type: "unknown",
     module: "frontend",

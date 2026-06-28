@@ -7,6 +7,7 @@
 import { useState } from "react";
 import * as m from "@/paraglide/messages.js";
 import type { Favorite } from "@/hooks/useFavorites";
+import { formatLocaleDate } from "@/lib/locale";
 
 interface FavoriteCardProps {
   favorite: Favorite;
@@ -25,7 +26,7 @@ function formatTime(dateString: string): string {
 
   if (diffDays < 1) return m.common_today();
   if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return date.toLocaleDateString("zh-CN");
+  return formatLocaleDate(date);
 }
 
 function getPlatformLabel(platform?: string): string {

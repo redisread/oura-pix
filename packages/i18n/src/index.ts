@@ -28,6 +28,7 @@ export interface TemplateTranslation {
 
 interface ServerMessages {
   api: Record<string, string>;
+  mail: Record<string, string>;
   notifications: Record<string, { title: string; message: string }>;
   categories: CategoryTranslation[];
   templates: TemplateTranslation[];
@@ -157,6 +158,15 @@ export function serverMessage(
   values: Record<string, string | number> = {}
 ): string {
   const template = SERVER_MESSAGES[locale].api[key] ?? SERVER_MESSAGES[DEFAULT_LOCALE].api[key];
+  return template ? formatTemplate(template, values) : String(key);
+}
+
+export function mailMessage(
+  locale: Locale,
+  key: keyof ServerMessages["mail"],
+  values: Record<string, string | number> = {}
+): string {
+  const template = SERVER_MESSAGES[locale].mail[key] ?? SERVER_MESSAGES[DEFAULT_LOCALE].mail[key];
   return template ? formatTemplate(template, values) : String(key);
 }
 

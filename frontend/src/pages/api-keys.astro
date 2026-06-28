@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ApiKeysPage from '../components/keys/ApiKeysPage';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="API Keys">
+<Layout title={m.meta_apiKeysTitle()}>
   <ApiKeysPage client:load />
 </Layout>

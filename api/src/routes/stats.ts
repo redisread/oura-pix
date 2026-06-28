@@ -8,6 +8,7 @@ import { Hono } from 'hono';
 import { getUser } from '../middleware/auth';
 import { getUserStats, type TimeRange } from '../services/statsService';
 import { createDb } from '@oura-pix/database';
+import { apiMessage } from "../lib/i18n";
 
 const stats = new Hono<{
   Bindings: {
@@ -30,14 +31,14 @@ stats.get('/', async (c) => {
   try {
     const user = getUser(c);
     if (!user) {
-      return c.json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } }, 401);
+      return c.json({ success: false, error: { code: 'UNAUTHORIZED', message: apiMessage(c, "unauthorized") } }, 401);
     }
 
     const range = (c.req.query('range') || '30d') as TimeRange;
     const validRanges: TimeRange[] = ['7d', '30d', '90d', 'all'];
 
     if (!validRanges.includes(range)) {
-      return c.json({ success: false, error: { code: 'BAD_REQUEST', message: 'Invalid range parameter' } }, 400);
+      return c.json({ success: false, error: { code: 'BAD_REQUEST', message: apiMessage(c, "badRequest") } }, 400);
     }
 
     const db = createDb(c.env.DB);
@@ -49,7 +50,7 @@ stats.get('/', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching stats:', error);
-    return c.json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch statistics' } }, 500);
+    return c.json({ success: false, error: { code: 'INTERNAL_ERROR', message: apiMessage(c, "internalError") } }, 500);
   }
 });
 

@@ -8,21 +8,28 @@
 
 import { useState } from "react";
 import { localizeHref } from "@/paraglide/runtime.js";
+import * as m from "@/paraglide/messages.js";
 import { useTeam, type TeamMember, type TeamRole } from "@/hooks/useTeams";
+import { formatLocaleDate } from "@/lib/locale";
 
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleString("zh-CN", {
+  return formatLocaleDate(dateString, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
 }
 
-const ROLE_LABELS: Record<TeamRole, string> = {
-  owner: "所有者",
-  admin: "管理员",
-  member: "成员",
-};
+function getRoleLabel(role: TeamRole): string {
+  switch (role) {
+    case "owner":
+      return m.teams_role_owner();
+    case "admin":
+      return m.teams_role_admin();
+    case "member":
+      return m.teams_role_member();
+  }
+}
 
 const ROLE_COLORS: Record<TeamRole, string> = {
   owner: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
@@ -38,7 +45,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
   const [confirmAction, setConfirmAction] = useState<"leave" | "delete" | null>(null);
 
   if (loading && !team) {
-    return <div className="text-center py-12 text-slate-500">加载中...</div>;
+    return <div className="text-center py-12 text-slate-500">{m.common_loading()}</div>;
   }
 
   if (error && !team) {
@@ -85,7 +92,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
         <a href={localizeHref("/teams")} className="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
-          ← 返回团队列表
+          {m.teams_backToList()}
         </a>
       </div>
 
@@ -105,13 +112,13 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
                   onClick={handleSaveName}
                   className="px-3 py-1.5 text-sm bg-slate-900 text-white rounded"
                 >
-                  保存
+                  {m.common_save()}
                 </button>
                 <button
                   onClick={() => setEditingName(false)}
                   className="px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded"
                 >
-                  取消
+                  {m.common_cancel()}
                 </button>
               </div>
             ) : (
@@ -125,22 +132,25 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
                     }}
                     className="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                   >
-                    编辑
+                    {m.common_edit()}
                   </button>
                 )}
               </div>
             )}
             <p className="text-sm text-slate-500 mt-1">
-              {team.memberCount} 成员 · 创建于 {formatDate(team.createdAt)}
+              {m.teams_memberCountCreated({
+                count: team.memberCount.toString(),
+                date: formatDate(team.createdAt),
+              })}
             </p>
           </div>
           <span className={`px-3 py-1 text-sm rounded ${ROLE_COLORS[team.role]}`}>
-            你是 {ROLE_LABELS[team.role]}
+            {m.teams_youAreRole({ role: getRoleLabel(team.role) })}
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800 p-3 rounded">
-          <span className="text-slate-500">邀请码:</span>
+          <span className="text-slate-500">{m.teams_inviteCode()}</span>
           <code className="font-mono text-slate-900 dark:text-slate-100">{team.inviteCode}</code>
           <button
             onClick={async () => {
@@ -152,7 +162,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
             }}
             className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
           >
-            复制
+            {m.common_copy()}
           </button>
         </div>
 
@@ -162,7 +172,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
               onClick={() => setConfirmAction("leave")}
               className="px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              退出团队
+              {m.teams_leaveTeam()}
             </button>
           )}
           {isOwner && (
@@ -170,62 +180,62 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
               onClick={() => setConfirmAction("delete")}
               className="px-3 py-1.5 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
             >
-              解散团队
+              {m.teams_deleteTeam()}
             </button>
           )}
         </div>
       </div>
 
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">成员</h2>
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">{m.teams_membersTitle()}</h2>
       <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 dark:bg-slate-800 text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-3 text-left">用户</th>
-              <th className="px-4 py-3 text-left">角色</th>
-              <th className="px-4 py-3 text-left">加入时间</th>
-              <th className="px-4 py-3 text-right w-32">操作</th>
+              <th className="px-4 py-3 text-left">{m.teams_columnUser()}</th>
+              <th className="px-4 py-3 text-left">{m.teams_columnRole()}</th>
+              <th className="px-4 py-3 text-left">{m.teams_columnJoinedAt()}</th>
+              <th className="px-4 py-3 text-right w-32">{m.teams_columnActions()}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-            {team.members.map((m) => (
-              <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+            {team.members.map((member) => (
+              <tr key={member.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <td className="px-4 py-3">
                   <div className="text-slate-900 dark:text-slate-100">
-                    {m.user?.name ?? "(未命名)"}
+                    {member.user?.name ?? m.teams_unnamedUser()}
                   </div>
-                  <div className="text-xs text-slate-500">{m.user?.email}</div>
+                  <div className="text-xs text-slate-500">{member.user?.email}</div>
                 </td>
                 <td className="px-4 py-3">
-                  {isOwner && m.role !== "owner" ? (
+                  {isOwner && member.role !== "owner" ? (
                     <select
-                      value={m.role}
+                      value={member.role}
                       onChange={async (e) => {
-                        await updateMemberRole(m.userId, e.target.value as "admin" | "member");
+                        await updateMemberRole(member.userId, e.target.value as "admin" | "member");
                       }}
-                      className={`px-2 py-0.5 text-xs rounded ${ROLE_COLORS[m.role]}`}
+                      className={`px-2 py-0.5 text-xs rounded ${ROLE_COLORS[member.role]}`}
                     >
-                      <option value="admin">admin</option>
-                      <option value="member">member</option>
+                      <option value="admin">{m.teams_role_admin()}</option>
+                      <option value="member">{m.teams_role_member()}</option>
                     </select>
                   ) : (
-                    <span className={`px-2 py-0.5 text-xs rounded ${ROLE_COLORS[m.role]}`}>
-                      {ROLE_LABELS[m.role]}
+                    <span className={`px-2 py-0.5 text-xs rounded ${ROLE_COLORS[member.role]}`}>
+                      {getRoleLabel(member.role)}
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-slate-500 text-xs">{formatDate(m.joinedAt)}</td>
+                <td className="px-4 py-3 text-slate-500 text-xs">{formatDate(member.joinedAt)}</td>
                 <td className="px-4 py-3 text-right">
-                  {canManageMember(m) && (
+                  {canManageMember(member) && (
                     <button
                       onClick={async () => {
-                        if (confirm(`确定移除 ${m.user?.name ?? m.user?.email}?`)) {
-                          await removeMember(m.userId);
+                        if (confirm(m.teams_removeMemberConfirm({ name: member.user?.name ?? member.user?.email ?? "" }))) {
+                          await removeMember(member.userId);
                         }
                       }}
                       className="text-xs text-slate-500 hover:text-red-500"
                     >
-                      移除
+                      {m.teams_removeMember()}
                     </button>
                   )}
                 </td>
@@ -240,7 +250,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
           href={`/teams/${teamId}/generations`}
           className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
         >
-          查看团队生成历史 →
+          {m.teams_viewGenerations()}
         </a>
       </div>
 
@@ -256,25 +266,25 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-              {confirmAction === "delete" ? "解散团队" : "退出团队"}
+              {confirmAction === "delete" ? m.teams_deleteConfirmTitle() : m.teams_leaveConfirmTitle()}
             </h2>
             <p className="text-sm text-slate-500 mb-4">
               {confirmAction === "delete"
-                ? "解散后所有成员将失去访问权限，且无法恢复。确定继续？"
-                : "退出后将无法访问该团队的生成历史。确定继续？"}
+                ? m.teams_deleteConfirmDescription()
+                : m.teams_leaveConfirmDescription()}
             </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setConfirmAction(null)}
                 className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded"
               >
-                取消
+                {m.common_cancel()}
               </button>
               <button
                 onClick={confirmAction === "delete" ? handleDelete : handleLeave}
                 className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
               >
-                确认
+                {m.common_confirm()}
               </button>
             </div>
           </div>

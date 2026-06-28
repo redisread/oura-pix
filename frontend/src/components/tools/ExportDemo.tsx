@@ -8,6 +8,7 @@
 
 import { useState, useRef } from "react";
 import ExportDialog from "./ExportDialog";
+import * as m from "@/paraglide/messages.js";
 
 export default function ExportDemo() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -17,27 +18,27 @@ export default function ExportDemo() {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">导出格式与质量</h1>
-        <p className="text-sm text-slate-500 mt-1">多格式输出 + 质量预设 + 平台尺寸</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{m.tool_exportTitle()}</h1>
+        <p className="text-sm text-slate-500 mt-1">{m.tool_exportSubtitle()}</p>
       </div>
 
       {imageUrl ? (
         <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded mb-4 p-4 min-h-[300px]">
-            <img src={imageUrl} alt="Selected" className="max-w-full max-h-[400px] object-contain" loading="lazy" decoding="async" />
+            <img src={imageUrl} alt={m.tool_preview()} className="max-w-full max-h-[400px] object-contain" loading="lazy" decoding="async" />
           </div>
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => fileInputRef.current?.click()}
               className="px-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              更换图片
+              {m.common_changeImage()}
             </button>
             <button
               onClick={() => setShowDialog(true)}
               className="px-4 py-2 text-sm bg-slate-900 text-white rounded hover:bg-slate-800"
             >
-              导出...
+              {m.tool_exportAction()}
             </button>
           </div>
         </div>
@@ -58,9 +59,9 @@ export default function ExportDemo() {
             htmlFor="export-input"
             className="inline-block cursor-pointer px-6 py-3 bg-slate-900 text-white rounded hover:bg-slate-800"
           >
-            选择图片
+            {m.common_selectImage()}
           </label>
-          <p className="text-xs text-slate-500 mt-3">支持 PNG / JPG / WebP</p>
+          <p className="text-xs text-slate-500 mt-3">{m.common_supportedImageFormats()}</p>
         </div>
       )}
 

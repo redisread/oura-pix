@@ -2,9 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import CompetitorsPage from '../components/competitors/CompetitorsPage';
 import ErrorBoundary from '../components/ErrorBoundary';
+import * as m from "@/paraglide/messages.js";
 ---
 
-<Layout title="竞品分析">
+<Layout title={m.meta_competitorsTitle()}>
   <ErrorBoundary client:load>
     <CompetitorsPage client:load />
   </ErrorBoundary>

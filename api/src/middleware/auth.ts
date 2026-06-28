@@ -7,6 +7,7 @@
 import { createMiddleware } from "hono/factory";
 import { type User as DBUser, type Session as DBSession } from "@oura-pix/database";
 import { createAuth, getSessionTokenFromHeaders } from "../lib/auth";
+import { apiMessage } from "../lib/i18n";
 
 export interface AuthContext {
   user: DBUser;
@@ -37,7 +38,7 @@ export const authMiddleware = createMiddleware<{
           success: false,
           error: {
             code: "UNAUTHORIZED",
-            message: "No authentication token provided",
+            message: apiMessage(c, "unauthorized"),
           },
         },
         401
@@ -57,7 +58,7 @@ export const authMiddleware = createMiddleware<{
           success: false,
           error: {
             code: "UNAUTHORIZED",
-            message: "Invalid or expired session",
+            message: apiMessage(c, "unauthorized"),
           },
         },
         401
@@ -77,7 +78,7 @@ export const authMiddleware = createMiddleware<{
         success: false,
         error: {
           code: "UNAUTHORIZED",
-          message: "Authentication failed",
+          message: apiMessage(c, "unauthorized"),
         },
       },
       401

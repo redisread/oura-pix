@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PricingPage from '../components/PricingPage';
+import * as m from "@/paraglide/messages.js";
 
-const title = "Pricing - OuraPix";
-const description = "Choose the right plan for your needs";
+const title = m.meta_pricingTitle();
+const description = m.meta_pricingDescription();
 ---
 
 <Layout title={title} description={description}>

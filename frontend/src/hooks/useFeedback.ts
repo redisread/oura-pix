@@ -4,6 +4,7 @@
 
 import { useState, useCallback } from "react";
 import { apiJson } from "@/lib/api";
+import * as m from "@/paraglide/messages.js";
 
 export interface FeedbackItem {
   id: string;
@@ -38,7 +39,7 @@ export function useFeedback(generationId: string | null) {
       setList(listData);
       setStats(statsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load feedback");
+      setError(err instanceof Error ? err.message : m.common_loadFailed());
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,7 @@ export function useFeedback(generationId: string | null) {
         await fetchAll();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to submit");
+        setError(err instanceof Error ? err.message : m.common_submitFailed());
         return false;
       }
     },
