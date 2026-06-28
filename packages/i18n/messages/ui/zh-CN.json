@@ -393,6 +393,8 @@
   "home_ctaSubtitle": "几分钟内创建第一个商品页",
   "home_ctaButton": "开始生成",
   "footer_description": "AI 驱动的跨境电商商品详情页生成器",
+  "footer_generate": "生成",
+  "footer_pricing": "定价",
   "footer_product": "产品",
   "footer_support": "支持",
   "footer_documentation": "文档",
