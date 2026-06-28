@@ -49,3 +49,12 @@ export type NewUsageLog = typeof schema.usageLogs.$inferInsert;
 
 export type Favorite = typeof schema.favorites.$inferSelect;
 export type NewFavorite = typeof schema.favorites.$inferInsert;
+
+export type Survey = typeof schema.surveys.$inferSelect;
+export type NewSurvey = typeof schema.surveys.$inferInsert;
+
+export type SurveyQuestion = typeof schema.surveyQuestions.$inferSelect;
+export type NewSurveyQuestion = typeof schema.surveyQuestions.$inferInsert;
+
+export type SurveyResponse = typeof schema.surveyResponses.$inferSelect;
+export type NewSurveyResponse = typeof schema.surveyResponses.$inferInsert;

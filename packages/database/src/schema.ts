@@ -758,3 +758,133 @@ export const templates = sqliteTable("templates", {
   isPresetIdx: index("templates_isPreset_idx").on(table.isPreset),
   createdByIdx: index("templates_createdBy_idx").on(table.createdBy),
 }));
+
+/**
+ * 问卷类型枚举
+ */
+export const SurveyType = {
+  PREFERENCE: "preference",
+  FEEDBACK: "feedback",
+} as const;
+
+export type SurveyTypeType = typeof SurveyType[keyof typeof SurveyType];
+
+/**
+ * 问卷状态枚举
+ */
+export const SurveyStatus = {
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  ARCHIVED: "archived",
+} as const;
+
+export type SurveyStatusType = typeof SurveyStatus[keyof typeof SurveyStatus];
+
+/**
+ * 问题类型枚举
+ */
+export const QuestionType = {
+  TEXT: "text",
+  SINGLE_CHOICE: "single_choice",
+  MULTIPLE_CHOICE: "multiple_choice",
+  RATING: "rating",
+  YES_NO: "yes_no",
+} as const;
+
+export type QuestionTypeType = typeof QuestionType[keyof typeof QuestionType];
+
+/**
+ * 问卷表 - 定义问卷模板
+ * 用于生成前偏好问卷和生成后反馈问卷
+ */
+export const surveys = sqliteTable("surveys", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  // 问卷标题
+  title: text("title").notNull(),
+  // 问卷描述
+  description: text("description"),
+  // 问卷类型：preference(生成前偏好), feedback(生成后反馈)
+  surveyType: text("surveyType", { enum: ["preference", "feedback"] }).notNull(),
+  // 状态
+  status: text("status", { enum: ["draft", "published", "archived"] })
+    .notNull()
+    .default("draft"),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  surveyTypeIdx: index("surveys_surveyType_idx").on(table.surveyType),
+  statusIdx: index("surveys_status_idx").on(table.status),
+}));
+
+/**
+ * 问卷题目表
+ */
+export const surveyQuestions = sqliteTable("survey_questions", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  surveyId: text("surveyId")
+    .notNull()
+    .references(() => surveys.id, { onDelete: "cascade" }),
+  // 问题文本
+  question: text("question").notNull(),
+  // 问题类型
+  questionType: text("questionType", {
+    enum: ["text", "single_choice", "multiple_choice", "rating", "yes_no"],
+  }).notNull(),
+  // 选项（JSON 字符串数组，仅用于 single_choice / multiple_choice）
+  options: text("options").$type<string[]>().default([]),
+  // 是否必填
+  required: integer("required", { mode: "boolean" }).notNull().default(true),
+  // 排序序号
+  sortOrder: integer("sortOrder").notNull().default(0),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  surveyIdIdx: index("survey_questions_surveyId_idx").on(table.surveyId),
+  surveyIdSortOrderIdx: index("survey_questions_surveyId_sortOrder_idx").on(table.surveyId, table.sortOrder),
+}));
+
+/**
+ * 问卷回答表
+ *
+ * 存储用户对问卷的回答。通过 answers JSON 列存储 key=questionId, value=answer 的映射。
+ * generationId 可选：preference 问卷无关联，feedback 问卷关联到具体生成任务。
+ */
+export const surveyResponses = sqliteTable("survey_responses", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  // 关联的问卷
+  surveyId: text("surveyId")
+    .notNull()
+    .references(() => surveys.id, { onDelete: "cascade" }),
+  // 关联的生成任务（preference 问卷为 null，feedback 问卷关联到具体生成）
+  generationId: text("generationId")
+    .references(() => generations.id, { onDelete: "set null" }),
+  // 答案（JSON，key=questionId, value=用户回答）
+  answers: text("answers", { mode: "json" }).$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(strftime('%s', 'now') * 1000)`),
+}, (table) => ({
+  userIdIdx: index("survey_responses_userId_idx").on(table.userId),
+  surveyIdIdx: index("survey_responses_surveyId_idx").on(table.surveyId),
+  generationIdIdx: index("survey_responses_generationId_idx").on(table.generationId),
+  // 同一用户对同一问卷同一生成任务只允许一条回答
+  // SQLite 中 NULL 在 unique 约束中被视为不同的值，因此 preference 问卷（genId=null）
+  // 允许多条回答；feedback 问卷（genId 有值）每条唯一
+  uniqueResponse: uniqueIndex("survey_responses_unique_idx").on(
+    table.userId, table.surveyId, table.generationId
+  ),
+}));
