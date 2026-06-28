@@ -33,19 +33,40 @@ function formatTime(dateString: string): string {
   return formatLocaleDate(date);
 }
 
-function getStatusInfo(status: string): { label: string; badge: string } {
+function getStatusInfo(status: string): { label: string; badge: string; progress: number; progressText: string } {
   switch (status) {
     case "success":
     case "completed":
-      return { label: m.profile_history_status_completed(), badge: "status-badge-success" };
+      return {
+        label: m.profile_history_status_completed(),
+        badge: "status-badge-success",
+        progress: 100,
+        progressText: m.generation_stage_completed(),
+      };
     case "processing":
+      return {
+        label: m.profile_history_status_processing(),
+        badge: "status-badge-warning",
+        progress: 70,
+        progressText: "生成中...",
+      };
     case "pending":
-      return { label: m.profile_history_status_processing(), badge: "status-badge-warning" };
+      return {
+        label: m.profile_history_status_processing(),
+        badge: "status-badge-warning",
+        progress: 10,
+        progressText: "排队中...",
+      };
     case "failed":
     case "error":
-      return { label: m.profile_history_status_failed(), badge: "status-badge-error" };
+      return {
+        label: m.profile_history_status_failed(),
+        badge: "status-badge-error",
+        progress: 0,
+        progressText: "生成失败",
+      };
     default:
-      return { label: status, badge: "status-badge-neutral" };
+      return { label: status, badge: "status-badge-neutral", progress: 0, progressText: status };
   }
 }
 
@@ -115,6 +136,30 @@ export default function GenerationCard({
         <div className={`status-badge absolute left-2 top-2 ${statusInfo.badge}`}>
           {statusInfo.label}
         </div>
+
+        {/* Progress Bar (P0 T2 #84) - shown for pending/processing */}
+        {(generation.status === "pending" || generation.status === "processing") && (
+          <div className="absolute bottom-0 left-0 right-0 bg-[hsl(var(--foreground)/0.78)] p-2">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium text-[hsl(var(--background))]">
+                {statusInfo.progressText}
+              </span>
+              <span className="text-xs font-semibold text-[hsl(var(--background))]">
+                {statusInfo.progress}%
+              </span>
+            </div>
+            <div className="h-1 w-full overflow-hidden rounded-full bg-[hsl(var(--background)/0.3)]">
+              <div
+                className="h-1 rounded-full bg-[hsl(var(--primary))] transition-all duration-500 ease-out"
+                style={{ width: `${statusInfo.progress}%` }}
+                role="progressbar"
+                aria-valuenow={statusInfo.progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              />
+            </div>
+          </div>
+        )}
 
         {generation.generatedImages.length > 0 && (
           <div className="status-badge absolute right-2 top-2 bg-[hsl(var(--foreground)/0.78)] text-[hsl(var(--background))]">
