@@ -20,7 +20,7 @@ export default function Footer() {
               <span className="font-display text-xl font-semibold text-foreground">OuraPix</span>
             </div>
             <p className="mt-4 text-sm text-foreground-muted max-w-sm">
-              A product photo workbench for cross-border listings, scene assets, and marketplace-ready copy.
+              {m.footer_description()}
             </p>
           </div>
 
@@ -30,12 +30,12 @@ export default function Footer() {
             <ul className="mt-4 space-y-2">
               <li>
                 <a href={localizeHref("/generate")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
-                  Generate
+                  {m.footer_generate()}
                 </a>
               </li>
               <li>
                 <a href={localizeHref("/pricing")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
-                  Pricing
+                  {m.footer_pricing()}
                 </a>
               </li>
             </ul>
@@ -46,12 +46,12 @@ export default function Footer() {
             <ul className="mt-4 space-y-2">
               <li>
                 <a href={localizeHref("/docs")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
-                  Documentation
+                  {m.footer_documentation()}
                 </a>
               </li>
               <li>
                 <a href={localizeHref("/blog")} className="text-sm text-foreground-muted transition-colors hover:text-foreground">
-                  Blog
+                  {m.footer_blog()}
                 </a>
               </li>
             </ul>
