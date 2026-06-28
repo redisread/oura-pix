@@ -1,0 +1,15 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SettingsLayout from '../../layouts/SettingsLayout.astro';
+import ProfilePage from '../../components/ProfilePage';
+import * as m from "@/paraglide/messages.js";
+
+const title = m.meta_profileTitle();
+const description = m.meta_profileDescription();
+---
+
+<Layout title={title} description={description}>
+  <SettingsLayout title={title} currentKey="account">
+    <ProfilePage client:load />
+  </SettingsLayout>
+</Layout>
