@@ -10,7 +10,7 @@ import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
 import CompareView from "./compare/CompareView";
 import PromptTemplates, { type PromptTemplate } from "./generation/PromptTemplates";
 import { uploadImage } from "@/lib/api";
-import { createGeneration, getGeneration } from "@/lib/generation";
+import { createGeneration, getGeneration, previewGeneration } from "@/lib/generation";
 import { useToast, ToastProvider } from "./ui/Toast";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
@@ -78,6 +78,8 @@ export default function GeneratePage() {
   const [generatedResults, setGeneratedResults] = useState<GeneratedResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showCompare, setShowCompare] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [previewResult, setPreviewResult] = useState<{ title: string; description: string; keywords: string[] } | null>(null);
   const [promptText, setPromptText] = useState(""); // P0 T5 #87
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -232,6 +234,47 @@ export default function GeneratePage() {
   };
 
   const canGenerate = mainImage.length > 0 && !isGenerating && !isUploading;
+
+  // P0 T4 #86 - Preview one variant
+  const handlePreview = async () => {
+    if (mainImage.length === 0) {
+      setError(m.generation_error_noImage());
+      return;
+    }
+    setError(null);
+    setIsPreviewing(true);
+    setPreviewResult(null);
+
+    try {
+      let productImageId: string | undefined;
+      const mainImageResult = await uploadImage(mainImage[0], "product");
+      if (mainImageResult?.id) {
+        productImageId = mainImageResult.id;
+      }
+
+      const result = await previewGeneration({
+        productImageId,
+        prompt: undefined,
+        settings: {
+          targetPlatform: settings.platform,
+          language: settings.language,
+          uiLocale: currentUiLocale(),
+          style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
+        },
+      });
+
+      if (!result.success || !result.data) {
+        setError(result.error || "预览失败");
+        return;
+      }
+
+      setPreviewResult(result.data.preview);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "预览失败");
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
 
   return (
     <ToastProvider>
@@ -558,39 +601,107 @@ export default function GeneratePage() {
                 </div>
               )}
 
-              {/* Generate Button */}
-              <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={!canGenerate}
-                className={`
-                  btn-primary w-full h-12 text-base flex items-center justify-center gap-2
-                  ${canGenerate
-                    ? ""
-                    : "opacity-50 cursor-not-allowed"
-                  }
-                `}
-              >
-                {isUploading ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    {m.generation_uploadingBtn()}
-                  </>
-                ) : isGenerating ? (
-                  <>
-                    <Sparkles className="h-5 w-5 animate-pulse" />
-                    {m.generation_generatingBtn()}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-5 w-5" />
-                    {m.generation_generateBtn()}
-                  </>
-                )}
-              </button>
+              {/* Preview & Generate Buttons (P0 T4 #86) */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handlePreview}
+                  disabled={!canGenerate || isPreviewing || isUploading}
+                  className={`
+                    btn-secondary flex-1 h-12 text-base flex items-center justify-center gap-2
+                    ${!canGenerate || isPreviewing || isUploading
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                    }
+                  `}
+                >
+                  {isPreviewing ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      预览中...
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-5 w-5" />
+                      预览
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  disabled={!canGenerate}
+                  className={`
+                    btn-primary flex-1 h-12 text-base flex items-center justify-center gap-2
+                    ${canGenerate
+                      ? ""
+                      : "opacity-50 cursor-not-allowed"
+                    }
+                  `}
+                >
+                  {isUploading ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      {m.generation_uploadingBtn()}
+                    </>
+                  ) : isGenerating ? (
+                    <>
+                      <Sparkles className="h-5 w-5 animate-pulse" />
+                      {m.generation_generatingBtn()}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-5 w-5" />
+                      {m.generation_generateBtn()}
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Preview Result (P0 T4 #86) */}
+              {previewResult && (
+                <div className="mt-4 p-4 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground-muted uppercase tracking-wide">
+                      预览示例
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewResult(null)}
+                      className="text-xs text-foreground-muted hover:text-foreground"
+                      aria-label="关闭预览"
+                    >
+                      ✕ 关闭
+                    </button>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-foreground-muted mb-1">标题</div>
+                    <div className="text-sm font-semibold text-foreground">{previewResult.title}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-foreground-muted mb-1">描述</div>
+                    <div className="text-sm text-foreground">{previewResult.description}</div>
+                  </div>
+                  {previewResult.keywords.length > 0 && (
+                    <div>
+                      <div className="text-xs font-medium text-foreground-muted mb-1">关键词</div>
+                      <div className="flex flex-wrap gap-1">
+                        {previewResult.keywords.map((kw, idx) => (
+                          <span key={idx} className="status-badge status-badge-neutral text-xs">
+                            {kw}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
               </div>
             </div>
 

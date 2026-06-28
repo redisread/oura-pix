@@ -19,6 +19,7 @@ import {
   createGeneration,
   processGeneration,
 } from "../services/generation-service";
+import { generateProductCopy } from "../services/geminiService";
 import { getTeamForUser } from "../services/teamService";
 
 const router = new Hono<{
@@ -280,5 +281,115 @@ router.delete("/:id", async (c) => {
     success: true,
   });
 });
+
+// POST /api/generations/preview - Preview one variant (P0 T4 #86)
+export const previewGenerationSchema = z.object({
+  productImageId: z.string().optional(),
+  prompt: z.string().optional(),
+  settings: z.object({
+    targetPlatform: z.enum(["amazon", "ebay", "shopify", "etsy", "generic"]),
+    language: z.enum(["zh", "en", "ja"]),
+    uiLocale: z.enum(["zh-CN", "en", "ja"]).optional(),
+    style: z.enum(["professional", "lifestyle", "minimal", "luxury"]),
+    count: z.number().min(1).max(10).optional(),
+  }),
+});
+
+const validatePreviewGeneration = zValidator("json", previewGenerationSchema, (result, c) => {
+  if (!result.success) {
+    const locale = getLocale(c);
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: "BAD_REQUEST",
+          message: serverMessage(locale, "badRequest"),
+          details: z.flattenError(result.error),
+        },
+      },
+      400
+    );
+  }
+});
+
+router.post(
+  "/preview",
+  validatePreviewGeneration,
+  async (c) => {
+    const locale = getLocale(c);
+    const user = getUser(c);
+    if (!user) {
+      return c.json(
+        {
+          success: false,
+          error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
+        },
+        401
+      );
+    }
+
+    const body = c.req.valid("json");
+    const db = createDb(c.env.DB);
+
+    try {
+      let productImage: { url: string; mimeType: string } | null = null;
+      if (body.productImageId) {
+        const image = await db.query.images.findFirst({
+          where: (images, { eq }) => eq(images.id, body.productImageId!),
+        });
+        if (image) {
+          productImage = { url: image.url, mimeType: image.mimeType };
+        }
+      }
+
+      const settings = {
+        targetPlatform: body.settings.targetPlatform,
+        language: body.settings.language,
+        uiLocale: body.settings.uiLocale,
+        count: 1, // Preview forces count=1
+        style: body.settings.style,
+        generateImages: false,
+      };
+
+      const results = await generateProductCopy({
+        env: c.env,
+        productImage,
+        referenceImages: [],
+        prompt: body.prompt,
+        settings,
+      });
+
+      const first = results[0];
+      if (!first) {
+        return c.json(
+          {
+            success: false,
+            error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
+          },
+          500
+        );
+      }
+      return c.json({
+        success: true,
+        data: {
+          preview: {
+            title: first.title,
+            description: first.description,
+            keywords: first.tags ?? [],
+          },
+        },
+      });
+    } catch (error) {
+      console.error("[API] Preview generation error:", error);
+      return c.json(
+        {
+          success: false,
+          error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
+        },
+        500
+      );
+    }
+  }
+);
 
 export default router;

@@ -46,6 +46,54 @@ function apiErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
+// Preview generation (P0 T4 #86)
+export interface PreviewGenerationRequest {
+  productImageId?: string;
+  prompt?: string;
+  settings: {
+    targetPlatform: "amazon" | "ebay" | "shopify" | "etsy" | "generic";
+    language: GenerationLanguage;
+    uiLocale?: Locale;
+    style: "professional" | "lifestyle" | "minimal" | "luxury";
+  };
+}
+
+export interface PreviewGenerationResponse {
+  success: boolean;
+  data?: {
+    preview: {
+      title: string;
+      description: string;
+      keywords: string[];
+    };
+  };
+  error?: string;
+}
+
+export async function previewGeneration(
+  request: PreviewGenerationRequest
+): Promise<PreviewGenerationResponse> {
+  try {
+    const response = await api.post("/api/generations/preview", request);
+    const data = response.data;
+    if (!data.success || !data.data) {
+      return {
+        success: false,
+        error: apiErrorMessage(data.error, m.common_createFailed()),
+      };
+    }
+    return {
+      success: true,
+      data: data.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : m.common_createFailed(),
+    };
+  }
+}
+
 export interface GetGenerationResponse {
   success: boolean;
   data?: {
