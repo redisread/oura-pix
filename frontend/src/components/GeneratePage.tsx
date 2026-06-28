@@ -10,6 +10,7 @@ import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
 import CompareView from "./compare/CompareView";
 import { uploadImage } from "@/lib/api";
 import { createGeneration, getGeneration } from "@/lib/generation";
+import { useToast, ToastProvider } from "./ui/Toast";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";
 
@@ -56,6 +57,7 @@ function currentUiLocale(): Locale {
 }
 
 export default function GeneratePage() {
+  const toast = useToast();
   const [mainImage, setMainImage] = useState<File[]>([]);
   const [styleImages, setStyleImages] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -134,6 +136,7 @@ export default function GeneratePage() {
         setProgress(100);
         setIsGenerating(false);
         setGeneratedResults(results);
+        toast.success("生成完成，点击查看结果");
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -141,6 +144,12 @@ export default function GeneratePage() {
       } else if (status === "failed") {
         setIsGenerating(false);
         setError(result.data.errorMessage || m.generation_failed());
+        toast.error("生成失败，请重试", {
+          action: {
+            label: "重试",
+            onClick: () => handleGenerate(),
+          },
+        });
         if (pollingRef.current) {
           clearInterval(pollingRef.current);
           pollingRef.current = null;
@@ -222,7 +231,8 @@ export default function GeneratePage() {
   const canGenerate = mainImage.length > 0 && !isGenerating && !isUploading;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <ToastProvider>
+      <div className="flex min-h-screen flex-col">
       <main className="flex-1 bg-[hsl(var(--background))]">
         {/* Header */}
         <div className="border-b border-[hsl(var(--border))] bg-[hsl(var(--card))]">
@@ -688,6 +698,7 @@ export default function GeneratePage() {
           onClose={() => setShowCompare(false)}
         />
       )}
-    </div>
+      </div>
+    </ToastProvider>
   );
 }
