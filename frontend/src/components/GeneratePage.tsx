@@ -192,7 +192,7 @@ export default function GeneratePage() {
           style: settings.style as "professional" | "lifestyle" | "minimal" | "luxury",
           language: settings.language,
           uiLocale: currentUiLocale(),
-          generateImages: settings.generateImages,
+          generateImages: false, // P0 T1 #83: 图片生成功能隐藏中，强制关闭
           imageCount: settings.imageCount,
           aspectRatio: settings.aspectRatio,
           allowPersons: settings.allowPersons,
@@ -423,7 +423,8 @@ export default function GeneratePage() {
                 </select>
               </div>
 
-              {/* Image Generation Toggle */}
+              {/* Image Generation Toggle - HIDDEN for launch (P0 T1 #83) */}
+              {/* Original code preserved below, uncomment when launching image generation
               <div className="mb-6 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background)/0.42)] p-4">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -494,6 +495,14 @@ export default function GeneratePage() {
                     </div>
                   </div>
                 )}
+              </div>
+              */}
+
+              {/* Coming Soon Notice (P0 T1 #83) */}
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg mb-6">
+                <p className="text-sm text-amber-800 dark:text-amber-300">
+                  🚧 图片生成功能即将上线，敬请期待
+                </p>
               </div>
 
               {/* Error Message */}
