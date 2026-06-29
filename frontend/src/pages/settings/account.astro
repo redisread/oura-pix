@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SettingsLayout from '../../layouts/SettingsLayout.astro';
-import ProfilePage from '../../components/ProfilePage';
+import AccountSettings from '../../components/settings/AccountSettings';
+import { ToastProvider } from '../../components/ui/Toast';
 import * as m from "@/paraglide/messages.js";
 
 const title = m.meta_profileTitle();
@@ -10,6 +11,8 @@ const description = m.meta_profileDescription();
 
 <Layout title={title} description={description}>
   <SettingsLayout title={title} currentKey="account">
-    <ProfilePage client:load />
+    <ToastProvider client:load>
+      <AccountSettings client:load />
+    </ToastProvider>
   </SettingsLayout>
 </Layout>
