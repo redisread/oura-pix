@@ -1,12 +1,13 @@
 ---
 /**
- * SettingsLayout (P0 #89)
+ * SettingsLayout (P0 #89 desktop + #90 mobile)
  *
- * Desktop: 2-column layout (sidebar + content)
- * Mobile: stacked (sidebar collapses to top tabs - T2 task)
+ * Desktop (>= lg): sidebar + content
+ * Mobile (< lg): top tabs + content (auto-scroll active tab into view)
  */
 import Navbar from '../components/Navbar';
 import SettingsSidebar from '../components/settings/SettingsSidebar';
+import MobileSettingsTabs from '../components/settings/MobileSettingsTabs';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 interface Props {
@@ -20,30 +21,26 @@ const { title, currentKey } = Astro.props;
 <div class="min-h-screen bg-[hsl(var(--background))]">
   <Navbar client:load />
 
-  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+  <main class="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
     <div class="hidden lg:block mb-6">
       <h1 class="text-2xl font-bold text-foreground">个人中心</h1>
       <p class="mt-1 text-sm text-foreground-muted">管理你的账号、订阅和偏好设置</p>
     </div>
 
-    <div class="flex gap-8">
+    <!-- Mobile tabs (full-width sticky) -->
+    <div class="lg:hidden sticky top-0 z-30 -mx-4 sm:-mx-6 mb-4 bg-[hsl(var(--background))]">
+      <MobileSettingsTabs client:load currentKey={currentKey} />
+    </div>
+
+    <div class="lg:flex lg:gap-8">
+      <!-- Desktop sidebar -->
       <aside class="hidden lg:block w-56 shrink-0">
         <div class="sticky top-24">
           <SettingsSidebar client:load currentKey={currentKey} />
         </div>
       </aside>
 
-      <!-- Mobile horizontal tabs (T2 task will refine) -->
-      <nav class="lg:hidden mb-4 overflow-x-auto" aria-label="设置导航">
-        <div class="flex gap-1 min-w-max">
-          <a href="/settings/account" class={`px-3 py-2 text-sm rounded-md whitespace-nowrap ${currentKey === 'account' ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] font-semibold' : 'text-foreground'}`}>账号</a>
-          <a href="/settings/subscription" class={`px-3 py-2 text-sm rounded-md whitespace-nowrap ${currentKey === 'subscription' ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] font-semibold' : 'text-foreground'}`}>订阅</a>
-          <a href="/settings/api-keys" class={`px-3 py-2 text-sm rounded-md whitespace-nowrap ${currentKey === 'api-keys' ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] font-semibold' : 'text-foreground'}`}>API Keys</a>
-          <a href="/settings/teams" class={`px-3 py-2 text-sm rounded-md whitespace-nowrap ${currentKey === 'teams' ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] font-semibold' : 'text-foreground'}`}>团队</a>
-          <a href="/settings/preferences" class={`px-3 py-2 text-sm rounded-md whitespace-nowrap ${currentKey === 'preferences' ? 'bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] font-semibold' : 'text-foreground'}`}>偏好</a>
-        </div>
-      </nav>
-
+      <!-- Content -->
       <section class="flex-1 min-w-0">
         <ErrorBoundary client:load>
           <slot />
