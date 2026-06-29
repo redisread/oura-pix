@@ -127,7 +127,8 @@ export function getSessionTokenFromHeaders(headers: Headers): string | null {
   if (!cookie) return null;
 
   const match =
-    cookie.match(/better-auth\.session_token=([^;]+)/) ||
+    // Matches: better-auth.session_token, __Secure-better-auth.session_token, __Host-better-auth.session-token
+    cookie.match(/(?:__Secure-|__Host-)?better-auth[.-]session[_-]token=([^;]+)/) ||
     cookie.match(/ourapix\.session=([^;]+)/);
   return match?.[1] ?? null;
 }
