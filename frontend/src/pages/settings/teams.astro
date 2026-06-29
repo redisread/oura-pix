@@ -1,14 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SettingsLayout from '../../layouts/SettingsLayout.astro';
-import TeamsPage from '../../components/teams/TeamsPage';
-import * as m from "@/paraglide/messages.js";
+import TeamSettings from '../../components/settings/TeamSettings';
+import { ToastProvider } from '../../components/ui/Toast';
 
 const title = "团队管理 - 个人中心";
 ---
 
 <Layout title={title}>
   <SettingsLayout title={title} currentKey="teams">
-    <TeamsPage client:load />
+    <ToastProvider client:load>
+      <TeamSettings client:load />
+    </ToastProvider>
   </SettingsLayout>
 </Layout>
