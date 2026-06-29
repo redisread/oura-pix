@@ -12,7 +12,7 @@ import { useGenerations } from "@/hooks/useGenerations";
 import FilterBar from "./FilterBar";
 import GenerationCard from "./GenerationCard";
 import ImageEditor from "./editor/ImageEditor";
-import { deleteGeneration } from "@/lib/api";
+import { deleteGeneration, updateGenerationImage } from "@/lib/api";
 
 function SkeletonCard() {
   return (
@@ -71,7 +71,7 @@ export default function HistoryPage() {
     refresh,
   } = useGenerations();
 
-  const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [editingContext, setEditingContext] = useState<{ genId: string; imageUrl: string; imageIndex: number } | null>(null);
 
   const handleViewDetail = useCallback((id: string) => {
     window.location.href = localizeHref(`/generate?history=${id}`);
@@ -81,8 +81,8 @@ export default function HistoryPage() {
     window.location.href = localizeHref(`/generate?regenerate=${id}`);
   }, []);
 
-  const handleEdit = useCallback((imageUrl: string) => {
-    setEditingImage(imageUrl);
+  const handleEdit = useCallback((genId: string, imageUrl: string, imageIndex = 0) => {
+    setEditingContext({ genId, imageUrl, imageIndex });
   }, []);
 
   const handleDelete = useCallback(
@@ -195,13 +195,20 @@ export default function HistoryPage() {
       </div>
 
       {/* Image Editor Modal */}
-      {editingImage && (
+      {editingContext && (
         <ImageEditor
-          imageUrl={editingImage}
-          onClose={() => setEditingImage(null)}
-          onSave={async (_blob) => {
-            // TODO: Implement save to backend
-            setEditingImage(null);
+          imageUrl={editingContext.imageUrl}
+          onClose={() => setEditingContext(null)}
+          onSave={async (blob) => {
+            if (!editingContext) return;
+            try {
+              await updateGenerationImage(editingContext.genId, blob, editingContext.imageIndex);
+              refresh();
+            } catch (err) {
+              console.error("Save edited image failed:", err);
+              alert(err instanceof Error ? err.message : "Save failed");
+            }
+            setEditingContext(null);
           }}
         />
       )}

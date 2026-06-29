@@ -6,8 +6,9 @@
 
 import { Hono } from "hono";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { zValidator } from "@hono/zod-validator";
-import { createDb } from "@oura-pix/database";
+import { createDb, schema } from "@oura-pix/database";
 import { resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
 import { getUser } from "../middleware/auth";
 import {
@@ -24,6 +25,8 @@ import { getTeamForUser } from "../services/teamService";
 const router = new Hono<{
   Bindings: {
     DB: D1Database;
+    R2: R2Bucket;
+    CLOUDFLARE_R2_PUBLIC_URL: string;
     GEMINI_API_KEY?: string;
     GEMINI_BASE_URL?: string;
     GEMINI_MODEL?: string;
@@ -245,6 +248,104 @@ router.post("/:id/cancel", async (c) => {
   }
 
   return c.json({ success: true });
+});
+
+// PATCH /api/generations/:id/image - Update generation result image with edited version
+router.patch("/:id/image", async (c) => {
+  const locale = getLocale(c);
+  const user = getUser(c);
+  if (!user) {
+    return c.json(
+      {
+        success: false,
+        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
+      },
+      401
+    );
+  }
+
+  const id = c.req.param("id");
+  const db = createDb(c.env.DB);
+
+  const generation = await getGenerationById(db, id, user.id);
+  if (!generation) {
+    return c.json(
+      {
+        success: false,
+        error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
+      },
+      404
+    );
+  }
+
+  const formData = await c.req.formData();
+  const imageFile = formData.get("image") as File | null;
+  const imageIndexStr = formData.get("imageIndex");
+  const imageIndex = imageIndexStr ? parseInt(imageIndexStr as string, 10) : 0;
+
+  if (!imageFile) {
+    return c.json(
+      {
+        success: false,
+        error: { code: "BAD_REQUEST", message: serverMessage(locale, "badRequest") },
+      },
+      400
+    );
+  }
+
+  const { R2, CLOUDFLARE_R2_PUBLIC_URL } = c.env;
+  const ext = (imageFile.name || "png").split(".").pop() || "png";
+  const key = `edits/${user.id}/${crypto.randomUUID()}.${ext}`;
+
+  try {
+    await R2.put(key, imageFile, {
+      httpMetadata: {
+        contentType: imageFile.type || "image/png",
+      },
+    });
+
+    const editedImageUrl = `${CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
+
+    const currentResults = generation.results ?? [];
+    const updatedResults = [...currentResults];
+
+    if (updatedResults[imageIndex]) {
+      updatedResults[imageIndex] = {
+        ...updatedResults[imageIndex],
+        imageUrl: editedImageUrl,
+      };
+    } else {
+      updatedResults.push({
+        id: crypto.randomUUID(),
+        title: updatedResults[0]?.title ?? "",
+        description: updatedResults[0]?.description ?? "",
+        tags: updatedResults[0]?.tags ?? [],
+        imageUrl: editedImageUrl,
+      });
+    }
+
+    await db
+      .update(schema.generations)
+      .set({
+        results: updatedResults,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.generations.id, id));
+
+    return c.json({
+      success: true,
+      data: { imageUrl: editedImageUrl },
+    });
+  } catch (error) {
+    console.error("[API] Update generation image error:", error);
+    return c.json(
+      {
+        success: false,
+        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
+      },
+      500
+    );
+  }
 });
 
 // DELETE /api/generations/:id - Delete generation
