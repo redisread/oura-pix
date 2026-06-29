@@ -1,76 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import SettingsLayout from '../../layouts/SettingsLayout.astro';
+import PreferencesSettings from '../../components/settings/PreferencesSettings';
+import { ToastProvider } from '../../components/ui/Toast';
 
 const title = "偏好设置 - 个人中心";
 ---
 
 <Layout title={title}>
   <SettingsLayout title={title} currentKey="preferences">
-    <div class="space-y-6">
-      <div>
-        <h2 class="text-xl font-semibold text-foreground">偏好设置</h2>
-        <p class="mt-1 text-sm text-foreground-muted">个性化你的体验</p>
-      </div>
-
-      <div class="card p-6 space-y-4">
-        <h3 class="text-sm font-semibold text-foreground">语言与时区</h3>
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-medium text-foreground-muted mb-1">界面语言</label>
-            <select class="input">
-              <option value="zh-CN">简体中文</option>
-              <option value="en">English</option>
-              <option value="ja">日本語</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-foreground-muted mb-1">时区</label>
-            <select class="input">
-              <option value="Asia/Shanghai">UTC+8 北京</option>
-              <option value="UTC">UTC</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="card p-6 space-y-4">
-        <h3 class="text-sm font-semibold text-foreground">通知</h3>
-        <div class="space-y-3">
-          <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" class="rounded" />
-            <span>邮件通知 - 新功能</span>
-          </label>
-          <label class="flex items-center gap-2 text-sm">
-            <input type="checkbox" class="rounded" />
-            <span>邮件通知 - 生成完成</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="card p-6 space-y-4">
-        <h3 class="text-sm font-semibold text-foreground">默认生成设置</h3>
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-medium text-foreground-muted mb-1">默认平台</label>
-            <select class="input">
-              <option value="amazon">Amazon</option>
-              <option value="shopify">Shopify</option>
-              <option value="ebay">eBay</option>
-              <option value="etsy">Etsy</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-foreground-muted mb-1">默认风格</label>
-            <select class="input">
-              <option value="minimal">极简</option>
-              <option value="luxury">高级</option>
-              <option value="lifestyle">生活方式</option>
-              <option value="professional">专业</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ToastProvider client:load>
+      <PreferencesSettings client:load />
+    </ToastProvider>
   </SettingsLayout>
 </Layout>
