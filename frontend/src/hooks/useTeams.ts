@@ -93,7 +93,35 @@ export function useTeams() {
     [fetchTeams]
   );
 
-  return { teams, loading, error, refetch: fetchTeams, createTeam, joinTeam };
+  const leaveTeam = useCallback(
+    async (teamId: string): Promise<boolean> => {
+      try {
+        await apiJson(`/api/teams/${teamId}/leave`, { method: "POST" });
+        await fetchTeams();
+        return true;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : m.common_requestFailed());
+        return false;
+      }
+    },
+    [fetchTeams]
+  );
+
+  const deleteTeam = useCallback(
+    async (teamId: string): Promise<boolean> => {
+      try {
+        await apiJson(`/api/teams/${teamId}`, { method: "DELETE" });
+        await fetchTeams();
+        return true;
+      } catch (err) {
+        setError(err instanceof Error ? err.message : m.common_requestFailed());
+        return false;
+      }
+    },
+    [fetchTeams]
+  );
+
+  return { teams, loading, error, refetch: fetchTeams, createTeam, joinTeam, leaveTeam, deleteTeam };
 }
 
 export function useTeam(teamId: string | null) {
