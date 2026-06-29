@@ -14,7 +14,7 @@ interface GenerationCardProps {
   generation: GenerationRecord;
   onViewDetail: (id: string) => void;
   onRegenerate: (id: string) => void;
-  onEdit: (imageUrl: string) => void;
+  onEdit: (genId: string, imageUrl: string, imageIndex?: number) => void;
   onDelete: (id: string) => void;
 }
 
@@ -191,7 +191,7 @@ export default function GenerationCard({
           <button
             onClick={() => {
               const imageUrl = generation.generatedImages[0] || generation.productImageUrl;
-              if (imageUrl) onEdit(imageUrl);
+              if (imageUrl) onEdit(generation.id, imageUrl, 0);
             }}
             className="icon-button h-10 w-10 bg-[hsl(var(--card)/0.92)] text-foreground hover:bg-[hsl(var(--card))]"
             title={m.editor_editImage()}

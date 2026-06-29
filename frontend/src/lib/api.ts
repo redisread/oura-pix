@@ -140,6 +140,27 @@ export async function deleteGeneration(id: string) {
   return response.data;
 }
 
+export async function updateGenerationImage(
+  id: string,
+  image: Blob,
+  imageIndex = 0
+): Promise<{ imageUrl: string }> {
+  const formData = new FormData();
+  formData.append("image", image);
+  formData.append("imageIndex", String(imageIndex));
+
+  const response = await api.patch<{ imageUrl: string }>(
+    `${ENDPOINTS.generations.get(id)}/image`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+}
+
 // ============================================
 // Upload APIs
 // ============================================
