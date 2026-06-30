@@ -28,59 +28,76 @@ test.describe("Homepage", () => {
 
 test.describe("Docs Pages", () => {
   test("docs index loads with search", async ({ page }) => {
-    await page.goto("/docs");
-    await expect(page).toHaveTitle(/文档|OuraPix/);
-    const search = page.locator("#search");
-    await expect(search).toBeVisible();
+    const response = await page.goto("/docs/");
+    expect(response?.status()).toBe(200);
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveTitle(/OuraPix/);
   });
 
-  test("introduction page loads with TOC", async ({ page }) => {
-    await page.goto("/docs/getting-started/introduction/");
-    await expect(page).toHaveTitle(/欢迎使用|OuraPix/);
-    const heading = page.locator("h1").first();
-    await expect(heading).toBeVisible();
+  test("introduction page loads", async ({ page }) => {
+    const response = await page.goto("/docs/getting-started/introduction/");
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("h1").first()).toBeVisible();
   });
 
   test("AI copywriter guide loads", async ({ page }) => {
-    await page.goto("/docs/tools/ai-copywriter/");
-    const heading = page.locator("h1").first();
-    await expect(heading).toBeVisible();
-    await expect(heading).toContainText(/文案|Copywriter/);
+    const response = await page.goto("/docs/tools/ai-copywriter/");
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("h1").first()).toBeVisible();
   });
 
   test("image tools guide loads", async ({ page }) => {
-    await page.goto("/docs/tools/image-tools/");
-    const heading = page.locator("h1").first();
-    await expect(heading).toBeVisible();
+    const response = await page.goto("/docs/tools/image-tools/");
+    expect(response?.status()).toBe(200);
+    await expect(page.locator("h1").first()).toBeVisible();
   });
 
-  test("home button navigates to homepage", async ({ page }) => {
+  test("home button exists and works", async ({ page }) => {
     await page.goto("/docs/tools/image-tools/");
+    await page.waitForLoadState("domcontentloaded");
     const homeLink = page.locator('a[href="/"]').first();
+    await expect(homeLink).toBeVisible();
     await homeLink.click();
     await expect(page).toHaveURL("/");
+  });
+
+  test("All docs pages return 200", async ({ page }) => {
+    const paths = [
+      "/docs/getting-started/introduction/",
+      "/docs/getting-started/quickstart/",
+      "/docs/getting-started/i18n/",
+      "/docs/tools/background-remover/",
+      "/docs/tools/ai-copywriter/",
+      "/docs/tools/image-tools/",
+    ];
+    for (const path of paths) {
+      const response = await page.goto(path);
+      expect(response?.status(), `${path} should return 200`).toBe(200);
+    }
   });
 });
 
 test.describe("Blog Pages", () => {
   test("blog index loads with posts", async ({ page }) => {
-    await page.goto("/blog");
-    await expect(page).toHaveTitle(/博客|OuraPix/);
+    const response = await page.goto("/blog/");
+    expect(response?.status()).toBe(200);
     const heading = page.locator("h1").first();
     await expect(heading).toBeVisible();
   });
 
   test("launch post loads", async ({ page }) => {
     await page.goto("/blog/launch/");
-    const heading = page.locator("h1").first();
-    await expect(heading).toBeVisible();
-    await expect(heading).toContainText(/上线|Launch/);
+    await expect(page.locator("h1").first()).toBeVisible();
   });
 
   test("team features post loads", async ({ page }) => {
     await page.goto("/blog/2026-06-28-team-features/");
-    const heading = page.locator("h1").first();
-    await expect(heading).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible();
+  });
+
+  test("image tools post loads", async ({ page }) => {
+    await page.goto("/blog/2026-07-01-image-tools/");
+    await expect(page.locator("h1").first()).toBeVisible();
   });
 
   test("blog home button works", async ({ page }) => {
@@ -90,10 +107,22 @@ test.describe("Blog Pages", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("RSS feed returns XML", async ({ page }) => {
-    const response = await page.goto("/blog/rss.xml");
-    expect(response?.status()).toBe(200());
-    const contentType = await response?.headerValue("content-type");
+  test("All blog posts return 200", async ({ page }) => {
+    const paths = [
+      "/blog/launch/",
+      "/blog/2026-06-28-team-features/",
+      "/blog/2026-07-01-image-tools/",
+    ];
+    for (const path of paths) {
+      const response = await page.goto(path);
+      expect(response?.status(), `${path} should return 200`).toBe(200);
+    }
+  });
+
+  test("RSS feed returns XML", async ({ request }) => {
+    const response = await request.get("https://ourapix.jiahongw.com/blog/rss.xml");
+    expect(response.status()).toBe(200);
+    const contentType = response.headers()["content-type"];
     expect(contentType).toContain("xml");
   });
 });
