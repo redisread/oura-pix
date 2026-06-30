@@ -1,0 +1,25 @@
+<div class="sticky top-24 space-y-6">
+  {categories.map(category => (
+    <div>
+      <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground-muted">
+        {category.label}
+      </h3>
+      <ul class="space-y-1">
+        {category.items.map(item => (
+          <li>
+            <a
+              href={item.href}
+              class={`block rounded-md px-3 py-2 text-sm transition-colors ${
+                item.active
+                  ? 'bg-[hsl(var(--primary)/0.1)] font-medium text-[hsl(var(--primary))]'
+                  : 'text-foreground-muted hover:bg-[hsl(var(--card))] hover:text-foreground'
+              }`}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
