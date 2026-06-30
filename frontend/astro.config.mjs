@@ -19,7 +19,7 @@ export default defineConfig({
       paraglideVitePlugin({
         project: '../packages/i18n/project.inlang',
         outdir: './src/paraglide',
-        strategy: ['url', 'cookie', 'baseLocale'],
+        strategy: ['cookie', 'baseLocale'],
         routeStrategies: [
           { match: '/api/:path(.*)?', exclude: true },
           { match: '/_astro/:path(.*)?', exclude: true },
