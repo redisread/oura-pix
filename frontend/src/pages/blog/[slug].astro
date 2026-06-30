@@ -1,0 +1,123 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { marked } from 'marked';
+import * as m from '@/paraglide/messages.js';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+
+// Sort by date desc
+const sorted = allPosts.sort(
+  (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
+);
+
+// Categories
+const categories = [...new Set(sorted.map((p) => p.data.category))];
+
+// Related posts (same category, excluding current)
+const related = sorted.filter(
+  (p) => p.id !== post.id && p.data.category === post.data.category
+).slice(0, 3);
+
+// Format date
+function formatDate(d: Date) {
+  return d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const siteUrl = 'https://ourapix.jiahongw.com';
+const ogImage = post.data.featuredImage || `${siteUrl}/og-blog.png`;
+const canonicalUrl = `${siteUrl}/blog/${post.id}`;
+---
+
+<Layout
+  title={post.data.title}
+  description={post.data.description}
+  image={ogImage}
+  canonical={canonicalUrl}
+>
+  <!-- Open Graph meta injected by Layout -->
+
+  <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Back link -->
+    <a href="/blog" class="mb-6 inline-flex items-center text-sm text-foreground-muted hover:text-foreground">
+      ← {m.common_back()}
+    </a>
+
+    <!-- Article -->
+    <article>
+      <!-- Header -->
+      <header class="mb-8">
+        {post.data.category && (
+          <span class="status-badge status-badge-primary mb-3">{post.data.category}</span>
+        )}
+        <h1 class="font-display text-3xl font-bold text-foreground sm:text-4xl">
+          {post.data.title}
+        </h1>
+        <p class="mt-3 text-foreground-muted">
+          <time datetime={post.data.publishDate.toISOString()}>
+            {formatDate(post.data.publishDate)}
+          </time>
+          {post.data.tags && post.data.tags.length > 0 && (
+            <span class="ml-4">
+              {post.data.tags.map((tag: string) => (
+                <span class="mr-2 text-foreground-muted">#{tag}</span>
+              ))}
+            </span>
+          )}
+        </p>
+      </header>
+
+      {/* Featured image */}
+      {post.data.featuredImage && (
+        <img
+          src={post.data.featuredImage}
+          alt={post.data.title}
+          class="mb-8 w-full rounded-lg object-cover"
+          loading="lazy"
+        />
+      )}
+
+      {/* Content */}
+      <div class="prose prose-slate max-w-none" set:html={marked(post.body || '')} />
+    </article>
+
+    {/* Tags */}
+    {post.data.tags && post.data.tags.length > 0 && (
+      <div class="mt-8 flex flex-wrap gap-2 border-t border-[hsl(var(--border))] pt-6">
+        {post.data.tags.map((tag: string) => (
+          <span class="status-badge status-badge-neutral">#{tag}</span>
+        ))}
+      </div>
+    )}
+
+    {/* Related posts */}
+    {related.length > 0 && (
+      <section class="mt-12">
+        <h2 class="mb-4 font-display text-xl font-semibold text-foreground">相关文章</h2>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {related.map((p) => (
+            <a href={`/blog/${p.id}`} class="card card-hover block p-4">
+              {p.data.featuredImage && (
+                <img src={p.data.featuredImage} alt={p.data.title} class="mb-2 w-full rounded object-cover h-32" loading="lazy" />
+              )}
+              <h3 class="font-semibold text-foreground line-clamp-2">{p.data.title}</h3>
+              <p class="mt-1 text-sm text-foreground-muted line-clamp-2">{p.data.description}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</Layout>
+
+<!-- RSS Feed Link -->
+<link rel="alternate" type="application/rss+xml" title="OuraPix Blog" href="/blog/rss.xml" />

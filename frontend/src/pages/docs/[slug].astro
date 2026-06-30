@@ -1,0 +1,147 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { marked } from 'marked';
+
+export async function getStaticPaths() {
+  const docs = await getCollection('docs');
+  return docs.map((doc) => ({
+    params: { slug: doc.id },
+    props: { doc },
+  }));
+}
+
+const { doc } = Astro.props;
+const allDocs = await getCollection('docs');
+
+// Sort docs by order
+const sorted = allDocs.sort((a, b) => a.data.order - b.data.order);
+
+// Group by category
+const categories = [...new Set(sorted.map((d) => d.data.category))];
+
+// Get current category and docs in it
+const currentCategory = doc.data.category;
+const docsInCategory = sorted.filter((d) => d.category === currentCategory);
+
+// Generate TOC from markdown
+function extractHeadings(markdown: string) {
+  const headingRegex = /^(#{2,3})\s+(.+)$/gm;
+  const headings: { level: number; text: string; id: string }[] = [];
+  let match;
+  while ((match = headingRegex.exec(markdown)) !== null) {
+    const level = match[1].length;
+    const text = match[2];
+    const id = text.toLowerCase().replace(/[^a-z0-9一-龥]+/g, '-').replace(/(^-|-$)/g, '');
+    headings.push({ level, text, id });
+  }
+  return headings;
+}
+
+const toc = extractHeadings(doc.body || '');
+
+// Add IDs to headings for TOC anchor links
+function renderMarkdownWithIds(body: string): string {
+  let index = 0;
+  return body.replace(/^(#{2,3})\s+(.+)$/gm, (_, hashes, text) => {
+    const level = hashes.length;
+    const id = text.toLowerCase().replace(/[^a-z0-9一-龥]+/g, '-').replace(/(^-|-$)/g, '') + '-' + index++;
+    return '#'.repeat(level) + ' ' + text + `{ #${id} }`;
+  });
+}
+
+const htmlContent = marked(doc.body || '');
+const tocHtml = toc.length > 0 ? toc.map((h) => `<li class="toc-h${h.level}"><a href="#${h.id}" class="hover:text-foreground">${h.text}</a></li>`).join('') : '';
+---
+
+<Layout title={doc.data.title} description={doc.data.description}>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[280px_1fr_240px]">
+      <!-- Sidebar -->
+      <aside class="hidden lg:block">
+        <nav class="sticky top-24 space-y-6">
+          {categories.map((cat) => (
+            <div>
+              <h3 class="mb-2 text-sm font-semibold text-foreground-muted uppercase tracking-wide">{cat}</h3>
+              <ul class="space-y-1">
+                {docsInCategory.filter(d => d.data.category === cat).map((d) => (
+                  <li>
+                    <a
+                      href={`/docs/${d.id}`}
+                      class:list={[
+                        'block rounded-md px-3 py-2 text-sm transition-colors',
+                        d.slug === doc.slug
+                          ? 'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground)) font-medium'
+                          : 'text-foreground-muted hover:bg-[hsl(var(--card))] hover:text-foreground',
+                      ]}
+                    >
+                      {d.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <article class="prose prose-slate max-w-none">
+        <h1 class="font-display text-4xl font-semibold text-foreground">{doc.data.title}</h1>
+        {doc.data.description && (
+          <p class="mt-4 text-lg text-foreground-muted">{doc.data.description}</p>
+        )}
+        {doc.data.tags && doc.data.tags.length > 0 && (
+          <div class="mt-4 flex flex-wrap gap-2">
+            {doc.data.tags.map((tag: string) => (
+              <span class="status-badge status-badge-neutral">{tag}</span>
+            ))}
+          </div>
+        )}
+        <hr class="my-6 border-[hsl(var(--border))]" />
+        <div class="doc-content" set:html={htmlContent} />
+      </article>
+
+      <!-- TOC -->
+      {toc.length > 0 && (
+        <aside class="hidden xl:block">
+          <div class="sticky top-24">
+            <h4 class="mb-3 text-sm font-semibold text-foreground-muted uppercase tracking-wide">目录</h4>
+            <ul class="space-y-2 text-sm text-foreground-muted toc-list" set:html={tocHtml} />
+          </div>
+        </aside>
+      )}
+    </div>
+  </div>
+</Layout>
+
+<style is:global>
+  .doc-content h2,
+  .doc-content h3 {
+    scroll-margin-top: 6rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .doc-content h2 { font-size: 1.5rem; }
+  .doc-content h3 { font-size: 1.25rem; }
+  .doc-content p { margin-bottom: 1rem; line-height: 1.75; }
+  .doc-content ul, .doc-content ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+  .doc-content li { margin-bottom: 0.25rem; }
+  .doc-content code {
+    background: hsl(var(--secondary));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+  }
+  .doc-content pre { margin-bottom: 1rem; overflow-x: auto; }
+  .doc-content pre code { background: none; padding: 0; }
+  .doc-content blockquote {
+    border-left: 4px solid hsl(var(--primary));
+    padding-left: 1rem;
+    color: hsl(var(--foreground-muted));
+    margin-bottom: 1rem;
+  }
+  .toc-list.toc-h2 { padding-left: 0; }
+  .toc-list.toc-h3 { padding-left: 1rem; }
+</style>
