@@ -85,3 +85,8 @@ pnpm-workspace.yaml.local
 
 # Astro
 .astro
+
+# Agent tools
+.agents/
+.claude/
+frontend/project.inlang/
