@@ -1,0 +1,49 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+const docs = await getCollection('docs');
+const sorted = docs.sort((a, b) => a.data.order - b.data.order);
+const intro = sorted[0];
+---
+
+<Layout title={intro?.data.title ?? '文档'} description={intro?.data.description ?? 'OuraPix 产品文档'}>
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+      <!-- Sidebar -->
+      <aside class="hidden lg:block">
+        <nav class="sticky top-24 space-y-6">
+          {[...new Set(docs.map(d => d.data.category))].map(category => (
+            <div>
+              <h3 class="mb-2 text-sm font-semibold text-foreground-muted uppercase tracking-wide">{category}</h3>
+              <ul class="space-y-1">
+                {docs.filter(d => d.data.category === category).sort((a,b) => a.data.order - b.data.order).map(doc => (
+                  <li>
+                    <a href={`/docs/${doc.slug}`} class="block rounded-md px-3 py-2 text-sm text-foreground-muted hover:bg-[hsl(var(--card))] hover:text-foreground">
+                      {doc.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+      </aside>
+
+      <!-- Content -->
+      <div>
+        {intro ? (
+          <div class="prose prose-slate max-w-none">
+            <h1 class="font-display text-4xl font-semibold text-foreground">{intro.data.title}</h1>
+            {intro.data.description && <p class="mt-4 text-lg text-foreground-muted">{intro.data.description}</p>}
+          </div>
+        ) : (
+          <div class="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center">
+            <p class="text-foreground-muted">文档建设中，敬请期待...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>
