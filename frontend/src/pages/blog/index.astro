@@ -8,9 +8,15 @@ const posts = allPosts.sort((a, b) => new Date(b.data.publishDate).getTime() - n
 
 <Layout title="博客" description="OuraPix 产品博客 - 最新动态、使用技巧与行业资讯">
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mb-10">
-      <h1 class="font-display text-4xl font-semibold text-foreground">博客</h1>
-      <p class="mt-3 text-lg text-foreground-muted">产品动态、使用技巧、跨境电商行业资讯</p>
+    <div class="mb-10 flex items-center justify-between">
+      <div>
+        <a href="/" class="mb-3 inline-flex items-center gap-1 text-sm text-foreground-muted hover:text-foreground" aria-label="返回首页">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+          首页
+        </a>
+        <h1 class="font-display text-4xl font-semibold text-foreground">博客</h1>
+        <p class="mt-3 text-lg text-foreground-muted">产品动态、使用技巧、跨境电商行业资讯</p>
+      </div>
     </div>
 
     {posts.length > 0 ? (
