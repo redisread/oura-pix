@@ -1,0 +1,54 @@
+/* Pagefind Search UI Customization */
+.pagefind-ui {
+  --pagefind-ui-primary: hsl(var(--primary));
+  --pagefind-ui-text: hsl(var(--foreground));
+  --pagefind-ui-background: hsl(var(--card));
+  --pagefind-ui-border: hsl(var(--border));
+  --pagefind-ui-font: inherit;
+}
+
+.pagefind-ui__search-input {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: hsl(var(--foreground));
+  width: 100%;
+}
+
+.pagefind-ui__search-input:focus {
+  outline: none;
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+}
+
+.pagefind-ui__search-clear {
+  display: none;
+}
+
+.pagefind-ui__results {
+  padding: 0;
+  list-style: none;
+}
+
+.pagefind-ui__result {
+  padding: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.pagefind-ui__result:last-child {
+  border-bottom: none;
+}
+
+.pagefind-ui__result-title {
+  color: hsl(var(--primary));
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pagefind-ui__result-excerpt {
+  color: hsl(var(--foreground-muted));
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

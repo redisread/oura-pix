@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import '../../styles/pagefind.css';
 import type { CollectionEntry } from 'astro:content';
 
 const docs = await getCollection('docs');
@@ -11,6 +12,10 @@ const intro = sorted[0];
 <Layout title={intro?.data.title ?? '文档'} description={intro?.data.description ?? 'OuraPix 产品文档'}>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <div class="grid gap-8 lg:grid-cols-[280px_1fr]">
+      <!-- Search -->
+      <div class="lg:col-span-2 mb-4">
+        <div id="search" class=""></div>
+      </div>
       <!-- Sidebar -->
       <aside class="hidden lg:block">
         <nav class="sticky top-24 space-y-6">
@@ -46,4 +51,10 @@ const intro = sorted[0];
       </div>
     </div>
   </div>
+  <script is:inline src="/_pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      new PagefindUI({ element: '#search', showSubResults: true, showImages: false });
+    });
+  </script>
 </Layout>
