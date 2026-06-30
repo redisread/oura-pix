@@ -952,5 +952,6 @@
   "home_workflowReviewTitle": "Review listing-ready assets",
   "home_workflowReviewCopy": "Scan the generated title, selling points, tags, and scene images in the same workspace.",
   "home_readyKicker": "Ready at the bench",
-  "home_readyTitle": "Start with the product image you already have."
+  "home_readyTitle": "Start with the product image you already have.",
+  "profile_history_noPrompt": "No title"
 }

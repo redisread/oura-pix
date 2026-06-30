@@ -952,5 +952,6 @@
   "home_workflowReviewTitle": "检查可上架素材",
   "home_workflowReviewCopy": "在同一工作台检查生成的标题、卖点、标签和场景图。",
   "home_readyKicker": "工作台已就绪",
-  "home_readyTitle": "从你已有的商品图开始。"
+  "home_readyTitle": "从你已有的商品图开始。",
+  "profile_history_noPrompt": "无标题"
 }
