@@ -61,6 +61,7 @@ const ogImage = image ?? `${siteUrl}/og-default.png`;
     <link rel="alternate" type="application/rss+xml" title="OuraPix Blog" href="/blog/rss.xml" />
   </head>
   <body class="font-sans antialiased min-h-screen bg-background text-foreground">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-md focus:bg-[hsl(var(--primary))] focus:px-4 focus:py-2 focus:text-[hsl(var(--primary-foreground))]">跳转到主要内容</a>
     <slot />
     <script>
       // Install the global error and metric reporters as early as possible on every page.

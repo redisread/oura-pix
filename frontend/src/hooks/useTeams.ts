@@ -78,7 +78,7 @@ export function useTeams() {
   const joinTeam = useCallback(
     async (inviteCode: string): Promise<boolean> => {
       try {
-        await apiJson(`/api/teams/any/join`, {
+        await apiJson(`/api/teams/join`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ inviteCode }),
