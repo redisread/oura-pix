@@ -2,19 +2,29 @@
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  canonical?: string;
+  noindex?: boolean;
 }
 
 import * as m from "@/paraglide/messages.js";
 import { getLocale, getTextDirection } from "@/paraglide/runtime.js";
 import '../styles/globals.css';
 
+const siteUrl = "https://ourapix.jiahongw.com";
+
 const {
   title = `OuraPix - ${m.description()}`,
-  description = m.description()
+  description = m.description(),
+  image,
+  canonical,
+  noindex = false,
 } = Astro.props;
 
 const locale = getLocale();
 const direction = getTextDirection(locale);
+const pageUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
+const ogImage = image ?? `${siteUrl}/og-default.png`;
 ---
 
 <!DOCTYPE html>
@@ -25,11 +35,30 @@ const direction = getTextDirection(locale);
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={pageUrl} />
     <title>{title}</title>
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="OuraPix" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title="OuraPix Blog" href="/blog/rss.xml" />
   </head>
   <body class="font-sans antialiased min-h-screen bg-background text-foreground">
     <slot />

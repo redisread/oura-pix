@@ -29,7 +29,7 @@ const posts = allPosts.sort((a, b) => new Date(b.data.publishDate).getTime() - n
                 <span>{post.data.category}</span>
               </div>
               <h2 class="mt-2 text-lg font-semibold text-foreground group-hover:text-[hsl(var(--primary))]">
-                <a href={`/blog/${post.data.slug}`}>{post.data.title}</a>
+                <a href={`/blog/${post.id}`}>{post.data.title}</a>
               </h2>
               <p class="mt-2 text-sm text-foreground-muted line-clamp-2">{post.data.description}</p>
               {post.data.tags.length > 0 && (

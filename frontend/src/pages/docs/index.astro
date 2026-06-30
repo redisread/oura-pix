@@ -20,7 +20,7 @@ const intro = sorted[0];
               <ul class="space-y-1">
                 {docs.filter(d => d.data.category === category).sort((a,b) => a.data.order - b.data.order).map(doc => (
                   <li>
-                    <a href={`/docs/${doc.slug}`} class="block rounded-md px-3 py-2 text-sm text-foreground-muted hover:bg-[hsl(var(--card))] hover:text-foreground">
+                    <a href={`/docs/${doc.id}`} class="block rounded-md px-3 py-2 text-sm text-foreground-muted hover:bg-[hsl(var(--card))] hover:text-foreground">
                       {doc.data.title}
                     </a>
                   </li>
