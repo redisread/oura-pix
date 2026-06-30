@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import react from '@astrojs/react';
+import mdx from '@astrojs/mdx';
 import tailwindcss from '@tailwindcss/vite';
 import { paraglideVitePlugin } from '@inlang/paraglide-js';
 
@@ -12,6 +13,7 @@ export default defineConfig({
   }),
   integrations: [
     react(),
+    mdx(),
   ],
   vite: {
     plugins: [

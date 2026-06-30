@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.7.0",
+    "@astrojs/mdx": "^6.0.3",
     "@astrojs/react": "^5.0.7",
     "@imgly/background-removal": "^1.7.0",
     "@oura-pix/api-client": "workspace:*",
