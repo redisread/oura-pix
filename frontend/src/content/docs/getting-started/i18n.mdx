@@ -1,0 +1,67 @@
+---
+title: 多语言与 localization 配置
+description: OuraPix 支持中文、英文、日文等多语言，本文介绍 language detection 和切换机制
+category: 快速开始
+order: 4
+tags: ['i18n', '多语言', 'locale']
+---
+
+## 多语言支持
+
+OuraPix 目前支持以下语言：
+
+| 语言 | 代码 | 状态 |
+|------|------|------|
+| 简体中文 | zh-CN | ✅ 完整 |
+| English | en | ✅ 完整 |
+| 日本語 | ja | ✅ 完整 |
+
+## 语言检测机制
+
+系统按以下优先级确定用户语言：
+
+1. **Cookie** — 记住用户上次选择的语言
+2. **浏览器设置** — 如果没有 cookie，使用浏览器 `Accept-Language` 头
+3. **默认** — 回退到中文
+
+## 切换语言
+
+### 通过 URL
+
+访问 `/` （默认）或设置 cookie `locale=en` 切换到英文。
+
+### 通过设置页面
+
+在个人设置中选择偏好的语言，系统会保存到 cookie 中。
+
+## 实现细节
+
+### Paraglide JS
+
+项目使用 [Paraglide JS](https://inlang.com/m/gerre34r/library-inlang-paraglideJs) 管理 i18n 消息：
+
+- 类型安全的翻译函数 `m.xxx()`
+- 自动提取未翻译文本
+- 静态编译，无运行时开销
+
+### 消息文件位置
+
+```
+messages/
+├── zh-CN.json
+├── en.json
+└── ja.json
+```
+
+### 添加新消息
+
+1. 在 `messages/zh-CN.json` 添加中文消息
+2. 运行 `pnpm i18n:extract` 提取消息
+3. 填写英文和日文翻译
+4. 编写对应 `src/paraglide/messages/*.js` 文件
+
+## 注意事项
+
+- SEO：使用 `hreflang` 标签标记多语言版本
+- URL 设计：不使用前缀（如 `/en/path`），避免路由冲突
+- 日期/数字：使用 `Intl` API 根据 locale 自动格式化
