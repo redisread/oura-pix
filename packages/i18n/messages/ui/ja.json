@@ -952,5 +952,6 @@
   "home_workflowReviewTitle": "出品可能な素材を確認",
   "home_workflowReviewCopy": "同じワークスペースで生成されたタイトル、セールスポイント、タグ、シーン画像を確認します。",
   "home_readyKicker": "ワークベンチ準備完了",
-  "home_readyTitle": "すでにある商品画像から始めましょう。"
+  "home_readyTitle": "すでにある商品画像から始めましょう。",
+  "profile_history_noPrompt": "タイトルなし"
 }

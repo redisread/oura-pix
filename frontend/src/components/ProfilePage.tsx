@@ -19,77 +19,66 @@ import {
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfileStats } from "@/hooks/useProfileStats";
+import { useGenerations } from "@/hooks/useGenerations";
 
 type ProfileTab = "overview" | "history" | "settings";
 
-interface GenerationRecord {
-  id: string;
-  prompt: string;
-  platform: string;
-  style: string;
-  language: string;
-  createdAt: string;
-  status: "completed" | "processing" | "failed";
-}
-
-function getMockHistory(): GenerationRecord[] {
-  return [
-    {
-      id: "1",
-      prompt: m.profile_mockPromptHeadphones(),
-      platform: "Amazon",
-      style: m.style_minimal_label(),
-      language: m.profile_languageChinese(),
-      createdAt: "2024-01-15 10:30",
-      status: "completed",
-    },
-    {
-      id: "2",
-      prompt: m.profile_mockPromptWatch(),
-      platform: "Temu",
-      style: m.profile_styleTech(),
-      language: m.profile_languageEnglish(),
-      createdAt: "2024-01-14 15:20",
-      status: "completed",
-    },
-  ];
-}
-
-function statusClass(status: GenerationRecord["status"]) {
-  if (status === "completed") return "status-badge-success";
-  if (status === "processing") return "status-badge-info";
+function statusClass(status: string) {
+  if (status === "completed" || status === "success") return "status-badge-success";
+  if (status === "processing" || status === "pending") return "status-badge-info";
   return "status-badge-error";
 }
 
-function statusLabel(status: GenerationRecord["status"]) {
-  if (status === "completed") return m.profile_history_status_completed();
-  if (status === "processing") return m.profile_history_status_processing();
+function statusLabel(status: string) {
+  if (status === "completed" || status === "success") return m.profile_history_status_completed();
+  if (status === "processing" || status === "pending") return m.profile_history_status_processing();
   return m.profile_history_status_failed();
 }
 
 function StatsCards() {
-  const stats = [
+  const { stats, isLoading } = useProfileStats();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="panel p-5 animate-pulse">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-md bg-[hsl(var(--secondary))]" />
+              <div className="space-y-2">
+                <div className="h-4 w-20 rounded bg-[hsl(var(--secondary))]" />
+                <div className="h-6 w-10 rounded bg-[hsl(var(--secondary))]" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const statsData = [
     {
       label: m.profile_stats_totalGenerations(),
-      value: 12,
+      value: stats?.totalGenerations ?? 0,
       icon: ImageIcon,
       tone: "text-[hsl(var(--primary))] bg-[hsl(var(--color-info-light))]",
     },
     {
       label: m.profile_stats_thisMonth(),
-      value: 5,
+      value: stats?.thisMonth ?? 0,
       icon: CalendarDays,
       tone: "text-[hsl(var(--color-success))] bg-[hsl(var(--color-success-light))]",
     },
     {
       label: m.profile_stats_remainingCredits(),
-      value: 195,
+      value: stats?.remainingCredits ?? 0,
       icon: Coins,
       tone: "text-[hsl(var(--accent))] bg-[hsl(var(--color-warning-light))]",
     },
     {
       label: m.profile_stats_favoriteStyle(),
-      value: m.profile_styleMinimalModern(),
+      value: stats?.favoriteStyle ?? "-",
       icon: Palette,
       tone: "text-foreground bg-[hsl(var(--secondary))]",
     },
@@ -97,7 +86,7 @@ function StatsCards() {
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {stats.map((item) => {
+      {statsData.map((item) => {
         const Icon = item.icon;
         return (
           <div key={item.label} className="panel p-5">
@@ -119,10 +108,14 @@ function StatsCards() {
 
 function UserInfoCard() {
   const { user } = useAuth();
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString()
+    : "-";
+
   const rows = [
     [m.profile_userInfo_username(), user?.name || "User"],
     [m.profile_userInfo_email(), user?.email || "user@example.com"],
-    [m.profile_userInfo_memberSince(), "2024-01-01"],
+    [m.profile_userInfo_memberSince(), memberSince],
     [m.profile_userInfo_plan(), m.profile_userInfo_proPlan()],
   ];
 
@@ -144,11 +137,52 @@ function UserInfoCard() {
 }
 
 function GenerationHistory() {
-  const mockHistory = getMockHistory();
+  const { generations, isLoading, error, refresh } = useGenerations({ initialPageSize: 20 });
 
-  const handleDelete = (_id: string) => {
-    // TODO: Implement delete functionality
+  const handleDelete = async (id: string) => {
+    try {
+      await import("@/lib/api").then(({ deleteGeneration }) => deleteGeneration(id));
+      refresh();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <section className="panel overflow-hidden">
+        <div className="border-b border-[hsl(var(--border))] p-5">
+          <h2 className="panel-title">{m.profile_history_title()}</h2>
+          <p className="mt-1 text-sm text-foreground-muted">{m.profile_history_subtitle()}</p>
+        </div>
+        <div className="space-y-4 p-5">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex gap-4 animate-pulse">
+              <div className="h-16 w-16 rounded bg-[hsl(var(--secondary))]" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-3/4 rounded bg-[hsl(var(--secondary))]" />
+                <div className="h-3 w-1/2 rounded bg-[hsl(var(--secondary))]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="panel overflow-hidden">
+        <div className="border-b border-[hsl(var(--border))] p-5">
+          <h2 className="panel-title">{m.profile_history_title()}</h2>
+        </div>
+        <div className="error-banner m-5">
+          <p>{error}</p>
+          <button onClick={refresh} className="mt-2 text-sm font-semibold underline">{m.common_retry()}</button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="panel overflow-hidden">
@@ -157,7 +191,7 @@ function GenerationHistory() {
         <p className="mt-1 text-sm text-foreground-muted">{m.profile_history_subtitle()}</p>
       </div>
 
-      {mockHistory.length === 0 ? (
+      {generations.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 text-center">
           <FolderOpen className="mb-4 h-12 w-12 text-foreground-muted" aria-hidden="true" />
           <h3 className="text-lg font-semibold text-foreground">{m.profile_history_empty()}</h3>
@@ -168,12 +202,14 @@ function GenerationHistory() {
         </div>
       ) : (
         <div>
-          {mockHistory.map((item) => (
+          {generations.map((item) => (
             <div key={item.id} className="data-row p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-semibold text-foreground">{item.prompt}</h3>
+                    <h3 className="text-base font-semibold text-foreground">
+                      {item.prompt || m.profile_history_noPrompt()}
+                    </h3>
                     <span className={`status-badge ${statusClass(item.status)}`}>
                       {statusLabel(item.status)}
                     </span>
@@ -181,10 +217,15 @@ function GenerationHistory() {
                   <p className="mt-1 text-sm text-foreground-muted">
                     {item.platform} · {item.style} · {item.language}
                   </p>
-                  <p className="font-utility mt-1 text-xs text-foreground-muted">{item.createdAt}</p>
+                  <p className="font-utility mt-1 text-xs text-foreground-muted">
+                    {new Date(item.createdAt).toLocaleString()}
+                  </p>
                 </div>
                 <div className="flex gap-2">
-                  <button className="btn-secondary h-9 gap-2 px-3">
+                  <button
+                    onClick={() => window.location.href = localizeHref(`/generate?history=${item.id}`)}
+                    className="btn-secondary h-9 gap-2 px-3"
+                  >
                     <Eye className="h-4 w-4" aria-hidden="true" />
                     {m.profile_history_viewDetail()}
                   </button>
@@ -307,7 +348,7 @@ function SettingsForm() {
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
   const { user, isLoading: isAuthLoading } = useAuth();
-  const mockHistory = getMockHistory();
+  const { generations } = useGenerations({ initialPageSize: 3 });
 
   if (isAuthLoading) {
     return (
@@ -363,14 +404,18 @@ export default function ProfilePage() {
                 <h2 className="panel-title">{m.profile_overview_recentActivity()}</h2>
               </div>
               <div>
-                {mockHistory.slice(0, 3).map((item) => (
+                {generations.slice(0, 3).map((item) => (
                   <div key={item.id} className="data-row flex items-center gap-4 p-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--color-info-light))] text-[hsl(var(--primary))]">
                       <Zap className="h-5 w-5" aria-hidden="true" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">{item.prompt}</p>
-                      <p className="font-utility text-xs text-foreground-muted">{item.createdAt}</p>
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {item.prompt || m.profile_history_noPrompt()}
+                      </p>
+                      <p className="font-utility text-xs text-foreground-muted">
+                        {new Date(item.createdAt).toLocaleString()}
+                      </p>
                     </div>
                     <span className="status-badge status-badge-neutral">{item.platform}</span>
                   </div>

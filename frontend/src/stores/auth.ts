@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name?: string | null;
   image?: string | null;
+  createdAt?: string;
 }
 
 interface AuthState {
