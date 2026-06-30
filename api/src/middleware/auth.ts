@@ -45,12 +45,17 @@ export const authMiddleware = createMiddleware<{
       );
     }
 
-    // Validate session using Better Auth API
-    const session = await auth.api.getSession({
-      headers: new Headers({
-        cookie: `better-auth.session_token=${sessionToken}`,
-      }),
+    // Validate session using Better Auth handler (same approach as /api/auth/session)
+    const url = new URL(c.req.url);
+    url.pathname = "/api/auth/get-session";
+    const authRequest = new Request(url.toString(), {
+      method: "GET",
+      headers: c.req.header(),
     });
+    const authResponse = await auth.handler(authRequest);
+    const authText = await authResponse.text();
+    const authData = JSON.parse(authText);
+    const session = authData;
 
     if (!session?.user?.id) {
       return c.json(
