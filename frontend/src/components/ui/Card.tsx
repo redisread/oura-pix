@@ -5,7 +5,7 @@
  * Supports hover effect and padding variants.
  */
 
-import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { forwardRef, type HTMLAttributes } from "react";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
@@ -41,7 +41,10 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   );
 });
 
-export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {}
+export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+  /** Visual variant */
+  variant?: "default" | "compact";
+}
 
 export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   function CardHeader({ children, className = "", ...props }, ref) {
@@ -53,7 +56,10 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   }
 );
 
-export interface CardBodyProps extends HTMLAttributes<HTMLDivElement> {}
+export interface CardBodyProps extends HTMLAttributes<HTMLDivElement> {
+  /** Enable scrollable overflow */
+  scrollable?: boolean;
+}
 
 export const CardBody = forwardRef<HTMLDivElement, CardBodyProps>(
   function CardBody({ children, className = "", ...props }, ref) {
@@ -65,7 +71,10 @@ export const CardBody = forwardRef<HTMLDivElement, CardBodyProps>(
   }
 );
 
-export interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {}
+export interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
+  /** Horizontal alignment */
+  align?: "left" | "center" | "right" | "between";
+}
 
 export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
   function CardFooter({ children, className = "", ...props }, ref) {

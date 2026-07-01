@@ -12,7 +12,7 @@
  * - 1-9: select tab (consumer-defined)
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export interface ShortcutHandlers {
   onUndo?: () => void;
@@ -26,6 +26,8 @@ export interface ShortcutHandlers {
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
   const enabled = handlers.enabled !== false;
+  const handlersRef = useRef(handlers);
+  handlersRef.current = handlers;
 
   useEffect(() => {
     if (!enabled) return;
@@ -38,9 +40,9 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
         target?.tagName === "TEXTAREA" ||
         (target as HTMLElement | null)?.isContentEditable === true;
 
-      if (e.key === "Escape" && handlers.onClose) {
+      if (e.key === "Escape" && handlersRef.current.onClose) {
         e.preventDefault();
-        handlers.onClose();
+        handlersRef.current.onClose();
         return;
       }
 
@@ -49,45 +51,37 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers): void {
       if (mod && e.key.toLowerCase() === "z") {
         e.preventDefault();
         if (e.shiftKey) {
-          handlers.onRedo?.();
+          handlersRef.current.onRedo?.();
         } else {
-          handlers.onUndo?.();
+          handlersRef.current.onUndo?.();
         }
         return;
       }
       if (mod && e.key.toLowerCase() === "y") {
         e.preventDefault();
-        handlers.onRedo?.();
+        handlersRef.current.onRedo?.();
         return;
       }
       if (mod && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        handlers.onSave?.();
+        handlersRef.current.onSave?.();
         return;
       }
       if (mod && e.key.toLowerCase() === "d") {
         e.preventDefault();
-        handlers.onDownload?.();
+        handlersRef.current.onDownload?.();
         return;
       }
-      if (e.key >= "1" && e.key <= "9" && handlers.onTabSelect) {
+      if (e.key >= "1" && e.key <= "9" && handlersRef.current.onTabSelect) {
         const idx = Number(e.key) - 1;
-        handlers.onTabSelect(idx);
+        handlersRef.current.onTabSelect(idx);
         return;
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [
-    enabled,
-    handlers.onUndo,
-    handlers.onRedo,
-    handlers.onSave,
-    handlers.onDownload,
-    handlers.onClose,
-    handlers.onTabSelect,
-  ]);
+  }, [enabled]);
 }
 
 const BADGE_BASE_CLASS =

@@ -8,7 +8,7 @@ import { localeToGenerationLanguage, type GenerationLanguage, type Locale } from
 import UploadDropzone from "./UploadDropzone";
 import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
 import CompareView from "./compare/CompareView";
-import PromptTemplates, { type PromptTemplate } from "./generation/PromptTemplates";
+import PromptTemplates from "./generation/PromptTemplates";
 import { uploadImage } from "@/lib/api";
 import { createGeneration, getGeneration, previewGeneration } from "@/lib/generation";
 import { useToast, ToastProvider } from "./ui/Toast";

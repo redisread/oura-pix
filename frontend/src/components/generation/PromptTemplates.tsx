@@ -77,7 +77,8 @@ interface PromptTemplatesProps {
 
 export default function PromptTemplates({
   platform,
-  style,
+  // style prop reserved for future use
+  style: _style,
   onSelect,
   onHistorySelect,
 }: PromptTemplatesProps) {
