@@ -1,248 +1,249 @@
+/**
+ * HomePage Component
+ *
+ * Refocused homepage with single primary path:
+ *   Upload → AI Process → Publish Blog
+ *
+ * Structure:
+ *   1. Hero (single primary CTA + one-liner promise)
+ *   2. Three-step path
+ *   3. Showcase (before/after)
+ *   4. Secondary links (Blog/RSS/History/Profile) — collapsed grid
+ */
+
 "use client";
 
-import {
-  ArrowRight,
-  BadgeCheck,
-  Camera,
-  CheckCircle2,
-  Globe2,
-  PackageCheck,
-  ScanLine,
-  WandSparkles,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Camera, History, Rss, User, WandSparkles, PackageCheck } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 
 const platformBadges = ["Amazon", "Shopify", "eBay", "Etsy"];
 
 export default function HomePage() {
-  const proofRows = [
-    {
-      label: m.home_proofInputLabel(),
-      value: m.home_proofInputValue(),
-      tone: "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]",
-    },
-    {
-      label: m.home_proofMarketLabel(),
-      value: m.home_proofMarketValue(),
-      tone: "bg-[hsl(var(--accent)/0.12)] text-[hsl(var(--accent))]",
-    },
-    {
-      label: m.home_proofOutputLabel(),
-      value: m.home_proofOutputValue(),
-      tone: "bg-[hsl(var(--foreground)/0.08)] text-foreground",
-    },
-  ];
-
-  const workflow = [
-    {
-      icon: Camera,
-      title: m.home_workflowImageTitle(),
-      copy: m.home_workflowImageCopy(),
-    },
-    {
-      icon: ScanLine,
-      title: m.home_workflowMarketTitle(),
-      copy: m.home_workflowMarketCopy(),
-    },
-    {
-      icon: PackageCheck,
-      title: m.home_workflowReviewTitle(),
-      copy: m.home_workflowReviewCopy(),
-    },
-  ];
-
-  const sampleTags = [
-    m.home_sampleTagBpa(),
-    m.home_sampleTagCommute(),
-    m.home_sampleTagGiftable(),
-  ];
-
-  const exportChecks = [
-    m.home_exportLocalizedCopy(),
-    m.home_exportSceneRatios(),
-    m.home_exportSeoTags(),
-  ];
-
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
+        {/* ============= 1. Hero (主 CTA + 一句话承诺) ============= */}
         <section className="relative overflow-hidden border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]">
           <div className="proof-strip absolute inset-x-0 top-0 h-2" />
 
-          <div className="mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:pb-20 lg:pt-20">
-            <div className="flex flex-col justify-center">
-              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--accent))]">
-                {m.home_heroKicker()}
-              </p>
-              <h1 className="font-display mt-5 max-w-3xl text-5xl font-semibold text-foreground sm:text-6xl lg:text-7xl">
-                {m.home_heroTitle()}
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg text-foreground-muted">
-                {m.home_heroDescription()}
-              </p>
+          <div className="mx-auto max-w-5xl px-4 pb-16 pt-20 text-center sm:px-6 lg:px-8 lg:pb-24 lg:pt-28">
+            <p className="font-utility text-xs font-semibold uppercase tracking-wider text-[hsl(var(--accent))]">
+              {m.home_newHeroKicker()}
+            </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a
-                  href={localizeHref("/generate")}
-                  className="btn-primary gap-2 px-6 py-3 text-base"
-                >
-                  <WandSparkles className="h-5 w-5" aria-hidden="true" />
-                  {m.generate()}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-                <a
-                  href={localizeHref("/pricing")}
-                  className="btn-secondary gap-2 px-6 py-3 text-base"
-                >
-                  {m.pricing()}
-                </a>
-              </div>
+            <h1 className="font-display mx-auto mt-6 max-w-4xl text-4xl font-semibold leading-tight text-foreground sm:text-5xl lg:text-6xl">
+              {m.home_newHeroTitle()}
+            </h1>
 
-              <div className="mt-8 flex flex-wrap gap-2" aria-label={m.home_supportedMarketplacesAria()}>
-                {platformBadges.map((platform) => (
-                  <span
-                    key={platform}
-                    className="rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card)/0.8)] px-3 py-1 text-sm font-semibold text-foreground-muted"
-                  >
-                    {platform}
-                  </span>
-                ))}
-              </div>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-foreground-muted sm:text-xl">
+              {m.home_newHeroSubtitle()}
+            </p>
+
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <a
+                href={localizeHref("/generate")}
+                className="btn-primary inline-flex h-12 items-center gap-2 px-8 text-base font-semibold"
+              >
+                <Camera className="h-5 w-5" aria-hidden="true" />
+                {m.home_newHeroPrimaryCta()}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+              <a
+                href="#showcase"
+                className="btn-secondary inline-flex h-12 items-center gap-2 px-8 text-base font-semibold"
+              >
+                {m.home_newHeroSecondaryCta()}
+              </a>
             </div>
 
-            <aside className="relative" aria-label={m.home_specimenAria()}>
-              <div className="card specimen-shadow overflow-hidden border-2 border-[hsl(var(--foreground)/0.14)]">
-                <div className="proof-strip h-3" />
-                <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[1fr_0.88fr]">
-                  <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background-secondary))] p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
-                          {m.home_sourceImage()}
-                        </p>
-                        <h2 className="mt-1 text-xl font-semibold text-foreground">
-                          {m.home_sampleProduct()}
-                        </h2>
-                      </div>
-                      <BadgeCheck className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
-                    </div>
-
-                    <div className="mt-4 aspect-[4/3] overflow-hidden rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
-                      <div className="bench-grid flex h-full items-center justify-center p-8">
-                        <img
-                          src="/logo.png"
-                          alt={m.home_productPreviewAlt()}
-                          className="h-full max-h-48 w-full object-contain"
-                          loading="eager"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-2">
-                      {proofRows.map((row) => (
-                        <div
-                          key={row.label}
-                          className="flex items-center justify-between gap-3 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-3 py-2"
-                        >
-                          <span className="font-utility text-[11px] font-semibold uppercase text-foreground-muted">
-                            {row.label}
-                          </span>
-                          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${row.tone}`}>
-                            {row.value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
-                      <p className="font-utility text-xs font-semibold uppercase text-foreground-muted">
-                        {m.home_generatedListing()}
-                      </p>
-                      <h3 className="mt-3 text-2xl font-semibold text-foreground">
-                        {m.home_listingTitle()}
-                      </h3>
-                      <p className="mt-3 text-sm text-foreground-muted">
-                        {m.home_listingDescription()}
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {sampleTags.map((tag) => (
-                          <span key={tag} className="badge">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--foreground))] p-4 text-[hsl(var(--background))]">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.68)]">
-                          {m.home_exportCheck()}
-                        </p>
-                        <Globe2 className="h-5 w-5 text-[hsl(var(--background))]" aria-hidden="true" />
-                      </div>
-                      <div className="mt-5 space-y-3">
-                        {exportChecks.map((item) => (
-                          <div key={item} className="flex items-center gap-2 text-sm font-semibold">
-                            <CheckCircle2 className="h-4 w-4 text-[hsl(var(--accent))]" aria-hidden="true" />
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </aside>
+            <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-foreground-muted">
+              {platformBadges.map((p) => (
+                <li key={p} className="font-medium">
+                  {p}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        <section className="bg-[hsl(var(--card))] py-16">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr]">
-              <div>
-                <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--primary))]">
-                  {m.home_workflowKicker()}
-                </p>
-                <h2 className="font-display mt-3 text-4xl font-semibold text-foreground">
-                  {m.home_workflowTitle()}
-                </h2>
-              </div>
-              <div className="grid gap-3 md:grid-cols-3">
-                {workflow.map((item) => (
-                  <div
-                    key={item.title}
-                    className="border-l-2 border-[hsl(var(--border))] bg-[hsl(var(--background)/0.5)] p-5"
-                  >
-                    <item.icon className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
-                    <h3 className="mt-5 text-lg font-semibold text-foreground">{item.title}</h3>
-                    <p className="mt-3 text-sm text-foreground-muted">{item.copy}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="border-t border-[hsl(var(--border))] bg-[hsl(var(--foreground))] py-14 text-[hsl(var(--background))]">
-          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
-            <div>
-              <p className="font-utility text-xs font-semibold uppercase text-[hsl(var(--background)/0.62)]">
-                {m.home_readyKicker()}
-              </p>
-              <h2 className="font-display mt-3 text-4xl font-semibold">
-                {m.home_readyTitle()}
-              </h2>
-            </div>
-            <a
-              href={localizeHref("/generate")}
-              className="inline-flex items-center justify-center rounded-md bg-[hsl(var(--background))] px-6 py-3 text-base font-semibold text-foreground transition hover:bg-[hsl(var(--background-secondary))]"
+        {/* ============= 2. 三步路径 ============= */}
+        <section
+          aria-labelledby="path-kicker"
+          className="border-b border-[hsl(var(--border))] bg-[hsl(var(--card))]"
+        >
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <p
+              id="path-kicker"
+              className="font-utility text-center text-xs font-semibold uppercase tracking-wider text-[hsl(var(--accent))]"
             >
-              {m.generate()}
-              <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-            </a>
+              {m.home_newPathKicker()}
+            </p>
+
+            <ol className="mt-8 grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  step: 1,
+                  icon: Camera,
+                  title: m.home_newPathStep1Title(),
+                  copy: m.home_newPathStep1Copy(),
+                },
+                {
+                  step: 2,
+                  icon: WandSparkles,
+                  title: m.home_newPathStep2Title(),
+                  copy: m.home_newPathStep2Copy(),
+                },
+                {
+                  step: 3,
+                  icon: PackageCheck,
+                  title: m.home_newPathStep3Title(),
+                  copy: m.home_newPathStep3Copy(),
+                },
+              ].map(({ step, icon: Icon, title, copy }) => (
+                <li
+                  key={step}
+                  className="panel relative overflow-hidden p-6"
+                  aria-label={`${m.home_newPathKicker()} ${step}: ${title}`}
+                >
+                  <div
+                    className="absolute right-4 top-4 font-display text-3xl font-bold text-[hsl(var(--primary)/0.15)]"
+                    aria-hidden="true"
+                  >
+                    0{step}
+                  </div>
+                  <div
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--primary)/0.12)] text-[hsl(var(--primary))]"
+                    aria-hidden="true"
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-display mt-4 text-lg font-semibold text-foreground">
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground-muted">{copy}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* ============= 3. 范例展示（占位 + Before/After） ============= */}
+        <section
+          id="showcase"
+          aria-labelledby="showcase-kicker"
+          className="border-b border-[hsl(var(--border))] bg-[hsl(var(--background))]"
+        >
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <div className="text-center">
+              <p
+                id="showcase-kicker"
+                className="font-utility text-xs font-semibold uppercase tracking-wider text-[hsl(var(--accent))]"
+              >
+                {m.home_newShowcaseKicker()}
+              </p>
+              <h2 className="font-display mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
+                {m.home_newShowcaseTitle()}
+              </h2>
+              <p className="mt-3 text-sm italic text-foreground-muted">
+                {m.home_newShowcaseNote()}
+              </p>
+            </div>
+
+            <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[0, 1, 2].map((idx) => (
+                <li
+                  key={idx}
+                  className="panel overflow-hidden p-0"
+                  aria-label={[
+                    m.home_newShowcaseExample1(),
+                    m.home_newShowcaseExample2(),
+                    m.home_newShowcaseExample3(),
+                  ][idx]}
+                >
+                  <div className="grid grid-cols-2">
+                    <div className="aspect-square bg-[hsl(var(--secondary))] p-3">
+                      <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-[hsl(var(--border-strong))] text-xs text-foreground-muted">
+                        {m.home_heroKicker()}
+                      </div>
+                    </div>
+                    <div className="aspect-square bg-[hsl(var(--primary)/0.08)] p-3">
+                      <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-[hsl(var(--primary)/0.4)] text-xs font-medium text-[hsl(var(--primary))]">
+                        AI
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-[hsl(var(--border))] px-4 py-3 text-sm font-medium text-foreground">
+                    {[
+                      m.home_newShowcaseExample1(),
+                      m.home_newShowcaseExample2(),
+                      m.home_newShowcaseExample3(),
+                    ][idx]}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ============= 4. 次级入口（折叠区） ============= */}
+        <section
+          aria-labelledby="secondary-title"
+          className="bg-[hsl(var(--card))]"
+        >
+          <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+            <h2
+              id="secondary-title"
+              className="font-display text-center text-2xl font-semibold text-foreground"
+            >
+              {m.home_newSecondaryTitle()}
+            </h2>
+            <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  href: "/blog",
+                  icon: BookOpen,
+                  title: m.home_newSecondaryBlog(),
+                  copy: m.home_newSecondaryBlogCopy(),
+                },
+                {
+                  href: "/rss.xml",
+                  icon: Rss,
+                  title: m.home_newSecondaryRss(),
+                  copy: m.home_newSecondaryRssCopy(),
+                },
+                {
+                  href: "/history",
+                  icon: History,
+                  title: m.home_newSecondaryHistory(),
+                  copy: m.home_newSecondaryHistoryCopy(),
+                },
+                {
+                  href: "/settings/profile",
+                  icon: User,
+                  title: m.home_newSecondaryProfile(),
+                  copy: m.home_newSecondaryProfileCopy(),
+                },
+              ].map(({ href, icon: Icon, title, copy }) => (
+                <li key={href}>
+                  <a
+                    href={localizeHref(href)}
+                    className="panel flex h-full items-start gap-3 p-4 transition-colors hover:bg-[hsl(var(--secondary))]"
+                  >
+                    <div
+                      className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-[hsl(var(--foreground)/0.06)] text-foreground-muted"
+                      aria-hidden="true"
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">{title}</div>
+                      <p className="mt-0.5 text-xs text-foreground-muted">{copy}</p>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>
