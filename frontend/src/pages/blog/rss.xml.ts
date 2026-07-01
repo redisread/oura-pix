@@ -1,10 +1,22 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 
+interface BlogPost {
+  data: {
+    title: string;
+    description: string;
+    publishDate: Date;
+    tags?: string[];
+    category: string;
+    draft?: boolean;
+  };
+  slug: string;
+}
+
 export const GET: APIRoute = async () => {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const posts = await getCollection('blog', ({ data }: { data: BlogPost['data'] }) => !data.draft) as BlogPost[];
   const sorted = posts.sort(
-    (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
+    (a: BlogPost, b: BlogPost) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
   );
 
   const siteUrl = 'https://ourapix.jiahongw.com';
@@ -13,7 +25,7 @@ export const GET: APIRoute = async () => {
 
   const items = sorted
     .slice(0, 20)
-    .map((post) => {
+    .map((post: BlogPost) => {
       const tags = post.data.tags?.map((t: string) => `<category>${escape(t)}</category>`).join('\n      ') ?? '';
       return `    <item>
       <title>${escape(post.data.title)}</title>
