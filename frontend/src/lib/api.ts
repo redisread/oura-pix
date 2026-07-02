@@ -86,7 +86,7 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 // ============================================
 
 /** Generation list API response (matches API envelope shape) */
-export interface GenerationsListResult {
+interface GenerationsListResult {
   data: GenerationRecord[];
   pagination: Pagination;
 }
@@ -108,7 +108,7 @@ export interface GenerationRecord {
 }
 
 /** Public generation detail (subset used by polling + UI) */
-export interface GenerationStatus {
+interface GenerationStatus {
   id: string;
   status: string;
   imageGenerationStatus?: string;
@@ -121,7 +121,7 @@ export interface GenerationStatus {
   } | null>;
 }
 
-export interface CreateGenerationResult {
+interface CreateGenerationResult {
   id: string;
   status: string;
   createdAt: string;
@@ -183,7 +183,7 @@ export async function updateGenerationImage(
 // Preview Generation
 // ============================================
 
-export interface PreviewGenerationRequest {
+interface PreviewGenerationRequest {
   productImageId?: string;
   prompt?: string;
   settings: {
@@ -194,7 +194,7 @@ export interface PreviewGenerationRequest {
   };
 }
 
-export interface PreviewGenerationResponse {
+interface PreviewGenerationResponse {
   success: boolean;
   data?: {
     preview: {
@@ -206,7 +206,7 @@ export interface PreviewGenerationResponse {
   error?: string;
 }
 
-export interface PreviewData {
+interface PreviewData {
   preview: {
     title: string;
     description: string;
@@ -290,17 +290,17 @@ export interface Favorite {
   } | null;
 }
 
-export interface FavoritesListResult {
+interface FavoritesListResult {
   data: Favorite[];
   pagination: Pagination;
 }
 
-export interface FavoriteCheckResult {
+interface FavoriteCheckResult {
   isFavorited: boolean;
   favoriteId: string | null;
 }
 
-export interface BatchDeleteResult {
+interface BatchDeleteResult {
   deleted: number;
 }
 
