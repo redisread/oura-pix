@@ -13,6 +13,7 @@ import type {
   GenerationsListParams,
   UploadImageResponse,
 } from "@oura-pix/api-client";
+import type { Pagination } from "@/lib/types";
 // Use Astro's import.meta.env for environment variables.
 export const API_BASE_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:8989";
 
@@ -84,29 +85,81 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 // Generation APIs
 // ============================================
 
-export async function getGenerations(params?: GenerationsListParams) {
-  const response = await api.get(ENDPOINTS.generations.list, { params });
-  return response.data;
+/** Generation list API response (matches API envelope shape) */
+export interface GenerationsListResult {
+  data: GenerationRecord[];
+  pagination: Pagination;
 }
 
-export async function getGeneration(id: string) {
-  const response = await api.get(ENDPOINTS.generations.get(id));
-  return response.data;
+export interface GenerationRecord {
+  id: string;
+  prompt: string | null;
+  platform: string;
+  style: string;
+  language: string;
+  count: number;
+  productImageId: string | null;
+  productImageUrl: string | null;
+  referenceImageUrls: string[];
+  generatedImages: string[];
+  createdAt: string;
+  status: string;
+  errorMessage?: string | null;
 }
 
-export async function createGeneration(input: CreateGenerationInput) {
-  const response = await api.post(ENDPOINTS.generations.create, input);
-  return response.data;
+/** Public generation detail (subset used by polling + UI) */
+export interface GenerationStatus {
+  id: string;
+  status: string;
+  imageGenerationStatus?: string;
+  results?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    tags: string[];
+    imageUrl: string;
+  } | null>;
 }
 
-export async function cancelGeneration(id: string) {
-  const response = await api.post(ENDPOINTS.generations.cancel(id));
-  return response.data;
+export interface CreateGenerationResult {
+  id: string;
+  status: string;
+  createdAt: string;
 }
 
-export async function deleteGeneration(id: string) {
-  const response = await api.delete(ENDPOINTS.generations.get(id));
-  return response.data;
+export async function getGenerationsList(
+  params?: GenerationsListParams
+): Promise<GenerationsListResult> {
+  const query = new URLSearchParams();
+  if (params?.page) query.set("page", String(params.page));
+  if (params?.pageSize) query.set("pageSize", String(params.pageSize));
+  if (params?.filter && params.filter !== "all") query.set("filter", params.filter);
+  const qs = query.toString();
+  return apiJson<GenerationsListResult>(`${ENDPOINTS.generations.list}${qs ? "?" + qs : ""}`);
+}
+
+export async function getGeneration(id: string): Promise<GenerationStatus> {
+  const env = await apiJson<{ data: GenerationStatus }>(ENDPOINTS.generations.get(id));
+  return env.data;
+}
+
+export async function createGeneration(
+  input: CreateGenerationInput
+): Promise<CreateGenerationResult> {
+  const env = await apiJson<{ data: CreateGenerationResult }>(ENDPOINTS.generations.create, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: { "Content-Type": "application/json" },
+  });
+  return env.data;
+}
+
+export async function cancelGeneration(id: string): Promise<void> {
+  await apiJson(ENDPOINTS.generations.cancel(id), { method: "POST" });
+}
+
+export async function deleteGeneration(id: string): Promise<void> {
+  await apiJson(ENDPOINTS.generations.get(id), { method: "DELETE" });
 }
 
 export async function updateGenerationImage(
@@ -118,16 +171,15 @@ export async function updateGenerationImage(
   formData.append("image", image);
   formData.append("imageIndex", String(imageIndex));
 
-  const response = await api.patch<{ imageUrl: string }>(
+  const env = await apiJson<{ data: { imageUrl: string } }>(
     `${ENDPOINTS.generations.get(id)}/image`,
-    formData,
     {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      method: "POST",
+      body: formData,
+      headers: { "Content-Type": "multipart/form-data" },
     }
   );
-  return response.data;
+  return env.data;
 }
 
 
@@ -223,4 +275,82 @@ export async function createCheckoutSession(plan: string, successUrl: string, ca
 export async function createPortalSession(returnUrl: string) {
   const response = await api.post(ENDPOINTS.subscription.portal, { returnUrl });
   return response.data;
+}
+
+// ============================================
+// Favorites APIs
+// ============================================
+
+export interface Favorite {
+  id: string;
+  generationId: string;
+  imageUrl: string;
+  imageIndex: number | null;
+  createdAt: string;
+  generation: {
+    id: string;
+    status: string;
+    settings: {
+      targetPlatform?: string;
+      style?: string;
+      language?: string;
+    };
+    createdAt: string;
+  } | null;
+}
+
+export interface FavoritesListResult {
+  data: Favorite[];
+  pagination: Pagination;
+}
+
+export interface FavoriteCheckResult {
+  isFavorited: boolean;
+  favoriteId: string | null;
+}
+
+export interface BatchDeleteResult {
+  deleted: number;
+}
+
+export async function getFavorites(
+  page = 1,
+  pageSize = 24
+): Promise<FavoritesListResult> {
+  const qs = `?page=${page}&pageSize=${pageSize}`;
+  const env = await apiJson<{ data: Favorite[]; pagination: Pagination }>(
+    `${ENDPOINTS.favorites.list}${qs}`
+  );
+  return { data: env.data, pagination: env.pagination };
+}
+
+export async function addFavorite(
+  generationId: string,
+  imageUrl: string,
+  imageIndex?: number
+): Promise<Favorite> {
+  const env = await apiJson<{ data: Favorite }>(ENDPOINTS.favorites.add, {
+    method: "POST",
+    body: JSON.stringify({ generationId, imageUrl, ...(imageIndex !== undefined ? { imageIndex } : {}) }),
+    headers: { "Content-Type": "application/json" },
+  });
+  return env.data;
+}
+
+export async function removeFavorite(id: string): Promise<void> {
+  await apiJson(ENDPOINTS.favorites.remove(id), { method: "DELETE" });
+}
+
+export async function batchRemoveFavorites(ids: string[]): Promise<number> {
+  const env = await apiJson<{ data: BatchDeleteResult }>(ENDPOINTS.favorites.batchDelete, {
+    method: "POST",
+    body: JSON.stringify({ ids }),
+    headers: { "Content-Type": "application/json" },
+  });
+  return env.data.deleted;
+}
+
+export async function checkFavorite(imageUrl: string): Promise<FavoriteCheckResult> {
+  const env = await apiJson<{ data: FavoriteCheckResult }>(ENDPOINTS.favorites.check(imageUrl));
+  return env.data;
 }

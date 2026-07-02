@@ -38,7 +38,7 @@ function planLabel(plan: string): string {
 }
 
 export function useSubscription(): UseSubscriptionReturn {
-  const { data, loading, error, setError, refetch } = useResource<SubscriptionInfo>(
+  const { data, loading, error, refetch } = useResource<SubscriptionInfo>(
     "/api/subscription",
     m.common_unknownError()
   );

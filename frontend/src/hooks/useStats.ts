@@ -22,7 +22,7 @@ export interface StatsData {
 
 export function useStats(initialRange: TimeRange = "30d") {
   const [range, setRange] = useState<TimeRange>(initialRange);
-  const { data, loading, error, setError, refetch } = useResource<StatsData>(
+  const { data, loading, error, refetch } = useResource<StatsData>(
     `/api/stats?range=${range}`,
     m.common_loadFailed()
   );

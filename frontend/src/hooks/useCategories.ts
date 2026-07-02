@@ -29,7 +29,7 @@ export interface Template {
 }
 
 export function useCategories() {
-  const { data, loading, error, setError, refetch } = useResource<Category[]>(
+  const { data, loading, error, refetch } = useResource<Category[]>(
     "/api/categories",
     m.common_loadFailed()
   );
@@ -37,7 +37,7 @@ export function useCategories() {
 }
 
 export function useCategoryTemplates(categoryId: string | null) {
-  const { data, loading, error, setError, refetch } = useResource<Template[]>(
+  const { data, loading, error, refetch } = useResource<Template[]>(
     categoryId ? `/api/categories/${categoryId}/templates` : null,
     m.common_loadFailed()
   );

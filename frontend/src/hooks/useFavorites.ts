@@ -1,32 +1,22 @@
 /**
  * useFavorites Hook
  *
- * Data fetching hook for user favorites
+ * Data fetching hook for user favorites.
+ * Uses the apiJson envelope-unwrapping pattern; errors surface only on network/HTTP failure.
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { api, apiErr } from "@/lib/api";
+import {
+  apiErr,
+  getFavorites,
+  addFavorite,
+  removeFavorite,
+  batchRemoveFavorites,
+  checkFavorite,
+} from "@/lib/api";
+import type { Favorite } from "@/lib/api";
 import type { Pagination } from "@/lib/types";
-import { ENDPOINTS } from "@oura-pix/api-client";
 import * as m from "@/paraglide/messages.js";
-
-export interface Favorite {
-  id: string;
-  generationId: string;
-  imageUrl: string;
-  imageIndex: number | null;
-  createdAt: string;
-  generation: {
-    id: string;
-    status: string;
-    settings: {
-      targetPlatform?: string;
-      style?: string;
-      language?: string;
-    };
-    createdAt: string;
-  } | null;
-}
 
 interface UseFavoritesReturn {
   favorites: Favorite[];
@@ -35,11 +25,11 @@ interface UseFavoritesReturn {
   error: string | null;
   page: number;
   setPage: (page: number) => void;
-  refresh: () => void;
-  addFavorite: (generationId: string, imageUrl: string, imageIndex?: number) => Promise<string | null>;
+  addFavorite: (generationId: string, imageUrl: string, imageIndex?: number) => Promise<Favorite | null>;
   removeFavorite: (id: string) => Promise<boolean>;
   batchRemove: (ids: string[]) => Promise<number>;
   checkFavorite: (imageUrl: string) => Promise<{ isFavorited: boolean; favoriteId: string | null }>;
+  refresh: () => Promise<void>;
 }
 
 export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
@@ -54,18 +44,11 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
     setError(null);
 
     try {
-      const response = await api.get(ENDPOINTS.favorites.list, {
-        params: { page, pageSize: initialPageSize },
-      });
-
-      if (response.data.success) {
-        setFavorites(response.data.data);
-        setPagination(response.data.pagination);
-      } else {
-        setError(response.data.error?.message || m.common_loadFailed());
-      }
+      const result = await getFavorites(page, initialPageSize);
+      setFavorites(result.data);
+      setPagination(result.pagination);
     } catch (err) {
-      setError(apiErr(err, m.common_unknownError()));
+      setError(apiErr(err, m.common_loadFailed()));
     } finally {
       setIsLoading(false);
     }
@@ -75,42 +58,28 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
     fetchFavorites();
   }, [fetchFavorites]);
 
-  const refresh = useCallback(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
-
-  const addFavorite = useCallback(
-    async (generationId: string, imageUrl: string, imageIndex?: number): Promise<string | null> => {
+  const handleAdd = useCallback(
+    async (generationId: string, imageUrl: string, imageIndex?: number): Promise<Favorite | null> => {
       try {
-        const response = await api.post(ENDPOINTS.favorites.add, {
-          generationId,
-          imageUrl,
-          imageIndex,
-        });
-
-        if (response.data.success) {
-          return response.data.data.id;
-        }
-        return null;
+        const fav = await addFavorite(generationId, imageUrl, imageIndex);
+        await fetchFavorites();
+        return fav;
       } catch {
         return null;
       }
     },
-    []
+    [fetchFavorites]
   );
 
-  const removeFavorite = useCallback(
+  const handleRemove = useCallback(
     async (id: string): Promise<boolean> => {
       try {
-        const response = await api.delete(ENDPOINTS.favorites.remove(id));
-        if (response.data.success) {
-          setFavorites((prev) => prev.filter((f) => f.id !== id));
-          setPagination((prev) =>
-            prev ? { ...prev, total: prev.total - 1 } : prev
-          );
-          return true;
-        }
-        return false;
+        await removeFavorite(id);
+        setFavorites((prev) => prev.filter((f) => f.id !== id));
+        setPagination((prev) =>
+          prev ? { ...prev, total: prev.total - 1 } : prev
+        );
+        return true;
       } catch {
         return false;
       }
@@ -121,18 +90,13 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
   const batchRemove = useCallback(
     async (ids: string[]): Promise<number> => {
       if (ids.length === 0) return 0;
-
       try {
-        const response = await api.post(ENDPOINTS.favorites.batchDelete, { ids });
-        if (response.data.success) {
-          const deleted = response.data.data.deleted;
-          setFavorites((prev) => prev.filter((f) => !ids.includes(f.id)));
-          setPagination((prev) =>
-            prev ? { ...prev, total: prev.total - deleted } : prev
-          );
-          return deleted;
-        }
-        return 0;
+        const deleted = await batchRemoveFavorites(ids);
+        setFavorites((prev) => prev.filter((f) => !ids.includes(f.id)));
+        setPagination((prev) =>
+          prev ? { ...prev, total: prev.total - deleted } : prev
+        );
+        return deleted;
       } catch {
         return 0;
       }
@@ -140,14 +104,10 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
     []
   );
 
-  const checkFavorite = useCallback(
+  const handleCheck = useCallback(
     async (imageUrl: string): Promise<{ isFavorited: boolean; favoriteId: string | null }> => {
       try {
-        const response = await api.get(ENDPOINTS.favorites.check(imageUrl));
-        if (response.data.success) {
-          return response.data.data;
-        }
-        return { isFavorited: false, favoriteId: null };
+        return await checkFavorite(imageUrl);
       } catch {
         return { isFavorited: false, favoriteId: null };
       }
@@ -162,10 +122,10 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
     error,
     page,
     setPage,
-    refresh,
-    addFavorite,
-    removeFavorite,
+    refresh: fetchFavorites,
+    addFavorite: handleAdd,
+    removeFavorite: handleRemove,
     batchRemove,
-    checkFavorite,
+    checkFavorite: handleCheck,
   };
 }

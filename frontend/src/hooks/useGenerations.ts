@@ -1,11 +1,12 @@
 /**
  * useGenerations Hook
  *
- * Data fetching hook for generation history
+ * Data fetching hook for generation history.
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { apiErr, getGenerations } from "@/lib/api";
+import { apiErr, getGenerationsList } from "@/lib/api";
+import type { GenerationRecord } from "@/lib/api";
 import type { Pagination } from "@/lib/types";
 import type { GenerationsListParams } from "@oura-pix/api-client";
 import * as m from "@/paraglide/messages.js";
@@ -13,22 +14,6 @@ import * as m from "@/paraglide/messages.js";
 export type TimeFilter = "all" | "today" | "week" | "month";
 export type PlatformFilter = "all" | "amazon" | "shopify" | "ebay" | "etsy" | "generic";
 export type StatusFilter = "all" | "success" | "pending" | "failed";
-
-export interface GenerationRecord {
-  id: string;
-  prompt: string | null;
-  platform: string;
-  style: string;
-  language: string;
-  count: number;
-  productImageId: string | null;
-  productImageUrl: string | null;
-  referenceImageUrls: string[];
-  generatedImages: string[];
-  createdAt: string;
-  status: string;
-  errorMessage?: string | null;
-}
 
 interface UseGenerationsOptions {
   initialPage?: number;
@@ -51,7 +36,7 @@ interface UseGenerationsReturn {
   setPlatform: (platform: PlatformFilter) => void;
   status: StatusFilter;
   setStatus: (status: StatusFilter) => void;
-  refresh: () => void;
+  refresh: () => Promise<void>;
 }
 
 export function useGenerations(options: UseGenerationsOptions = {}): UseGenerationsReturn {
@@ -77,40 +62,28 @@ export function useGenerations(options: UseGenerationsOptions = {}): UseGenerati
         filter,
       };
 
-      // Note: Backend API currently only supports time filter
-      // Platform and status filtering will be done client-side for now
-      const response = await getGenerations(params);
+      const result = await getGenerationsList(params);
 
-      if (response.success) {
-        let data = response.data as GenerationRecord[];
-
-        // Client-side filtering for platform
-        if (platform !== "all") {
-          data = data.filter((g) => g.platform === platform);
-        }
-
-        // Client-side filtering for status
-        if (status !== "all") {
-          data = data.filter((g) => g.status === status);
-        }
-
-        setGenerations(data);
-        setPagination(response.pagination as Pagination);
-      } else {
-        setError(response.error?.message || m.common_loadFailed());
+      // Note: Backend API currently only supports time filter.
+      // Platform and status filtering are client-side until the API supports them.
+      let data = result.data;
+      if (platform !== "all") {
+        data = data.filter((g) => g.platform === platform);
       }
+      if (status !== "all") {
+        data = data.filter((g) => g.status === status);
+      }
+
+      setGenerations(data);
+      setPagination(result.pagination);
     } catch (err) {
-      setError(apiErr(err, m.common_unknownError()));
+      setError(apiErr(err, m.common_loadFailed()));
     } finally {
       setIsLoading(false);
     }
   }, [page, initialPageSize, filter, platform, status]);
 
   useEffect(() => {
-    fetchGenerations();
-  }, [fetchGenerations]);
-
-  const refresh = useCallback(() => {
     fetchGenerations();
   }, [fetchGenerations]);
 
@@ -127,6 +100,6 @@ export function useGenerations(options: UseGenerationsOptions = {}): UseGenerati
     setPlatform,
     status,
     setStatus,
-    refresh,
+    refresh: fetchGenerations,
   };
 }

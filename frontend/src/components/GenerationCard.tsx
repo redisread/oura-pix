@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { Eye, ImageIcon, Pencil, RotateCw, Trash2 } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
-import type { GenerationRecord } from "@/hooks/useGenerations";
+import type { GenerationRecord } from "@/lib/api";
 import { formatLocaleDate } from "@/lib/locale";
 
 interface GenerationCardProps {

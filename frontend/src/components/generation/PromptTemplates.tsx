@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { History, Sparkles } from "lucide-react";
-import type { GenerationRecord } from "@/hooks/useGenerations";
+import type { GenerationRecord } from "@/lib/api";
 
 export interface PromptTemplate {
   id: string;

@@ -117,47 +117,45 @@ export default function GeneratePage() {
     setError(null);
   }, []);
 
+
   const pollGenerationStatus = async (genId: string) => {
-    const result = await getGeneration(genId);
-    if (result.success && result.data) {
-      const { status, imageGenerationStatus, results } = result.data;
+    const { status, imageGenerationStatus, results } = await getGeneration(genId);
 
-      if (status === "processing") {
-        if (imageGenerationStatus === "processing") {
-          setCurrentStage("generating_images");
-          setProgress(70);
-        } else if (imageGenerationStatus === "completed" || imageGenerationStatus === "skipped") {
-          setCurrentStage("uploading");
-          setProgress(90);
-        } else {
-          setCurrentStage("generating_text");
-          setProgress(40);
-        }
+    if (status === "processing") {
+      if (imageGenerationStatus === "processing") {
+        setCurrentStage("generating_images");
+        setProgress(70);
+      } else if (imageGenerationStatus === "completed" || imageGenerationStatus === "skipped") {
+        setCurrentStage("uploading");
+        setProgress(90);
+      } else {
+        setCurrentStage("generating_text");
+        setProgress(40);
       }
+    }
 
-      if (status === "completed" && results) {
-        setCurrentStage("completed");
-        setProgress(100);
-        setIsGenerating(false);
-        setGeneratedResults(results);
-        toast.success("生成完成，点击查看结果");
-        if (pollingRef.current) {
-          clearInterval(pollingRef.current);
-          pollingRef.current = null;
-        }
-      } else if (status === "failed") {
-        setIsGenerating(false);
-        setError(result.data.errorMessage || m.generation_failed());
-        toast.error("生成失败，请重试", {
-          action: {
-            label: "重试",
-            onClick: () => handleGenerate(),
-          },
-        });
-        if (pollingRef.current) {
-          clearInterval(pollingRef.current);
-          pollingRef.current = null;
-        }
+    if (status === "completed" && results) {
+      setCurrentStage("completed");
+      setProgress(100);
+      setIsGenerating(false);
+      setGeneratedResults(results.filter((r): r is NonNullable<typeof r> => r !== null));
+      toast.success("生成完成，点击查看结果");
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    } else if (status === "failed") {
+      setIsGenerating(false);
+      setError(m.generation_failed());
+      toast.error("生成失败，请重试", {
+        action: {
+          label: "重试",
+          onClick: () => handleGenerate(),
+        },
+      });
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
       }
     }
   };
@@ -196,7 +194,7 @@ export default function GeneratePage() {
       setIsGenerating(true);
 
       // Create generation task
-      const generationResult = await createGeneration({
+      const { id: generationId } = await createGeneration({
         productImageId: mainImageResult.id,
         referenceImageIds: styleImageIds.length > 0 ? styleImageIds : undefined,
         prompt: promptText.trim() || undefined,
@@ -213,17 +211,9 @@ export default function GeneratePage() {
         },
       });
 
-      if (!generationResult.success) {
-        setError(generationResult.error || m.generation_error_createFailed());
-        setIsGenerating(false);
-        return;
-      }
-
       // Start polling
       pollingRef.current = setInterval(() => {
-        if (generationResult.data?.id) {
-          pollGenerationStatus(generationResult.data.id);
-        }
+        pollGenerationStatus(generationId);
       }, 2000);
 
     } catch (err) {

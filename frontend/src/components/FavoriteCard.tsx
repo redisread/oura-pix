@@ -7,7 +7,7 @@
 import { useState } from "react";
 import { Check, Eye, HeartOff } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
-import type { Favorite } from "@/hooks/useFavorites";
+import type { Favorite } from "@/lib/api";
 import { formatLocaleDate } from "@/lib/locale";
 
 interface FavoriteCardProps {

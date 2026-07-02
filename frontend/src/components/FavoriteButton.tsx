@@ -58,10 +58,10 @@ export default function FavoriteButton({
         setFavoriteId(null);
       }
     } else {
-      const id = await addFavorite(generationId, imageUrl, imageIndex);
-      if (id) {
+      const fav = await addFavorite(generationId, imageUrl, imageIndex);
+      if (fav) {
         setIsFavorited(true);
-        setFavoriteId(id);
+        setFavoriteId(fav.id);
       }
     }
 

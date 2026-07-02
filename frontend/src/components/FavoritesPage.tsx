@@ -8,7 +8,8 @@ import { useState, useCallback } from "react";
 import { Check, Download, Heart, Images, Sparkles, Trash2, X } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
-import { useFavorites, type Favorite } from "@/hooks/useFavorites";
+import { useFavorites } from "@/hooks/useFavorites";
+import type { Favorite } from "@/lib/api";
 import { formatLocaleDate } from "@/lib/locale";
 import FavoriteCard from "./FavoriteCard";
 
