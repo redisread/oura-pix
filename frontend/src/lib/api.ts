@@ -154,10 +154,6 @@ export async function createGeneration(
   return env.data;
 }
 
-export async function cancelGeneration(id: string): Promise<void> {
-  await apiJson(ENDPOINTS.generations.cancel(id), { method: "POST" });
-}
-
 export async function deleteGeneration(id: string): Promise<void> {
   await apiJson(ENDPOINTS.generations.get(id), { method: "DELETE" });
 }
@@ -262,14 +258,6 @@ export interface SubscriptionInfo {
 
 export async function getSubscription(): Promise<SubscriptionInfo> {
   return apiJson<SubscriptionInfo>(ENDPOINTS.subscription.get);
-}
-
-export async function createCheckoutSession(plan: string, successUrl: string, cancelUrl: string): Promise<{ url: string }> {
-  return apiJson<{ url: string }>(ENDPOINTS.subscription.checkout, {
-    method: "POST",
-    body: JSON.stringify({ plan, successUrl, cancelUrl }),
-    headers: { "Content-Type": "application/json" },
-  });
 }
 
 export async function createPortalSession(returnUrl: string): Promise<{ url: string }> {
