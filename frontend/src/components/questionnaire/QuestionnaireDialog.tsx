@@ -7,6 +7,7 @@
 
 "use client";
 
+import { Modal } from "@/components/ui";
 import { QuestionnaireForm } from "./QuestionnaireForm";
 import type { QuestionnaireType } from "@/hooks/useQuestionnaire";
 
@@ -29,34 +30,34 @@ export function QuestionnaireDialog({
   generationId,
   onComplete,
 }: QuestionnaireDialogProps) {
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-background rounded-xl shadow-lg max-w-lg w-full mx-4 max-h-[85vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-end mb-2">
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="text-foreground-muted hover:text-foreground"
-              aria-label="关闭"
-            >
-              ✕
-            </button>
-          </div>
-          <QuestionnaireForm
-            type={type}
-            title={title}
-            description={description}
-            generationId={generationId}
-            onComplete={() => {
-              onComplete?.();
-              onOpenChange(false);
-            }}
-          />
-        </div>
+    <Modal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      size="lg"
+      overlay="dark-40"
+      contentClassName="mx-4 max-h-[85vh] overflow-y-auto"
+    >
+      <div className="flex justify-end mb-2">
+        <button
+          type="button"
+          onClick={() => onOpenChange(false)}
+          className="text-foreground-muted hover:text-foreground"
+          aria-label="关闭"
+        >
+          ✕
+        </button>
       </div>
-    </div>
+      <QuestionnaireForm
+        type={type}
+        title={title}
+        description={description}
+        generationId={generationId}
+        onComplete={() => {
+          onComplete?.();
+          onOpenChange(false);
+        }}
+      />
+    </Modal>
   );
 }

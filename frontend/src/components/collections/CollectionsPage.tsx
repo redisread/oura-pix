@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { FolderPlus, Pencil, Save, Trash2, X } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 import { useCollections, type Collection } from "@/hooks/useCollections";
 import { StateMessage } from "@/components/StateMessage";
 import * as m from "@/paraglide/messages.js";
@@ -212,18 +213,8 @@ function CreateCollectionModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="collection-modal-title"
-    >
-      <form
-        onSubmit={handleSubmit}
-        className="panel w-full max-w-md space-y-4 overflow-hidden p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Modal open={true} onClose={onClose} contentProps={{ "aria-labelledby": "collection-modal-title" }}>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-start justify-between gap-4">
           <h2 id="collection-modal-title" className="font-display text-2xl font-semibold text-foreground">{m.collections_newButton()}</h2>
           <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
@@ -272,6 +263,6 @@ function CreateCollectionModal({
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   );
 }

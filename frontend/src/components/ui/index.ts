@@ -9,3 +9,6 @@ export type { InputProps } from "./Input";
 
 export { Badge } from "./Badge";
 export type { BadgeProps, BadgeVariant } from "./Badge";
+
+export { Modal, ConfirmModal } from "./Modal";
+export type { ModalProps, ModalSize, OverlayTint, ConfirmModalProps } from "./Modal";

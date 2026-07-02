@@ -5,6 +5,7 @@
 "use client";
 
 import { useState } from "react";
+import { Modal } from "@/components/ui/Modal";
 import { ExternalLink, Link2, Plus, Save, Trash2, X } from "lucide-react";
 import {
   getPlatformLabel,
@@ -287,31 +288,30 @@ export default function CompetitorsPage() {
         )}
 
         {showForm && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[hsl(var(--foreground)/0.42)] p-4"
-            onClick={() => setShowForm(false)}
-            role="dialog"
-            aria-modal="true"
+          <Modal
+            open={true}
+            onClose={() => { setShowForm(false); setEditing(null); }}
+            size="xl"
+            overlayClassName="overflow-y-auto"
+            contentClassName="my-8"
           >
-            <div className="panel my-8 w-full max-w-2xl p-6 shadow-xl">
-              <CompetitorForm
-                initial={editing ?? undefined}
-                onSubmit={async (data) => {
-                  if (editing) {
-                    await updateCompetitor(editing.id, data);
-                  } else {
-                    await createCompetitor(data);
-                  }
-                  setShowForm(false);
-                  setEditing(null);
-                }}
-                onCancel={() => {
-                  setShowForm(false);
-                  setEditing(null);
-                }}
-              />
-            </div>
-          </div>
+            <CompetitorForm
+              initial={editing ?? undefined}
+              onSubmit={async (data) => {
+                if (editing) {
+                  await updateCompetitor(editing.id, data);
+                } else {
+                  await createCompetitor(data);
+                }
+                setShowForm(false);
+                setEditing(null);
+              }}
+              onCancel={() => {
+                setShowForm(false);
+                setEditing(null);
+              }}
+            />
+          </Modal>
         )}
       </div>
     </div>

@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from "react";
 import { Check, Download, Heart, Images, Sparkles, Trash2, X } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -50,64 +51,59 @@ function ImageModal({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.72)] p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="favorite-modal-title"
+    <Modal
+      open={true}
+      onClose={onClose}
+      size="lg"
+      overlay="fg-72"
+      contentClassName="relative !p-0 overflow-hidden max-h-[90vh] !max-w-4xl shadow-2xl"
     >
-      <div
-        className="panel relative max-h-[90vh] max-w-4xl overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+      <button
+        onClick={onClose}
+        className="icon-button absolute right-4 top-4 z-10 h-10 w-10 bg-[hsl(var(--card)/0.88)] text-foreground hover:bg-[hsl(var(--card))]"
+        aria-label={m.favorites_closePreview()}
       >
-        <button
-          onClick={onClose}
-          className="icon-button absolute right-4 top-4 z-10 h-10 w-10 bg-[hsl(var(--card)/0.88)] text-foreground hover:bg-[hsl(var(--card))]"
-          aria-label={m.favorites_closePreview()}
-        >
-          <X className="h-5 w-5" aria-hidden="true" />
-        </button>
+        <X className="h-5 w-5" aria-hidden="true" />
+      </button>
 
-        <img
-          src={favorite.imageUrl}
-          alt={m.favorite_imageAlt()}
-          className="w-full h-full object-contain max-h-[80vh]"
-          decoding="async"
-        />
+      <img
+        src={favorite.imageUrl}
+        alt={m.favorite_imageAlt()}
+        className="w-full h-full object-contain max-h-[80vh]"
+        decoding="async"
+      />
 
-        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-[hsl(var(--foreground)/0.78)] p-4">
-          <div id="favorite-modal-title" className="text-sm text-[hsl(var(--background))]">
-            <span className="font-semibold">
-              {favorite.generation?.settings?.targetPlatform || m.common_custom()}
-            </span>
-            <span className="ml-4 opacity-75">
-              {formatLocaleDate(favorite.createdAt)}
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <a
-              href={favorite.imageUrl}
-              download
-              className="btn-secondary h-10 gap-2 bg-[hsl(var(--card)/0.9)] px-4 text-foreground"
-            >
-              <Download className="h-4 w-4" aria-hidden="true" />
-              {m.favorites_download()}
-            </a>
-            <button
-              onClick={() => {
-                onRemove(favorite.id);
-                onClose();
-              }}
-              className="btn-primary h-10 gap-2 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))]"
-            >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
-              {m.favorite_remove()}
-            </button>
-          </div>
+      <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between bg-[hsl(var(--foreground)/0.78)] p-4">
+        <div id="favorite-modal-title" className="text-sm text-[hsl(var(--background))]">
+          <span className="font-semibold">
+            {favorite.generation?.settings?.targetPlatform || m.common_custom()}
+          </span>
+          <span className="ml-4 opacity-75">
+            {formatLocaleDate(favorite.createdAt)}
+          </span>
+        </div>
+        <div className="flex gap-2">
+          <a
+            href={favorite.imageUrl}
+            download
+            className="btn-secondary h-10 gap-2 bg-[hsl(var(--card)/0.9)] px-4 text-foreground"
+          >
+            <Download className="h-4 w-4" aria-hidden="true" />
+            {m.favorites_download()}
+          </a>
+          <button
+            onClick={() => {
+              onRemove(favorite.id);
+              onClose();
+            }}
+            className="btn-primary h-10 gap-2 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))]"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            {m.favorite_remove()}
+          </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

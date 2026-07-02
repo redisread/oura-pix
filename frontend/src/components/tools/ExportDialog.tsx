@@ -8,6 +8,7 @@
 "use client";
 
 import { useState } from "react";
+import { Modal } from "@/components/ui/Modal";
 import { Download, X } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 
@@ -112,19 +113,14 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="export-dialog-title"
+    <Modal
+      open={true}
+      onClose={onClose}
+      contentClassName="!p-0 overflow-hidden"
+      contentProps={{ "aria-labelledby": "export-dialog-title" }}
     >
-      <div
-        className="panel w-full max-w-md overflow-hidden shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="proof-strip h-2" />
-        <div className="p-6">
+      <div className="proof-strip h-2" />
+      <div className="p-6">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <p className="page-kicker">{m.tool_exportProofKicker()}</p>
@@ -203,8 +199,7 @@ export default function ExportDialog({ imageUrl, isOpen, onClose }: ExportDialog
             {exporting ? m.tool_exporting() : m.common_download()}
           </button>
         </div>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }

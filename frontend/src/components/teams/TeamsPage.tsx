@@ -12,6 +12,7 @@ import { localizeHref } from "@/paraglide/runtime.js";
 import { useTeams, type Team } from "@/hooks/useTeams";
 import { StateMessage } from "@/components/StateMessage";
 import { formatLocaleDate } from "@/lib/locale";
+import { Modal } from "@/components/ui/Modal";
 import * as m from "@/paraglide/messages.js";
 
 function formatDate(dateString: string): string {
@@ -150,76 +151,60 @@ export default function TeamsPage() {
         )}
 
         {showCreate && (
-          <TeamModal title={m.teams_createTitle()} onClose={() => setShowCreate(false)} onSubmit={handleCreate}>
-            <label className="panel-label mb-1 block">{m.teams_teamName()}</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={m.teams_teamNamePlaceholder()}
-              className="input"
-              maxLength={100}
-              required
-              autoFocus
-            />
-            <button type="submit" disabled={!name.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">{m.teams_create()}</button>
-          </TeamModal>
+          <Modal open={showCreate} onClose={() => setShowCreate(false)}>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <h2 className="font-display text-2xl font-semibold text-foreground">{m.teams_createTitle()}</h2>
+                <button type="button" onClick={() => setShowCreate(false)} className="icon-button h-9 w-9" aria-label={m.common_close()}>
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+              <label className="panel-label mb-1 block">{m.teams_teamName()}</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={m.teams_teamNamePlaceholder()}
+                className="input"
+                maxLength={100}
+                required
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowCreate(false)} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
+                <button type="submit" disabled={!name.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">{m.teams_create()}</button>
+              </div>
+            </form>
+          </Modal>
         )}
 
         {showJoin && (
-          <TeamModal title={m.teams_joinTeam()} onClose={() => setShowJoin(false)} onSubmit={handleJoin}>
-            <label className="panel-label mb-1 block">{m.teams_inviteCodeLabel()}</label>
-            <input
-              type="text"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              placeholder="TEAM-XXXXXXXX"
-              className="input font-utility"
-              required
-              autoFocus
-            />
-            <button type="submit" disabled={!inviteCode.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">{m.teams_join()}</button>
-          </TeamModal>
+          <Modal open={showJoin} onClose={() => setShowJoin(false)}>
+            <form onSubmit={handleJoin} className="space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <h2 className="font-display text-2xl font-semibold text-foreground">{m.teams_joinTeam()}</h2>
+                <button type="button" onClick={() => setShowJoin(false)} className="icon-button h-9 w-9" aria-label={m.common_close()}>
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
+              <label className="panel-label mb-1 block">{m.teams_inviteCodeLabel()}</label>
+              <input
+                type="text"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                placeholder="TEAM-XXXXXXXX"
+                className="input font-utility"
+                required
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button type="button" onClick={() => setShowJoin(false)} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
+                <button type="submit" disabled={!inviteCode.trim()} className="btn-primary h-10 px-4 disabled:cursor-not-allowed disabled:opacity-50">{m.teams_join()}</button>
+              </div>
+            </form>
+          </Modal>
         )}
       </div>
-    </div>
-  );
-}
-
-function TeamModal({
-  title,
-  onClose,
-  onSubmit,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  onSubmit: (e: React.FormEvent) => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <form
-        onSubmit={onSubmit}
-        className="panel w-full max-w-md space-y-4 p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <h2 className="font-display text-2xl font-semibold text-foreground">{title}</h2>
-          <button type="button" onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-        {children}
-        <div className="flex justify-end">
-          <button type="button" onClick={onClose} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
-        </div>
-      </form>
     </div>
   );
 }

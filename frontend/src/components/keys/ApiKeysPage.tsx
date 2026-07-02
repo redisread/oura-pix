@@ -7,6 +7,7 @@
 "use client";
 
 import { useState } from "react";
+import { Modal } from "@/components/ui/Modal";
 import { AlertTriangle, Ban, Check, Copy, KeyRound, Plus, X } from "lucide-react";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { StateMessage } from "@/components/StateMessage";
@@ -62,51 +63,45 @@ function NewKeyModal({
   onClose: () => void;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="new-key-modal-title"
+    <Modal
+      open={true}
+      onClose={onClose}
+      size="xl"
+      contentProps={{ "aria-labelledby": "new-key-modal-title" }}
     >
-      <div
-        className="panel w-full max-w-xl overflow-hidden p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <p className="page-kicker">{m.apiKeys_createdKicker()}</p>
-            <h2 id="new-key-modal-title" className="font-display mt-1 text-2xl font-semibold text-foreground">
-              {m.apiKeys_createdTitle()}
-            </h2>
-          </div>
-          <button onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
-            <X className="h-4 w-4" aria-hidden="true" />
-          </button>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <p className="page-kicker">{m.apiKeys_createdKicker()}</p>
+          <h2 id="new-key-modal-title" className="font-display mt-1 text-2xl font-semibold text-foreground">
+            {m.apiKeys_createdTitle()}
+          </h2>
         </div>
-        <div className="warning-banner mb-4 flex gap-2">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-          <p>{m.apiKeys_createdWarning()}</p>
-        </div>
-        <div className="panel-muted mb-4 p-3">
-          <p className="panel-label mb-2">{m.apiKeys_fullKey()}</p>
-          <CopyableKey value={fullKey} />
-          <p className="font-utility mt-2 text-xs text-foreground-muted">
-            {m.apiKeys_prefix()} <code>{prefix}</code>
-          </p>
-        </div>
-        <div className="panel-muted mb-4 p-3">
-          <p className="panel-label mb-1">{m.apiKeys_usageExample()}</p>
-          <pre className="font-utility overflow-x-auto whitespace-pre text-xs text-foreground">
+        <button onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
+          <X className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+      <div className="warning-banner mb-4 flex gap-2">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+        <p>{m.apiKeys_createdWarning()}</p>
+      </div>
+      <div className="panel-muted mb-4 p-3">
+        <p className="panel-label mb-2">{m.apiKeys_fullKey()}</p>
+        <CopyableKey value={fullKey} />
+        <p className="font-utility mt-2 text-xs text-foreground-muted">
+          {m.apiKeys_prefix()} <code>{prefix}</code>
+        </p>
+      </div>
+      <div className="panel-muted mb-4 p-3">
+        <p className="panel-label mb-1">{m.apiKeys_usageExample()}</p>
+        <pre className="font-utility overflow-x-auto whitespace-pre text-xs text-foreground">
 {`curl -X POST https://api.ourapix.jiahongw.com/api/v1/generate \\
   -H "Authorization: Bearer ${prefix}..." \\
   -H "Content-Type: application/json" \\
   -d '{ "productImageId": "...", "settings": { ... } }'`}
-          </pre>
-        </div>
-        <button onClick={onClose} className="btn-primary h-10 w-full">{m.apiKeys_savedClose()}</button>
+        </pre>
       </div>
-    </div>
+      <button onClick={onClose} className="btn-primary h-10 w-full">{m.apiKeys_savedClose()}</button>
+    </Modal>
   );
 }
 
@@ -224,18 +219,8 @@ export default function ApiKeysPage() {
         </div>
 
         {showCreate && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
-            onClick={() => setShowCreate(false)}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="create-key-title"
-          >
-            <form
-              onSubmit={handleCreate}
-              className="panel w-full max-w-md p-6 shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-            >
+          <Modal open={true} onClose={() => setShowCreate(false)} contentProps={{ "aria-labelledby": "create-key-title" }}>
+            <form onSubmit={handleCreate}>
               <div className="mb-4 flex items-start justify-between gap-4">
                 <h2 id="create-key-title" className="font-display text-2xl font-semibold text-foreground">
                   {m.apiKeys_createButton()}
@@ -281,7 +266,7 @@ export default function ApiKeysPage() {
                 </button>
               </div>
             </form>
-          </div>
+          </Modal>
         )}
 
         {newlyCreated && (

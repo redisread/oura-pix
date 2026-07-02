@@ -7,7 +7,8 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Check, Copy, LogOut, Save, Trash2, Users, X } from "lucide-react";
+import { ConfirmModal } from "@/components/ui/Modal";
+import { ArrowLeft, Check, Copy, LogOut, Save, Trash2, Users } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import * as m from "@/paraglide/messages.js";
 import { useTeam, type TeamMember, type TeamRole } from "@/hooks/useTeams";
@@ -244,35 +245,14 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
         </div>
 
         {confirmAction && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4"
-            onClick={() => setConfirmAction(null)}
-            role="dialog"
-            aria-modal="true"
-          >
-            <div className="panel w-full max-w-sm p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <h2 className="font-display text-2xl font-semibold text-foreground">
-                  {confirmAction === "delete" ? m.teams_deleteTeam() : m.teams_leaveTeam()}
-                </h2>
-                <button onClick={() => setConfirmAction(null)} className="icon-button h-9 w-9" aria-label={m.common_close()}>
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </div>
-              <p className="mb-4 text-sm text-foreground-muted">
-                {confirmAction === "delete"
-                  ? m.teams_deleteConfirmDescription()
-                  : m.teams_leaveConfirmDescription()}
-              </p>
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setConfirmAction(null)} className="btn-secondary h-10 px-4">{m.common_cancel()}</button>
-                <button
-                  onClick={confirmAction === "delete" ? handleDelete : handleLeave}
-                  className="btn-primary h-10 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))]"
-                >{m.common_confirm()}</button>
-              </div>
-            </div>
-          </div>
+          <ConfirmModal
+            open={true}
+            onClose={() => setConfirmAction(null)}
+            onConfirm={confirmAction === "delete" ? handleDelete : handleLeave}
+            title={confirmAction === "delete" ? m.teams_deleteTeam() : m.teams_leaveTeam()}
+            description={confirmAction === "delete" ? m.teams_deleteConfirmDescription() : m.teams_leaveConfirmDescription()}
+            confirmLabel={m.common_confirm()}
+          />
         )}
       </div>
     </div>

@@ -7,7 +7,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { RefreshCw, Trash2, X } from "lucide-react";
+import { RefreshCw, Trash2 } from "lucide-react";
+import { Modal } from "@/components/ui";
 import { useErrorDashboard, type ErrorRecord } from "@/hooks/useErrorDashboard";
 import { StateMessage } from "@/components/StateMessage";
 import { formatLocaleDateTime } from "@/lib/locale";
@@ -100,11 +101,7 @@ function ErrorDetailPanel({
   }, [error.context]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(var(--foreground)/0.42)] p-4" onClick={onClose} role="dialog" aria-modal="true">
-      <div
-        className="panel max-h-[80vh] w-full max-w-3xl overflow-y-auto shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <Modal open onClose={onClose} size="xl" overlay="fg-42" contentClassName="!p-0 !max-w-3xl max-h-[80vh] overflow-y-auto">
         <div className="flex items-start justify-between border-b border-[hsl(var(--border))] p-6">
           <div>
             <p className="page-kicker">{m.errors_detailKicker()}</p>
@@ -112,7 +109,7 @@ function ErrorDetailPanel({
             <p className="font-utility mt-1 text-xs text-foreground-muted">{error.hash}</p>
           </div>
           <button onClick={onClose} className="icon-button h-9 w-9" aria-label={m.common_close()}>
-            <X className="h-4 w-4" aria-hidden="true" />
+            <span className="text-lg leading-none" aria-hidden="true">&#x2715;</span>
           </button>
         </div>
 
@@ -166,8 +163,7 @@ function ErrorDetailPanel({
             <div>{m.errors_lastSeenShort({ time: formatTime(error.lastSeenAt) })}</div>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
