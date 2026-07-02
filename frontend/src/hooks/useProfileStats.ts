@@ -4,8 +4,7 @@
  * Fetches user generation statistics from the API
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface ProfileStats {
@@ -37,44 +36,32 @@ function styleLabel(style: string): string {
   }
 }
 
+interface RawStats {
+  totalGenerations: number;
+  thisMonth: number;
+  remainingCredits: number;
+  favoriteStyle: string;
+}
+
 export function useProfileStats(): UseProfileStatsReturn {
-  const [stats, setStats] = useState<ProfileStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, refetch } = useResource<RawStats>(
+    "/api/generations?stats=true",
+    m.common_unknownError()
+  );
 
-  const fetchStats = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await apiJson<{
-        totalGenerations: number;
-        thisMonth: number;
-        remainingCredits: number;
-        favoriteStyle: string;
-      }>("/api/generations?stats=true");
-
-      setStats({
+  const stats: ProfileStats | null = data
+    ? {
         totalGenerations: data.totalGenerations,
         thisMonth: data.thisMonth,
         remainingCredits: data.remainingCredits,
         favoriteStyle: styleLabel(data.favoriteStyle),
-      });
-    } catch (err) {
-      setError(apiErr(err, m.common_unknownError()));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
+      }
+    : null;
 
   return {
     stats,
-    isLoading,
+    isLoading: loading,
     error,
-    refresh: fetchStats,
+    refresh: () => void refetch(),
   };
 }
