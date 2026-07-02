@@ -11,6 +11,7 @@ import { Bell, Globe, Moon, Save, Sun } from "lucide-react";
 import { setLocale, getLocale, type Locale } from "@/paraglide/runtime.js";
 import { api } from "@/lib/api";
 import { useToast } from "../ui/Toast";
+import { SettingSection, SettingCard, SettingActions } from "./ui";
 
 type ThemeMode = "light" | "dark" | "auto";
 
@@ -58,14 +59,12 @@ export default function PreferencesSettings() {
   const [notifDirty, setNotifDirty] = useState(false);
 
   useEffect(() => {
-    // Load theme from localStorage
     const stored = (typeof localStorage !== "undefined" && localStorage.getItem(THEME_KEY)) as ThemeMode | null;
     if (stored === "light" || stored === "dark" || stored === "auto") {
       setTheme(stored);
     }
     applyTheme(stored ?? "auto");
 
-    // Load notification prefs from localStorage
     try {
       const stored = localStorage.getItem(NOTIF_KEY);
       if (stored) setNotif(JSON.parse(stored));
@@ -74,7 +73,6 @@ export default function PreferencesSettings() {
     }
   }, []);
 
-  // React to theme changes
   useEffect(() => {
     applyTheme(theme);
     try {
@@ -84,7 +82,6 @@ export default function PreferencesSettings() {
     }
   }, [theme]);
 
-  // React to system theme changes when in auto mode
   useEffect(() => {
     if (theme !== "auto") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -111,9 +108,7 @@ export default function PreferencesSettings() {
   const handleSaveNotif = async () => {
     setSavingNotif(true);
     try {
-      // Persist locally
       localStorage.setItem(NOTIF_KEY, JSON.stringify(notif));
-      // Sync to backend if user is logged in (best-effort)
       try {
         await api.patch("/api/users/me/preferences", { notifications: notif });
       } catch {
@@ -130,16 +125,10 @@ export default function PreferencesSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">偏好设置</h2>
-        <p className="mt-1 text-sm text-foreground-muted">个性化你的体验</p>
-      </div>
+      <SettingSection title="偏好设置" description="个性化你的体验" />
 
       {/* Theme */}
-      <div className="card p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Sun className="h-4 w-4" /> 主题
-        </h3>
+      <SettingCard title="主题" icon={<Sun className="h-4 w-4" />}>
         <div className="grid grid-cols-3 gap-3">
           {([
             { mode: "light" as const, label: "浅色", icon: Sun },
@@ -167,13 +156,10 @@ export default function PreferencesSettings() {
         <p className="text-xs text-foreground-muted">
           自动模式会跟随系统主题变化
         </p>
-      </div>
+      </SettingCard>
 
       {/* Language */}
-      <div className="card p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Globe className="h-4 w-4" /> 语言
-        </h3>
+      <SettingCard title="语言" icon={<Globe className="h-4 w-4" />}>
         <div className="space-y-2">
           {LANGUAGES.map((lang) => (
             <button
@@ -197,13 +183,10 @@ export default function PreferencesSettings() {
             </button>
           ))}
         </div>
-      </div>
+      </SettingCard>
 
       {/* Notifications */}
-      <div className="card p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Bell className="h-4 w-4" /> 通知偏好
-        </h3>
+      <SettingCard title="通知偏好" icon={<Bell className="h-4 w-4" />}>
         <div className="space-y-3">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -233,7 +216,7 @@ export default function PreferencesSettings() {
             <span>站内信 - 生成完成和团队活动</span>
           </label>
         </div>
-        <div className="flex justify-end border-t border-[hsl(var(--border))] pt-4">
+        <SettingActions>
           <button
             type="button"
             onClick={handleSaveNotif}
@@ -243,8 +226,8 @@ export default function PreferencesSettings() {
             <Save className="h-4 w-4" />
             保存
           </button>
-        </div>
-      </div>
+        </SettingActions>
+      </SettingCard>
     </div>
   );
 }

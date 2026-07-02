@@ -7,15 +7,20 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, LogOut, Plus, Trash2, Users } from "lucide-react";
+import { Copy, LogOut, Plus, Trash2, Users, X } from "lucide-react";
 import { useTeams, type TeamRole } from "@/hooks/useTeams";
 import { useToast } from "../ui/Toast";
+import {
+  SettingSection,
+  SettingModal,
+  ConfirmModal,
+} from "./ui";
 
 interface TeamSettingsProps {
   onTeamSelect?: (teamId: string) => void;
 }
 
-export default function TeamSettings({ onTeamSelect }: TeamSettingsProps) {
+export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettingsProps) {
   const { teams, loading, error, createTeam, joinTeam, leaveTeam, deleteTeam } = useTeams();
   const toast = useToast();
   const [showCreate, setShowCreate] = useState(false);
@@ -97,31 +102,30 @@ export default function TeamSettings({ onTeamSelect }: TeamSettingsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-            <Users className="h-5 w-5" /> 团队管理
-          </h2>
-          <p className="mt-1 text-sm text-foreground-muted">创建或加入团队，协作处理生成任务</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setShowJoin(true)}
-            className="btn-secondary px-4 py-2"
-          >
-            加入团队
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowCreate(true)}
-            className="btn-primary px-4 py-2 inline-flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            创建团队
-          </button>
-        </div>
-      </div>
+      <SettingSection
+        title="团队管理"
+        description="创建或加入团队，协作处理生成任务"
+        icon={<Users className="h-5 w-5" />}
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowJoin(true)}
+              className="btn-secondary px-4 py-2"
+            >
+              加入团队
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreate(true)}
+              className="btn-primary px-4 py-2 inline-flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              创建团队
+            </button>
+          </>
+        }
+      />
 
       {loading ? (
         <div className="card p-8 text-center text-foreground-muted text-sm">加载中...</div>
@@ -150,26 +154,8 @@ export default function TeamSettings({ onTeamSelect }: TeamSettingsProps) {
               <div className="flex items-center justify-between gap-2 mb-4 text-xs">
                 <button
                   type="button"
-                  onClick={() => handleCopyInvite(team.inviteCode)}
-                  className="text-[hsl(var(--primary))] hover:underline inline-flex items-center gap-1"
-                >
-                  <Copy className="h-3 w-3" />
-                  复制邀请链接
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-3 border-t border-[hsl(var(--border))]">
-                <button
-                  type="button"
-                  onClick={() => onTeamSelect?.(team.id)}
-                  className="btn-secondary px-3 py-1.5 text-xs"
-                >
-                  查看详情
-                </button>
-                <button
-                  type="button"
                   onClick={() => setShowLeave(team.id)}
-                  className="px-3 py-1.5 text-xs rounded-md bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 inline-flex items-center gap-1"
+                  className="text-[hsl(var(--foreground-muted))] hover:text-amber-600 inline-flex items-center gap-1"
                 >
                   <LogOut className="h-3 w-3" />
                   退出
@@ -178,72 +164,72 @@ export default function TeamSettings({ onTeamSelect }: TeamSettingsProps) {
                   <button
                     type="button"
                     onClick={() => setShowDelete(team.id)}
-                    className="px-3 py-1.5 text-xs rounded-md bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 inline-flex items-center gap-1"
+                    className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 p-1 rounded inline-flex items-center gap-1"
                   >
                     <Trash2 className="h-3 w-3" />
                     删除
                   </button>
                 )}
               </div>
+
+              <button
+                type="button"
+                onClick={() => handleCopyInvite(team.inviteCode)}
+                className="w-full btn-secondary px-3 py-1.5 text-xs inline-flex items-center justify-center gap-1"
+              >
+                <Copy className="h-3 w-3" />
+                复制邀请链接
+              </button>
             </div>
           ))}
         </div>
       )}
 
       {/* Create Modal */}
-      {showCreate && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => !submitting && setShowCreate(false)}
-        >
-          <div className="card p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-foreground mb-4">创建团队</h3>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="团队名称"
-              className="input"
-              maxLength={50}
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <button type="button" onClick={() => setShowCreate(false)} disabled={submitting} className="btn-secondary px-4 py-2">
-                取消
-              </button>
-              <button type="button" onClick={handleCreate} disabled={submitting} className="btn-primary px-4 py-2">
-                创建
-              </button>
-            </div>
-          </div>
+      <SettingModal open={showCreate} onClose={() => !submitting && setShowCreate(false)}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-foreground">创建团队</h3>
+          <button type="button" onClick={() => setShowCreate(false)} className="text-foreground-muted">
+            <X className="h-4 w-4" />
+          </button>
         </div>
-      )}
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="团队名称"
+          className="input"
+          maxLength={50}
+        />
+        <div className="flex justify-end gap-2 mt-4">
+          <button type="button" onClick={() => setShowCreate(false)} disabled={submitting} className="btn-secondary px-4 py-2">
+            取消
+          </button>
+          <button type="button" onClick={handleCreate} disabled={submitting} className="btn-primary px-4 py-2">
+            创建
+          </button>
+        </div>
+      </SettingModal>
 
       {/* Join Modal */}
-      {showJoin && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => !submitting && setShowJoin(false)}
-        >
-          <div className="card p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-foreground mb-4">加入团队</h3>
-            <input
-              type="text"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value)}
-              placeholder="邀请码"
-              className="input"
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <button type="button" onClick={() => setShowJoin(false)} disabled={submitting} className="btn-secondary px-4 py-2">
-                取消
-              </button>
-              <button type="button" onClick={handleJoin} disabled={submitting} className="btn-primary px-4 py-2">
-                加入
-              </button>
-            </div>
-          </div>
+      <SettingModal open={showJoin} onClose={() => !submitting && setShowJoin(false)}>
+        <h3 className="text-lg font-semibold text-foreground mb-4">加入团队</h3>
+        <input
+          type="text"
+          value={inviteCode}
+          onChange={(e) => setInviteCode(e.target.value)}
+          placeholder="邀请码"
+          className="input"
+        />
+        <div className="flex justify-end gap-2 mt-4">
+          <button type="button" onClick={() => setShowJoin(false)} disabled={submitting} className="btn-secondary px-4 py-2">
+            取消
+          </button>
+          <button type="button" onClick={handleJoin} disabled={submitting} className="btn-primary px-4 py-2">
+            加入
+          </button>
         </div>
-      )}
+      </SettingModal>
 
       {/* Invite Banner after create */}
       {showInvite && (
@@ -267,48 +253,28 @@ export default function TeamSettings({ onTeamSelect }: TeamSettingsProps) {
         </div>
       )}
 
-      {/* Confirm Modals */}
-      {showLeave && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => !submitting && setShowLeave(null)}
-        >
-          <div className="card p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-foreground mb-2">退出团队</h3>
-            <p className="text-sm text-foreground-muted">确定要退出此团队吗？</p>
-            <div className="flex justify-end gap-2 mt-4">
-              <button type="button" onClick={() => setShowLeave(null)} disabled={submitting} className="btn-secondary px-4 py-2">
-                取消
-              </button>
-              <button type="button" onClick={handleLeave} disabled={submitting} className="px-4 py-2 rounded-md bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium">
-                退出
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Leave Confirm Modal */}
+      <ConfirmModal
+        open={Boolean(showLeave)}
+        onClose={() => !submitting && setShowLeave(null)}
+        onConfirm={handleLeave}
+        title="退出团队"
+        description="确定要退出此团队吗？"
+        confirmLabel="退出"
+        variant="warning"
+        loading={submitting}
+      />
 
-      {showDelete && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => !submitting && setShowDelete(null)}
-        >
-          <div className="card p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">删除团队</h3>
-            <p className="text-sm text-foreground-muted">
-              此操作不可恢复，团队所有数据将永久删除。
-            </p>
-            <div className="flex justify-end gap-2 mt-4">
-              <button type="button" onClick={() => setShowDelete(null)} disabled={submitting} className="btn-secondary px-4 py-2">
-                取消
-              </button>
-              <button type="button" onClick={handleDelete} disabled={submitting} className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
-                删除
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirm Modal */}
+      <ConfirmModal
+        open={Boolean(showDelete)}
+        onClose={() => !submitting && setShowDelete(null)}
+        onConfirm={handleDelete}
+        title="删除团队"
+        description="此操作不可恢复，团队所有数据将永久删除。"
+        confirmLabel="删除"
+        loading={submitting}
+      />
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "../ui/Toast";
 import { useAuthStore } from "@/stores/auth";
 import { api } from "@/lib/api";
+import { SettingSection, SettingCard, SettingField, SettingActions } from "./ui";
 
 interface FormState {
   nickname: string;
@@ -79,13 +80,11 @@ export default function AccountSettings() {
     }
     setSavingProfile(true);
     try {
-      // Update nickname via existing /api/user/profile
       const profileRes = await api.put("/api/user/profile", { name: form.nickname.trim() });
       if (!profileRes.data?.success) {
         throw new Error(profileRes.data?.error?.message ?? "保存失败");
       }
 
-      // Upload avatar if pending
       if (pendingAvatar) {
         const fd = new FormData();
         fd.append("avatar", pendingAvatar);
@@ -97,7 +96,6 @@ export default function AccountSettings() {
         }
       }
 
-      // Refresh user in store
       setUser({
         ...user,
         name: form.nickname.trim(),
@@ -129,7 +127,6 @@ export default function AccountSettings() {
     }
     setSavingPassword(true);
     try {
-      // Use Better Auth change-password endpoint via /api/auth
       const res = await api.post("/api/auth/change-password", {
         currentPassword: form.currentPassword,
         newPassword: form.newPassword,
@@ -154,82 +151,61 @@ export default function AccountSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">账号设置</h2>
-        <p className="mt-1 text-sm text-foreground-muted">管理你的头像、昵称和密码</p>
-      </div>
+      <SettingSection title="账号设置" description="管理你的头像、昵称和密码" icon={<UserIcon className="h-5 w-5" />} />
 
-      {/* Avatar + Nickname */}
-      <div className="card p-6 space-y-6">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <UserIcon className="h-4 w-4" /> 基本资料
-        </h3>
-
-        <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <div className="relative h-24 w-24 rounded-full overflow-hidden bg-[hsl(var(--secondary))] flex items-center justify-center">
+      {/* Profile */}
+      <SettingCard title="基本信息" icon={<Camera className="h-4 w-4" />}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[hsl(var(--secondary))] flex items-center justify-center">
               {avatarPreview ? (
-                <img src={avatarPreview} alt="头像预览" className="h-full w-full object-cover" />
+                <img src={avatarPreview} alt="头像预览" className="w-full h-full object-cover" />
               ) : (
-                <UserIcon className="h-12 w-12 text-foreground-muted" aria-hidden="true" />
+                <UserIcon className="h-8 w-8 text-foreground-muted" />
               )}
+            </div>
+            <div className="flex-1">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
-                aria-label="更换头像"
+                className="btn-secondary px-3 py-1.5 text-sm inline-flex items-center gap-1"
               >
-                <Camera className="h-6 w-6 text-white" aria-hidden="true" />
+                <Camera className="h-3.5 w-3.5" />
+                更换头像
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => onPickAvatar(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-foreground-muted mt-1">支持 JPG/PNG，最大 2MB</p>
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => onPickAvatar(e.target.files?.[0] ?? null)}
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="text-xs text-[hsl(var(--primary))] hover:underline"
-            >
-              更换头像
-            </button>
-            <span className="text-xs text-foreground-muted">最大 2MB</span>
           </div>
 
-          <div className="flex-1 space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-foreground-muted mb-1">
-                昵称（{form.nickname.length}/{NICKNAME_MAX}）
-              </label>
-              <input
-                type="text"
-                value={form.nickname}
-                onChange={(e) => onChangeNickname(e.target.value)}
-                maxLength={NICKNAME_MAX}
-                className="input"
-                placeholder="输入昵称"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-foreground-muted mb-1">邮箱</label>
-              <input
-                type="email"
-                value={user.email ?? ""}
-                readOnly
-                className="input opacity-70 cursor-not-allowed"
-                title="邮箱修改需要重新验证"
-              />
-              <p className="text-xs text-foreground-muted mt-1">
-                邮箱修改需要重新验证，暂不支持
-              </p>
-            </div>
-          </div>
+          <SettingField label="昵称">
+            <input
+              type="text"
+              value={form.nickname}
+              onChange={(e) => onChangeNickname(e.target.value)}
+              className="input"
+              maxLength={NICKNAME_MAX}
+            />
+          </SettingField>
+
+          <SettingField label="邮箱" hint="邮箱修改需要重新验证，暂不支持">
+            <input
+              type="email"
+              value={user.email ?? ""}
+              readOnly
+              className="input opacity-70 cursor-not-allowed"
+              title="邮箱修改需要重新验证"
+            />
+          </SettingField>
         </div>
 
-        <div className="flex justify-end border-t border-[hsl(var(--border))] pt-4">
+        <SettingActions>
           <button
             type="button"
             onClick={onSaveProfile}
@@ -243,17 +219,12 @@ export default function AccountSettings() {
             )}
             保存
           </button>
-        </div>
-      </div>
+        </SettingActions>
+      </SettingCard>
 
       {/* Password */}
-      <div className="card p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-          <Lock className="h-4 w-4" /> 修改密码
-        </h3>
-
-        <div>
-          <label className="block text-xs font-medium text-foreground-muted mb-1">当前密码</label>
+      <SettingCard title="修改密码" icon={<Lock className="h-4 w-4" />}>
+        <SettingField label="当前密码">
           <div className="relative">
             <input
               type={showCurrentPwd ? "text" : "password"}
@@ -271,10 +242,9 @@ export default function AccountSettings() {
               {showCurrentPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-        </div>
+        </SettingField>
 
-        <div>
-          <label className="block text-xs font-medium text-foreground-muted mb-1">新密码（至少 8 位）</label>
+        <SettingField label="新密码（至少 8 位）">
           <div className="relative">
             <input
               type={showNewPwd ? "text" : "password"}
@@ -292,10 +262,9 @@ export default function AccountSettings() {
               {showNewPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-        </div>
+        </SettingField>
 
-        <div>
-          <label className="block text-xs font-medium text-foreground-muted mb-1">确认新密码</label>
+        <SettingField label="确认新密码">
           <input
             type="password"
             value={form.confirmPassword}
@@ -303,9 +272,9 @@ export default function AccountSettings() {
             className="input"
             autoComplete="new-password"
           />
-        </div>
+        </SettingField>
 
-        <div className="flex justify-end border-t border-[hsl(var(--border))] pt-4">
+        <SettingActions>
           <button
             type="button"
             onClick={onChangePassword}
@@ -324,15 +293,12 @@ export default function AccountSettings() {
             )}
             修改密码
           </button>
-        </div>
-      </div>
+        </SettingActions>
+      </SettingCard>
 
       {/* Danger Zone */}
-      <div className="card p-6 border-red-200 dark:border-red-900">
-        <h3 className="text-sm font-semibold text-red-700 dark:text-red-400 flex items-center gap-2 mb-3">
-          <Trash2 className="h-4 w-4" /> 危险操作
-        </h3>
-        <p className="text-sm text-foreground-muted mb-4">
+      <SettingCard title="危险操作" icon={<Trash2 className="h-4 w-4" />} danger>
+        <p className="text-sm text-foreground-muted">
           删除账号将永久清除所有数据，无法恢复。
         </p>
         <button
@@ -343,7 +309,7 @@ export default function AccountSettings() {
         >
           删除账号（请联系客服）
         </button>
-      </div>
+      </SettingCard>
     </div>
   );
 }

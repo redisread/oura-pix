@@ -7,10 +7,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Activity, AlertTriangle, Copy, Eye, EyeOff, Key, Loader2, Plus, Trash2, X } from "lucide-react";
+import { Activity, AlertTriangle, Eye, EyeOff, Key, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { api } from "@/lib/api";
 import { useToast } from "../ui/Toast";
+import { SettingSection, SettingField, SettingModal, ConfirmModal } from "./ui";
 
 interface ApiKeyData {
   id: string;
@@ -88,7 +89,6 @@ export default function ApiKeySettings() {
     let cancelled = false;
     async function loadUsage() {
       try {
-        // Try stats endpoint - may not exist, fallback to empty
         const res = await api.get("/api/v1/api-keys/usage?days=30");
         if (!cancelled && res.data?.success && Array.isArray(res.data.data)) {
           setUsage(res.data.data);
@@ -136,24 +136,21 @@ export default function ApiKeySettings() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-            <Key className="h-5 w-5" /> API Keys 管理
-          </h2>
-          <p className="mt-1 text-sm text-foreground-muted">
-            管理用于访问 /api/v1/* 的 API Key
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowCreate(true)}
-          className="btn-primary px-4 py-2 inline-flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          创建 Key
-        </button>
-      </div>
+      <SettingSection
+        title="API Keys 管理"
+        description="管理用于访问 /api/v1/* 的 API Key"
+        icon={<Key className="h-5 w-5" />}
+        actions={
+          <button
+            type="button"
+            onClick={() => setShowCreate(true)}
+            className="btn-primary px-4 py-2 inline-flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            创建 Key
+          </button>
+        }
+      />
 
       {/* Newly Created Key Banner */}
       {newlyCreated && (
@@ -162,37 +159,29 @@ export default function ApiKeySettings() {
             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                请立即保存你的 API Key（仅显示一次）
+                请立即保存你的 API Key
               </div>
-              <div className="mt-2 flex items-center gap-2">
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+                此 Key 仅显示一次，关闭此提示后将无法再次查看完整 Key。
+              </p>
+              <div className="mt-3 flex items-center gap-2">
                 <code className="flex-1 px-3 py-2 rounded bg-[hsl(var(--background))] border border-amber-200 dark:border-amber-900 text-xs font-mono break-all">
-                  {showKey ? newlyCreated.key : "•".repeat(40)}
+                  {showKey ? newlyCreated.key : "••••••••••••••••"}
                 </code>
                 <button
                   type="button"
                   onClick={() => setShowKey((v) => !v)}
-                  className="p-2 text-amber-800 dark:text-amber-300"
+                  className="p-2 text-foreground-muted"
                   aria-label={showKey ? "隐藏" : "显示"}
                 >
                   {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(newlyCreated.key);
-                    toast.success("已复制到剪贴板");
-                  }}
-                  className="p-2 text-amber-800 dark:text-amber-300"
-                  aria-label="复制"
-                >
-                  <Copy className="h-4 w-4" />
                 </button>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setNewlyCreated(null)}
-              className="text-amber-800 dark:text-amber-300"
+              className="text-foreground-muted shrink-0"
               aria-label="关闭"
             >
               <X className="h-4 w-4" />
@@ -201,57 +190,65 @@ export default function ApiKeySettings() {
         </div>
       )}
 
-      {/* Usage Stats */}
+      {/* Usage Chart */}
       <div className="card p-6">
-        <div className="flex items-center gap-2 mb-3">
-          <Activity className="h-4 w-4 text-foreground-muted" />
-          <h3 className="text-sm font-semibold text-foreground">最近 30 天调用统计</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <Activity className="h-4 w-4 text-[hsl(var(--primary))]" />
+          <span className="text-sm font-semibold text-foreground">调用量统计</span>
         </div>
         {usageLoading ? (
-          <div className="h-24 flex items-center justify-center text-foreground-muted text-sm">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            加载中...
-          </div>
+          <div className="text-sm text-foreground-muted text-center py-6">加载中...</div>
         ) : (
           <SimpleBarChart data={usage} />
         )}
       </div>
 
-      {/* Keys List */}
+      {/* Error State */}
+      {error && (
+        <div className="card p-4 text-center text-red-600 dark:text-red-400 text-sm">{error}</div>
+      )}
+
+      {/* Key List */}
       <div className="card p-6">
-        <h3 className="text-sm font-semibold text-foreground mb-3">我的 Keys</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <Key className="h-4 w-4 text-[hsl(var(--primary))]" />
+          <span className="text-sm font-semibold text-foreground">全部 Keys</span>
+        </div>
 
         {loading ? (
-          <div className="h-24 flex items-center justify-center text-foreground-muted text-sm">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            加载中...
-          </div>
-        ) : error ? (
-          <div className="text-sm text-red-600 dark:text-red-400">{error}</div>
+          <div className="text-sm text-foreground-muted text-center py-6">加载中...</div>
         ) : keys.length === 0 ? (
           <div className="text-sm text-foreground-muted text-center py-6">
-            还没有 API Key，点击右上角创建
+            还没有 API Key 创建一个开始集成
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {keys.map((k) => (
               <div
-                key={k.id}
-                className="flex items-center justify-between gap-4 p-3 rounded-md border border-[hsl(var(--border))]"
+                key={(k as unknown as ApiKeyData).id}
+                className="flex items-center justify-between gap-4 p-3 rounded-lg border border-[hsl(var(--border))]"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-foreground">{k.name}</div>
-                  <div className="text-xs text-foreground-muted mt-0.5 flex items-center gap-2 flex-wrap">
-                    <span>权限：{(k as unknown as ApiKeyData).permissions ?? "read-write"}</span>
-                    <span>·</span>
-                    <span>创建：{new Date(k.createdAt).toLocaleDateString("zh-CN")}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-medium text-foreground">{(k as unknown as ApiKeyData).name}</span>
+                    {(k as unknown as ApiKeyData).permissions === "read" && (
+                      <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--secondary))] text-foreground-muted">
+                        只读
+                      </span>
+                    )}
+                    {(k as unknown as ApiKeyData).permissions === "read-write" && (
+                      <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
+                        读写
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-foreground-muted">
+                    创建：{new Date((k as unknown as ApiKeyData).createdAt).toLocaleDateString("zh-CN")}
                     {(k as unknown as ApiKeyData).lastUsedAt && (
                       <>
-                        <span>·</span>
-                        <span>
-                          最近使用：
-                          {new Date((k as unknown as ApiKeyData).lastUsedAt!).toLocaleDateString("zh-CN")}
-                        </span>
+                        {" · "}
+                        最近使用：
+                        {new Date((k as unknown as ApiKeyData).lastUsedAt!).toLocaleDateString("zh-CN")}
                       </>
                     )}
                   </div>
@@ -271,114 +268,73 @@ export default function ApiKeySettings() {
       </div>
 
       {/* Create Modal */}
-      {showCreate && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => !submitting && setShowCreate(false)}
-        >
-          <div
-            className="card p-6 max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-foreground">创建 API Key</h3>
-              <button
-                type="button"
-                onClick={() => setShowCreate(false)}
-                className="text-foreground-muted"
-                aria-label="关闭"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-foreground-muted mb-1">名称</label>
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="例如：生产环境"
-                  className="input"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-foreground-muted mb-1">权限</label>
-                <select
-                  value={newPermissions}
-                  onChange={(e) => setNewPermissions(e.target.value as "read" | "read-write")}
-                  className="input"
-                >
-                  <option value="read">只读</option>
-                  <option value="read-write">读写</option>
-                </select>
-              </div>
-              <div className="text-xs text-foreground-muted bg-[hsl(var(--secondary))] p-3 rounded">
-                ⚠️ Key 创建后仅显示一次，请立即保存
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 mt-6">
-              <button
-                type="button"
-                onClick={() => setShowCreate(false)}
-                disabled={submitting}
-                className="btn-secondary px-4 py-2"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleCreate}
-                disabled={submitting}
-                className="btn-primary px-4 py-2 inline-flex items-center gap-2"
-              >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                创建
-              </button>
-            </div>
+      <SettingModal open={showCreate} onClose={() => !submitting && setShowCreate(false)}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-foreground">创建 API Key</h3>
+          <button type="button" onClick={() => setShowCreate(false)} className="text-foreground-muted" aria-label="关闭">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <SettingField label="名称">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="例如：生产环境"
+              className="input"
+            />
+          </SettingField>
+          <SettingField label="权限">
+            <select
+              value={newPermissions}
+              onChange={(e) => setNewPermissions(e.target.value as "read" | "read-write")}
+              className="input"
+            >
+              <option value="read">只读</option>
+              <option value="read-write">读写</option>
+            </select>
+          </SettingField>
+          <div className="text-xs text-foreground-muted bg-[hsl(var(--secondary))] p-3 rounded">
+            ⚠️ Key 创建后仅显示一次，请立即保存
           </div>
         </div>
-      )}
+        <div className="flex justify-end gap-2 mt-6">
+          <button
+            type="button"
+            onClick={() => setShowCreate(false)}
+            disabled={submitting}
+            className="btn-secondary px-4 py-2"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={submitting}
+            className="btn-primary px-4 py-2 inline-flex items-center gap-2"
+          >
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            创建
+          </button>
+        </div>
+      </SettingModal>
 
       {/* Revoke Confirmation Modal */}
-      {showRevoke && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={() => !submitting && setShowRevoke(null)}
-        >
-          <div
-            className="card p-6 max-w-md w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-2 mb-3 text-red-600 dark:text-red-400">
-              <AlertTriangle className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">吊销 API Key</h3>
-            </div>
-            <p className="text-sm text-foreground">
-              确定要吊销 <strong>{showRevoke.name}</strong> 吗？此操作无法撤销，使用此 Key 的应用将立即失效。
-            </p>
-            <div className="flex justify-end gap-2 mt-6">
-              <button
-                type="button"
-                onClick={() => setShowRevoke(null)}
-                disabled={submitting}
-                className="btn-secondary px-4 py-2"
-              >
-                取消
-              </button>
-              <button
-                type="button"
-                onClick={handleRevoke}
-                disabled={submitting}
-                className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium inline-flex items-center gap-2"
-              >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                吊销
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={Boolean(showRevoke)}
+        onClose={() => !submitting && setShowRevoke(null)}
+        onConfirm={handleRevoke}
+        title="吊销 API Key"
+        description={
+          showRevoke
+            ? `确定要吊销 ${showRevoke.name} 吗？此操作无法撤销，使用此 Key 的应用将立即失效。`
+            : ""
+        }
+        confirmLabel="吊销"
+        loading={submitting}
+        icon={<AlertTriangle className="h-5 w-5" />}
+      />
     </div>
   );
 }

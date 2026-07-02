@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { Calendar, CreditCard, ExternalLink, Loader2, Sparkles, TrendingUp } from "lucide-react";
 import { getSubscription, createPortalSession, type SubscriptionInfo } from "@/lib/api";
 import { useToast } from "../ui/Toast";
+import { SettingSection, SettingCard } from "./ui";
 
 type SubscriptionData = SubscriptionInfo;
 
@@ -121,13 +122,10 @@ export default function SubscriptionSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-foreground">订阅管理</h2>
-        <p className="mt-1 text-sm text-foreground-muted">查看你的当前计划、用量和账单</p>
-      </div>
+      <SettingSection title="订阅管理" description="查看你的当前计划、用量和账单" />
 
       {/* Current Plan Card */}
-      <div className="card p-6">
+      <SettingCard>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -186,14 +184,11 @@ export default function SubscriptionSettings() {
             <span>本月额度已用完。升级到专业版获取更多生成次数。</span>
           </div>
         )}
-      </div>
+      </SettingCard>
 
       {/* Plan Comparison Hint */}
       {!isPaid && (
-        <div className="card p-6">
-          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-            <ExternalLink className="h-4 w-4" /> 升级方案
-          </h3>
+        <SettingCard title="升级方案" icon={<ExternalLink className="h-4 w-4" />}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="border border-[hsl(var(--border))] rounded-lg p-4">
               <div className="text-xs font-medium text-foreground-muted mb-1">专业版</div>
@@ -217,7 +212,7 @@ export default function SubscriptionSettings() {
           <a href="/pricing" className="btn-primary w-full mt-4 py-2 inline-flex items-center justify-center">
             查看完整方案对比
           </a>
-        </div>
+        </SettingCard>
       )}
     </div>
   );
