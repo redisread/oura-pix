@@ -2,58 +2,41 @@
  * Categories Routes
  */
 
-import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { createDb } from "@oura-pix/database";
-import { resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
-import { getUser } from "../middleware/auth";
+import { getLocale } from "../lib/i18n";
+import { serverMessage } from "@oura-pix/i18n";
+import { createRouter, useCtx } from "../lib/route";
+import { notFound } from "../lib/http";
 import {
   listCategories, getCategory, listCategoryTemplates,
   createUserTemplate, listUserTemplates, deleteUserTemplate,
 } from "../services/categoryService";
 
-const categories = new Hono<{
-  Bindings: { DB: D1Database };
-  Variables: {
-    user: { id: string; email: string; name?: string | null };
-    session: { id: string; expiresAt: Date };
-    locale?: Locale;
-  };
-}>();
-
-function getLocale(c: { req: { raw: Request } }): Locale {
-  return resolveLocale({ headers: c.req.raw.headers });
-}
+const categories = createRouter();
 
 categories.get("/", async (c) => {
+  const { db } = useCtx(c);
   const locale = getLocale(c);
-  try {
-    const db = createDb(c.env.DB);
-    const data = await listCategories(db, locale);
-    return c.json({ success: true, data });
-  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") } }, 500); }
+  const data = await listCategories(db, locale);
+  return c.json({ success: true, data });
 });
 
 categories.get("/:id", async (c) => {
+  const { db } = useCtx(c);
   const locale = getLocale(c);
   const id = c.req.param("id");
-  try {
-    const db = createDb(c.env.DB);
-    const cat = await getCategory(db, id, locale);
-    if (!cat) return c.json({ success: false, error: { code: "NOT_FOUND", message: serverMessage(locale, "notFound") } }, 404);
-    return c.json({ success: true, data: cat });
-  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") } }, 500); }
+  const cat = await getCategory(db, id, locale);
+  if (!cat) return notFound(c);
+  return c.json({ success: true, data: cat });
 });
 
 categories.get("/:id/templates", async (c) => {
+  const { db } = useCtx(c);
   const locale = getLocale(c);
   const id = c.req.param("id");
-  try {
-    const db = createDb(c.env.DB);
-    const data = await listCategoryTemplates(db, id, locale);
-    return c.json({ success: true, data });
-  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") } }, 500); }
+  const data = await listCategoryTemplates(db, id, locale);
+  return c.json({ success: true, data });
 });
 
 const createTemplateSchema = z.object({
@@ -89,39 +72,24 @@ const validateCreateTemplate = zValidator("json", createTemplateSchema, (result,
 });
 
 categories.post("/templates", validateCreateTemplate, async (c) => {
-  const locale = getLocale(c);
-  const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") } }, 401);
+  const { user, db } = useCtx(c);
   const input = c.req.valid("json");
-  try {
-    const db = createDb(c.env.DB);
-    const created = await createUserTemplate(db, user.id, input);
-    return c.json({ success: true, data: created }, 201);
-  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") } }, 500); }
+  const created = await createUserTemplate(db, user.id, input);
+  return c.json({ success: true, data: created }, 201);
 });
 
 categories.get("/templates/mine", async (c) => {
-  const locale = getLocale(c);
-  const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") } }, 401);
-  try {
-    const db = createDb(c.env.DB);
-    const data = await listUserTemplates(db, user.id);
-    return c.json({ success: true, data });
-  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") } }, 500); }
+  const { user, db } = useCtx(c);
+  const data = await listUserTemplates(db, user.id);
+  return c.json({ success: true, data });
 });
 
 categories.delete("/templates/:id", async (c) => {
-  const locale = getLocale(c);
-  const user = await getUser(c);
-  if (!user) return c.json({ success: false, error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") } }, 401);
+  const { user, db } = useCtx(c);
   const id = c.req.param("id");
-  try {
-    const db = createDb(c.env.DB);
-    const ok = await deleteUserTemplate(db, id, user.id);
-    if (!ok) return c.json({ success: false, error: { code: "NOT_FOUND", message: serverMessage(locale, "templateNotFound") } }, 404);
-    return c.json({ success: true });
-  } catch { return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") } }, 500); }
+  const ok = await deleteUserTemplate(db, id, user.id);
+  if (!ok) return notFound(c, "templateNotFound");
+  return c.json({ success: true });
 });
 
 export default categories;

@@ -53,6 +53,22 @@ function generateInviteCode(): string {
   return `TEAM-${hex}`;
 }
 
+/**
+ * Find a single team member record by team and user.
+ */
+async function findTeamMember(
+  db: ReturnType<typeof createDb>,
+  teamId: string,
+  userId: string
+): Promise<TeamMemberRecord | undefined> {
+  const [member] = await db
+    .select()
+    .from(schema.teamMembers)
+    .where(and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, userId)))
+    .limit(1);
+  return member;
+}
+
 export async function createTeam(
   db: ReturnType<typeof createDb>,
   ownerId: string,
@@ -140,21 +156,16 @@ export async function getTeamForUser(
   teamId: string,
   userId: string
 ): Promise<TeamWithRole | null> {
-  const rows = await db
-    .select({
-      id: schema.teams.id,
-      name: schema.teams.name,
-      ownerId: schema.teams.ownerId,
-      inviteCode: schema.teams.inviteCode,
-      createdAt: schema.teams.createdAt,
-      role: schema.teamMembers.role,
-    })
-    .from(schema.teamMembers)
-    .innerJoin(schema.teams, eq(schema.teams.id, schema.teamMembers.teamId))
-    .where(and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, userId)))
+  const member = await findTeamMember(db, teamId, userId);
+  if (!member) return null;
+
+  const [team] = await db
+    .select()
+    .from(schema.teams)
+    .where(eq(schema.teams.id, teamId))
     .limit(1);
 
-  if (rows.length === 0) return null;
+  if (!team) return null;
 
   const [count] = await db
     .select({ count: sql<number>`count(*)` })
@@ -162,7 +173,12 @@ export async function getTeamForUser(
     .where(eq(schema.teamMembers.teamId, teamId));
 
   return {
-    ...rows[0]!,
+    id: team.id,
+    name: team.name,
+    ownerId: team.ownerId,
+    inviteCode: team.inviteCode,
+    createdAt: team.createdAt,
+    role: member.role,
     memberCount: count?.count ?? 0,
   };
 }
@@ -205,13 +221,8 @@ export async function joinTeamByInviteCode(
   if (teams.length === 0) return null;
   const team = teams[0]!;
 
-  const existing = await db
-    .select()
-    .from(schema.teamMembers)
-    .where(and(eq(schema.teamMembers.teamId, team.id), eq(schema.teamMembers.userId, userId)))
-    .limit(1);
-
-  if (existing.length > 0) return null;
+  const existing = await findTeamMember(db, team.id, userId);
+  if (existing) return null;
 
   const [created] = await db
     .insert(schema.teamMembers)
@@ -266,14 +277,8 @@ export async function updateMemberRole(
   role: TeamRoleType
 ): Promise<TeamMemberRecord | null> {
   if (role !== "owner") {
-    const target = await db
-      .select()
-      .from(schema.teamMembers)
-      .where(
-        and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, targetUserId))
-      )
-      .limit(1);
-    if (target.length > 0 && target[0]!.role === "owner") {
+    const target = await findTeamMember(db, teamId, targetUserId);
+    if (target?.role === "owner") {
       return null;
     }
   }
@@ -293,15 +298,8 @@ export async function removeMember(
   teamId: string,
   targetUserId: string
 ): Promise<boolean> {
-  const target = await db
-    .select()
-    .from(schema.teamMembers)
-    .where(
-      and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, targetUserId))
-    )
-    .limit(1);
-  if (target.length === 0) return false;
-  if (target[0]!.role === "owner") return false;
+  const target = await findTeamMember(db, teamId, targetUserId);
+  if (!target || target.role === "owner") return false;
 
   const result = await db
     .delete(schema.teamMembers)
@@ -321,13 +319,8 @@ export async function leaveTeam(
   teamId: string,
   userId: string
 ): Promise<boolean> {
-  const member = await db
-    .select()
-    .from(schema.teamMembers)
-    .where(and(eq(schema.teamMembers.teamId, teamId), eq(schema.teamMembers.userId, userId)))
-    .limit(1);
-  if (member.length === 0) return false;
-  if (member[0]!.role === "owner") return false;
+  const member = await findTeamMember(db, teamId, userId);
+  if (!member || member.role === "owner") return false;
 
   await db
     .delete(schema.teamMembers)

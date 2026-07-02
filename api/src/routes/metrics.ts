@@ -4,28 +4,18 @@
  * API endpoints for performance metrics reporting and dashboard
  */
 
-import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb } from "@oura-pix/database";
-import { getUser } from "../middleware/auth";
 import {
   recordMetric,
   recordMetrics,
   getDashboardStats,
   getRecentMetrics,
 } from "../services/metricService";
-import { apiMessage } from "../lib/i18n";
+import { createRouter } from "../lib/route";
 
-const metrics = new Hono<{
-  Bindings: {
-    DB: D1Database;
-  };
-  Variables: {
-    user: { id: string; email: string; name?: string | null };
-    session: { id: string; expiresAt: Date };
-  };
-}>();
+const metrics = createRouter();
 
 const MetricNameSchema = z.enum([
   "LCP",
@@ -57,15 +47,9 @@ const singleMetricSchema = z.object({
  */
 metrics.post("/", zValidator("json", singleMetricSchema), async (c) => {
   const input = c.req.valid("json");
-
-  try {
-    const db = createDb(c.env.DB);
-    const record = await recordMetric(db, input);
-    return c.json({ success: true, data: { id: record.id } });
-  } catch (error) {
-    console.error("Failed to record metric:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
-  }
+  const db = createDb(c.env.DB);
+  const record = await recordMetric(db, input);
+  return c.json({ success: true, data: { id: record.id } });
 });
 
 const batchMetricSchema = z.object({
@@ -78,15 +62,9 @@ const batchMetricSchema = z.object({
  */
 metrics.post("/batch", zValidator("json", batchMetricSchema), async (c) => {
   const { metrics: inputs } = c.req.valid("json");
-
-  try {
-    const db = createDb(c.env.DB);
-    const recorded = await recordMetrics(db, inputs);
-    return c.json({ success: true, data: { recorded } });
-  } catch (error) {
-    console.error("Failed to record metrics batch:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
-  }
+  const db = createDb(c.env.DB);
+  const recorded = await recordMetrics(db, inputs);
+  return c.json({ success: true, data: { recorded } });
 });
 
 /**
@@ -94,22 +72,12 @@ metrics.post("/batch", zValidator("json", batchMetricSchema), async (c) => {
  * Aggregate stats for the dashboard (auth required)
  */
 metrics.get("/dashboard", async (c) => {
-  const user = await getUser(c);
-  if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
-  }
 
   const range = c.req.query("range") || "7d";
   const startDate = rangeToDate(range);
-
-  try {
-    const db = createDb(c.env.DB);
-    const stats = await getDashboardStats(db, startDate);
-    return c.json({ success: true, data: stats });
-  } catch (error) {
-    console.error("Failed to get dashboard stats:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
-  }
+  const db = createDb(c.env.DB);
+  const stats = await getDashboardStats(db, startDate);
+  return c.json({ success: true, data: stats });
 });
 
 /**
@@ -117,24 +85,15 @@ metrics.get("/dashboard", async (c) => {
  * Recent data points for a specific metric (auth required)
  */
 metrics.get("/:name", async (c) => {
-  const user = await getUser(c);
-  if (!user) {
-    return c.json({ success: false, error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") } }, 401);
-  }
 
   const name = c.req.param("name");
   const range = c.req.query("range") || "7d";
   const startDate = rangeToDate(range);
   const limit = Math.min(Number(c.req.query("limit")) || 50, 200);
 
-  try {
-    const db = createDb(c.env.DB);
-    const recent = await getRecentMetrics(db, name, startDate, limit);
-    return c.json({ success: true, data: { name, points: recent } });
-  } catch (error) {
-    console.error("Failed to get metric series:", error);
-    return c.json({ success: false, error: { code: "INTERNAL_ERROR", message: apiMessage(c, "internalError") } }, 500);
-  }
+  const db = createDb(c.env.DB);
+  const recent = await getRecentMetrics(db, name, startDate, limit);
+  return c.json({ success: true, data: { name, points: recent } });
 });
 
 function rangeToDate(range: string): Date {

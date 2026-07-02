@@ -35,99 +35,57 @@ function getDateRange(range: TimeRange): Date | null {
 export async function getUserStats(userId: string, range: TimeRange = '30d', db: ReturnType<typeof createDb>): Promise<StatsData> {
   const dateFrom = getDateRange(range);
 
-  // Base condition for date filtering
   const baseCondition = dateFrom
     ? and(eq(schema.generations.userId, userId), gte(schema.generations.createdAt, dateFrom))
     : eq(schema.generations.userId, userId);
 
-  // 1. Total generations count
-  const totalGenerationsResult = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(schema.generations)
-    .where(baseCondition);
-
-  const totalGenerations = totalGenerationsResult[0]?.count || 0;
-
-  // 2. Total images generated (sum of generatedImageCount)
-  const totalImagesResult = await db
-    .select({ total: sql<number>`COALESCE(SUM(${schema.generations.generatedImageCount}), 0)` })
-    .from(schema.generations)
-    .where(baseCondition);
-
-  const totalImages = totalImagesResult[0]?.total || 0;
-
-  // 3. Average generation time (placeholder - would need to calculate from timestamps if available)
-  // For now, set to 0 as we don't have duration tracking
-  const avgGenerationTime = 0;
-
-  // 4. Favorite rate
   const favoritesCondition = dateFrom
     ? and(eq(schema.favorites.userId, userId), gte(schema.favorites.createdAt, dateFrom))
     : eq(schema.favorites.userId, userId);
 
-  const favoritesResult = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(schema.favorites)
-    .where(favoritesCondition);
-
-  const totalFavorites = favoritesResult[0]?.count || 0;
-  const favoriteRate = totalImages > 0 ? (totalFavorites / totalImages) * 100 : 0;
-
-  // 5. Distribution by platform (extracted from settings JSON)
-  const byPlatformResult = await db
-    .select({
+  // Run all independent queries in parallel
+  const [
+    [totalGenerationsResult],
+    [totalImagesResult],
+    [favoritesResult],
+    byPlatformResult,
+    byStyleResult,
+    trendResult,
+  ] = await Promise.all([
+    db.select({ count: sql<number>`count(*)` }).from(schema.generations).where(baseCondition),
+    db.select({ total: sql<number>`COALESCE(SUM(${schema.generations.generatedImageCount}), 0)` }).from(schema.generations).where(baseCondition),
+    db.select({ count: sql<number>`count(*)` }).from(schema.favorites).where(favoritesCondition),
+    db.select({
       platform: sql<string>`json_extract(${schema.generations.settings}, '$.targetPlatform')`,
       count: sql<number>`count(*)`,
-    })
-    .from(schema.generations)
-    .where(baseCondition)
-    .groupBy(sql`json_extract(${schema.generations.settings}, '$.targetPlatform')`)
-    .orderBy(sql`count(*) DESC`);
-
-  const byPlatform = byPlatformResult.map((r: { platform: string | null; count: number }) => ({
-    platform: r.platform || 'unknown',
-    count: r.count,
-  }));
-
-  // 6. Distribution by style (extracted from settings JSON)
-  const byStyleResult = await db
-    .select({
+    }).from(schema.generations).where(baseCondition)
+      .groupBy(sql`json_extract(${schema.generations.settings}, '$.targetPlatform')`)
+      .orderBy(sql`count(*) DESC`),
+    db.select({
       style: sql<string>`json_extract(${schema.generations.settings}, '$.style')`,
       count: sql<number>`count(*)`,
-    })
-    .from(schema.generations)
-    .where(baseCondition)
-    .groupBy(sql`json_extract(${schema.generations.settings}, '$.style')`)
-    .orderBy(sql`count(*) DESC`);
-
-  const byStyle = byStyleResult.map((r: { style: string | null; count: number }) => ({
-    style: r.style || 'unknown',
-    count: r.count,
-  }));
-
-  // 7. Trend data (daily generation count)
-  const trendResult = await db
-    .select({
+    }).from(schema.generations).where(baseCondition)
+      .groupBy(sql`json_extract(${schema.generations.settings}, '$.style')`)
+      .orderBy(sql`count(*) DESC`),
+    db.select({
       date: sql<string>`DATE(${schema.generations.createdAt})`,
       count: sql<number>`count(*)`,
-    })
-    .from(schema.generations)
-    .where(baseCondition)
-    .groupBy(sql`DATE(${schema.generations.createdAt})`)
-    .orderBy(sql`DATE(${schema.generations.createdAt}) ASC`);
+    }).from(schema.generations).where(baseCondition)
+      .groupBy(sql`DATE(${schema.generations.createdAt})`)
+      .orderBy(sql`DATE(${schema.generations.createdAt}) ASC`),
+  ]);
 
-  const trend = trendResult.map((r: { date: string; count: number }) => ({
-    date: r.date,
-    count: r.count,
-  }));
+  const totalGenerations = totalGenerationsResult?.count || 0;
+  const totalImages = totalImagesResult?.total || 0;
+  const totalFavorites = favoritesResult?.count || 0;
 
   return {
     totalGenerations,
     totalImages,
-    avgGenerationTime,
-    favoriteRate: Math.round(favoriteRate * 10) / 10,
-    byPlatform,
-    byStyle,
-    trend,
+    avgGenerationTime: 0,
+    favoriteRate: Math.round((totalImages > 0 ? (totalFavorites / totalImages) * 100 : 0) * 10) / 10,
+    byPlatform: byPlatformResult.map((r) => ({ platform: r.platform || 'unknown', count: r.count })),
+    byStyle: byStyleResult.map((r) => ({ style: r.style || 'unknown', count: r.count })),
+    trend: trendResult.map((r) => ({ date: r.date, count: r.count })),
   };
 }

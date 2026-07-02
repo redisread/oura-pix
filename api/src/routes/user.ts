@@ -4,9 +4,10 @@
  * Handles user profile updates via Better Auth
  */
 
-import { Hono } from "hono";
+import { badRequest, unauthorized } from "../lib/http";
 import { createAuth, getSessionTokenFromHeaders } from "../lib/auth";
-import { apiMessage } from "../lib/i18n";
+import type { Context } from "hono";
+import { Hono } from "hono";
 
 const router = new Hono<{
   Bindings: {
@@ -16,6 +17,25 @@ const router = new Hono<{
   };
 }>();
 
+router.onError((err, c) => {
+  console.error("[API] User route error:", err);
+  return c.json(
+    {
+      success: false,
+      error: { code: "INTERNAL_ERROR", message: "Internal server error" },
+    },
+    500
+  );
+});
+
+function badReq(c: Context) {
+  return badRequest(c);
+}
+
+function unauth(c: Context) {
+  return unauthorized(c);
+}
+
 // Update user profile (name)
 router.put("/profile", async (c) => {
   const auth = createAuth(c.env, c.req.url);
@@ -23,46 +43,19 @@ router.put("/profile", async (c) => {
 
   const { name } = body as { name?: string };
 
-  if (!name || name.trim().length === 0) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "VALIDATION_ERROR", message: apiMessage(c, "badRequest") },
-      },
-      400
-    );
-  }
+  if (!name || name.trim().length === 0) return badReq(c);
 
-  try {
-    const sessionToken = getSessionTokenFromHeaders(new Headers(c.req.header()));
-    if (!sessionToken) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") },
-        },
-        401
-      );
-    }
+  const sessionToken = getSessionTokenFromHeaders(new Headers(c.req.header()));
+  if (!sessionToken) return unauth(c);
 
-    const result = await auth.api.updateUser({
-      headers: new Headers({
-        cookie: `better-auth.session_token=${sessionToken}`,
-      }),
-      body: { name: name.trim() },
-    });
+  const result = await auth.api.updateUser({
+    headers: new Headers({
+      cookie: `better-auth.session_token=${sessionToken}`,
+    }),
+    body: { name: name.trim() },
+  });
 
-    return c.json({ success: true, data: result });
-  } catch (error) {
-    console.error("[User Profile Update] Error:", error);
-    return c.json(
-      {
-        success: false,
-        error: { code: "UPDATE_FAILED", message: apiMessage(c, "internalError") },
-      },
-      500
-    );
-  }
+  return c.json({ success: true, data: result });
 });
 
 // Update user avatar/image
@@ -72,46 +65,19 @@ router.put("/avatar", async (c) => {
 
   const { image } = body as { image?: string };
 
-  if (!image) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "VALIDATION_ERROR", message: apiMessage(c, "badRequest") },
-      },
-      400
-    );
-  }
+  if (!image) return badReq(c);
 
-  try {
-    const sessionToken = getSessionTokenFromHeaders(new Headers(c.req.header()));
-    if (!sessionToken) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: apiMessage(c, "unauthorized") },
-        },
-        401
-      );
-    }
+  const sessionToken = getSessionTokenFromHeaders(new Headers(c.req.header()));
+  if (!sessionToken) return unauth(c);
 
-    const result = await auth.api.updateUser({
-      headers: new Headers({
-        cookie: `better-auth.session_token=${sessionToken}`,
-      }),
-      body: { image },
-    });
+  const result = await auth.api.updateUser({
+    headers: new Headers({
+      cookie: `better-auth.session_token=${sessionToken}`,
+    }),
+    body: { image },
+  });
 
-    return c.json({ success: true, data: result });
-  } catch (error) {
-    console.error("[Avatar Update] Error:", error);
-    return c.json(
-      {
-        success: false,
-        error: { code: "UPDATE_FAILED", message: apiMessage(c, "internalError") },
-      },
-      500
-    );
-  }
+  return c.json({ success: true, data: result });
 });
 
 export default router;

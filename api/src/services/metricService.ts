@@ -45,27 +45,31 @@ export interface MetricSummary {
 }
 
 /**
+ * Build a metric row from input, normalizing optional fields and truncating long strings.
+ */
+function buildMetricRow(input: RecordMetricInput) {
+  return {
+    id: crypto.randomUUID(),
+    name: input.name,
+    value: input.value,
+    rating: input.rating ?? null,
+    url: input.url?.slice(0, 500) ?? null,
+    userAgent: input.userAgent?.slice(0, 500) ?? null,
+    deviceType: input.deviceType ?? null,
+    connectionType: input.connectionType ?? null,
+    context: input.context ? JSON.stringify(input.context).slice(0, 4000) : null,
+    recordedAt: new Date(),
+  };
+}
+
+/**
  * Record a single metric data point
  */
 export async function recordMetric(
   db: ReturnType<typeof createDb>,
   input: RecordMetricInput
 ): Promise<MetricRecord> {
-  const [created] = await db
-    .insert(schema.metrics)
-    .values({
-      id: crypto.randomUUID(),
-      name: input.name,
-      value: input.value,
-      rating: input.rating ?? null,
-      url: input.url?.slice(0, 500) ?? null,
-      userAgent: input.userAgent?.slice(0, 500) ?? null,
-      deviceType: input.deviceType ?? null,
-      connectionType: input.connectionType ?? null,
-      context: input.context ? JSON.stringify(input.context).slice(0, 4000) : null,
-      recordedAt: new Date(),
-    })
-    .returning();
+  const [created] = await db.insert(schema.metrics).values(buildMetricRow(input)).returning();
   return created!;
 }
 
@@ -78,20 +82,7 @@ export async function recordMetrics(
 ): Promise<number> {
   if (inputs.length === 0) return 0;
 
-  const values = inputs.map((input) => ({
-    id: crypto.randomUUID(),
-    name: input.name,
-    value: input.value,
-    rating: input.rating ?? null,
-    url: input.url?.slice(0, 500) ?? null,
-    userAgent: input.userAgent?.slice(0, 500) ?? null,
-    deviceType: input.deviceType ?? null,
-    connectionType: input.connectionType ?? null,
-    context: input.context ? JSON.stringify(input.context).slice(0, 4000) : null,
-    recordedAt: new Date(),
-  }));
-
-  const result = await db.insert(schema.metrics).values(values).returning();
+  const result = await db.insert(schema.metrics).values(inputs.map(buildMetricRow)).returning();
   return result.length;
 }
 

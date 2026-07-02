@@ -4,22 +4,15 @@
  * CRUD operations for user favorites
  */
 
-import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { createDb, schema, eq, and, desc, count, inArray } from "@oura-pix/database";
-import { getUser } from "../middleware/auth";
+import { schema, eq, and, desc, count, inArray } from "@oura-pix/database";
+import { createRouter, useCtx } from "../lib/route";
+import { notFound as notFoundErr } from "../lib/http";
 import { apiMessage } from "../lib/i18n";
 
-const router = new Hono<{
-  Bindings: {
-    DB: D1Database;
-  };
-  Variables: {
-    user: { id: string; email: string; name?: string | null };
-    session: { id: string; expiresAt: Date };
-  };
-}>();
+const router = createRouter();
+
 
 // Validation schemas
 const addFavoriteSchema = z.object({
@@ -30,23 +23,12 @@ const addFavoriteSchema = z.object({
 
 // GET /api/favorites - List favorites
 router.get("/", async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
   const page = parseInt(c.req.query("page") || "1", 10);
   const pageSize = parseInt(c.req.query("pageSize") || "20", 10);
 
-  const db = createDb(c.env.DB);
 
-  // Count total favorites
   const countResult = await db
     .select({ count: count() })
     .from(schema.favorites)
@@ -55,16 +37,14 @@ router.get("/", async (c) => {
   const total = countResult[0]?.count || 0;
   const totalPages = Math.ceil(total / pageSize);
 
-  // Fetch favorites with pagination
   const offset = (page - 1) * pageSize;
   const favorites = await db.query.favorites.findMany({
     where: eq(schema.favorites.userId, user.id),
     orderBy: [desc(schema.favorites.createdAt)],
     limit: pageSize,
-    offset: offset,
+    offset,
   });
 
-  // Fetch related generation data
   const generationIds = [...new Set(favorites.map((f) => f.generationId))];
   let generations: Record<string, typeof schema.generations.$inferSelect> = {};
 
@@ -75,7 +55,6 @@ router.get("/", async (c) => {
     generations = Object.fromEntries(genRecords.map((g) => [g.id, g]));
   }
 
-  // Transform response
   const data = favorites.map((fav) => ({
     id: fav.id,
     generationId: fav.generationId,
@@ -95,32 +74,16 @@ router.get("/", async (c) => {
   return c.json({
     success: true,
     data,
-    pagination: {
-      page,
-      pageSize,
-      total,
-      totalPages,
-    },
+    pagination: { page, pageSize, total, totalPages },
   });
 });
 
 // POST /api/favorites - Add favorite
 router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
   const body = c.req.valid("json");
-  const db = createDb(c.env.DB);
 
-  // Check if already favorited
   const existing = await db.query.favorites.findFirst({
     where: and(
       eq(schema.favorites.userId, user.id),
@@ -130,15 +93,11 @@ router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
 
   if (existing) {
     return c.json(
-      {
-        success: false,
-        error: { code: "ALREADY_EXISTS", message: apiMessage(c, "alreadyFavorited") },
-      },
+      { success: false, error: { code: "ALREADY_EXISTS", message: apiMessage(c, "alreadyFavorited") } },
       409
     );
   }
 
-  // Verify generation exists and belongs to user
   const generation = await db.query.generations.findFirst({
     where: and(
       eq(schema.generations.id, body.generationId),
@@ -146,17 +105,8 @@ router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
     ),
   });
 
-  if (!generation) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "NOT_FOUND", message: apiMessage(c, "generationNotFound") },
-      },
-      404
-    );
-  }
+  if (!generation) return notFoundErr(c, "generationNotFound");
 
-  // Create favorite
   const [favorite] = await db
     .insert(schema.favorites)
     .values({
@@ -167,29 +117,15 @@ router.post("/", zValidator("json", addFavoriteSchema), async (c) => {
     })
     .returning();
 
-  return c.json({
-    success: true,
-    data: favorite,
-  }, 201);
+  return c.json({ success: true, data: favorite }, 201);
 });
 
 // DELETE /api/favorites/:id - Remove favorite
 router.delete("/:id", async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
   const id = c.req.param("id");
-  const db = createDb(c.env.DB);
 
-  // Verify favorite exists and belongs to user
   const favorite = await db.query.favorites.findFirst({
     where: and(
       eq(schema.favorites.id, id),
@@ -197,78 +133,38 @@ router.delete("/:id", async (c) => {
     ),
   });
 
-  if (!favorite) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "NOT_FOUND", message: apiMessage(c, "notFound") },
-      },
-      404
-    );
-  }
+  if (!favorite) return notFoundErr(c);
 
   await db.delete(schema.favorites).where(eq(schema.favorites.id, id));
-
-  return c.json({
-    success: true,
-  });
+  return c.json({ success: true });
 });
 
-// DELETE /api/favorites/batch - Remove multiple favorites
+// POST /api/favorites/batch-delete - Remove multiple favorites
 router.post("/batch-delete", zValidator("json", z.object({ ids: z.array(z.string()) })), async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
   const body = c.req.valid("json");
-  const db = createDb(c.env.DB);
 
   if (body.ids.length === 0) {
-    return c.json({
-      success: true,
-      data: { deleted: 0 },
-    });
+    return c.json({ success: true, data: { deleted: 0 } });
   }
 
-  // Delete favorites that belong to user
   const deleted = await db
     .delete(schema.favorites)
-    .where(
-      and(
-        inArray(schema.favorites.id, body.ids),
-        eq(schema.favorites.userId, user.id)
-      )
-    )
+    .where(and(
+      inArray(schema.favorites.id, body.ids),
+      eq(schema.favorites.userId, user.id)
+    ))
     .returning();
 
-  return c.json({
-    success: true,
-    data: { deleted: deleted.length },
-  });
+  return c.json({ success: true, data: { deleted: deleted.length } });
 });
 
 // GET /api/favorites/check/:imageUrl - Check if image is favorited
 router.get("/check/:imageUrl", async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
   const imageUrl = c.req.param("imageUrl");
-  const db = createDb(c.env.DB);
 
   const favorite = await db.query.favorites.findFirst({
     where: and(

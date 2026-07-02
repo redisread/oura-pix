@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { apiErr, apiJson } from "@/lib/api";
 import * as m from "@/paraglide/messages.js";
 
 export type Rating = "good" | "needs-improvement" | "poor";
@@ -58,7 +58,7 @@ export function useMetricsDashboard(params: UseMetricsParams = {}) {
       setStats(dashboardStats);
       setPoints(metricSeries.points);
     } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
+      setError(apiErr(err, m.common_loadFailed()));
     } finally {
       setLoading(false);
     }

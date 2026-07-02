@@ -10,7 +10,7 @@ import GenerationProgress, { type GenerationStage } from "./GenerationProgress";
 import CompareView from "./compare/CompareView";
 import PromptTemplates from "./generation/PromptTemplates";
 import { uploadImage } from "@/lib/api";
-import { createGeneration, getGeneration, previewGeneration } from "@/lib/generation";
+import { createGeneration, getGeneration, previewGeneration } from "@/lib/api";
 import { useToast, ToastProvider } from "./ui/Toast";
 
 type Platform = "amazon" | "shopify" | "ebay" | "etsy" | "generic";

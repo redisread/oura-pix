@@ -3,6 +3,9 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createDb, schema } from "@oura-pix/database";
 import { DEFAULT_LOCALE, type Locale } from "@oura-pix/i18n";
 import { sendPasswordResetEmail } from "./mail";
+import type { Context } from "hono";
+import { apiMessage } from "./i18n";
+
 
 export interface AuthEnv {
   DB: D1Database;
@@ -136,4 +139,66 @@ export function getSessionTokenFromHeaders(headers: Headers): string | null {
 export function normalizeLocalSetCookie(setCookie: string | null, requestUrl: string): string | null {
   if (!setCookie) return null;
   return isLocalAuthUrl(requestUrl) ? setCookie.replace(/;\s*Secure/gi, "") : setCookie;
+}
+
+
+export interface ForwardAuthOptions {
+  method?: string;
+  pathnameRewrite?: string | ((current: string) => string);
+  forwardBody?: boolean;
+  locale?: Locale;
+}
+
+/**
+ * Forward a request to Better Auth, handling Set-Cookie normalization
+ * and JSON response parsing. Eliminates ~80 lines of duplicated
+ * handler boilerplate across the 6 auth route handlers.
+ */
+export async function forwardAuthRequest(
+  c: Context,
+  options: ForwardAuthOptions = {}
+): Promise<{ status: number; data: unknown }> {
+  const { method, pathnameRewrite, forwardBody, locale } = options;
+
+  const auth = createAuth(c.env as AuthEnv, c.req.url, locale);
+
+  const url = new URL(c.req.url);
+  if (pathnameRewrite) {
+    url.pathname =
+      typeof pathnameRewrite === "function"
+        ? pathnameRewrite(url.pathname)
+        : pathnameRewrite;
+  }
+
+  const rawHeaders = c.req.header();
+  const headers = rawHeaders instanceof Headers ? rawHeaders : new Headers(rawHeaders);
+
+  let body: string | undefined;
+  if (forwardBody) {
+    body = await c.req.text();
+  }
+
+  const request = new Request(url.toString(), {
+    method: method ?? c.req.raw.method,
+    headers,
+    body: body || undefined,
+  });
+
+  const response = await auth.handler(request);
+
+  const setCookie = response.headers.get("Set-Cookie");
+  if (setCookie) {
+    const normalized = normalizeLocalSetCookie(setCookie, c.req.url);
+    if (normalized) c.header("Set-Cookie", normalized);
+  }
+
+  const text = await response.text();
+  let data: unknown;
+  try {
+    data = text ? JSON.parse(text) : { success: true };
+  } catch {
+    data = { success: false, error: apiMessage(c, "internalError") };
+  }
+
+  return { status: response.status, data };
 }

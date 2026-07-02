@@ -4,13 +4,11 @@
  * CRUD operations for generation tasks
  */
 
-import { Hono } from "hono";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { zValidator } from "@hono/zod-validator";
 import { createDb, schema } from "@oura-pix/database";
-import { resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
-import { getUser } from "../middleware/auth";
+import { serverMessage } from "@oura-pix/i18n";
 import {
   getGenerationsList,
   getGenerationById,
@@ -22,21 +20,16 @@ import {
 } from "../services/generation-service";
 import { generateProductCopy } from "../services/geminiService";
 import { getTeamForUser } from "../services/teamService";
+import { getLocale } from "../lib/i18n";
+import { createRouter, useCtx } from "../lib/route";
+import { badRequest, forbidden, notFound } from "../lib/http";
 
-const router = new Hono<{
-  Bindings: {
-    DB: D1Database;
-    R2: R2Bucket;
-    CLOUDFLARE_R2_PUBLIC_URL: string;
-    GEMINI_API_KEY?: string;
-    GEMINI_BASE_URL?: string;
-    GEMINI_MODEL?: string;
-  };
-  Variables: {
-    user: { id: string; email: string; name?: string | null };
-    session: { id: string; expiresAt: Date };
-    locale?: Locale;
-  };
+const router = createRouter<{
+  R2: R2Bucket;
+  CLOUDFLARE_R2_PUBLIC_URL: string;
+  GEMINI_API_KEY?: string;
+  GEMINI_BASE_URL?: string;
+  GEMINI_MODEL?: string;
 }>();
 
 // Validation schemas
@@ -58,10 +51,6 @@ export const createGenerationSchema = z.object({
   }),
 });
 
-function getLocale(c: { req: { raw: Request } }): Locale {
-  return resolveLocale({ headers: c.req.raw.headers });
-}
-
 const validateCreateGeneration = zValidator("json", createGenerationSchema, (result, c) => {
   if (!result.success) {
     const locale = getLocale(c);
@@ -81,24 +70,11 @@ const validateCreateGeneration = zValidator("json", createGenerationSchema, (res
 
 // GET /api/generations - List generations
 router.get("/", async (c) => {
-  const locale = getLocale(c);
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-      },
-      401
-    );
-  }
-
+  const { user, db } = useCtx(c);
   const page = parseInt(c.req.query("page") || "1", 10);
   const pageSize = parseInt(c.req.query("pageSize") || "10", 10);
   const filter = (c.req.query("filter") as "all" | "today" | "week" | "month" | undefined) || "all";
   const statsOnly = c.req.query("stats") === "true";
-
-  const db = createDb(c.env.DB);
 
   if (statsOnly) {
     const stats = await getUserStats(db, user.id);
@@ -124,32 +100,12 @@ router.get("/", async (c) => {
 
 // GET /api/generations/:id - Get generation by ID
 router.get("/:id", async (c) => {
-  const locale = getLocale(c);
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-      },
-      401
-    );
-  }
-
+  const { user, db } = useCtx(c);
   const id = c.req.param("id");
-  const db = createDb(c.env.DB);
 
   const generation = await getGenerationById(db, id, user.id);
 
-  if (!generation) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
-      },
-      404
-    );
-  }
+  if (!generation) return notFound(c, "generationNotFound");
 
   return c.json({
     success: true,
@@ -162,221 +118,105 @@ router.post(
   "/",
   validateCreateGeneration,
   async (c) => {
-    const locale = getLocale(c);
-    const user = getUser(c);
-    if (!user) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-        },
-        401
-      );
-    }
-
+    const { user, db } = useCtx(c);
     const body = c.req.valid("json");
-    const db = createDb(c.env.DB);
 
-    try {
-      if (body.teamId) {
-        const team = await getTeamForUser(db, body.teamId, user.id);
-        if (!team) {
-          return c.json(
-            {
-              success: false,
-              error: { code: "FORBIDDEN", message: serverMessage(locale, "forbidden") },
-            },
-            403
-          );
-        }
-      }
-
-      const generation = await createGeneration(db, user.id, body);
-      c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
-
-      return c.json(
-        {
-          success: true,
-          data: generation,
-        },
-        201
-      );
-    } catch (error) {
-      console.error("[API] Create generation error:", error);
-      return c.json(
-        {
-          success: false,
-          error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
-        },
-        500
-      );
-    }
-  }
-);
-
-// POST /api/generations/:id/cancel - Cancel generation
-router.post("/:id/cancel", async (c) => {
-  const locale = getLocale(c);
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-      },
-      401
-    );
-  }
-
-  const id = c.req.param("id");
-  const db = createDb(c.env.DB);
-  const result = await cancelGeneration(db, id, user.id, locale);
-
-  if (!result.success) {
-    return c.json(
-      {
-        success: false,
-        error: {
-          code: "CANCEL_FAILED",
-          message: serverMessage(
-            locale,
-            result.reason === "not_found" ? "generationNotFound" : "badRequest"
-          ),
-        },
-      },
-      result.reason === "not_found" ? 404 : 409
-    );
-  }
-
-  return c.json({ success: true });
-});
-
-// PATCH /api/generations/:id/image - Update generation result image with edited version
-router.patch("/:id/image", async (c) => {
-  const locale = getLocale(c);
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-      },
-      401
-    );
-  }
-
-  const id = c.req.param("id");
-  const db = createDb(c.env.DB);
-
-  const generation = await getGenerationById(db, id, user.id);
-  if (!generation) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
-      },
-      404
-    );
-  }
-
-  const formData = await c.req.formData();
-  const imageFile = formData.get("image") as File | null;
-  const imageIndexStr = formData.get("imageIndex");
-  const imageIndex = imageIndexStr ? parseInt(imageIndexStr as string, 10) : 0;
-
-  if (!imageFile) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "BAD_REQUEST", message: serverMessage(locale, "badRequest") },
-      },
-      400
-    );
-  }
-
-  const { R2, CLOUDFLARE_R2_PUBLIC_URL } = c.env;
-  const ext = (imageFile.name || "png").split(".").pop() || "png";
-  const key = `edits/${user.id}/${crypto.randomUUID()}.${ext}`;
-
-  try {
-    await R2.put(key, imageFile, {
-      httpMetadata: {
-        contentType: imageFile.type || "image/png",
-      },
-    });
-
-    const editedImageUrl = `${CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
-
-    const currentResults = generation.results ?? [];
-    const updatedResults = [...currentResults];
-
-    if (updatedResults[imageIndex]) {
-      updatedResults[imageIndex] = {
-        ...updatedResults[imageIndex],
-        imageUrl: editedImageUrl,
-      };
-    } else {
-      updatedResults.push({
-        id: crypto.randomUUID(),
-        title: updatedResults[0]?.title ?? "",
-        description: updatedResults[0]?.description ?? "",
-        tags: updatedResults[0]?.tags ?? [],
-        imageUrl: editedImageUrl,
-      });
+    if (body.teamId) {
+      const team = await getTeamForUser(db, body.teamId, user.id);
+      if (!team) return forbidden(c);
     }
 
-    await db
-      .update(schema.generations)
-      .set({
-        results: updatedResults,
-        updatedAt: new Date(),
-      })
-      .where(eq(schema.generations.id, id));
+    const generation = await createGeneration(db, user.id, body);
+    c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
 
     return c.json({
       success: true,
-      data: { imageUrl: editedImageUrl },
-    });
-  } catch (error) {
-    console.error("[API] Update generation image error:", error);
-    return c.json(
-      {
-        success: false,
-        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
+      data: {
+        id: generation.id,
+        status: generation.status,
+        createdAt: generation.createdAt,
       },
-      500
-    );
+    }, 201);
   }
+);
+
+// PUT /api/generations/:id/cancel - Cancel a running generation
+router.put("/:id/cancel", async (c) => {
+  const { user, db } = useCtx(c);
+  const id = c.req.param("id");
+
+  const result = await cancelGeneration(db, id, user.id);
+  if (!result.success) return notFound(c, "generationNotFound");
+  return c.json({ success: true });
+});
+
+// POST /api/generations/:id/image - Update a result image
+router.post("/:id/image", async (c) => {
+  const { user, db } = useCtx(c);
+  const { R2, CLOUDFLARE_R2_PUBLIC_URL } = c.env;
+
+  const id = c.req.param("id");
+  const { imageIndex } = await c.req.json() as { imageIndex: number };
+
+  const formData = await c.req.formData();
+  const imageFile = formData.get("image") as File | null;
+
+  if (!imageFile) return badRequest(c);
+
+  const generation = await getGenerationById(db, id, user.id);
+  if (!generation) return notFound(c, "generationNotFound");
+
+  const ext = imageFile.name.split(".").pop() || "png";
+  const key = `edits/${user.id}/${crypto.randomUUID()}.${ext}`;
+
+  await R2.put(key, imageFile, {
+    httpMetadata: {
+      contentType: imageFile.type || "image/png",
+    },
+  });
+
+  const editedImageUrl = `${CLOUDFLARE_R2_PUBLIC_URL}/${key}`;
+
+  const currentResults = generation.results ?? [];
+  const updatedResults = [...currentResults];
+
+  if (updatedResults[imageIndex]) {
+    updatedResults[imageIndex] = {
+      ...updatedResults[imageIndex],
+      imageUrl: editedImageUrl,
+    };
+  } else {
+    updatedResults.push({
+      id: crypto.randomUUID(),
+      title: updatedResults[0]?.title ?? "",
+      description: updatedResults[0]?.description ?? "",
+      tags: updatedResults[0]?.tags ?? [],
+      imageUrl: editedImageUrl,
+    });
+  }
+
+  await db
+    .update(schema.generations)
+    .set({
+      results: updatedResults,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.generations.id, id));
+
+  return c.json({
+    success: true,
+    data: { imageUrl: editedImageUrl },
+  });
 });
 
 // DELETE /api/generations/:id - Delete generation
 router.delete("/:id", async (c) => {
-  const locale = getLocale(c);
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-      },
-      401
-    );
-  }
-
+  const { user, db } = useCtx(c);
   const id = c.req.param("id");
-  const db = createDb(c.env.DB);
 
   const result = await deleteGeneration(db, id, user.id);
 
-  if (!result.success) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
-      },
-      404
-    );
-  }
+  if (!result.success) return notFound(c, "generationNotFound");
 
   return c.json({
     success: true,
@@ -417,79 +257,49 @@ router.post(
   "/preview",
   validatePreviewGeneration,
   async (c) => {
-    const locale = getLocale(c);
-    const user = getUser(c);
-    if (!user) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: serverMessage(locale, "unauthorized") },
-        },
-        401
-      );
-    }
-
     const body = c.req.valid("json");
     const db = createDb(c.env.DB);
 
-    try {
-      let productImage: { url: string; mimeType: string } | null = null;
-      if (body.productImageId) {
-        const image = await db.query.images.findFirst({
-          where: (images, { eq }) => eq(images.id, body.productImageId!),
-        });
-        if (image) {
-          productImage = { url: image.url, mimeType: image.mimeType };
-        }
-      }
-
-      const settings = {
-        targetPlatform: body.settings.targetPlatform,
-        language: body.settings.language,
-        uiLocale: body.settings.uiLocale,
-        count: 1, // Preview forces count=1
-        style: body.settings.style,
-        generateImages: false,
-      };
-
-      const results = await generateProductCopy({
-        env: c.env,
-        productImage,
-        referenceImages: [],
-        prompt: body.prompt,
-        settings,
+    let productImage: { url: string; mimeType: string } | null = null;
+    if (body.productImageId) {
+      const image = await db.query.images.findFirst({
+        where: (images, { eq }) => eq(images.id, body.productImageId!),
       });
-
-      const first = results[0];
-      if (!first) {
-        return c.json(
-          {
-            success: false,
-            error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
-          },
-          500
-        );
+      if (image) {
+        productImage = { url: image.url, mimeType: image.mimeType };
       }
-      return c.json({
-        success: true,
-        data: {
-          preview: {
-            title: first.title,
-            description: first.description,
-            keywords: first.tags ?? [],
-          },
-        },
-      });
-    } catch (error) {
-      console.error("[API] Preview generation error:", error);
-      return c.json(
-        {
-          success: false,
-          error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
-        },
-        500
-      );
     }
+
+    const settings = {
+      targetPlatform: body.settings.targetPlatform,
+      language: body.settings.language,
+      uiLocale: body.settings.uiLocale,
+      count: 1, // Preview forces count=1
+      style: body.settings.style,
+      generateImages: false,
+    };
+
+    const results = await generateProductCopy({
+      env: c.env,
+      productImage,
+      referenceImages: [],
+      prompt: body.prompt,
+      settings,
+    });
+
+    const first = results[0];
+    if (!first) return notFound(c);
+
+    return c.json({
+      success: true,
+      data: {
+        preview: {
+          title: first.title,
+          description: first.description,
+          keywords: first.tags ?? [],
+        },
+      },
+    });
   }
 );
 

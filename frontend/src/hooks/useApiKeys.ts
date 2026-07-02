@@ -2,8 +2,9 @@
  * useApiKeys Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { useState, useCallback } from "react";
+import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface ApiKey {
@@ -21,26 +22,13 @@ interface CreatedKey extends ApiKey {
 }
 
 export function useApiKeys() {
-  const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, setError, refetch } = useResource<ApiKey[]>(
+    "/api/keys",
+    m.common_loadFailed()
+  );
   const [newlyCreated, setNewlyCreated] = useState<CreatedKey | null>(null);
 
-  const fetchKeys = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      setKeys(await apiJson<ApiKey[]>("/api/keys"));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchKeys();
-  }, [fetchKeys]);
+  const keys = data ?? [];
 
   const createKey = useCallback(
     async (name: string, expiresInDays?: number): Promise<CreatedKey | null> => {
@@ -51,26 +39,26 @@ export function useApiKeys() {
           body: JSON.stringify({ name, ...(expiresInDays ? { expiresInDays } : {}) }),
         });
         setNewlyCreated(created);
-        await fetchKeys();
+        await refetch();
         return created;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_createFailed());
+        setError(apiErr(err, m.common_createFailed()));
         return null;
       }
     },
-    [fetchKeys]
+    [refetch, setError]
   );
 
   const revokeKey = useCallback(
     async (id: string) => {
       try {
         await apiJson(`/api/keys/${id}`, { method: "DELETE" });
-        await fetchKeys();
+        await refetch();
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_updateFailed());
+        setError(apiErr(err, m.common_updateFailed()));
       }
     },
-    [fetchKeys]
+    [refetch, setError]
   );
 
   return {
@@ -81,6 +69,6 @@ export function useApiKeys() {
     setNewlyCreated,
     createKey,
     revokeKey,
-    refetch: fetchKeys,
+    refetch,
   };
 }

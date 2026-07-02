@@ -152,11 +152,11 @@ export async function listErrors(
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const totalResult = await db
-    .select({ value: count() })
+    .select({ count: count() })
     .from(schema.errors)
     .where(whereClause);
 
-  const total = totalResult[0]?.value ?? 0;
+  const total = totalResult[0]?.count ?? 0;
   const totalPages = Math.ceil(total / pageSize);
 
   const data = await db
@@ -188,18 +188,18 @@ export async function getErrorStats(
   const whereClause = startDate ? gte(schema.errors.createdAt, startDate) : undefined;
 
   const totalResult = await db
-    .select({ value: count() })
+    .select({ count: count() })
     .from(schema.errors)
     .where(whereClause);
 
   const severityResult = await db
-    .select({ severity: schema.errors.severity, value: count() })
+    .select({ severity: schema.errors.severity, count: count() })
     .from(schema.errors)
     .where(whereClause)
     .groupBy(schema.errors.severity);
 
   const typeResult = await db
-    .select({ type: schema.errors.type, value: count() })
+    .select({ type: schema.errors.type, count: count() })
     .from(schema.errors)
     .where(whereClause)
     .groupBy(schema.errors.type);
@@ -212,9 +212,9 @@ export async function getErrorStats(
     .limit(10);
 
   return {
-    total: totalResult[0]?.value ?? 0,
-    bySeverity: Object.fromEntries(severityResult.map((r) => [r.severity, r.value])),
-    byType: Object.fromEntries(typeResult.map((r) => [r.type, r.value])),
+    total: totalResult[0]?.count ?? 0,
+    bySeverity: Object.fromEntries(severityResult.map((r) => [r.severity, r.count])),
+    byType: Object.fromEntries(typeResult.map((r) => [r.type, r.count])),
     topErrors,
   };
 }

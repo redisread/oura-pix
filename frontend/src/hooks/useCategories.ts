@@ -2,8 +2,7 @@
  * useCategories Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface Category {
@@ -30,41 +29,17 @@ export interface Template {
 }
 
 export function useCategories() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchCategories = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiJson<Category[]>("/api/categories");
-      setCategories(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { fetchCategories(); }, [fetchCategories]);
-  return { categories, loading, error, refetch: fetchCategories };
+  const { data, loading, error, setError, refetch } = useResource<Category[]>(
+    "/api/categories",
+    m.common_loadFailed()
+  );
+  return { categories: data ?? [], loading, error, refetch };
 }
 
 export function useCategoryTemplates(categoryId: string | null) {
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchTemplates = useCallback(async () => {
-    if (!categoryId) return;
-    setLoading(true); setError(null);
-    try {
-      const data = await apiJson<Template[]>(`/api/categories/${categoryId}/templates`);
-      setTemplates(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally { setLoading(false); }
-  }, [categoryId]);
-
-  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
-  return { templates, loading, error, refetch: fetchTemplates };
+  const { data, loading, error, setError, refetch } = useResource<Template[]>(
+    categoryId ? `/api/categories/${categoryId}/templates` : null,
+    m.common_loadFailed()
+  );
+  return { templates: data ?? [], loading, error, refetch };
 }

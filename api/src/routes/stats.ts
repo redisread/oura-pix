@@ -4,21 +4,11 @@
  * API endpoints for generation statistics
  */
 
-import { Hono } from 'hono';
-import { getUser } from '../middleware/auth';
 import { getUserStats, type TimeRange } from '../services/statsService';
-import { createDb } from '@oura-pix/database';
-import { apiMessage } from "../lib/i18n";
+import { createRouter, useCtx } from '../lib/route';
+import { badRequest } from '../lib/http';
 
-const stats = new Hono<{
-  Bindings: {
-    DB: D1Database;
-  };
-  Variables: {
-    user: { id: string; email: string; name?: string | null };
-    session: { id: string; expiresAt: Date };
-  };
-}>();
+const stats = createRouter();
 
 /**
  * GET /api/stats
@@ -28,30 +18,18 @@ const stats = new Hono<{
  * - range: TimeRange (7d | 30d | 90d | all) - default: 30d
  */
 stats.get('/', async (c) => {
-  try {
-    const user = getUser(c);
-    if (!user) {
-      return c.json({ success: false, error: { code: 'UNAUTHORIZED', message: apiMessage(c, "unauthorized") } }, 401);
-    }
+  const { user, db } = useCtx(c);
 
-    const range = (c.req.query('range') || '30d') as TimeRange;
-    const validRanges: TimeRange[] = ['7d', '30d', '90d', 'all'];
+  const range = (c.req.query('range') || '30d') as TimeRange;
+  const validRanges: TimeRange[] = ['7d', '30d', '90d', 'all'];
+  if (!validRanges.includes(range)) return badRequest(c);
 
-    if (!validRanges.includes(range)) {
-      return c.json({ success: false, error: { code: 'BAD_REQUEST', message: apiMessage(c, "badRequest") } }, 400);
-    }
+  const statsData = await getUserStats(user.id, range, db);
 
-    const db = createDb(c.env.DB);
-    const statsData = await getUserStats(user.id, range, db);
-
-    return c.json({
-      success: true,
-      data: statsData,
-    });
-  } catch (error) {
-    console.error('Error fetching stats:', error);
-    return c.json({ success: false, error: { code: 'INTERNAL_ERROR', message: apiMessage(c, "internalError") } }, 500);
-  }
+  return c.json({
+    success: true,
+    data: statsData,
+  });
 });
 
 export default stats;

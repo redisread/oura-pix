@@ -4,11 +4,11 @@
  * Fetches and manages generation statistics
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { apiJson } from "@/lib/api";
+import { useState } from "react";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
-export type TimeRange = '7d' | '30d' | '90d' | 'all';
+export type TimeRange = "7d" | "30d" | "90d" | "all";
 
 export interface StatsData {
   totalGenerations: number;
@@ -20,38 +20,12 @@ export interface StatsData {
   trend: { date: string; count: number }[];
 }
 
-export function useStats(initialRange: TimeRange = '30d') {
+export function useStats(initialRange: TimeRange = "30d") {
   const [range, setRange] = useState<TimeRange>(initialRange);
-  const [data, setData] = useState<StatsData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const { data, loading, error, setError, refetch } = useResource<StatsData>(
+    `/api/stats?range=${range}`,
+    m.common_loadFailed()
+  );
 
-  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        setData(await apiJson<StatsData>(`/api/stats?range=${range}`));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_loadFailed());
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, [range, refreshKey]);
-
-  return {
-    range,
-    setRange,
-    data,
-    loading,
-    error,
-    refresh,
-  };
+  return { range, setRange, data, loading, error, refresh: refetch };
 }

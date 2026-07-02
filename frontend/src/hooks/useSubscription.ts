@@ -4,8 +4,7 @@
  * Fetches user subscription information from the API
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface SubscriptionInfo {
@@ -28,7 +27,7 @@ function planLabel(plan: string): string {
     case "free":
       return m.pricing_free_name();
     case "starter":
-      return m.pricing_pro_name(); // No starter specific message, use pro as fallback
+      return m.pricing_pro_name();
     case "pro":
       return m.pricing_pro_name();
     case "enterprise":
@@ -39,39 +38,12 @@ function planLabel(plan: string): string {
 }
 
 export function useSubscription(): UseSubscriptionReturn {
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, setError, refetch } = useResource<SubscriptionInfo>(
+    "/api/subscription",
+    m.common_unknownError()
+  );
 
-  const fetchSubscription = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const subscription = data ? { ...data, plan: planLabel(data.plan) } : null;
 
-    try {
-      const data = await apiJson<SubscriptionInfo>("/api/subscription");
-
-      setSubscription({
-        plan: planLabel(data.plan),
-        status: data.status,
-        currentPeriodEnd: data.currentPeriodEnd,
-        usedGenerations: data.usedGenerations,
-        generationLimit: data.generationLimit,
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_unknownError());
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchSubscription();
-  }, [fetchSubscription]);
-
-  return {
-    subscription,
-    isLoading,
-    error,
-    refresh: fetchSubscription,
-  };
+  return { subscription, isLoading: loading, error, refresh: refetch };
 }

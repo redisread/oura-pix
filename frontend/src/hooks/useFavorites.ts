@@ -5,7 +5,8 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { api } from "@/lib/api";
+import { api, apiErr } from "@/lib/api";
+import type { Pagination } from "@/lib/types";
 import { ENDPOINTS } from "@oura-pix/api-client";
 import * as m from "@/paraglide/messages.js";
 
@@ -25,13 +26,6 @@ export interface Favorite {
     };
     createdAt: string;
   } | null;
-}
-
-export interface Pagination {
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
 }
 
 interface UseFavoritesReturn {
@@ -71,7 +65,7 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
         setError(response.data.error?.message || m.common_loadFailed());
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_unknownError());
+      setError(apiErr(err, m.common_unknownError()));
     } finally {
       setIsLoading(false);
     }

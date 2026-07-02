@@ -2,8 +2,9 @@
  * useTeams Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { useCallback } from "react";
+import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export type TeamRole = "owner" | "admin" | "member";
@@ -36,26 +37,8 @@ export interface TeamDetail extends Team {
 }
 
 export function useTeams() {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchTeams = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiJson<Team[]>("/api/teams");
-      setTeams(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+  const { data, loading, error, setError, refetch: fetchTeams } = useResource<Team[]>("/api/teams", m.common_loadFailed());
+  const teams = data ?? [];
 
   const createTeam = useCallback(
     async (name: string): Promise<Team | null> => {
@@ -68,17 +51,17 @@ export function useTeams() {
         await fetchTeams();
         return team;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_createFailed());
+        setError(apiErr(err, m.common_createFailed()));
         return null;
       }
     },
-    [fetchTeams]
+    [fetchTeams, setError]
   );
 
   const joinTeam = useCallback(
     async (inviteCode: string): Promise<boolean> => {
       try {
-        await apiJson(`/api/teams/join`, {
+        await apiJson("/api/teams/join", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ inviteCode }),
@@ -86,11 +69,11 @@ export function useTeams() {
         await fetchTeams();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_requestFailed());
+        setError(apiErr(err, m.common_requestFailed()));
         return false;
       }
     },
-    [fetchTeams]
+    [fetchTeams, setError]
   );
 
   const leaveTeam = useCallback(
@@ -100,11 +83,11 @@ export function useTeams() {
         await fetchTeams();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_requestFailed());
+        setError(apiErr(err, m.common_requestFailed()));
         return false;
       }
     },
-    [fetchTeams]
+    [fetchTeams, setError]
   );
 
   const deleteTeam = useCallback(
@@ -114,38 +97,21 @@ export function useTeams() {
         await fetchTeams();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_requestFailed());
+        setError(apiErr(err, m.common_requestFailed()));
         return false;
       }
     },
-    [fetchTeams]
+    [fetchTeams, setError]
   );
 
   return { teams, loading, error, refetch: fetchTeams, createTeam, joinTeam, leaveTeam, deleteTeam };
 }
 
 export function useTeam(teamId: string | null) {
-  const [team, setTeam] = useState<TeamDetail | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchTeam = useCallback(async () => {
-    if (!teamId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiJson<TeamDetail>(`/api/teams/${teamId}`);
-      setTeam(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally {
-      setLoading(false);
-    }
-  }, [teamId]);
-
-  useEffect(() => {
-    fetchTeam();
-  }, [fetchTeam]);
+  const { data: team, loading, error, setError, refetch: fetchTeam } = useResource<TeamDetail>(
+    teamId ? `/api/teams/${teamId}` : null,
+    m.common_loadFailed()
+  );
 
   const updateName = useCallback(
     async (name: string): Promise<boolean> => {
@@ -159,11 +125,11 @@ export function useTeam(teamId: string | null) {
         await fetchTeam();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_updateFailed());
+        setError(apiErr(err, m.common_updateFailed()));
         return false;
       }
     },
-    [teamId, fetchTeam]
+    [teamId, fetchTeam, setError]
   );
 
   const updateMemberRole = useCallback(
@@ -178,11 +144,11 @@ export function useTeam(teamId: string | null) {
         await fetchTeam();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_updateFailed());
+        setError(apiErr(err, m.common_updateFailed()));
         return false;
       }
     },
-    [teamId, fetchTeam]
+    [teamId, fetchTeam, setError]
   );
 
   const removeMember = useCallback(
@@ -193,34 +159,40 @@ export function useTeam(teamId: string | null) {
         await fetchTeam();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_deleteFailed());
+        setError(apiErr(err, m.common_deleteFailed()));
         return false;
       }
     },
-    [teamId, fetchTeam]
+    [teamId, fetchTeam, setError]
   );
 
-  const leaveTeam = useCallback(async (): Promise<boolean> => {
-    if (!teamId) return false;
-    try {
-      await apiJson(`/api/teams/${teamId}/leave`, { method: "POST" });
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_requestFailed());
-      return false;
-    }
-  }, [teamId]);
+  const leaveTeam = useCallback(
+    async (): Promise<boolean> => {
+      if (!teamId) return false;
+      try {
+        await apiJson(`/api/teams/${teamId}/leave`, { method: "POST" });
+        return true;
+      } catch (err) {
+        setError(apiErr(err, m.common_requestFailed()));
+        return false;
+      }
+    },
+    [teamId, setError]
+  );
 
-  const deleteTeam = useCallback(async (): Promise<boolean> => {
-    if (!teamId) return false;
-    try {
-      await apiJson(`/api/teams/${teamId}`, { method: "DELETE" });
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_deleteFailed());
-      return false;
-    }
-  }, [teamId]);
+  const deleteTeam = useCallback(
+    async (): Promise<boolean> => {
+      if (!teamId) return false;
+      try {
+        await apiJson(`/api/teams/${teamId}`, { method: "DELETE" });
+        return true;
+      } catch (err) {
+        setError(apiErr(err, m.common_deleteFailed()));
+        return false;
+      }
+    },
+    [teamId, setError]
+  );
 
   return { team, loading, error, refetch: fetchTeam, updateName, updateMemberRole, removeMember, leaveTeam, deleteTeam };
 }

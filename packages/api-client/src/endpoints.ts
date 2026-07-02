@@ -25,6 +25,7 @@ export const ENDPOINTS = {
     create: "/api/generations",
     get: (id: string) => `/api/generations/${id}`,
     cancel: (id: string) => `/api/generations/${id}/cancel`,
+    preview: "/api/generations/preview",
   },
   // 图片上传
   upload: {

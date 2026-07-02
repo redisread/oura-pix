@@ -4,41 +4,23 @@
  * Handle subscription management and Stripe integration
  */
 
-import { Hono } from "hono";
 import Stripe from "stripe";
-import { createDb, schema, eq } from "@oura-pix/database";
-import { getUser } from "../middleware/auth";
-import { apiMessage } from "../lib/i18n";
+import { schema, eq } from "@oura-pix/database";
+import { createRouter, useCtx } from "../lib/route";
+import { badRequest, notFound } from "../lib/http";
 
-const router = new Hono<{
-  Bindings: {
-    DB: D1Database;
-    STRIPE_SECRET_KEY: string;
-    STRIPE_STARTER_PRICE_ID: string;
-    STRIPE_PRO_PRICE_ID: string;
-    STRIPE_ENTERPRISE_PRICE_ID: string;
-    NEXT_PUBLIC_APP_URL: string;
-  };
-  Variables: {
-    user: { id: string; email: string; name?: string | null };
-    session: { id: string; expiresAt: Date };
-  };
+const router = createRouter<{
+  STRIPE_SECRET_KEY: string;
+  STRIPE_STARTER_PRICE_ID: string;
+  STRIPE_PRO_PRICE_ID: string;
+  STRIPE_ENTERPRISE_PRICE_ID: string;
+  NEXT_PUBLIC_APP_URL: string;
 }>();
 
 // GET /api/subscription - Get current subscription
 router.get("/", async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
-  const db = createDb(c.env.DB);
 
   const subscription = await db.query.subscriptions.findFirst({
     where: eq(schema.subscriptions.userId, user.id),
@@ -60,16 +42,7 @@ router.get("/", async (c) => {
 router.post(
   "/checkout",
   async (c) => {
-    const user = getUser(c);
-    if (!user) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-        },
-        401
-      );
-    }
+    const { user } = useCtx(c);
 
     const body = await c.req.json().catch(() => ({}));
     const { plan = "starter", successUrl, cancelUrl } = body;
@@ -81,115 +54,68 @@ router.post(
     };
 
     const priceId = priceIdMap[plan];
-    if (!priceId) {
-      return c.json(
+    if (!priceId) return badRequest(c, "invalidPlan");
+
+    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY);
+
+    const session = await stripe.checkout.sessions.create({
+      customer_email: user.email,
+      line_items: [
         {
-          success: false,
-          error: { code: "BAD_REQUEST", message: apiMessage(c, "invalidPlan") },
+          price: priceId,
+          quantity: 1,
         },
-        400
-      );
-    }
+      ],
+      mode: "subscription",
+      success_url: successUrl || `${c.env.NEXT_PUBLIC_APP_URL}/profile?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${c.env.NEXT_PUBLIC_APP_URL}/pricing`,
+      metadata: {
+        userId: user.id,
+        plan,
+      },
+      allow_promotion_codes: true,
+    });
 
-    try {
-      const stripe = new Stripe(c.env.STRIPE_SECRET_KEY);
-
-      const session = await stripe.checkout.sessions.create({
-        customer_email: user.email,
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        mode: "subscription",
-        success_url: successUrl || `${c.env.NEXT_PUBLIC_APP_URL}/profile?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: cancelUrl || `${c.env.NEXT_PUBLIC_APP_URL}/pricing`,
-        metadata: {
-          userId: user.id,
-          plan,
-        },
-        allow_promotion_codes: true,
-      });
-
-      return c.json({
-        success: true,
-        data: {
-          sessionId: session.id,
-          url: session.url,
-        },
-      });
-    } catch (error) {
-      console.error("[API] Stripe checkout error:", error);
-      return c.json(
-        {
-          success: false,
-          error: { code: "STRIPE_ERROR", message: apiMessage(c, "stripeError") },
-        },
-        500
-      );
-    }
+    return c.json({
+      success: true,
+      data: {
+        sessionId: session.id,
+        url: session.url,
+      },
+    });
   }
 );
 
 // POST /api/subscription/portal - Create billing portal session
 router.post("/portal", async (c) => {
-  const user = getUser(c);
-  if (!user) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "UNAUTHORIZED", message: apiMessage(c, "userNotFound") },
-      },
-      401
-    );
-  }
+  const { user, db } = useCtx(c);
 
-  const db = createDb(c.env.DB);
 
   const subscription = await db.query.subscriptions.findFirst({
     where: eq(schema.subscriptions.userId, user.id),
   });
 
   if (!subscription?.externalSubscriptionId) {
-    return c.json(
-      {
-        success: false,
-        error: { code: "NOT_FOUND", message: apiMessage(c, "noActiveSubscription") },
-      },
-      404
-    );
+    return notFound(c, "noActiveSubscription");
   }
 
-  try {
-    const stripe = new Stripe(c.env.STRIPE_SECRET_KEY);
+  const stripe = new Stripe(c.env.STRIPE_SECRET_KEY);
 
-    // Get customer ID from subscription
-    const stripeSubscription = await stripe.subscriptions.retrieve(
-      subscription.externalSubscriptionId
-    );
+  const stripeSubscription = await stripe.subscriptions.retrieve(
+    subscription.externalSubscriptionId
+  );
 
-    const session = await stripe.billingPortal.sessions.create({
-      customer: stripeSubscription.customer as string,
-      return_url: `${c.env.NEXT_PUBLIC_APP_URL}/profile`,
-    });
+  const session = await stripe.billingPortal.sessions.create({
+    customer: stripeSubscription.customer as string,
+    return_url: `${c.env.NEXT_PUBLIC_APP_URL}/profile`,
+  });
 
-    return c.json({
-      success: true,
-      data: {
-        url: session.url,
-      },
-    });
-  } catch (error) {
-    console.error("[API] Stripe portal error:", error);
-    return c.json(
-      {
-        success: false,
-        error: { code: "STRIPE_ERROR", message: apiMessage(c, "stripeError") },
-      },
-      500
-    );
-  }
+  return c.json({
+    success: true,
+    data: {
+      url: session.url,
+    },
+  });
 });
 
 export default router;

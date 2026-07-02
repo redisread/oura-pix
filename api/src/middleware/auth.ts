@@ -132,3 +132,11 @@ export const optionalAuthMiddleware = createMiddleware<{
 export function getUser(c: { get: (key: string) => unknown }) {
   return c.get("user") as AuthContext["user"] | undefined;
 }
+
+/**
+ * Helper to get current user from context (non-nullable).
+ * Only use in routes protected by authMiddleware.
+ */
+export function getAuthUser(c: { get: (key: string) => unknown }) {
+  return c.get("user") as AuthContext["user"];
+}

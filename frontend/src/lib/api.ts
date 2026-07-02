@@ -9,13 +9,10 @@ import { LOCALE_HEADER, type Locale } from "@oura-pix/i18n";
 import * as m from "@/paraglide/messages.js";
 import { getLocale } from "@/paraglide/runtime.js";
 import type {
-  SignInInput,
-  SignUpInput,
   CreateGenerationInput,
   GenerationsListParams,
   UploadImageResponse,
 } from "@oura-pix/api-client";
-
 // Use Astro's import.meta.env for environment variables.
 export const API_BASE_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:8989";
 
@@ -55,6 +52,12 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
   });
 }
 
+
+/** Extract error message from unknown throwable */
+export function apiErr(err: unknown, fallback: string): string {
+  return err instanceof Error ? err.message : fallback;
+}
+
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await apiFetch(path, init);
   const json = await response.json().catch(() => ({}));
@@ -75,40 +78,6 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(message);
   }
   return json.data as T;
-}
-
-// ============================================
-// Auth APIs
-// ============================================
-
-export async function signIn(input: SignInInput) {
-  const response = await api.post(ENDPOINTS.auth.signIn, input);
-  return response.data;
-}
-
-export async function signUp(input: SignUpInput) {
-  const response = await api.post(ENDPOINTS.auth.signUp, input);
-  return response.data;
-}
-
-export async function signOut() {
-  const response = await api.post(ENDPOINTS.auth.signOut);
-  return response.data;
-}
-
-export async function getSession() {
-  const response = await api.get(ENDPOINTS.auth.session);
-  return response.data;
-}
-
-export async function forgotPassword(email: string) {
-  const response = await api.post(ENDPOINTS.auth.forgotPassword, { email });
-  return response.data;
-}
-
-export async function resetPassword(token: string, password: string) {
-  const response = await api.post(ENDPOINTS.auth.resetPassword, { token, password });
-  return response.data;
 }
 
 // ============================================
@@ -159,6 +128,48 @@ export async function updateGenerationImage(
     }
   );
   return response.data;
+}
+
+
+// ============================================
+// Preview Generation
+// ============================================
+
+export interface PreviewGenerationRequest {
+  productImageId?: string;
+  prompt?: string;
+  settings: {
+    targetPlatform: "amazon" | "ebay" | "shopify" | "etsy" | "generic";
+    language: "zh" | "en" | "ja";
+    uiLocale?: Locale;
+    style: "professional" | "lifestyle" | "minimal" | "luxury";
+  };
+}
+
+export interface PreviewGenerationResponse {
+  success: boolean;
+  data?: {
+    preview: {
+      title: string;
+      description: string;
+      keywords: string[];
+    };
+  };
+  error?: string;
+}
+
+export async function previewGeneration(
+  request: PreviewGenerationRequest
+): Promise<PreviewGenerationResponse> {
+  try {
+    const response = await api.post<PreviewGenerationResponse>(
+      ENDPOINTS.generations.preview,
+      request
+    );
+    return response.data;
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : m.common_requestFailed() };
+  }
 }
 
 // ============================================

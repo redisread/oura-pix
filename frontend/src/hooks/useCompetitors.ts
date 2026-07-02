@@ -2,8 +2,9 @@
  * useCompetitors Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { useCallback } from "react";
+import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export type Platform = "amazon" | "shopify" | "etsy" | "ebay" | "taobao" | "jd" | "tmall" | "self" | "other";
@@ -44,26 +45,12 @@ export interface Competitor {
 }
 
 export function useCompetitors() {
-  const [competitors, setCompetitors] = useState<Competitor[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, setError, refetch } = useResource<Competitor[]>(
+    "/api/competitors",
+    m.common_loadFailed()
+  );
 
-  const fetchCompetitors = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiJson<Competitor[]>("/api/competitors");
-      setCompetitors(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCompetitors();
-  }, [fetchCompetitors]);
+  const competitors = data ?? [];
 
   const createCompetitor = useCallback(
     async (input: Omit<Competitor, "id" | "createdAt">): Promise<Competitor | null> => {
@@ -73,14 +60,14 @@ export function useCompetitors() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         });
-        await fetchCompetitors();
+        await refetch();
         return created;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_createFailed());
+        setError(apiErr(err, m.common_createFailed()));
         return null;
       }
     },
-    [fetchCompetitors]
+    [refetch, setError]
   );
 
   const updateCompetitor = useCallback(
@@ -91,29 +78,29 @@ export function useCompetitors() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         });
-        await fetchCompetitors();
+        await refetch();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_updateFailed());
+        setError(apiErr(err, m.common_updateFailed()));
         return false;
       }
     },
-    [fetchCompetitors]
+    [refetch, setError]
   );
 
   const deleteCompetitor = useCallback(
     async (id: string): Promise<boolean> => {
       try {
         await apiJson(`/api/competitors/${id}`, { method: "DELETE" });
-        await fetchCompetitors();
+        await refetch();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_deleteFailed());
+        setError(apiErr(err, m.common_deleteFailed()));
         return false;
       }
     },
-    [fetchCompetitors]
+    [refetch, setError]
   );
 
-  return { competitors, loading, error, refetch: fetchCompetitors, createCompetitor, updateCompetitor, deleteCompetitor };
+  return { competitors, loading, error, refetch, createCompetitor, updateCompetitor, deleteCompetitor };
 }

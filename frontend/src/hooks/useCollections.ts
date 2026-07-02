@@ -2,8 +2,9 @@
  * useCollections Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { useCallback } from "react";
+import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface Collection {
@@ -17,26 +18,12 @@ export interface Collection {
 }
 
 export function useCollections() {
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, setError, refetch } = useResource<Collection[]>(
+    "/api/collections",
+    m.common_loadFailed()
+  );
 
-  const fetchCollections = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await apiJson<Collection[]>("/api/collections");
-      setCollections(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchCollections();
-  }, [fetchCollections]);
+  const collections = data ?? [];
 
   const createCollection = useCallback(
     async (input: { name: string; color?: string; description?: string }): Promise<Collection | null> => {
@@ -46,14 +33,14 @@ export function useCollections() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         });
-        await fetchCollections();
+        await refetch();
         return created;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_createFailed());
+        setError(apiErr(err, m.common_createFailed()));
         return null;
       }
     },
-    [fetchCollections]
+    [refetch, setError]
   );
 
   const updateCollection = useCallback(
@@ -64,29 +51,29 @@ export function useCollections() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(input),
         });
-        await fetchCollections();
+        await refetch();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_updateFailed());
+        setError(apiErr(err, m.common_updateFailed()));
         return false;
       }
     },
-    [fetchCollections]
+    [refetch, setError]
   );
 
   const deleteCollection = useCallback(
     async (id: string): Promise<boolean> => {
       try {
         await apiJson(`/api/collections/${id}`, { method: "DELETE" });
-        await fetchCollections();
+        await refetch();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_deleteFailed());
+        setError(apiErr(err, m.common_deleteFailed()));
         return false;
       }
     },
-    [fetchCollections]
+    [refetch, setError]
   );
 
-  return { collections, loading, error, refetch: fetchCollections, createCollection, updateCollection, deleteCollection };
+  return { collections, loading, error, refetch, createCollection, updateCollection, deleteCollection };
 }

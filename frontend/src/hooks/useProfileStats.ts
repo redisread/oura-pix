@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { apiErr, apiJson } from "@/lib/api";
 import * as m from "@/paraglide/messages.js";
 
 export interface ProfileStats {
@@ -61,7 +61,7 @@ export function useProfileStats(): UseProfileStatsReturn {
         favoriteStyle: styleLabel(data.favoriteStyle),
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_unknownError());
+      setError(apiErr(err, m.common_unknownError()));
     } finally {
       setIsLoading(false);
     }

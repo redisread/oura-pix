@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback } from "react";
+import { apiErr } from "@/lib/api";
 import { removeBackground } from "@imgly/background-removal";
 import * as m from "@/paraglide/messages.js";
 
@@ -53,7 +54,7 @@ export function useBackgroundRemoval() {
       setProgress(100);
     } catch (err) {
       console.error("Background removal failed:", err);
-      setError(err instanceof Error ? err.message : m.common_processingFailed());
+      setError(apiErr(err, m.common_processingFailed()));
     } finally {
       setLoading(false);
     }

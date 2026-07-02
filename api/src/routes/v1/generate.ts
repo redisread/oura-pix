@@ -5,30 +5,24 @@
  * Mirrors the shape of /api/generations but is intended for external developers.
  */
 
-import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { createDb } from "@oura-pix/database";
-import { resolveLocale, serverMessage, type Locale } from "@oura-pix/i18n";
+import { serverMessage } from "@oura-pix/i18n";
 import { apiKeyAuth } from "../../middleware/apiKeyAuth";
 import {
   getGenerationById,
   createGeneration,
   processGeneration,
 } from "../../services/generation-service";
+import { getLocale } from "../../lib/i18n";
+import { createApiKeyRouter } from "../../lib/route";
+import { notFound } from "../../lib/http";
 
-const generate = new Hono<{
-  Bindings: {
-    DB: D1Database;
-    GEMINI_API_KEY?: string;
-    GEMINI_BASE_URL?: string;
-    GEMINI_MODEL?: string;
-  };
-  Variables: {
-    apiKey: { id: string; userId: string; name: string };
-    apiKeyUser: { id: string; email: string };
-    locale?: Locale;
-  };
+const generate = createApiKeyRouter<{
+  GEMINI_API_KEY?: string;
+  GEMINI_BASE_URL?: string;
+  GEMINI_MODEL?: string;
 }>();
 
 // All routes require API key
@@ -50,10 +44,6 @@ const createSchema = z.object({
     allowPersons: z.boolean().optional(),
   }),
 });
-
-function getLocale(c: { req: { raw: Request } }): Locale {
-  return resolveLocale({ headers: c.req.raw.headers });
-}
 
 const validateCreateGeneration = zValidator("json", createSchema, (result, c) => {
   if (!result.success) {
@@ -81,37 +71,26 @@ generate.post("/", validateCreateGeneration, async (c) => {
   const apiKeyUser = c.get("apiKeyUser");
   const body = c.req.valid("json");
 
-  try {
-    const db = createDb(c.env.DB);
-    const generation = await createGeneration(db, apiKeyUser.id, {
-      ...body,
-      settings: {
-        ...body.settings,
-        uiLocale: body.settings.uiLocale ?? locale,
+  const db = createDb(c.env.DB);
+  const generation = await createGeneration(db, apiKeyUser.id, {
+    ...body,
+    settings: {
+      ...body.settings,
+      uiLocale: body.settings.uiLocale ?? locale,
+    },
+  });
+  c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
+  return c.json(
+    {
+      success: true,
+      data: {
+        id: generation.id,
+        status: generation.status,
+        createdAt: generation.createdAt,
       },
-    });
-    c.executionCtx.waitUntil(processGeneration(c.env, generation.id));
-    return c.json(
-      {
-        success: true,
-        data: {
-          id: generation.id,
-          status: generation.status,
-          createdAt: generation.createdAt,
-        },
-      },
-      201
-    );
-  } catch (error) {
-    console.error("[v1/generate] Create error:", error);
-    return c.json(
-      {
-        success: false,
-        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
-      },
-      500
-    );
-  }
+    },
+    201
+  );
 });
 
 /**
@@ -119,43 +98,25 @@ generate.post("/", validateCreateGeneration, async (c) => {
  * Get the status and result of a generation.
  */
 generate.get("/:id", async (c) => {
-  const locale = getLocale(c);
   const apiKeyUser = c.get("apiKeyUser");
   const id = c.req.param("id");
 
-  try {
-    const db = createDb(c.env.DB);
-    const generation = await getGenerationById(db, id, apiKeyUser.id);
-    if (!generation) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
-        },
-        404
-      );
-    }
-    return c.json({
-      success: true,
-      data: {
-        id: generation.id,
-        status: generation.status,
-        prompt: generation.prompt,
-        generatedImages: generation.generatedImages,
-        errorMessage: generation.errorMessage,
-        createdAt: generation.createdAt,
-      },
-    });
-  } catch (error) {
-    console.error("[v1/generate] Get error:", error);
-    return c.json(
-      {
-        success: false,
-        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
-      },
-      500
-    );
+  const db = createDb(c.env.DB);
+  const generation = await getGenerationById(db, id, apiKeyUser.id);
+  if (!generation) {
+    return notFound(c, "generationNotFound");
   }
+  return c.json({
+    success: true,
+    data: {
+      id: generation.id,
+      status: generation.status,
+      prompt: generation.prompt,
+      generatedImages: generation.generatedImages,
+      errorMessage: generation.errorMessage,
+      createdAt: generation.createdAt,
+    },
+  });
 });
 
 /**
@@ -168,51 +129,35 @@ generate.get("/:id/download", async (c) => {
   const apiKeyUser = c.get("apiKeyUser");
   const id = c.req.param("id");
 
-  try {
-    const db = createDb(c.env.DB);
-    const generation = await getGenerationById(db, id, apiKeyUser.id);
-    if (!generation) {
-      return c.json(
-        {
-          success: false,
-          error: { code: "NOT_FOUND", message: serverMessage(locale, "generationNotFound") },
-        },
-        404
-      );
-    }
-    if (generation.status !== "completed") {
-      return c.json(
-        {
-          success: false,
-          error: {
-            code: "NOT_READY",
-            message: serverMessage(locale, "badRequest"),
-            currentStatus: generation.status,
-          },
-        },
-        409
-      );
-    }
-    return c.json({
-      success: true,
-      data: {
-        id: generation.id,
-        images: generation.generatedImages.map((url, index) => ({
-          index,
-          url,
-        })),
-      },
-    });
-  } catch (error) {
-    console.error("[v1/generate] Download error:", error);
+  const db = createDb(c.env.DB);
+  const generation = await getGenerationById(db, id, apiKeyUser.id);
+  if (!generation) {
+    return notFound(c, "generationNotFound");
+  }
+  if (generation.status !== "completed") {
+    const message = serverMessage(locale, "badRequest");
     return c.json(
       {
         success: false,
-        error: { code: "INTERNAL_ERROR", message: serverMessage(locale, "internalError") },
+        error: {
+          code: "NOT_READY",
+          message,
+          currentStatus: generation.status,
+        },
       },
-      500
+      409
     );
   }
+  return c.json({
+    success: true,
+    data: {
+      id: generation.id,
+      images: generation.generatedImages.map((url, index) => ({
+        index,
+        url,
+      })),
+    },
+  });
 });
 
 export default generate;

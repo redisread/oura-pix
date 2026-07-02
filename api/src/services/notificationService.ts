@@ -164,6 +164,30 @@ export async function deleteNotification(
 }
 
 /**
+ * Helper: create a typed notification from a message key.
+ */
+function createTypedNotification(
+  db: ReturnType<typeof createDb>,
+  userId: string,
+  locale: Locale,
+  key: string,
+  params: Record<string, string | number>,
+  type: NotificationTypeType,
+  link?: string,
+  resourceId?: string
+): Promise<Notification> {
+  const notification = notificationMessage(locale, key, params);
+  return createNotification(db, {
+    userId,
+    type,
+    title: notification.title,
+    message: notification.message,
+    link,
+    resourceId,
+  });
+}
+
+/**
  * Create notification for generation completion
  */
 export async function notifyGenerationComplete(
@@ -173,15 +197,10 @@ export async function notifyGenerationComplete(
   imageCount: number,
   locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
-  const notification = notificationMessage(locale, "generationComplete", { imageCount });
-  return createNotification(db, {
-    userId,
-    type: "generation_complete",
-    title: notification.title,
-    message: notification.message,
-    link: `/generate?history=${generationId}`,
-    resourceId: generationId,
-  });
+  return createTypedNotification(
+    db, userId, locale, "generationComplete", { imageCount },
+    "generation_complete", `/generate?history=${generationId}`, generationId
+  );
 }
 
 /**
@@ -194,15 +213,10 @@ export async function notifyGenerationFailed(
   errorMessage: string,
   locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
-  const notification = notificationMessage(locale, "generationFailed", { errorMessage });
-  return createNotification(db, {
-    userId,
-    type: "generation_failed",
-    title: notification.title,
-    message: notification.message,
-    link: `/generate?history=${generationId}`,
-    resourceId: generationId,
-  });
+  return createTypedNotification(
+    db, userId, locale, "generationFailed", { errorMessage },
+    "generation_failed", `/generate?history=${generationId}`, generationId
+  );
 }
 
 /**
@@ -214,14 +228,10 @@ export async function notifySubscriptionRenewal(
   planName: string,
   locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
-  const notification = notificationMessage(locale, "subscriptionRenewal", { planName });
-  return createNotification(db, {
-    userId,
-    type: "subscription_renewal",
-    title: notification.title,
-    message: notification.message,
-    link: "/settings/subscription",
-  });
+  return createTypedNotification(
+    db, userId, locale, "subscriptionRenewal", { planName },
+    "subscription_renewal", "/settings/subscription"
+  );
 }
 
 /**
@@ -233,12 +243,8 @@ export async function notifySubscriptionExpiring(
   daysLeft: number,
   locale: Locale = DEFAULT_LOCALE
 ): Promise<Notification> {
-  const notification = notificationMessage(locale, "subscriptionExpiring", { daysLeft });
-  return createNotification(db, {
-    userId,
-    type: "subscription_expiring",
-    title: notification.title,
-    message: notification.message,
-    link: "/settings/subscription",
-  });
+  return createTypedNotification(
+    db, userId, locale, "subscriptionExpiring", { daysLeft },
+    "subscription_expiring", "/settings/subscription"
+  );
 }

@@ -3,7 +3,7 @@
  */
 
 import { useState, useCallback } from "react";
-import { apiJson } from "@/lib/api";
+import { apiErr, apiJson } from "@/lib/api";
 import * as m from "@/paraglide/messages.js";
 
 export interface FeedbackItem {
@@ -39,7 +39,7 @@ export function useFeedback(generationId: string | null) {
       setList(listData);
       setStats(statsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_loadFailed());
+      setError(apiErr(err, m.common_loadFailed()));
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export function useFeedback(generationId: string | null) {
         await fetchAll();
         return true;
       } catch (err) {
-        setError(err instanceof Error ? err.message : m.common_submitFailed());
+        setError(apiErr(err, m.common_submitFailed()));
         return false;
       }
     },

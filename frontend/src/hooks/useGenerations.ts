@@ -5,7 +5,8 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { getGenerations } from "@/lib/api";
+import { apiErr, getGenerations } from "@/lib/api";
+import type { Pagination } from "@/lib/types";
 import type { GenerationsListParams } from "@oura-pix/api-client";
 import * as m from "@/paraglide/messages.js";
 
@@ -27,13 +28,6 @@ export interface GenerationRecord {
   createdAt: string;
   status: string;
   errorMessage?: string | null;
-}
-
-export interface Pagination {
-  page: number;
-  pageSize: number;
-  total: number;
-  totalPages: number;
 }
 
 interface UseGenerationsOptions {
@@ -106,7 +100,7 @@ export function useGenerations(options: UseGenerationsOptions = {}): UseGenerati
         setError(response.error?.message || m.common_loadFailed());
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : m.common_unknownError());
+      setError(apiErr(err, m.common_unknownError()));
     } finally {
       setIsLoading(false);
     }
