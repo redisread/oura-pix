@@ -1,28 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  LockKeyhole,
-  PackageCheck,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle2, LockKeyhole } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { resetPassword } from "@/lib/auth";
+import BrandLink from "./ui/BrandLink";
+import PasswordInput from "./ui/PasswordInput";
 import * as m from "@/paraglide/messages.js";
-
-function BrandLink() {
-  return (
-    <a href={localizeHref("/")} className="flex items-center gap-3">
-      <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-[hsl(var(--background))]">
-        <PackageCheck className="h-5 w-5" aria-hidden="true" />
-      </div>
-      <span className="font-display text-2xl font-semibold text-foreground">OuraPix</span>
-    </a>
-  );
-}
 
 function RecoveryAside({
   title,
@@ -58,34 +42,6 @@ function RecoveryAside({
   );
 }
 
-function PasswordInput({
-  className = "",
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement>) {
-  const [showPassword, setShowPassword] = useState(false);
-
-  return (
-    <div className="relative">
-      <input
-        type={showPassword ? "text" : "password"}
-        className={`input h-11 pr-10 ${className}`}
-        {...props}
-      />
-      <button
-        type="button"
-        className="absolute right-0 top-0 flex h-full items-center px-3 text-foreground-muted transition-colors hover:text-foreground"
-        onClick={() => setShowPassword(!showPassword)}
-        aria-label={showPassword ? m.resetPassword_hidePassword() : m.resetPassword_showPassword()}
-      >
-        {showPassword ? (
-          <EyeOff className="h-4 w-4" aria-hidden="true" />
-        ) : (
-          <Eye className="h-4 w-4" aria-hidden="true" />
-        )}
-      </button>
-    </div>
-  );
-}
 
 interface Props {
   token: string | null;

@@ -1,21 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, MailCheck, PackageCheck, Send } from "lucide-react";
+import { CheckCircle2, MailCheck, Send } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { requestPasswordReset } from "@/lib/auth";
-
-function BrandLink() {
-  return (
-    <a href={localizeHref("/")} className="flex items-center gap-3">
-      <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-[hsl(var(--background))]">
-        <PackageCheck className="h-5 w-5" aria-hidden="true" />
-      </div>
-      <span className="font-display text-2xl font-semibold text-foreground">OuraPix</span>
-    </a>
-  );
-}
+import BrandLink from "./ui/BrandLink";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
