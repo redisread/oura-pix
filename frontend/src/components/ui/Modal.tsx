@@ -87,6 +87,7 @@ export function Modal({
 /* ------------------------------------------------------------------ */
 
 import { Loader2 } from "lucide-react";
+import { Button } from "./Button";
 
 export interface ConfirmModalProps {
   open: boolean;
@@ -137,14 +138,15 @@ export function ConfirmModal({
         <p className="text-sm text-foreground-muted">{description}</p>
       )}
       <div className="flex justify-end gap-2 mt-6">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="md"
           onClick={onClose}
           disabled={loading}
-          className="btn-secondary px-4 py-2"
         >
           {cancelLabel}
-        </button>
+        </Button>
         <button
           type="button"
           onClick={onConfirm}
