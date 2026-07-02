@@ -210,15 +210,24 @@ export interface PreviewGenerationResponse {
   error?: string;
 }
 
+export interface PreviewData {
+  preview: {
+    title: string;
+    description: string;
+    keywords: string[];
+  };
+}
+
 export async function previewGeneration(
   request: PreviewGenerationRequest
 ): Promise<PreviewGenerationResponse> {
   try {
-    const response = await api.post<PreviewGenerationResponse>(
-      ENDPOINTS.generations.preview,
-      request
-    );
-    return response.data;
+    const data = await apiJson<PreviewData>(ENDPOINTS.generations.preview, {
+      method: "POST",
+      body: JSON.stringify(request),
+      headers: { "Content-Type": "application/json" },
+    });
+    return { success: true, data };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : m.common_requestFailed() };
   }
@@ -228,53 +237,47 @@ export async function previewGeneration(
 // Upload APIs
 // ============================================
 
-export async function uploadImage(file: File, type: "product" | "reference") {
+export async function uploadImage(file: File, type: "product" | "reference"): Promise<UploadImageResponse> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("type", type);
 
-  const response = await api.post<UploadImageResponse>(
-    ENDPOINTS.upload.upload,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
-  return response.data;
-}
-
-export async function getSignedUrl(fileName: string, fileType: string, type: "product" | "reference") {
-  const response = await api.post(ENDPOINTS.upload.getSignedUrl, {
-    fileName,
-    fileType,
-    type,
+  return apiJson<UploadImageResponse>(ENDPOINTS.upload.upload, {
+    method: "POST",
+    body: formData,
   });
-  return response.data;
 }
 
 // ============================================
 // Subscription APIs
 // ============================================
 
-export async function getSubscription() {
-  const response = await api.get(ENDPOINTS.subscription.get);
-  return response.data;
+export interface SubscriptionInfo {
+  plan: "free" | "starter" | "pro" | "enterprise";
+  status: "active" | "canceled" | "past_due" | "unpaid" | "trialing";
+  currentPeriodEnd?: number | string | null;
+  usedGenerations: number;
+  generationLimit: number;
 }
 
-export async function createCheckoutSession(plan: string, successUrl: string, cancelUrl: string) {
-  const response = await api.post(ENDPOINTS.subscription.checkout, {
-    plan,
-    successUrl,
-    cancelUrl,
+export async function getSubscription(): Promise<SubscriptionInfo> {
+  return apiJson<SubscriptionInfo>(ENDPOINTS.subscription.get);
+}
+
+export async function createCheckoutSession(plan: string, successUrl: string, cancelUrl: string): Promise<{ url: string }> {
+  return apiJson<{ url: string }>(ENDPOINTS.subscription.checkout, {
+    method: "POST",
+    body: JSON.stringify({ plan, successUrl, cancelUrl }),
+    headers: { "Content-Type": "application/json" },
   });
-  return response.data;
 }
 
-export async function createPortalSession(returnUrl: string) {
-  const response = await api.post(ENDPOINTS.subscription.portal, { returnUrl });
-  return response.data;
+export async function createPortalSession(returnUrl: string): Promise<{ url: string }> {
+  return apiJson<{ url: string }>(ENDPOINTS.subscription.portal, {
+    method: "POST",
+    body: JSON.stringify({ returnUrl }),
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 // ============================================

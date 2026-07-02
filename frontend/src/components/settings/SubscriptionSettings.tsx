@@ -8,16 +8,10 @@
 
 import { useEffect, useState } from "react";
 import { Calendar, CreditCard, ExternalLink, Loader2, Sparkles, TrendingUp } from "lucide-react";
-import { getSubscription, createPortalSession } from "@/lib/api";
+import { getSubscription, createPortalSession, type SubscriptionInfo } from "@/lib/api";
 import { useToast } from "../ui/Toast";
 
-interface SubscriptionData {
-  plan: string;
-  status: string;
-  currentPeriodEnd?: number | null;
-  usedGenerations: number;
-  generationLimit: number;
-}
+type SubscriptionData = SubscriptionInfo;
 
 const PLAN_LABEL: Record<string, string> = {
   free: "免费版",
@@ -71,18 +65,8 @@ export default function SubscriptionSettings() {
     let cancelled = false;
     async function load() {
       try {
-        const res = await getSubscription();
         if (!cancelled) {
-          if (res?.success && res.data) {
-            setSub(res.data);
-          } else {
-            setSub({
-              plan: "free",
-              status: "active",
-              usedGenerations: 0,
-              generationLimit: 10,
-            });
-          }
+          setSub(await getSubscription());
         }
       } catch (err) {
         if (!cancelled) {
@@ -107,12 +91,8 @@ export default function SubscriptionSettings() {
   const handleManageBilling = async () => {
     setOpeningPortal(true);
     try {
-      const res = await createPortalSession(window.location.origin + "/settings/subscription");
-      if (res?.success && res.data?.url) {
-        window.location.href = res.data.url;
-      } else {
-        toast.error("无法打开账单管理");
-      }
+      const { url } = await createPortalSession(window.location.origin + "/settings/subscription");
+      window.location.href = url;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "打开账单管理失败");
     } finally {
@@ -136,7 +116,7 @@ export default function SubscriptionSettings() {
   }
 
   const isPaid = sub.plan !== "free";
-  const renewalDate = sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd * 1000) : null;
+  const renewalDate = sub.currentPeriodEnd ? new Date(typeof sub.currentPeriodEnd === "number" ? sub.currentPeriodEnd * 1000 : sub.currentPeriodEnd) : null;
   const isOverLimit = sub.usedGenerations >= sub.generationLimit;
 
   return (
