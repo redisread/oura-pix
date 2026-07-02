@@ -2,8 +2,7 @@
  * useMetricsDashboard Hook
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export type Rating = "good" | "needs-improvement" | "poor";
@@ -41,32 +40,34 @@ interface UseMetricsParams {
 export function useMetricsDashboard(params: UseMetricsParams = {}) {
   const { range = "7d", selectedMetric = "LCP" } = params;
 
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [points, setPoints] = useState<MetricPoint[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: stats,
+    loading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useResource<DashboardStats>(
+    `/api/metrics/dashboard?range=${range}`,
+    m.common_loadFailed()
+  );
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const {
+    data: seriesData,
+    loading: seriesLoading,
+    error: seriesError,
+    refetch: refetchSeries,
+  } = useResource<{ points: MetricPoint[] }>(
+    `/api/metrics/${selectedMetric}?range=${range}&limit=50`,
+    m.common_loadFailed()
+  );
 
-    try {
-      const [dashboardStats, metricSeries] = await Promise.all([
-        apiJson<DashboardStats>(`/api/metrics/dashboard?range=${range}`),
-        apiJson<{ points: MetricPoint[] }>(`/api/metrics/${selectedMetric}?range=${range}&limit=50`),
-      ]);
-      setStats(dashboardStats);
-      setPoints(metricSeries.points);
-    } catch (err) {
-      setError(apiErr(err, m.common_loadFailed()));
-    } finally {
-      setLoading(false);
-    }
-  }, [range, selectedMetric]);
-
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
-
-  return { stats, points, loading, error, refetch: fetchAll };
+  return {
+    stats,
+    points: seriesData?.points ?? [],
+    loading: statsLoading || seriesLoading,
+    error: statsError ?? seriesError,
+    refetch: () => {
+      void refetchStats();
+      void refetchSeries();
+    },
+  };
 }

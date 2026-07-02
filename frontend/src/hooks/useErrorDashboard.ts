@@ -4,8 +4,9 @@
  * Fetches error list and stats for the /errors dashboard page.
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiErr, apiJson } from "@/lib/api";
+import { useCallback, useMemo } from "react";
+import { apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface ErrorRecord {
@@ -51,48 +52,43 @@ interface UseErrorDashboardParams {
 export function useErrorDashboard(params: UseErrorDashboardParams = {}) {
   const { range = "7d", severity, type, module, page = 1, pageSize = 20 } = params;
 
-  const [list, setList] = useState<ErrorListResponse | null>(null);
-  const [stats, setStats] = useState<ErrorStats | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const query = new URLSearchParams({
-        range,
-        page: String(page),
-        pageSize: String(pageSize),
-        ...(severity ? { severity } : {}),
-        ...(type ? { type } : {}),
-        ...(module ? { module } : {}),
-      });
-
-      const [listData, statsData] = await Promise.all([
-        apiJson<ErrorListResponse>(`/api/errors?${query.toString()}`),
-        apiJson<ErrorStats>(`/api/errors/stats?range=${range}`),
-      ]);
-      setList(listData);
-      setStats(statsData);
-    } catch (err) {
-      setError(apiErr(err, m.common_loadFailed()));
-    } finally {
-      setLoading(false);
-    }
+  const listQuery = useMemo(() => {
+    const q = new URLSearchParams({
+      range,
+      page: String(page),
+      pageSize: String(pageSize),
+      ...(severity ? { severity } : {}),
+      ...(type ? { type } : {}),
+      ...(module ? { module } : {}),
+    });
+    return `/api/errors?${q.toString()}`;
   }, [range, severity, type, module, page, pageSize]);
 
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+  const {
+    data: list,
+    loading: listLoading,
+    error: listError,
+    refetch: refetchList,
+  } = useResource<ErrorListResponse>(listQuery, m.common_loadFailed());
+
+  const {
+    data: stats,
+    loading: statsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useResource<ErrorStats>(`/api/errors/stats?range=${range}`, m.common_loadFailed());
+
+  const refetch = useCallback(() => {
+    void refetchList();
+    void refetchStats();
+  }, [refetchList, refetchStats]);
 
   const deleteOne = useCallback(
     async (id: string) => {
       await apiJson(`/api/errors/${id}`, { method: "DELETE" });
-      await fetchAll();
+      refetch();
     },
-    [fetchAll]
+    [refetch]
   );
 
   const deleteMany = useCallback(
@@ -102,10 +98,18 @@ export function useErrorDashboard(params: UseErrorDashboardParams = {}) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids }),
       });
-      await fetchAll();
+      refetch();
     },
-    [fetchAll]
+    [refetch]
   );
 
-  return { list, stats, loading, error, refetch: fetchAll, deleteOne, deleteMany };
+  return {
+    list,
+    stats,
+    loading: listLoading || statsLoading,
+    error: listError ?? statsError,
+    refetch,
+    deleteOne,
+    deleteMany,
+  };
 }

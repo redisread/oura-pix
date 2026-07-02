@@ -2,8 +2,9 @@
  * useFeedback Hook
  */
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { apiErr, apiJson } from "@/lib/api";
+import { useResource } from "@/hooks/useResource";
 import * as m from "@/paraglide/messages.js";
 
 export interface FeedbackItem {
@@ -22,28 +23,27 @@ export interface FeedbackStats {
 }
 
 export function useFeedback(generationId: string | null) {
-  const [list, setList] = useState<FeedbackItem[]>([]);
-  const [stats, setStats] = useState<FeedbackStats | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: list,
+    loading: listLoading,
+    error: listError,
+    setError: setListError,
+    refetch: refetchList,
+  } = useResource<FeedbackItem[]>(
+    generationId ? `/api/feedback?generationId=${generationId}` : null,
+    m.common_loadFailed()
+  );
 
-  const fetchAll = useCallback(async () => {
-    if (!generationId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const [listData, statsData] = await Promise.all([
-        apiJson<FeedbackItem[]>(`/api/feedback?generationId=${generationId}`),
-        apiJson<FeedbackStats>(`/api/feedback/stats?generationId=${generationId}`),
-      ]);
-      setList(listData);
-      setStats(statsData);
-    } catch (err) {
-      setError(apiErr(err, m.common_loadFailed()));
-    } finally {
-      setLoading(false);
-    }
-  }, [generationId]);
+  const {
+    data: stats,
+    loading: statsLoading,
+    error: statsError,
+    setError: setStatsError,
+    refetch: refetchStats,
+  } = useResource<FeedbackStats>(
+    generationId ? `/api/feedback/stats?generationId=${generationId}` : null,
+    m.common_loadFailed()
+  );
 
   const submit = useCallback(
     async (rating: number, comment?: string): Promise<boolean> => {
@@ -54,15 +54,28 @@ export function useFeedback(generationId: string | null) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ generationId, rating, ...(comment ? { comment } : {}) }),
         });
-        await fetchAll();
+        await refetchList();
+        await refetchStats();
         return true;
       } catch (err) {
-        setError(apiErr(err, m.common_submitFailed()));
+        const msg = apiErr(err, m.common_submitFailed());
+        setListError(msg);
+        setStatsError(msg);
         return false;
       }
     },
-    [generationId, fetchAll]
+    [generationId, refetchList, refetchStats, setListError, setStatsError]
   );
 
-  return { list, stats, loading, error, refetch: fetchAll, submit };
+  return {
+    list: list ?? [],
+    stats,
+    loading: listLoading || statsLoading,
+    error: listError ?? statsError,
+    refetch: () => {
+      void refetchList();
+      void refetchStats();
+    },
+    submit,
+  };
 }
