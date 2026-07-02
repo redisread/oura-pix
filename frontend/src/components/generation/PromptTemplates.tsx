@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from "react";
 import { History, Sparkles } from "lucide-react";
-import type { GenerationRecord } from "@/lib/api";
+import { apiJson, type GenerationRecord } from "@/lib/api";
 
 export interface PromptTemplate {
   id: string;
@@ -88,13 +88,9 @@ export default function PromptTemplates({
     let cancelled = false;
     async function loadHistory() {
       try {
-        const res = await fetch("/api/generations?page=1&pageSize=5&filter=month", {
-          credentials: "include",
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled && data?.success && Array.isArray(data.data)) {
-          setHistory(data.data.filter((r: GenerationRecord) => r.status === "completed").slice(0, 5));
+        const result = await apiJson<{ data: GenerationRecord[] }>("/api/generations?page=1&pageSize=5&filter=month");
+        if (!cancelled && Array.isArray(result.data)) {
+          setHistory(result.data.filter((r) => r.status === "completed").slice(0, 5));
         }
       } catch {
         // silently ignore
