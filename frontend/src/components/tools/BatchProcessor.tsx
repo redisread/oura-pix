@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import { Download, PackageOpen, Trash2, Upload, Wand2, X } from "lucide-react";
 import { useBatchProcess, type OutputFormat, type BatchItem } from "@/hooks/useBatchProcess";
 import * as m from "@/paraglide/messages.js";
+import { ToolPageLayout } from "./ToolPageLayout";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -66,14 +67,11 @@ export default function BatchProcessor() {
   }, 0);
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_batchKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_batchTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_batchSubtitle()}</p>
-        </header>
-
+    <ToolPageLayout
+      kicker={m.tool_batchKicker()}
+      title={m.tool_batchTitle()}
+      subtitle={m.tool_batchSubtitle()}
+    >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
             <h2 className="panel-title">{m.tool_processingOptions()}</h2>
@@ -228,8 +226,7 @@ export default function BatchProcessor() {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </ToolPageLayout>
   );
 }
 

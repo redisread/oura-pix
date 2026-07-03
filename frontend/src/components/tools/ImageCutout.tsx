@@ -12,6 +12,8 @@ import { Download, Eraser, ImagePlus, Scissors } from "lucide-react";
 import { useImageCutout, type CutoutMode } from "@/hooks/useImageCutout";
 import * as m from "@/paraglide/messages.js";
 
+import { ToolPageLayout } from "./ToolPageLayout";
+
 export default function ImageCutout() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -78,15 +80,11 @@ export default function ImageCutout() {
   }, [imageUrl]);
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_cutoutKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_cutoutTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_cutoutSubtitle()}</p>
-        </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <ToolPageLayout
+      kicker={m.tool_cutoutKicker()}
+      title={m.tool_cutoutTitle()}
+      subtitle={m.tool_cutoutSubtitle()}
+    ><div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
           <div>
               <h2 className="panel-title mb-2">{m.tool_selectionMode()}</h2>
@@ -218,7 +216,6 @@ export default function ImageCutout() {
           </p>
         </div>
       </div>
-      </div>
-    </div>
+    </ToolPageLayout>
   );
 }

@@ -19,20 +19,18 @@ import {
 } from "@/hooks/useImageBorder";
 import * as m from "@/paraglide/messages.js";
 
+import { ToolPageLayout } from "./ToolPageLayout";
+
 export default function ImageBorder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { options, setOptions, imageUrl, setImage, canvasRef, previewUrl, exporting, download } = useImageBorder();
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_borderKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_borderTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_borderSubtitle()}</p>
-        </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <ToolPageLayout
+      kicker={m.tool_borderKicker()}
+      title={m.tool_borderTitle()}
+      subtitle={m.tool_borderSubtitle()}
+    ><div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
           <div>
               <h2 className="panel-title mb-2">{m.tool_borderStyle()}</h2>
@@ -188,7 +186,6 @@ export default function ImageBorder() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </ToolPageLayout>
   );
 }

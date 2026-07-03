@@ -16,6 +16,7 @@ import {
   type LayoutTemplate,
 } from "@/hooks/useImageCollage";
 import * as m from "@/paraglide/messages.js";
+import { ToolPageLayout } from "./ToolPageLayout";
 
 export default function CollageMaker() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,14 +69,11 @@ export default function CollageMaker() {
   const filledCount = cells.filter((c) => c.imageUrl).length;
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_collageKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_collageTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_collageSubtitle()}</p>
-        </header>
-
+    <ToolPageLayout
+      kicker={m.tool_collageKicker()}
+      title={m.tool_collageTitle()}
+      subtitle={m.tool_collageSubtitle()}
+    >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="panel space-y-4 p-4">
             <h2 className="panel-title">{m.tool_layout()}</h2>
@@ -192,8 +190,7 @@ export default function CollageMaker() {
           </div>
         </div>
       </div>
-      </div>
-    </div>
+      </ToolPageLayout>
   );
 }
 

@@ -12,6 +12,8 @@ import { Download, RefreshCw, Upload, Wand2 } from "lucide-react";
 import { useBackgroundRemoval } from "@/hooks/useBackgroundRemoval";
 import * as m from "@/paraglide/messages.js";
 
+import { ToolPageLayout } from "./ToolPageLayout";
+
 export default function BackgroundRemover() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,15 +56,11 @@ export default function BackgroundRemover() {
   };
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_backgroundKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_backgroundRemoverTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_backgroundRemoverSubtitle()}</p>
-        </header>
-
-        {!imageUrl ? (
+    <ToolPageLayout
+      kicker={m.tool_backgroundKicker()}
+      title={m.tool_backgroundRemoverTitle()}
+      subtitle={m.tool_backgroundRemoverSubtitle()}
+    >{!imageUrl ? (
           <div className="drop-zone p-12 text-center">
           <input
             ref={fileInputRef}
@@ -153,7 +151,6 @@ export default function BackgroundRemover() {
           </div>
         </div>
       )}
-      </div>
-    </div>
+    </ToolPageLayout>
   );
 }

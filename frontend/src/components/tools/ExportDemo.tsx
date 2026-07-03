@@ -11,21 +11,20 @@ import { Download, ImagePlus, Replace } from "lucide-react";
 import ExportDialog from "./ExportDialog";
 import * as m from "@/paraglide/messages.js";
 
+import { ToolPageLayout } from "./ToolPageLayout";
+
 export default function ExportDemo() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container max-w-4xl">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_exportKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_exportTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_exportSubtitle()}</p>
-        </header>
-
-      {imageUrl ? (
+    <ToolPageLayout
+      kicker={m.tool_exportKicker()}
+      title={m.tool_exportTitle()}
+      subtitle={m.tool_exportSubtitle()}
+      containerClass="max-w-4xl"
+    >{imageUrl ? (
           <div className="panel p-6">
             <div className="panel-muted mb-4 flex min-h-[320px] items-center justify-center p-4">
             <img src={imageUrl} alt="Selected" className="max-w-full max-h-[400px] object-contain" loading="lazy" decoding="async" />
@@ -66,7 +65,6 @@ export default function ExportDemo() {
       )}
 
       <ExportDialog imageUrl={imageUrl} isOpen={showDialog} onClose={() => setShowDialog(false)} />
-      </div>
-    </div>
+    </ToolPageLayout>
   );
 }
