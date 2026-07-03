@@ -25,7 +25,7 @@ interface UsagePoint {
 function SimpleBarChart({ data }: { data: UsagePoint[] }) {
   if (data.length === 0) {
     return (
-      <div className="text-sm text-foreground-muted text-center py-6">暂无使用数据</div>
+      <div className="text-sm text-foreground-muted text-center py-6">{m.apiKeys_noUsageData()}</div>
     );
   }
   const max = Math.max(...data.map((d) => d.count), 1);
@@ -39,7 +39,7 @@ function SimpleBarChart({ data }: { data: UsagePoint[] }) {
         viewBox={`0 0 ${W} ${H + 20}`}
         className="w-full h-24"
         role="img"
-        aria-label="最近 30 天 API Key 使用量"
+        aria-label={m.apiKeys_usageChartAria()}
       >
         {data.map((d, i) => {
           const h = Math.max(2, Math.round((d.count / max) * H));
@@ -56,7 +56,7 @@ function SimpleBarChart({ data }: { data: UsagePoint[] }) {
               fill="hsl(var(--primary))"
               opacity={d.count > 0 ? 0.85 : 0.2}
             >
-              <title>{`${d.date}: ${d.count} 次`}</title>
+              <title>{`${d.date}: ${m.apiKeys_usageCount({ count: d.count })}`}</title>
             </rect>
           );
         })}
@@ -133,8 +133,8 @@ export default function ApiKeySettings() {
   return (
     <div className="space-y-6">
       <SettingSection
-        title="API Keys 管理"
-        description="管理用于访问 /api/v1/* 的 API Key"
+        title={m.apiKeys_sectionTitle()}
+        description={m.apiKeys_sectionDescription()}
         icon={<Key className="h-5 w-5" />}
         actions={
           <button
@@ -143,7 +143,7 @@ export default function ApiKeySettings() {
             className="btn-primary px-4 py-2 inline-flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            创建 Key
+            {m.apiKeys_createButton()}
           </button>
         }
       />
@@ -155,10 +155,10 @@ export default function ApiKeySettings() {
             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                请立即保存你的 API Key
+                {m.apiKeys_createdKicker()}
               </div>
               <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">
-                此 Key 仅显示一次，关闭此提示后将无法再次查看完整 Key。
+                {m.apiKeys_newlyCreatedWarning()}
               </p>
               <div className="mt-3 flex items-center gap-2">
                 <code className="flex-1 px-3 py-2 rounded bg-[hsl(var(--background))] border border-amber-200 dark:border-amber-900 text-xs font-mono break-all">
@@ -168,7 +168,7 @@ export default function ApiKeySettings() {
                   type="button"
                   onClick={() => setShowKey((v) => !v)}
                   className="p-2 text-foreground-muted"
-                  aria-label={showKey ? "隐藏" : "显示"}
+                  aria-label={showKey ? m.apiKeys_hideKey() : m.apiKeys_showKey()}
                 >
                   {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -178,7 +178,7 @@ export default function ApiKeySettings() {
               type="button"
               onClick={() => setNewlyCreated(null)}
               className="text-foreground-muted shrink-0"
-              aria-label="关闭"
+              aria-label={m.common_close()}
             >
               <X className="h-4 w-4" />
             </button>
@@ -190,7 +190,7 @@ export default function ApiKeySettings() {
       <div className="card p-6">
         <div className="flex items-center gap-2 mb-4">
           <Activity className="h-4 w-4 text-[hsl(var(--primary))]" />
-          <span className="text-sm font-semibold text-foreground">调用量统计</span>
+          <span className="text-sm font-semibold text-foreground">{m.apiKeys_usageHeading()}</span>
         </div>
         {usageLoading ? (
           <StateMessage variant="loading" />
@@ -205,7 +205,7 @@ export default function ApiKeySettings() {
       <div className="card p-6">
         <div className="flex items-center gap-2 mb-4">
           <Key className="h-4 w-4 text-[hsl(var(--primary))]" />
-          <span className="text-sm font-semibold text-foreground">全部 Keys</span>
+          <span className="text-sm font-semibold text-foreground">{m.apiKeys_allKeys()}</span>
         </div>
 
         {loading ? (
@@ -223,22 +223,18 @@ export default function ApiKeySettings() {
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-medium text-foreground">{k.name}</span>
                     {k.permissions === "read" && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--secondary))] text-foreground-muted">
-                        只读
-                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--secondary))] text-foreground-muted">{m.apiKeys_permRead()}</span>
                     )}
                     {k.permissions === "read-write" && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
-                        读写
-                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">{m.apiKeys_permReadWrite()}</span>
                     )}
                   </div>
                   <div className="text-xs text-foreground-muted">
-                    创建：{formatShortDate(k.createdAt)}
+                    {m.apiKeys_createdLabel()}{formatShortDate(k.createdAt)}
                     {k.lastUsedAt && (
                       <>
                         {" · "}
-                        最近使用：
+                        {m.apiKeys_lastUsedLabel()}
                         {formatShortDate(k.lastUsedAt!)}
                       </>
                     )}
@@ -248,7 +244,7 @@ export default function ApiKeySettings() {
                   type="button"
                   onClick={() => setShowRevoke(k)}
                   className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded"
-                  aria-label="吊销 Key"
+                  aria-label={m.apiKeys_revokeAria()}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -261,33 +257,33 @@ export default function ApiKeySettings() {
       {/* Create Modal */}
       <SettingModal open={showCreate} onClose={() => !submitting && setShowCreate(false)}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">创建 API Key</h3>
-          <button type="button" onClick={() => setShowCreate(false)} className="text-foreground-muted" aria-label="关闭">
+          <h3 className="text-lg font-semibold text-foreground">{m.apiKeys_createModalTitle()}</h3>
+          <button type="button" onClick={() => setShowCreate(false)} className="text-foreground-muted" aria-label={m.common_close()}>
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="space-y-4">
-          <SettingField label="名称">
+          <SettingField label={m.apiKeys_nameLabel()}>
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="例如：生产环境"
+              placeholder={m.apiKeys_namePlaceholder()}
               className="input"
             />
           </SettingField>
-          <SettingField label="权限">
+          <SettingField label={m.apiKeys_permissionsLabel()}>
             <select
               value={newPermissions}
               onChange={(e) => setNewPermissions(e.target.value as "read" | "read-write")}
               className="input"
             >
-              <option value="read">只读</option>
-              <option value="read-write">读写</option>
+              <option value="read">{m.apiKeys_permReadOpt()}</option>
+              <option value="read-write">{m.apiKeys_permReadWriteOpt()}</option>
             </select>
           </SettingField>
           <div className="text-xs text-foreground-muted bg-[hsl(var(--secondary))] p-3 rounded">
-            ⚠️ Key 创建后仅显示一次，请立即保存
+            {m.apiKeys_createWarning()}
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-6">
@@ -296,9 +292,7 @@ export default function ApiKeySettings() {
             onClick={() => setShowCreate(false)}
             disabled={submitting}
             className="btn-secondary px-4 py-2"
-          >
-            取消
-          </button>
+          >{m.common_cancel()}</button>
           <button
             type="button"
             onClick={handleCreate}
@@ -306,7 +300,7 @@ export default function ApiKeySettings() {
             className="btn-primary px-4 py-2 inline-flex items-center gap-2"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            创建
+            {m.apiKeys_create()}
           </button>
         </div>
       </SettingModal>
@@ -316,13 +310,13 @@ export default function ApiKeySettings() {
         open={Boolean(showRevoke)}
         onClose={() => !submitting && setShowRevoke(null)}
         onConfirm={handleRevoke}
-        title="吊销 API Key"
+        title={m.apiKeys_revokeTitle()}
         description={
           showRevoke
-            ? `确定要吊销 ${showRevoke.name} 吗？此操作无法撤销，使用此 Key 的应用将立即失效。`
+            ? m.apiKeys_revokeConfirmTemplate({ name: showRevoke.name })
             : ""
         }
-        confirmLabel="吊销"
+        confirmLabel={m.apiKeys_revoke()}
         loading={submitting}
         icon={<AlertTriangle className="h-5 w-5" />}
       />

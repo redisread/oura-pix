@@ -147,20 +147,20 @@ export default function AccountSettings() {
   };
 
   if (!user) {
-    return <StateMessage variant="empty" title="请先登录" />;
+    return <StateMessage variant="empty" title={m.account_loginRequired()} />;
   }
 
   return (
     <div className="space-y-6">
-      <SettingSection title="账号设置" description="管理你的头像、昵称和密码" icon={<UserIcon className="h-5 w-5" />} />
+      <SettingSection title={m.account_section_title()} description={m.account_section_description()} icon={<UserIcon className="h-5 w-5" />} />
 
       {/* Profile */}
-      <SettingCard title="基本信息" icon={<Camera className="h-4 w-4" />}>
+      <SettingCard title={m.account_profileCardTitle()} icon={<Camera className="h-4 w-4" />}>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[hsl(var(--secondary))] flex items-center justify-center">
               {avatarPreview ? (
-                <img src={avatarPreview} alt="头像预览" className="w-full h-full object-cover" />
+                <img src={avatarPreview} alt={m.account_avatarAlt()} className="w-full h-full object-cover" />
               ) : (
                 <UserIcon className="h-8 w-8 text-foreground-muted" />
               )}
@@ -171,9 +171,7 @@ export default function AccountSettings() {
                 onClick={() => fileInputRef.current?.click()}
                 className="btn-secondary px-3 py-1.5 text-sm inline-flex items-center gap-1"
               >
-                <Camera className="h-3.5 w-3.5" />
-                更换头像
-              </button>
+                <Camera className="h-3.5 w-3.5" />                {m.account_changeAvatar()}              </button>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -181,11 +179,11 @@ export default function AccountSettings() {
                 className="hidden"
                 onChange={(e) => onPickAvatar(e.target.files?.[0] ?? null)}
               />
-              <p className="text-xs text-foreground-muted mt-1">支持 JPG/PNG，最大 2MB</p>
+              <p className="text-xs text-foreground-muted mt-1">{m.account_avatarHint()}</p>
             </div>
           </div>
 
-          <SettingField label="昵称">
+          <SettingField label={m.account_nicknameLabel()}>
             <input
               type="text"
               value={form.nickname}
@@ -195,13 +193,13 @@ export default function AccountSettings() {
             />
           </SettingField>
 
-          <SettingField label="邮箱" hint="邮箱修改需要重新验证，暂不支持">
+          <SettingField label={m.account_emailLabel()} hint={m.account_emailHint()}>
             <input
               type="email"
               value={user.email ?? ""}
               readOnly
               className="input opacity-70 cursor-not-allowed"
-              title="邮箱修改需要重新验证"
+              title={m.account_emailTitle()}
             />
           </SettingField>
         </div>
@@ -218,14 +216,14 @@ export default function AccountSettings() {
             ) : (
               <Save className="h-4 w-4" />
             )}
-            保存
+            {m.common_save()}
           </button>
         </SettingActions>
       </SettingCard>
 
       {/* Password */}
-      <SettingCard title="修改密码" icon={<Lock className="h-4 w-4" />}>
-        <SettingField label="当前密码">
+      <SettingCard title={m.account_passwordCardTitle()} icon={<Lock className="h-4 w-4" />}>
+        <SettingField label={m.account_currentPasswordLabel()}>
           <div className="relative">
             <input
               type={showCurrentPwd ? "text" : "password"}
@@ -238,14 +236,14 @@ export default function AccountSettings() {
               type="button"
               onClick={() => setShowCurrentPwd((v) => !v)}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-muted"
-              aria-label={showCurrentPwd ? "隐藏密码" : "显示密码"}
+              aria-label={showCurrentPwd ? m.account_pwdHide() : m.account_pwdShow()}
             >
               {showCurrentPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </SettingField>
 
-        <SettingField label="新密码（至少 8 位）">
+        <SettingField label={m.account_newPasswordLabel()}>
           <div className="relative">
             <input
               type={showNewPwd ? "text" : "password"}
@@ -258,14 +256,14 @@ export default function AccountSettings() {
               type="button"
               onClick={() => setShowNewPwd((v) => !v)}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground-muted"
-              aria-label={showNewPwd ? "隐藏密码" : "显示密码"}
+              aria-label={showNewPwd ? m.account_pwdHide() : m.account_pwdShow()}
             >
               {showNewPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </SettingField>
 
-        <SettingField label="确认新密码">
+        <SettingField label={m.account_confirmPasswordLabel()}>
           <input
             type="password"
             value={form.confirmPassword}
@@ -292,23 +290,23 @@ export default function AccountSettings() {
             ) : (
               <Lock className="h-4 w-4" />
             )}
-            修改密码
+            {m.account_changePasswordBtn()}
           </button>
         </SettingActions>
       </SettingCard>
 
       {/* Danger Zone */}
-      <SettingCard title="危险操作" icon={<Trash2 className="h-4 w-4" />} danger>
+      <SettingCard title={m.account_dangerZone_title()} icon={<Trash2 className="h-4 w-4" />} danger>
         <p className="text-sm text-foreground-muted">
-          删除账号将永久清除所有数据，无法恢复。
+          {m.account_deleteWarning()}
         </p>
         <button
           type="button"
           disabled
           className="px-4 py-2 rounded-md bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-sm font-medium opacity-50 cursor-not-allowed"
-          title="联系客服删除账号"
+          title={m.account_deleteTooltip()}
         >
-          删除账号（请联系客服）
+          {m.account_deleteBtn()}
         </button>
       </SettingCard>
     </div>
