@@ -21,6 +21,8 @@ import { localizeHref } from "@/paraglide/runtime.js";
 import { useAuth } from "@/hooks/use-auth";
 import { useProfileStats } from "@/hooks/useProfileStats";
 import { useGenerations } from "@/hooks/useGenerations";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 type ProfileTab = "overview" | "history" | "settings";
 
@@ -352,12 +354,14 @@ export default function ProfilePage() {
 
   if (isAuthLoading) {
     return (
-      <div className="workbench-page flex items-center justify-center">
-        <div className="flex items-center gap-2 text-foreground-muted">
-          <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
-          {m.profile_loading()}
+      <WorkbenchPageLayout>
+        <div className="flex items-center justify-center py-24">
+          <div className="flex items-center gap-2 text-foreground-muted">
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+            {m.profile_loading()}
+          </div>
         </div>
-      </div>
+      </WorkbenchPageLayout>
     );
   }
 
@@ -368,66 +372,64 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.profile_kicker()}</p>
-            <h1 className="page-title mt-2">{m.profile_title()}</h1>
-            <p className="page-description mt-2">{m.profile_subtitle()}</p>
-          </div>
+    <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.profile_kicker()}
+        title={m.profile_title()}
+        description={m.profile_subtitle()}
+        actions={
           <div className="flex h-16 w-16 items-center justify-center rounded-md bg-[hsl(var(--foreground))] text-[hsl(var(--background))]">
             <span className="text-2xl font-semibold">
               {user?.name?.charAt(0).toUpperCase() || "U"}
             </span>
           </div>
-        </header>
+        }
+      />
 
-        <div className="panel mb-6 flex flex-wrap gap-1 p-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`segmented-option ${activeTab === tab.id ? "segmented-option-active" : ""}`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {activeTab === "overview" && (
-          <div className="space-y-6">
-            <StatsCards />
-            <UserInfoCard />
-            <section className="panel overflow-hidden">
-              <div className="border-b border-[hsl(var(--border))] p-5">
-                <h2 className="panel-title">{m.profile_overview_recentActivity()}</h2>
-              </div>
-              <div>
-                {generations.slice(0, 3).map((item) => (
-                  <div key={item.id} className="data-row flex items-center gap-4 p-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--color-info-light))] text-[hsl(var(--primary))]">
-                      <Zap className="h-5 w-5" aria-hidden="true" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {item.prompt || m.profile_history_noPrompt()}
-                      </p>
-                      <p className="font-utility text-xs text-foreground-muted">
-                        {new Date(item.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                    <span className="status-badge status-badge-neutral">{item.platform}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        )}
-
-        {activeTab === "history" && <GenerationHistory />}
-        {activeTab === "settings" && <SettingsForm />}
+      <div className="panel mb-6 flex flex-wrap gap-1 p-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`segmented-option ${activeTab === tab.id ? "segmented-option-active" : ""}`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-    </div>
+
+      {activeTab === "overview" && (
+        <div className="space-y-6">
+          <StatsCards />
+          <UserInfoCard />
+          <section className="panel overflow-hidden">
+            <div className="border-b border-[hsl(var(--border))] p-5">
+              <h2 className="panel-title">{m.profile_overview_recentActivity()}</h2>
+            </div>
+            <div>
+              {generations.slice(0, 3).map((item) => (
+                <div key={item.id} className="data-row flex items-center gap-4 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-[hsl(var(--color-info-light))] text-[hsl(var(--primary))]">
+                    <Zap className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {item.prompt || m.profile_history_noPrompt()}
+                    </p>
+                    <p className="font-utility text-xs text-foreground-muted">
+                      {new Date(item.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <span className="status-badge status-badge-neutral">{item.platform}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {activeTab === "history" && <GenerationHistory />}
+      {activeTab === "settings" && <SettingsForm />}
+    </WorkbenchPageLayout>
   );
 }

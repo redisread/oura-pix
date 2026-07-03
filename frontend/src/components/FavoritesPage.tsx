@@ -5,41 +5,18 @@
  */
 
 import { useState, useCallback } from "react";
-import { Check, Download, Heart, Images, Sparkles, Trash2, X } from "lucide-react";
+import { Check, Download, Heart, Images, Trash2, X } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites } from "@/hooks/useFavorites";
 import type { Favorite } from "@/lib/api";
 import { formatLocaleDate } from "@/lib/locale";
+import { StateMessage } from "@/components/StateMessage";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Pagination } from "@/components/ui/Pagination";
 import FavoriteCard from "./FavoriteCard";
-
-function SkeletonCard() {
-  return (
-    <div className="card aspect-square animate-pulse bg-[hsl(var(--secondary))]" />
-  );
-}
-
-function EmptyState({ onBrowse }: { onBrowse: () => void }) {
-  return (
-    <div className="panel-muted flex flex-col items-center justify-center px-4 py-16">
-      <Images className="mb-6 h-16 w-16 text-foreground-muted" aria-hidden="true" />
-      <h2 className="mb-2 text-lg font-semibold text-foreground">
-        {m.favorites_empty()}
-      </h2>
-      <p className="mb-6 max-w-sm text-center text-sm text-foreground-muted">
-        {m.favorites_emptyDescription()}
-      </p>
-      <button
-        onClick={onBrowse}
-        className="btn-primary h-10 gap-2 px-6"
-      >
-        <Sparkles className="h-4 w-4" aria-hidden="true" />
-        {m.favorites_goGenerate()}
-      </button>
-    </div>
-  );
-}
 
 function ImageModal({
   favorite,
@@ -160,121 +137,95 @@ export default function FavoritesPage() {
   }, []);
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.favorites_kicker()}</p>
-            <h1 className="page-title mt-2 flex items-center gap-3">
-              <Heart className="h-8 w-8 text-[hsl(var(--color-error))]" aria-hidden="true" />
-              {m.favorites_title()}
-            </h1>
-            <p className="page-description mt-2">
-              {pagination ? m.favorites_total({ count: pagination.total.toString() }) : ""}
-            </p>
-          </div>
+    <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.favorites_kicker()}
+        title={
+          <span className="flex items-center gap-3">
+            <Heart className="h-8 w-8 text-[hsl(var(--color-error))]" aria-hidden="true" />
+            {m.favorites_title()}
+          </span>
+        }
+        description={pagination ? m.favorites_total({ count: pagination.total.toString() }) : ""}
+        actions={
+          selectionMode ? (
+            <>
+              <button
+                onClick={selectAll}
+                className="btn-secondary h-9 gap-2 px-3"
+              >
+                <Check className="h-4 w-4" aria-hidden="true" />
+                {selectedIds.size === favorites.length ? m.favorites_deselectAll() : m.favorites_selectAll()}
+              </button>
+              <button
+                onClick={handleBatchRemove}
+                disabled={selectedIds.size === 0}
+                className="btn-primary h-9 gap-2 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                {m.favorite_remove()} ({selectedIds.size})
+              </button>
+              <button
+                onClick={() => {
+                  setSelectionMode(false);
+                  setSelectedIds(new Set());
+                }}
+                className="btn-ghost h-9 px-3"
+              >
+                {m.common_cancel()}
+              </button>
+            </>
+          ) : (
+            favorites.length > 0 && (
+              <button
+                onClick={() => setSelectionMode(true)}
+                className="btn-secondary h-9 px-4"
+              >
+                {m.favorites_batchManage()}
+              </button>
+            )
+          )
+        }
+      />
 
-          <div className="flex items-center gap-2">
-            {selectionMode ? (
-              <>
-                <button
-                  onClick={selectAll}
-                  className="btn-secondary h-9 gap-2 px-3"
-                >
-                  <Check className="h-4 w-4" aria-hidden="true" />
-                  {selectedIds.size === favorites.length ? m.favorites_deselectAll() : m.favorites_selectAll()}
-                </button>
-                <button
-                  onClick={handleBatchRemove}
-                  disabled={selectedIds.size === 0}
-                  className="btn-primary h-9 gap-2 bg-[hsl(var(--color-error))] px-4 hover:bg-[hsl(var(--color-error))] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  {m.favorite_remove()} ({selectedIds.size})
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectionMode(false);
-                    setSelectedIds(new Set());
-                  }}
-                  className="btn-ghost h-9 px-3"
-                >
-                  {m.common_cancel()}
-                </button>
-              </>
-            ) : (
-              favorites.length > 0 && (
-                <button
-                  onClick={() => setSelectionMode(true)}
-                  className="btn-secondary h-9 px-4"
-                >
-                  {m.favorites_batchManage()}
-                </button>
-              )
-            )}
-          </div>
-        </header>
+      {error && <StateMessage variant="error" message={error} onRetry={refresh} className="mb-4" />}
 
-        {error && (
-          <div className="error-banner mb-4">
-            <p>{error}</p>
-            <button
-              onClick={refresh}
-              className="mt-2 text-sm font-semibold underline hover:no-underline"
-            >
-              {m.common_retry()}
-            </button>
-          </div>
-        )}
-
-        {isLoading ? (
+      {isLoading ? (
+        <StateMessage variant="loading" />
+      ) : favorites.length === 0 ? (
+        <StateMessage
+          variant="empty"
+          title={m.favorites_empty()}
+          description={m.favorites_emptyDescription()}
+          icon={<Images className="h-16 w-16" aria-hidden="true" />}
+          action={{ label: m.favorites_goGenerate(), onClick: handleBrowse }}
+        />
+      ) : (
+        <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <SkeletonCard key={i} />
+            {favorites.map((fav) => (
+              <FavoriteCard
+                key={fav.id}
+                favorite={fav}
+                isSelected={selectedIds.has(fav.id)}
+                onSelect={toggleSelect}
+                selectionMode={selectionMode}
+                onRemove={(id) => removeFavorite(id)}
+                onView={(f) => setViewingFavorite(f)}
+              />
             ))}
           </div>
-        ) : favorites.length === 0 ? (
-          <EmptyState onBrowse={handleBrowse} />
-        ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {favorites.map((fav) => (
-                <FavoriteCard
-                  key={fav.id}
-                  favorite={fav}
-                  isSelected={selectedIds.has(fav.id)}
-                  onSelect={toggleSelect}
-                  selectionMode={selectionMode}
-                  onRemove={(id) => removeFavorite(id)}
-                  onView={(f) => setViewingFavorite(f)}
-                />
-              ))}
-            </div>
 
-            {pagination && pagination.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8">
-                <button
-                  onClick={() => setPage(page - 1)}
-                  disabled={page === 1}
-                  className="btn-secondary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {m.common_previousPage()}
-                </button>
-                <span className="font-utility text-sm text-foreground-muted">
-                  {page} / {pagination.totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={page === pagination.totalPages}
-                  className="btn-secondary h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {m.common_nextPage()}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          {pagination && pagination.totalPages > 1 && (
+            <Pagination
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              onPrev={() => setPage(page - 1)}
+              onNext={() => setPage(page + 1)}
+            />
+          )}
+        </>
+      )}
 
       {/* Image Modal */}
       {viewingFavorite && (
@@ -284,6 +235,6 @@ export default function FavoritesPage() {
           onRemove={(id) => removeFavorite(id)}
         />
       )}
-    </div>
+    </WorkbenchPageLayout>
   );
 }
