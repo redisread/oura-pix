@@ -7,6 +7,7 @@
 
 "use client";
 
+import * as m from "@/paraglide/messages.js";
 import { useState, useEffect, useCallback } from "react";
 import { useQuestionnaire, type QuestionnaireType } from "@/hooks/useQuestionnaire";
 import { QuestionInput } from "./QuestionInput";
@@ -82,7 +83,7 @@ export function QuestionnaireForm({
       if (value === undefined || value === null || value === "" ||
           (Array.isArray(value) && value.length === 0) ||
           (typeof value === "number" && value === 0 && q.questionType !== "rating")) {
-        newErrors[q.id] = "请填写此项";
+        newErrors[q.id] = m.questionnaire_form_required();
         valid = false;
       }
     });
@@ -125,8 +126,8 @@ export function QuestionnaireForm({
     return (
       <div className="text-center py-8 space-y-3">
         <div className="text-4xl">✓</div>
-        <p className="text-lg font-medium text-foreground">问卷已提交</p>
-        <p className="text-sm text-foreground-muted">感谢您的反馈！</p>
+        <p className="text-lg font-medium text-foreground">{m.questionnaire_form_submittedTitle()}</p>
+        <p className="text-sm text-foreground-muted">{m.questionnaire_form_submittedDesc()}</p>
       </div>
     );
   }
@@ -169,7 +170,7 @@ export function QuestionnaireForm({
           disabled={submitting}
           className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {submitting ? "提交中..." : "提交"}
+          {submitting ? m.questionnaire_form_submitting() : m.questionnaire_form_submit()}
         </button>
       </div>
     </div>

@@ -1,16 +1,16 @@
 /**
  * RatingInput Component
  *
- * Star rating input (1-5) for questionnaire rating-type questions.
+ * Fully controlled star rating input (1-5) for questionnaire rating-type questions.
  */
 
 "use client";
 
-import { useState } from "react";
+import * as m from "@/paraglide/messages.js";
 
 interface RatingInputProps {
   label: string;
-  value?: number;
+  value: number;
   onChange: (value: number) => void;
   error?: string;
 }
@@ -28,14 +28,7 @@ function StarIcon({ filled }: { filled: boolean }) {
   );
 }
 
-export function RatingInput({ label, value = 0, onChange, error }: RatingInputProps) {
-  const [rating, setRating] = useState(value);
-
-  const handleClick = (n: number) => {
-    setRating(n);
-    onChange(n);
-  };
-
+export function RatingInput({ label, value, onChange, error }: RatingInputProps) {
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium text-foreground block">{label}</label>
@@ -44,11 +37,11 @@ export function RatingInput({ label, value = 0, onChange, error }: RatingInputPr
           <button
             key={n}
             type="button"
-            onClick={() => handleClick(n)}
+            onClick={() => onChange(n)}
             className="hover:scale-110 transition-transform"
-            aria-label={`${n} 星`}
+            aria-label={m.rating_aria_star({ count: n })}
           >
-            <StarIcon filled={n <= rating} />
+            <StarIcon filled={n <= value} />
           </button>
         ))}
       </div>

@@ -1,12 +1,10 @@
 /**
  * ChoiceInput Component
  *
- * Renders single-choice (radio) or multi-choice (checkbox) inputs.
+ * Fully controlled single-choice (radio) or multi-choice (checkbox) inputs.
  */
 
 "use client";
-
-import { useState } from "react";
 
 interface ChoiceInputProps {
   label: string;
@@ -18,19 +16,15 @@ interface ChoiceInputProps {
 }
 
 export function ChoiceInput({ label, options, value, onChange, multiple, error }: ChoiceInputProps) {
-  const [selected, setSelected] = useState<string | string[]>(value ?? (multiple ? [] : ""));
-
   const handleSingle = (option: string) => {
-    setSelected(option);
     onChange(option);
   };
 
   const handleMultiple = (option: string) => {
-    const current = Array.isArray(selected) ? selected : [];
+    const current = Array.isArray(value) ? value : [];
     const next = current.includes(option)
       ? current.filter((o) => o !== option)
       : [...current, option];
-    setSelected(next);
     onChange(next);
   };
 
@@ -39,7 +33,7 @@ export function ChoiceInput({ label, options, value, onChange, multiple, error }
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-foreground mb-1">{label}</legend>
         {options.map((option) => {
-          const isChecked = Array.isArray(selected) && selected.includes(option);
+          const isChecked = Array.isArray(value) && value.includes(option);
           return (
             <label
               key={option}
@@ -68,7 +62,7 @@ export function ChoiceInput({ label, options, value, onChange, multiple, error }
     <fieldset className="space-y-2">
       <legend className="text-sm font-medium text-foreground mb-1">{label}</legend>
       {options.map((option) => {
-        const isSelected = selected === option;
+        const isSelected = value === option;
         return (
           <label
             key={option}

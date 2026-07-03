@@ -6,6 +6,7 @@
 
 "use client";
 
+import * as m from "@/paraglide/messages.js";
 import { useEffect, useState } from "react";
 import { Bell, Globe, Moon, Save, Sun } from "lucide-react";
 import { setLocale, getLocale, type Locale } from "@/paraglide/runtime.js";
@@ -94,9 +95,9 @@ export default function PreferencesSettings() {
     setLanguage(lang);
     try {
       setLocale(lang);
-      toast.success("语言已切换");
+      toast.success(m.preferences_toast_languageSwitched());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "语言切换失败");
+      toast.error(err instanceof Error ? err.message : m.preferences_toast_languageFailed());
     }
   };
 
@@ -115,9 +116,9 @@ export default function PreferencesSettings() {
         // backend endpoint may not exist; silently keep local
       }
       setNotifDirty(false);
-      toast.success("通知偏好已保存");
+      toast.success(m.preferences_toast_notifSaved());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "保存失败");
+      toast.error(err instanceof Error ? err.message : m.preferences_toast_notifSaveFailed());
     } finally {
       setSavingNotif(false);
     }
@@ -125,15 +126,15 @@ export default function PreferencesSettings() {
 
   return (
     <div className="space-y-6">
-      <SettingSection title="偏好设置" description="个性化你的体验" />
+      <SettingSection title={m.preferences_title()} description={m.preferences_description()} />
 
       {/* Theme */}
-      <SettingCard title="主题" icon={<Sun className="h-4 w-4" />}>
+      <SettingCard title={m.preferences_theme_title()} icon={<Sun className="h-4 w-4" />}>
         <div className="grid grid-cols-3 gap-3">
           {([
-            { mode: "light" as const, label: "浅色", icon: Sun },
-            { mode: "dark" as const, label: "深色", icon: Moon },
-            { mode: "auto" as const, label: "自动", icon: Globe },
+            { mode: "light" as const, label: m.preferences_theme_light(), icon: Sun },
+            { mode: "dark" as const, label: m.preferences_theme_dark(), icon: Moon },
+            { mode: "auto" as const, label: m.preferences_theme_auto(), icon: Globe },
           ]).map(({ mode, label, icon: Icon }) => (
             <button
               key={mode}
@@ -154,12 +155,12 @@ export default function PreferencesSettings() {
           ))}
         </div>
         <p className="text-xs text-foreground-muted">
-          自动模式会跟随系统主题变化
+          {m.preferences_theme_autoHint()}
         </p>
       </SettingCard>
 
       {/* Language */}
-      <SettingCard title="语言" icon={<Globe className="h-4 w-4" />}>
+      <SettingCard title={m.preferences_language_title()} icon={<Globe className="h-4 w-4" />}>
         <div className="space-y-2">
           {LANGUAGES.map((lang) => (
             <button
@@ -186,7 +187,7 @@ export default function PreferencesSettings() {
       </SettingCard>
 
       {/* Notifications */}
-      <SettingCard title="通知偏好" icon={<Bell className="h-4 w-4" />}>
+      <SettingCard title={m.preferences_notifications_title()} icon={<Bell className="h-4 w-4" />}>
         <div className="space-y-3">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -195,7 +196,7 @@ export default function PreferencesSettings() {
               onChange={(e) => handleNotifChange("emailProduct", e.target.checked)}
               className="rounded"
             />
-            <span>邮件通知 - 产品更新和新功能</span>
+            <span>{m.preferences_notifications_emailProduct()}</span>
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -204,7 +205,7 @@ export default function PreferencesSettings() {
               onChange={(e) => handleNotifChange("emailBilling", e.target.checked)}
               className="rounded"
             />
-            <span>邮件通知 - 账单和订阅</span>
+            <span>{m.preferences_notifications_emailBilling()}</span>
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -213,7 +214,7 @@ export default function PreferencesSettings() {
               onChange={(e) => handleNotifChange("inappProduct", e.target.checked)}
               className="rounded"
             />
-            <span>站内信 - 生成完成和团队活动</span>
+            <span>{m.preferences_notifications_inappProduct()}</span>
           </label>
         </div>
         <SettingActions>
@@ -224,7 +225,7 @@ export default function PreferencesSettings() {
             className="btn-primary px-4 py-2 inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
-            保存
+            {m.common_save()}
           </button>
         </SettingActions>
       </SettingCard>
