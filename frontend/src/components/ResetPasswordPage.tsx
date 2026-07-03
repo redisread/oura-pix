@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2, LockKeyhole } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { resetPassword } from "@/lib/auth";
 import BrandLink from "./ui/BrandLink";
+import { ErrorBanner } from "./ui";
 import PasswordInput from "./ui/PasswordInput";
 import * as m from "@/paraglide/messages.js";
 import { AuthAside } from "./auth/AuthAside";
@@ -144,11 +145,7 @@ export default function ResetPasswordPage({ token }: Props) {
             <p className="mt-2 text-foreground-muted">{m.resetPassword_formDescription()}</p>
           </div>
 
-          {error && (
-            <div className="error-banner mb-6">
-              <p>{error}</p>
-            </div>
-          )}
+          {error && <ErrorBanner message={error} className="mb-6" />}
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-2">

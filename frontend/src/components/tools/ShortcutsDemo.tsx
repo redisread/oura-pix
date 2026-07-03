@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Keyboard, Zap } from "lucide-react";
 import { useKeyboardShortcuts, ShortcutBadge } from "@/hooks/useKeyboardShortcuts";
 import * as m from "@/paraglide/messages.js";
+import { ToolPageLayout } from "./ToolPageLayout";
 
 type ShortcutCategory = "edit" | "file" | "navigation";
 
@@ -42,13 +43,11 @@ export default function ShortcutsDemo() {
   });
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container max-w-4xl">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.tool_shortcutsKicker()}</p>
-          <h1 className="page-title mt-2">{m.tool_shortcutsTitle()}</h1>
-          <p className="page-description mt-3">{m.tool_shortcutsSubtitle()}</p>
-        </header>
+    <ToolPageLayout
+      kicker={m.tool_shortcutsKicker()}
+      title={m.tool_shortcutsTitle()}
+      subtitle={m.tool_shortcutsSubtitle()}
+      containerClass="max-w-4xl">
 
       {lastAction && (
           <div className="info-banner mb-4 flex items-center gap-2">
@@ -91,7 +90,6 @@ export default function ShortcutsDemo() {
           <Keyboard className="h-5 w-5 shrink-0" aria-hidden="true" />
           <p>{m.tool_shortcutsTip()}</p>
         </div>
-      </div>
-    </div>
+    </ToolPageLayout>
   );
 }

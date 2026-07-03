@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Check, Eye, HeartOff } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import type { Favorite } from "@/lib/api";
-import { formatLocaleDate } from "@/lib/locale";
+import { formatRelativeTime, getPlatformLabel } from "@/lib/format";
 
 interface FavoriteCardProps {
   favorite: Favorite;
@@ -17,32 +17,6 @@ interface FavoriteCardProps {
   selectionMode: boolean;
   onRemove: (id: string) => void;
   onView: (favorite: Favorite) => void;
-}
-
-function formatTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffDays < 1) return m.common_today();
-  if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return formatLocaleDate(date);
-}
-
-function getPlatformLabel(platform?: string): string {
-  switch (platform) {
-    case "amazon":
-      return "Amazon";
-    case "shopify":
-      return "Shopify";
-    case "ebay":
-      return "eBay";
-    case "etsy":
-      return "Etsy";
-    default:
-      return m.common_custom();
-  }
 }
 
 export default function FavoriteCard({
@@ -140,7 +114,7 @@ export default function FavoriteCard({
       <div className="absolute bottom-0 left-0 right-0 bg-[hsl(var(--foreground)/0.72)] p-2">
         <div className="flex items-center justify-between text-xs font-semibold text-[hsl(var(--background))]">
           <span>{getPlatformLabel(favorite.generation?.settings?.targetPlatform)}</span>
-          <span>{formatTime(favorite.createdAt)}</span>
+          <span>{formatRelativeTime(favorite.createdAt)}</span>
         </div>
       </div>
     </div>

@@ -4,10 +4,13 @@
 
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Sparkles, X } from "lucide-react";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useCategories, useCategoryTemplates, type Category, type Template } from "@/hooks/useCategories";
+import { ErrorBanner } from "@/components/ui";
 import * as m from "@/paraglide/messages.js";
 
 function TemplateCard({
@@ -57,19 +60,26 @@ export default function CategoriesPage() {
 
   if (loading && categories.length === 0) {
     return (
-      <CategoriesShell>
+      <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.categories_kicker()}
+        title={m.categories_title()}
+        description={m.categories_subtitle()}
+      />
         <div className="panel-muted flex min-h-[320px] items-center justify-center p-12 text-center text-foreground-muted" aria-busy="true">{m.categories_loading()}</div>
-      </CategoriesShell>
+      </WorkbenchPageLayout>
     );
   }
 
   if (error && categories.length === 0) {
     return (
-      <CategoriesShell>
-        <div className="error-banner" role="alert">
-          <p className="font-semibold">{m.categories_loadErrorTitle()}</p>
-          <p className="mt-1 text-sm">{error}</p>
-        </div>
+      <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.categories_kicker()}
+        title={m.categories_title()}
+        description={m.categories_subtitle()}
+      />
+        <ErrorBanner title={m.categories_loadErrorTitle()} message={error} />
         <div className="panel-muted mt-4 flex min-h-[240px] flex-col items-center justify-center p-8 text-center">
           <h2 className="text-lg font-semibold text-foreground">{m.categories_unavailableTitle()}</h2>
           <p className="mt-2 max-w-md text-sm text-foreground-muted">
@@ -81,17 +91,19 @@ export default function CategoriesPage() {
             className="btn-secondary mt-6 h-10 px-5"
           >{m.categories_reload()}</button>
         </div>
-      </CategoriesShell>
+      </WorkbenchPageLayout>
     );
   }
 
   return (
-    <CategoriesShell>
+    <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.categories_kicker()}
+        title={m.categories_title()}
+        description={m.categories_subtitle()}
+      />
       {error && (
-        <div className="error-banner mb-4" role="alert">
-          <p className="font-semibold">{m.categories_partialErrorTitle()}</p>
-          <p className="mt-1 text-sm">{error}</p>
-        </div>
+        <ErrorBanner title={m.categories_partialErrorTitle()} message={error} className="mb-4" />
       )}
 
       {categories.length === 0 ? (
@@ -130,23 +142,7 @@ export default function CategoriesPage() {
           </main>
         </div>
       )}
-    </CategoriesShell>
-  );
-}
-
-function CategoriesShell({ children }: { children: ReactNode }) {
-  return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 max-w-3xl">
-          <p className="page-kicker">{m.categories_kicker()}</p>
-          <h1 className="page-title mt-2">{m.categories_title()}</h1>
-          <p className="page-description mt-3">{m.categories_subtitle()}</p>
-        </header>
-
-        {children}
-      </div>
-    </div>
+    </WorkbenchPageLayout>
   );
 }
 
@@ -191,11 +187,7 @@ function CategoryDetail({
       <div className="p-6">
         {tab === "templates" ? (
           <>
-            {error && (
-              <div className="error-banner mb-4">
-                <p>{error}</p>
-              </div>
-            )}
+            {error && <ErrorBanner message={error} className="mb-4" />}
             {loading && templates.length === 0 ? (
               <p className="py-8 text-center text-foreground-muted">{m.common_loading()}</p>
             ) : templates.length === 0 ? (

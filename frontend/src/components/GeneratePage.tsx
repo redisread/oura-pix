@@ -110,7 +110,7 @@ export default function GeneratePage() {
       setProgress(100);
       setIsGenerating(false);
       setGeneratedResults(results.filter((r): r is NonNullable<typeof r> => r !== null));
-      toast.success("生成完成，点击查看结果");
+      toast.success(m.generate_complete());
       if (pollingRef.current) {
         clearInterval(pollingRef.current);
         pollingRef.current = null;
@@ -118,9 +118,9 @@ export default function GeneratePage() {
     } else if (status === "failed") {
       setIsGenerating(false);
       setError(m.generation_failed());
-      toast.error("生成失败，请重试", {
+      toast.error(m.generate_failed(), {
         action: {
-          label: "重试",
+          label: m.common_retry(),
           onClick: () => handleGenerate(),
         },
       });

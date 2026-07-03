@@ -11,8 +11,10 @@ import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { useMetricsDashboard, type MetricSummary } from "@/hooks/useMetricsDashboard";
 import { StateMessage } from "@/components/StateMessage";
-import { formatLocaleDateTime } from "@/lib/locale";
+import { formatShortDateTime } from "@/lib/locale";
 import * as m from "@/paraglide/messages.js";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
 
 type RangeFilter = "1h" | "24h" | "7d" | "30d";
 
@@ -134,17 +136,16 @@ export default function MetricsDashboard() {
   const { stats, points, loading, error, refetch } = useMetricsDashboard({ range, selectedMetric });
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.metrics_kicker()}</p>
-            <h1 className="page-title mt-2">{m.metrics_title()}</h1>
-            <p className="page-description mt-3">{m.metrics_subtitle()}</p>
-          </div>
+    <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.metrics_kicker()}
+        title={m.metrics_title()}
+        description={m.metrics_subtitle()}
+        actions={
           <button onClick={refetch} className="btn-secondary h-10 gap-2 px-4">
             <RefreshCw className="h-4 w-4" aria-hidden="true" />{m.common_refresh()}</button>
-        </header>
+        }
+      />
 
         <div className="mb-4 flex flex-wrap gap-2">
           {(["1h", "24h", "7d", "30d"] as RangeFilter[]).map((r) => (
@@ -203,12 +204,7 @@ export default function MetricsDashboard() {
                 {points.map((p) => (
                   <tr key={p.id} className="data-row">
                     <td className="font-utility px-4 py-3 text-xs text-foreground-muted">
-                      {formatLocaleDateTime(p.recordedAt, {
-                        month: "2-digit",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {formatShortDateTime(p.recordedAt)}
                     </td>
                     <td className="px-4 py-3 text-foreground-muted">{p.deviceType ?? "-"}</td>
                     <td className="px-4 py-3">
@@ -230,7 +226,6 @@ export default function MetricsDashboard() {
             </table>
           )}
         </div>
-      </div>
-    </div>
+    </WorkbenchPageLayout>
   );
 }

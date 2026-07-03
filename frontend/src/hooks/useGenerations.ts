@@ -4,11 +4,11 @@
  * Data fetching hook for generation history.
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { apiErr, getGenerationsList } from "@/lib/api";
+import { useState, useCallback } from "react";
+import { getGenerationsList } from "@/lib/api";
 import type { GenerationRecord } from "@/lib/api";
-import type { Pagination } from "@/lib/types";
 import type { GenerationsListParams } from "@oura-pix/api-client";
+import { usePaginatedResource } from "@/hooks/usePaginatedResource";
 import * as m from "@/paraglide/messages.js";
 
 export type TimeFilter = "all" | "today" | "week" | "month";
@@ -25,7 +25,7 @@ interface UseGenerationsOptions {
 
 interface UseGenerationsReturn {
   generations: GenerationRecord[];
-  pagination: Pagination | null;
+  pagination: import("@/lib/types").Pagination | null;
   isLoading: boolean;
   error: string | null;
   page: number;
@@ -42,53 +42,32 @@ interface UseGenerationsReturn {
 export function useGenerations(options: UseGenerationsOptions = {}): UseGenerationsReturn {
   const { initialPage = 1, initialPageSize = 20, initialFilter = "all" } = options;
 
-  const [generations, setGenerations] = useState<GenerationRecord[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(initialPage);
   const [filter, setFilter] = useState<TimeFilter>(initialFilter);
   const [platform, setPlatform] = useState<PlatformFilter>(options.platform || "all");
   const [status, setStatus] = useState<StatusFilter>(options.status || "all");
 
-  const fetchGenerations = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const { items, pagination, isLoading, error, page, setPage, refresh } =
+    usePaginatedResource<GenerationRecord>(
+      useCallback(
+        async (pg, size) => {
+          const params: GenerationsListParams = { page: pg, pageSize: size, filter };
+          const result = await getGenerationsList(params);
 
-    try {
-      const params: GenerationsListParams = {
-        page,
-        pageSize: initialPageSize,
-        filter,
-      };
+          // Note: Backend API currently only supports time filter.
+          // Platform and status filtering are client-side until the API supports them.
+          let data = result.data;
+          if (platform !== "all") data = data.filter((g) => g.platform === platform);
+          if (status !== "all") data = data.filter((g) => g.status === status);
 
-      const result = await getGenerationsList(params);
-
-      // Note: Backend API currently only supports time filter.
-      // Platform and status filtering are client-side until the API supports them.
-      let data = result.data;
-      if (platform !== "all") {
-        data = data.filter((g) => g.platform === platform);
-      }
-      if (status !== "all") {
-        data = data.filter((g) => g.status === status);
-      }
-
-      setGenerations(data);
-      setPagination(result.pagination);
-    } catch (err) {
-      setError(apiErr(err, m.common_loadFailed()));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, initialPageSize, filter, platform, status]);
-
-  useEffect(() => {
-    fetchGenerations();
-  }, [fetchGenerations]);
+          return { data, pagination: result.pagination };
+        },
+        [filter, platform, status],
+      ),
+      { initialPage, initialPageSize, loadErrorMsg: m.common_loadFailed() },
+    );
 
   return {
-    generations,
+    generations: items,
     pagination,
     isLoading,
     error,
@@ -100,6 +79,6 @@ export function useGenerations(options: UseGenerationsOptions = {}): UseGenerati
     setPlatform,
     status,
     setStatus,
-    refresh: fetchGenerations,
+    refresh,
   };
 }

@@ -8,7 +8,9 @@
 
 import { useState } from "react";
 import { Copy, LogOut, Plus, Trash2, Users, X } from "lucide-react";
+import * as m from "@/paraglide/messages.js";
 import { useTeams, type TeamRole } from "@/hooks/useTeams";
+import { StateMessage } from "@/components/StateMessage";
 import { useToast } from "../ui/Toast";
 import {
   SettingSection,
@@ -36,7 +38,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
     if (name.trim().length === 0) return;
     setSubmitting(true);
     try {
-      const result = await createTeam(name.trim());
+      const result = await createTeam({ name: name.trim() });
       if (result) {
         setShowCreate(false);
         setName("");
@@ -55,9 +57,9 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
       if (ok) {
         setShowJoin(false);
         setInviteCode("");
-        toast.success("加入团队成功");
+        toast.success(m.teams_settings_toast_joinSuccess());
       } else {
-        toast.error("邀请码无效");
+        toast.error(m.teams_settings_toast_inviteInvalid());
       }
     } finally {
       setSubmitting(false);
@@ -71,7 +73,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
       const ok = await leaveTeam(showLeave);
       if (ok) {
         setShowLeave(null);
-        toast.success("已退出团队");
+        toast.success(m.teams_settings_toast_leftTeam());
       }
     } finally {
       setSubmitting(false);
@@ -85,7 +87,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
       const ok = await deleteTeam(showDelete);
       if (ok) {
         setShowDelete(null);
-        toast.success("团队已删除");
+        toast.success(m.teams_settings_toast_teamDeleted());
       }
     } finally {
       setSubmitting(false);
@@ -95,7 +97,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
   const handleCopyInvite = async (code: string) => {
     const link = `${window.location.origin}/teams/join?code=${code}`;
     await navigator.clipboard.writeText(link);
-    toast.success("邀请链接已复制");
+    toast.success(m.teams_settings_toast_inviteCopied());
   };
 
   const canDelete = (role: TeamRole) => role === "owner";
@@ -103,8 +105,8 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
   return (
     <div className="space-y-6">
       <SettingSection
-        title="团队管理"
-        description="创建或加入团队，协作处理生成任务"
+        title={m.teams_settings_title()}
+        description={m.teams_settings_description()}
         icon={<Users className="h-5 w-5" />}
         actions={
           <>
@@ -113,7 +115,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
               onClick={() => setShowJoin(true)}
               className="btn-secondary px-4 py-2"
             >
-              加入团队
+              {m.teams_joinTeam()}
             </button>
             <button
               type="button"
@@ -121,20 +123,22 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
               className="btn-primary px-4 py-2 inline-flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
-              创建团队
+              {m.teams_createTitle()}
             </button>
           </>
         }
       />
 
       {loading ? (
-        <div className="card p-8 text-center text-foreground-muted text-sm">加载中...</div>
+        <StateMessage variant="loading" />
       ) : error ? (
-        <div className="card p-8 text-center text-red-600 dark:text-red-400 text-sm">{error}</div>
+        <StateMessage variant="error" message={error} />
       ) : teams.length === 0 ? (
-        <div className="card p-8 text-center text-foreground-muted text-sm">
-          还没有团队。创建或加入一个团队开始协作。
-        </div>
+        <StateMessage
+          variant="empty"
+          title={m.teams_settings_emptyTitle()}
+          description={m.teams_settings_emptyDesc()}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {teams.map((team) => (
@@ -146,7 +150,8 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base font-semibold text-foreground line-clamp-1">{team.name}</h3>
                   <p className="text-xs text-foreground-muted mt-1">
-                    你的角色：<span className="font-medium text-foreground">{roleLabel(team.role)}</span>
+                    {m.teams_settings_yourRole()}{" "}
+                    <span className="font-medium text-foreground">{roleLabel(team.role)}</span>
                   </p>
                 </div>
               </div>
@@ -158,7 +163,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
                   className="text-[hsl(var(--foreground-muted))] hover:text-amber-600 inline-flex items-center gap-1"
                 >
                   <LogOut className="h-3 w-3" />
-                  退出
+                  {m.teams_settings_leave()}
                 </button>
                 {canDelete(team.role) && (
                   <button
@@ -167,7 +172,7 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
                     className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 p-1 rounded inline-flex items-center gap-1"
                   >
                     <Trash2 className="h-3 w-3" />
-                    删除
+                    {m.teams_settings_delete()}
                   </button>
                 )}
               </div>
@@ -178,17 +183,16 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
                 className="w-full btn-secondary px-3 py-1.5 text-xs inline-flex items-center justify-center gap-1"
               >
                 <Copy className="h-3 w-3" />
-                复制邀请链接
+                {m.teams_settings_copyInvite()}
               </button>
             </div>
           ))}
         </div>
       )}
 
-      {/* Create Modal */}
       <SettingModal open={showCreate} onClose={() => !submitting && setShowCreate(false)}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">创建团队</h3>
+          <h3 className="text-lg font-semibold text-foreground">{m.teams_createTitle()}</h3>
           <button type="button" onClick={() => setShowCreate(false)} className="text-foreground-muted">
             <X className="h-4 w-4" />
           </button>
@@ -197,45 +201,43 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="团队名称"
+          placeholder={m.teams_settings_teamName()}
           className="input"
           maxLength={50}
         />
         <div className="flex justify-end gap-2 mt-4">
           <button type="button" onClick={() => setShowCreate(false)} disabled={submitting} className="btn-secondary px-4 py-2">
-            取消
+            {m.teams_settings_cancel()}
           </button>
           <button type="button" onClick={handleCreate} disabled={submitting} className="btn-primary px-4 py-2">
-            创建
+            {m.teams_settings_create()}
           </button>
         </div>
       </SettingModal>
 
-      {/* Join Modal */}
       <SettingModal open={showJoin} onClose={() => !submitting && setShowJoin(false)}>
-        <h3 className="text-lg font-semibold text-foreground mb-4">加入团队</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">{m.teams_joinTitle()}</h3>
         <input
           type="text"
           value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value)}
-          placeholder="邀请码"
+          placeholder={m.teams_settings_inviteCode()}
           className="input"
         />
         <div className="flex justify-end gap-2 mt-4">
           <button type="button" onClick={() => setShowJoin(false)} disabled={submitting} className="btn-secondary px-4 py-2">
-            取消
+            {m.teams_settings_cancel()}
           </button>
           <button type="button" onClick={handleJoin} disabled={submitting} className="btn-primary px-4 py-2">
-            加入
+            {m.teams_settings_joinBtn()}
           </button>
         </div>
       </SettingModal>
 
-      {/* Invite Banner after create */}
       {showInvite && (
         <div className="card p-4 border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30">
           <div className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">
-            团队「{showInvite.name}」已创建
+            {m.teams_settings_inviteCreated({ name: showInvite.name })}
           </div>
           <div className="flex items-center gap-2">
             <code className="flex-1 px-3 py-2 rounded bg-[hsl(var(--background))] border border-emerald-200 dark:border-emerald-900 text-xs font-mono break-all">
@@ -247,32 +249,32 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
               className="btn-primary px-3 py-2 inline-flex items-center gap-1 text-xs"
             >
               <Copy className="h-3 w-3" />
-              复制
+              {m.teams_settings_copy()}
             </button>
           </div>
         </div>
       )}
 
-      {/* Leave Confirm Modal */}
       <ConfirmModal
         open={Boolean(showLeave)}
         onClose={() => !submitting && setShowLeave(null)}
         onConfirm={handleLeave}
-        title="退出团队"
-        description="确定要退出此团队吗？"
-        confirmLabel="退出"
+        title={m.teams_leaveConfirmTitle()}
+        description={m.teams_leaveConfirmDescription()}
+        confirmLabel={m.teams_settings_leave()}
+        cancelLabel={m.teams_settings_cancel()}
         variant="warning"
         loading={submitting}
       />
 
-      {/* Delete Confirm Modal */}
       <ConfirmModal
         open={Boolean(showDelete)}
         onClose={() => !submitting && setShowDelete(null)}
         onConfirm={handleDelete}
-        title="删除团队"
-        description="此操作不可恢复，团队所有数据将永久删除。"
-        confirmLabel="删除"
+        title={m.teams_deleteConfirmTitle()}
+        description={m.teams_deleteConfirmDescription()}
+        confirmLabel={m.teams_settings_delete()}
+        cancelLabel={m.teams_settings_cancel()}
         loading={submitting}
       />
     </div>
@@ -282,10 +284,10 @@ export default function TeamSettings({ onTeamSelect: _onTeamSelect }: TeamSettin
 function roleLabel(role: TeamRole): string {
   switch (role) {
     case "owner":
-      return "所有者";
+      return m.teams_role_owner();
     case "admin":
-      return "管理员";
+      return m.teams_role_admin();
     case "member":
-      return "成员";
+      return m.teams_role_member();
   }
 }

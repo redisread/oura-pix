@@ -23,6 +23,8 @@ import { useProfileStats } from "@/hooks/useProfileStats";
 import { useGenerations } from "@/hooks/useGenerations";
 import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ErrorBanner } from "@/components/ui";
+import { formatShortDate, formatShortDateTime } from "@/lib/locale";
 
 type ProfileTab = "overview" | "history" | "settings";
 
@@ -111,7 +113,7 @@ function StatsCards() {
 function UserInfoCard() {
   const { user } = useAuth();
   const memberSince = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString()
+    ? formatShortDate(user.createdAt)
     : "-";
 
   const rows = [
@@ -178,10 +180,7 @@ function GenerationHistory() {
         <div className="border-b border-[hsl(var(--border))] p-5">
           <h2 className="panel-title">{m.profile_history_title()}</h2>
         </div>
-        <div className="error-banner m-5">
-          <p>{error}</p>
-          <button onClick={refresh} className="mt-2 text-sm font-semibold underline">{m.common_retry()}</button>
-        </div>
+        <ErrorBanner message={error} onRetry={refresh} className="m-5" />
       </section>
     );
   }
@@ -220,7 +219,7 @@ function GenerationHistory() {
                     {item.platform} · {item.style} · {item.language}
                   </p>
                   <p className="font-utility mt-1 text-xs text-foreground-muted">
-                    {new Date(item.createdAt).toLocaleString()}
+                    {formatShortDateTime(item.createdAt)}
                   </p>
                 </div>
                 <div className="flex gap-2">
@@ -417,7 +416,7 @@ export default function ProfilePage() {
                       {item.prompt || m.profile_history_noPrompt()}
                     </p>
                     <p className="font-utility text-xs text-foreground-muted">
-                      {new Date(item.createdAt).toLocaleString()}
+                      {formatShortDateTime(item.createdAt)}
                     </p>
                   </div>
                   <span className="status-badge status-badge-neutral">{item.platform}</span>

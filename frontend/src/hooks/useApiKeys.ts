@@ -1,16 +1,20 @@
 /**
- * useApiKeys Hook
+ * useApiKeys Hook - 基于 useCrud 的 API Key 管理
+ *
+ * list / revoke 走 useCrud；createKey 需保留 newlyCreated 状态，
+ * 因此独立实现并直接调用 apiJson。
  */
 
 import { useState, useCallback } from "react";
 import { apiErr, apiJson } from "@/lib/api";
-import { useResource } from "@/hooks/useResource";
+import { useCrud } from "@/hooks/useCrud";
 import * as m from "@/paraglide/messages.js";
 
 export interface ApiKey {
   id: string;
   name: string;
   keyPrefix: string;
+  permissions?: "read" | "read-write";
   lastUsedAt: string | null;
   expiresAt: string | null;
   isRevoked: boolean;
@@ -22,13 +26,11 @@ interface CreatedKey extends ApiKey {
 }
 
 export function useApiKeys() {
-  const { data, loading, error, setError, refetch } = useResource<ApiKey[]>(
-    "/api/keys",
-    m.common_loadFailed()
-  );
-  const [newlyCreated, setNewlyCreated] = useState<CreatedKey | null>(null);
+  const { items, loading, error, setError, refetch, deleteItem } = useCrud<ApiKey>({
+    endpoint: "/api/keys",
+  });
 
-  const keys = data ?? [];
+  const [newlyCreated, setNewlyCreated] = useState<CreatedKey | null>(null);
 
   const createKey = useCallback(
     async (name: string, expiresInDays?: number): Promise<CreatedKey | null> => {
@@ -51,18 +53,13 @@ export function useApiKeys() {
 
   const revokeKey = useCallback(
     async (id: string) => {
-      try {
-        await apiJson(`/api/keys/${id}`, { method: "DELETE" });
-        await refetch();
-      } catch (err) {
-        setError(apiErr(err, m.common_updateFailed()));
-      }
+      await deleteItem(id);
     },
-    [refetch, setError]
+    [deleteItem]
   );
 
   return {
-    keys,
+    keys: items,
     loading,
     error,
     newlyCreated,

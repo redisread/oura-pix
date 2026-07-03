@@ -6,7 +6,7 @@
 
 import * as m from "@/paraglide/messages.js";
 
-interface PaginationProps {
+export interface PaginationProps {
   page: number;
   totalPages: number;
   onPrev: () => void;

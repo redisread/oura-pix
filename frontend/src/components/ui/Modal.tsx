@@ -11,6 +11,7 @@
  */
 
 import type { ReactNode, HTMLAttributes } from "react";
+import * as m from "@/paraglide/messages.js";
 
 export type ModalSize = "sm" | "md" | "lg" | "xl" | "full";
 
@@ -87,7 +88,6 @@ export function Modal({
 /* ------------------------------------------------------------------ */
 
 import { Loader2 } from "lucide-react";
-import { Button } from "./Button";
 
 export interface ConfirmModalProps {
   open: boolean;
@@ -115,8 +115,8 @@ export function ConfirmModal({
   onConfirm,
   title,
   description,
-  confirmLabel = "确认",
-  cancelLabel = "取消",
+  confirmLabel = m.common_confirm(),
+  cancelLabel = m.common_cancel(),
   loading = false,
   variant = "danger",
   icon,
@@ -138,15 +138,14 @@ export function ConfirmModal({
         <p className="text-sm text-foreground-muted">{description}</p>
       )}
       <div className="flex justify-end gap-2 mt-6">
-        <Button
+        <button
           type="button"
-          variant="secondary"
-          size="md"
           onClick={onClose}
           disabled={loading}
+          className="btn-secondary h-10 px-4"
         >
           {cancelLabel}
-        </Button>
+        </button>
         <button
           type="button"
           onClick={onConfirm}

@@ -13,17 +13,9 @@ import { useTeams, type Team } from "@/hooks/useTeams";
 import { StateMessage } from "@/components/StateMessage";
 import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { formatLocaleDate } from "@/lib/locale";
+import { formatShortDate } from "@/lib/locale";
 import { Modal } from "@/components/ui/Modal";
 import * as m from "@/paraglide/messages.js";
-
-function formatDate(dateString: string): string {
-  return formatLocaleDate(dateString, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
 
 function getRoleLabel(role: Team["role"]): string {
   switch (role) {
@@ -80,7 +72,7 @@ export default function TeamsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    const team = await createTeam(name.trim());
+    const team = await createTeam({ name: name.trim() });
     if (team) {
       setShowCreate(false);
       setName("");
@@ -140,7 +132,7 @@ export default function TeamsPage() {
                 </span>
               </div>
               <p className="mb-3 text-xs text-foreground-muted">
-                {m.teams_memberCountCreated({ count: team.memberCount.toString(), date: formatDate(team.createdAt) })}
+                {m.teams_memberCountCreated({ count: team.memberCount.toString(), date: formatShortDate(team.createdAt) })}
               </p>
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-foreground-muted">{m.teams_inviteCode()}</span>

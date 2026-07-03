@@ -13,6 +13,7 @@ import { useBackgroundRemoval } from "@/hooks/useBackgroundRemoval";
 import * as m from "@/paraglide/messages.js";
 
 import { ToolPageLayout } from "./ToolPageLayout";
+import { ErrorBanner } from "@/components/ui";
 
 export default function BackgroundRemover() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -119,11 +120,7 @@ export default function BackgroundRemover() {
             </div>
           </div>
 
-          {error && (
-              <div className="error-banner">
-                <p>{error}</p>
-            </div>
-          )}
+          {error && <ErrorBanner message={error} />}
 
           <div className="flex gap-2 justify-end">
             <button

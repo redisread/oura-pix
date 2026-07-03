@@ -5,9 +5,8 @@
  * Uses the apiJson envelope-unwrapping pattern; errors surface only on network/HTTP failure.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import {
-  apiErr,
   getFavorites,
   addFavorite,
   removeFavorite,
@@ -15,12 +14,12 @@ import {
   checkFavorite,
 } from "@/lib/api";
 import type { Favorite } from "@/lib/api";
-import type { Pagination } from "@/lib/types";
+import { usePaginatedResource } from "@/hooks/usePaginatedResource";
 import * as m from "@/paraglide/messages.js";
 
 interface UseFavoritesReturn {
   favorites: Favorite[];
-  pagination: Pagination | null;
+  pagination: import("@/lib/types").Pagination | null;
   isLoading: boolean;
   error: string | null;
   page: number;
@@ -33,58 +32,38 @@ interface UseFavoritesReturn {
 }
 
 export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
-  const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [pagination, setPagination] = useState<Pagination | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-
-  const fetchFavorites = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await getFavorites(page, initialPageSize);
-      setFavorites(result.data);
-      setPagination(result.pagination);
-    } catch (err) {
-      setError(apiErr(err, m.common_loadFailed()));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, initialPageSize]);
-
-  useEffect(() => {
-    fetchFavorites();
-  }, [fetchFavorites]);
+  const { items, pagination, isLoading, error, page, setPage, refresh } =
+    usePaginatedResource<Favorite>(
+      useCallback((pg, size) => getFavorites(pg, size), []),
+      { initialPageSize, loadErrorMsg: m.common_loadFailed() },
+    );
 
   const handleAdd = useCallback(
     async (generationId: string, imageUrl: string, imageIndex?: number): Promise<Favorite | null> => {
       try {
         const fav = await addFavorite(generationId, imageUrl, imageIndex);
-        await fetchFavorites();
+        await refresh();
         return fav;
       } catch {
         return null;
       }
     },
-    [fetchFavorites]
+    [refresh],
   );
 
   const handleRemove = useCallback(
     async (id: string): Promise<boolean> => {
       try {
         await removeFavorite(id);
-        setFavorites((prev) => prev.filter((f) => f.id !== id));
-        setPagination((prev) =>
-          prev ? { ...prev, total: prev.total - 1 } : prev
-        );
+        // 乐观更新：本地过滤，不触发全量 refetch
+        // 注：usePaginatedResource 当前不支持 setItems 透传，故通过 refresh 兜底
+        await refresh();
         return true;
       } catch {
         return false;
       }
     },
-    []
+    [refresh],
   );
 
   const batchRemove = useCallback(
@@ -92,16 +71,13 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
       if (ids.length === 0) return 0;
       try {
         const deleted = await batchRemoveFavorites(ids);
-        setFavorites((prev) => prev.filter((f) => !ids.includes(f.id)));
-        setPagination((prev) =>
-          prev ? { ...prev, total: prev.total - deleted } : prev
-        );
+        await refresh();
         return deleted;
       } catch {
         return 0;
       }
     },
-    []
+    [refresh],
   );
 
   const handleCheck = useCallback(
@@ -112,17 +88,17 @@ export function useFavorites(initialPageSize = 24): UseFavoritesReturn {
         return { isFavorited: false, favoriteId: null };
       }
     },
-    []
+    [],
   );
 
   return {
-    favorites,
+    favorites: items,
     pagination,
     isLoading,
     error,
     page,
     setPage,
-    refresh: fetchFavorites,
+    refresh,
     addFavorite: handleAdd,
     removeFavorite: handleRemove,
     batchRemove,

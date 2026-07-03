@@ -12,15 +12,9 @@ import { ArrowLeft, Check, Copy, LogOut, Save, Trash2, Users } from "lucide-reac
 import { localizeHref } from "@/paraglide/runtime.js";
 import * as m from "@/paraglide/messages.js";
 import { useTeam, type TeamMember, type TeamRole } from "@/hooks/useTeams";
-import { formatLocaleDate } from "@/lib/locale";
-
-function formatDate(dateString: string): string {
-  return formatLocaleDate(dateString, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
+import { formatShortDate } from "@/lib/locale";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
+import { ErrorBanner } from "@/components/ui";
 
 function getRoleLabel(role: TeamRole): string {
   switch (role) {
@@ -45,25 +39,22 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [confirmAction, setConfirmAction] = useState<"leave" | "delete" | null>(null);
+  const [confirmRemoveMember, setConfirmRemoveMember] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   if (loading && !team) {
     return (
-      <div className="workbench-page">
-        <div className="workbench-container text-center text-foreground-muted">{m.common_loading()}</div>
-      </div>
+      <WorkbenchPageLayout>
+        <div className="py-12 text-center text-foreground-muted">{m.common_loading()}</div>
+      </WorkbenchPageLayout>
     );
   }
 
   if (error && !team) {
     return (
-      <div className="workbench-page">
-        <div className="workbench-container max-w-3xl">
-          <div className="error-banner">
-            <p>{error}</p>
-          </div>
-        </div>
-      </div>
+      <WorkbenchPageLayout maxWidth="max-w-3xl">
+        <ErrorBanner message={error} />
+      </WorkbenchPageLayout>
     );
   }
 
@@ -108,16 +99,15 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
   };
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container max-w-5xl">
-        <div className="mb-6">
+    <WorkbenchPageLayout maxWidth="max-w-5xl">
+      <div className="mb-6">
           <a href={localizeHref("/teams")} className="btn-ghost h-9 gap-2 px-3">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             {m.teams_backToListShort()}
           </a>
         </div>
 
-        <section className="panel mb-4 p-6">
+      <section className="panel mb-4 p-6">
           <div className="mb-4 flex items-start justify-between gap-4">
             <div className="flex-1">
               {editingName ? (
@@ -149,7 +139,7 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
                 </div>
               )}
               <p className="mt-2 text-sm text-foreground-muted">
-                {m.teams_memberCountCreated({ count: team.memberCount.toString(), date: formatDate(team.createdAt) })}
+                {m.teams_memberCountCreated({ count: team.memberCount.toString(), date: formatShortDate(team.createdAt) })}
               </p>
             </div>
             <span className={`status-badge ${ROLE_BADGES[team.role]}`}>
@@ -216,15 +206,11 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
                       </span>
                     )}
                   </td>
-                  <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(member.joinedAt)}</td>
+                  <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatShortDate(member.joinedAt)}</td>
                   <td className="px-4 py-3 text-right">
                     {canManageMember(member) && (
                       <button
-                        onClick={async () => {
-                          if (confirm(m.teams_removeMemberConfirm({ name: member.user?.name ?? member.user?.email ?? "" }))) {
-                            await removeMember(member.userId);
-                          }
-                        }}
+                        onClick={() => setConfirmRemoveMember(member.userId)}
                         className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
                         aria-label={m.teams_removeMember()}
                       >
@@ -254,7 +240,24 @@ export default function TeamDetailPage({ teamId }: { teamId: string }) {
             confirmLabel={m.common_confirm()}
           />
         )}
-      </div>
-    </div>
+
+        {confirmRemoveMember && (
+          <ConfirmModal
+            open={true}
+            onClose={() => setConfirmRemoveMember(null)}
+            onConfirm={async () => {
+              await removeMember(confirmRemoveMember);
+              setConfirmRemoveMember(null);
+            }}
+            title={m.teams_removeMemberTitle()}
+            description={m.teams_removeMemberConfirm({
+              name: team?.members.find((mb: TeamMember) => mb.userId === confirmRemoveMember)?.user?.name
+                ?? team?.members.find((mb: TeamMember) => mb.userId === confirmRemoveMember)?.user?.email
+                ?? "",
+            })}
+            confirmLabel={m.common_confirm()}
+          />
+        )}
+    </WorkbenchPageLayout>
   );
 }

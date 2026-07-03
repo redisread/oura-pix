@@ -5,7 +5,7 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
+import { Modal, ConfirmModal } from "@/components/ui/Modal";
 import { ExternalLink, Link2, Plus, Save, Trash2, X } from "lucide-react";
 import {
   getPlatformLabel,
@@ -15,16 +15,11 @@ import {
   type Platform,
 } from "@/hooks/useCompetitors";
 import { StateMessage } from "@/components/StateMessage";
-import { formatLocaleDate } from "@/lib/locale";
+import { formatShortDate } from "@/lib/locale";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
 import * as m from "@/paraglide/messages.js";
 
-function formatDate(dateString: string): string {
-  return formatLocaleDate(dateString, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
 
 function CompetitorForm({
   initial,
@@ -189,16 +184,15 @@ export default function CompetitorsPage() {
   const { competitors, loading, error, createCompetitor, updateCompetitor, deleteCompetitor } = useCompetitors();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Competitor | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container max-w-6xl">
-        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.competitors_kicker()}</p>
-            <h1 className="page-title mt-2">{m.competitors_title()}</h1>
-            <p className="page-description mt-3">{m.competitors_subtitle()}</p>
-          </div>
+    <WorkbenchPageLayout maxWidth="max-w-6xl">
+      <PageHeader
+        kicker={m.competitors_kicker()}
+        title={m.competitors_title()}
+        description={m.competitors_subtitle()}
+        actions={
           <button
             onClick={() => {
               setEditing(null);
@@ -207,7 +201,8 @@ export default function CompetitorsPage() {
             className="btn-primary h-10 gap-2 px-4"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />{m.competitors_formAddTitle()}</button>
-        </header>
+        }
+      />
 
         {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
@@ -259,7 +254,7 @@ export default function CompetitorsPage() {
                   </div>
                 )}
                 <div className="flex items-center justify-between border-t border-[hsl(var(--border))] pt-3">
-                  <span className="font-utility text-xs text-foreground-muted">{formatDate(c.createdAt)}</span>
+                  <span className="font-utility text-xs text-foreground-muted">{formatShortDate(c.createdAt)}</span>
                   <div className="flex gap-1">
                     <button
                       onClick={() => {
@@ -272,9 +267,7 @@ export default function CompetitorsPage() {
                       <Link2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
-                      onClick={async () => {
-                        if (confirm(m.competitors_deleteConfirm({ name: c.name }))) await deleteCompetitor(c.id);
-                      }}
+                      onClick={() => setConfirmDelete(c.id)}
                       className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
                       aria-label={m.competitors_deleteAria()}
                     >
@@ -313,7 +306,23 @@ export default function CompetitorsPage() {
             />
           </Modal>
         )}
-      </div>
-    </div>
+      <ConfirmModal
+        open={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={async () => {
+          if (confirmDelete) await deleteCompetitor(confirmDelete);
+          setConfirmDelete(null);
+        }}
+        title={m.competitors_deleteTitle()}
+        description={
+          confirmDelete
+            ? m.competitors_deleteConfirm({
+                name: competitors.find((c) => c.id === confirmDelete)?.name ?? "",
+              })
+            : ""
+        }
+        confirmLabel={m.common_delete()}
+      />
+    </WorkbenchPageLayout>
   );
 }

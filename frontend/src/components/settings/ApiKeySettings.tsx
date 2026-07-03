@@ -8,18 +8,14 @@
 
 import { useEffect, useState } from "react";
 import { Activity, AlertTriangle, Eye, EyeOff, Key, Loader2, Plus, Trash2, X } from "lucide-react";
-import { useApiKeys } from "@/hooks/useApiKeys";
+import { useApiKeys, type ApiKey } from "@/hooks/useApiKeys";
 import { api } from "@/lib/api";
 import { useToast } from "../ui/Toast";
 import { SettingSection, SettingField, SettingModal, ConfirmModal } from "./ui";
-
-interface ApiKeyData {
-  id: string;
-  name: string;
-  permissions?: "read" | "read-write";
-  createdAt: string;
-  lastUsedAt?: string | null;
-}
+import { ErrorBanner } from "@/components/ui";
+import { StateMessage } from "@/components/StateMessage";
+import { formatShortDate } from "@/lib/locale";
+import * as m from "@/paraglide/messages.js";
 
 interface UsagePoint {
   date: string;
@@ -79,7 +75,7 @@ export default function ApiKeySettings() {
   const [usage, setUsage] = useState<UsagePoint[]>([]);
   const [usageLoading, setUsageLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [showRevoke, setShowRevoke] = useState<ApiKeyData | null>(null);
+  const [showRevoke, setShowRevoke] = useState<ApiKey | null>(null);
   const [showKey, setShowKey] = useState(true);
   const [newName, setNewName] = useState("");
   const [newPermissions, setNewPermissions] = useState<"read" | "read-write">("read-write");
@@ -107,7 +103,7 @@ export default function ApiKeySettings() {
 
   const handleCreate = async () => {
     if (newName.trim().length === 0) {
-      toast.error("请输入 Key 名称");
+      toast.error(m.apiKeys_nameRequired());
       return;
     }
     setSubmitting(true);
@@ -197,16 +193,13 @@ export default function ApiKeySettings() {
           <span className="text-sm font-semibold text-foreground">调用量统计</span>
         </div>
         {usageLoading ? (
-          <div className="text-sm text-foreground-muted text-center py-6">加载中...</div>
+          <StateMessage variant="loading" />
         ) : (
           <SimpleBarChart data={usage} />
         )}
       </div>
 
-      {/* Error State */}
-      {error && (
-        <div className="card p-4 text-center text-red-600 dark:text-red-400 text-sm">{error}</div>
-      )}
+      {error && <ErrorBanner message={error} className="mb-2" />}
 
       {/* Key List */}
       <div className="card p-6">
@@ -216,46 +209,44 @@ export default function ApiKeySettings() {
         </div>
 
         {loading ? (
-          <div className="text-sm text-foreground-muted text-center py-6">加载中...</div>
+          <StateMessage variant="loading" />
         ) : keys.length === 0 ? (
-          <div className="text-sm text-foreground-muted text-center py-6">
-            还没有 API Key 创建一个开始集成
-          </div>
+          <StateMessage variant="empty" title={m.apiKeys_emptyTitle()} description={m.apiKeys_emptyDescription()} />
         ) : (
           <div className="space-y-3">
             {keys.map((k) => (
               <div
-                key={(k as unknown as ApiKeyData).id}
+                key={k.id}
                 className="flex items-center justify-between gap-4 p-3 rounded-lg border border-[hsl(var(--border))]"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-foreground">{(k as unknown as ApiKeyData).name}</span>
-                    {(k as unknown as ApiKeyData).permissions === "read" && (
+                    <span className="text-sm font-medium text-foreground">{k.name}</span>
+                    {k.permissions === "read" && (
                       <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--secondary))] text-foreground-muted">
                         只读
                       </span>
                     )}
-                    {(k as unknown as ApiKeyData).permissions === "read-write" && (
+                    {k.permissions === "read-write" && (
                       <span className="text-xs px-2 py-0.5 rounded bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]">
                         读写
                       </span>
                     )}
                   </div>
                   <div className="text-xs text-foreground-muted">
-                    创建：{new Date((k as unknown as ApiKeyData).createdAt).toLocaleDateString("zh-CN")}
-                    {(k as unknown as ApiKeyData).lastUsedAt && (
+                    创建：{formatShortDate(k.createdAt)}
+                    {k.lastUsedAt && (
                       <>
                         {" · "}
                         最近使用：
-                        {new Date((k as unknown as ApiKeyData).lastUsedAt!).toLocaleDateString("zh-CN")}
+                        {formatShortDate(k.lastUsedAt!)}
                       </>
                     )}
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setShowRevoke(k as unknown as ApiKeyData)}
+                  onClick={() => setShowRevoke(k)}
                   className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded"
                   aria-label="吊销 Key"
                 >

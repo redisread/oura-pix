@@ -8,9 +8,11 @@
 
 import { useState } from "react";
 import { FolderPlus, Pencil, Save, Trash2, X } from "lucide-react";
-import { Modal } from "@/components/ui/Modal";
+import { Modal, ConfirmModal } from "@/components/ui/Modal";
 import { useCollections, type Collection } from "@/hooks/useCollections";
 import { StateMessage } from "@/components/StateMessage";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
 import * as m from "@/paraglide/messages.js";
 
 const COLORS = [
@@ -22,19 +24,20 @@ export default function CollectionsPage() {
   const { collections, loading, error, createCollection, updateCollection, deleteCollection } = useCollections();
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container max-w-5xl">
-        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.collections_kicker()}</p>
-            <h1 className="page-title mt-2">{m.collections_title()}</h1>
-            <p className="page-description mt-3">{m.collections_subtitle()}</p>
-          </div>
+    <WorkbenchPageLayout maxWidth="max-w-5xl">
+      <PageHeader
+        kicker={m.collections_kicker()}
+        title={m.collections_title()}
+        description={m.collections_subtitle()}
+        actions={
           <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
-            <FolderPlus className="h-4 w-4" aria-hidden="true" />{m.collections_newButton()}</button>
-        </header>
+            <FolderPlus className="h-4 w-4" aria-hidden="true" />{m.collections_newButton()}
+          </button>
+        }
+      />
 
         {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
@@ -60,11 +63,7 @@ export default function CollectionsPage() {
                   if (ok) setEditingId(null);
                   return ok;
                 }}
-                onDelete={async () => {
-                  if (confirm(m.collections_deleteConfirm({ name: c.name }))) {
-                    await deleteCollection(c.id);
-                  }
-                }}
+                onDelete={() => setConfirmDelete(c.id)}
               />
             ))}
           </div>
@@ -80,8 +79,24 @@ export default function CollectionsPage() {
             }}
           />
         )}
-      </div>
-    </div>
+      <ConfirmModal
+        open={confirmDelete !== null}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={async () => {
+          if (confirmDelete) await deleteCollection(confirmDelete);
+          setConfirmDelete(null);
+        }}
+        title={m.collections_deleteTitle()}
+        description={
+          confirmDelete
+            ? m.collections_deleteConfirm({
+                name: collections.find((c) => c.id === confirmDelete)?.name ?? "",
+              })
+            : ""
+        }
+        confirmLabel={m.common_delete()}
+      />
+    </WorkbenchPageLayout>
   );
 }
 
@@ -125,7 +140,7 @@ function CollectionCard({
   onEdit: () => void;
   onCancel: () => void;
   onUpdate: (input: { name?: string; color?: string; description?: string }) => Promise<boolean>;
-  onDelete: () => Promise<void>;
+  onDelete: () => void;
 }) {
   const [name, setName] = useState(collection.name);
   const [color, setColor] = useState(collection.color);

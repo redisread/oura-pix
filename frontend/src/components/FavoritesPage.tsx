@@ -6,12 +6,12 @@
 
 import { useState, useCallback } from "react";
 import { Check, Download, Heart, Images, Trash2, X } from "lucide-react";
-import { Modal } from "@/components/ui/Modal";
+import { Modal, ConfirmModal } from "@/components/ui/Modal";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useFavorites } from "@/hooks/useFavorites";
 import type { Favorite } from "@/lib/api";
-import { formatLocaleDate } from "@/lib/locale";
+import { formatShortDate } from "@/lib/locale";
 import { StateMessage } from "@/components/StateMessage";
 import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -56,7 +56,7 @@ function ImageModal({
             {favorite.generation?.settings?.targetPlatform || m.common_custom()}
           </span>
           <span className="ml-4 opacity-75">
-            {formatLocaleDate(favorite.createdAt)}
+            {formatShortDate(favorite.createdAt)}
           </span>
         </div>
         <div className="flex gap-2">
@@ -98,6 +98,7 @@ export default function FavoritesPage() {
   } = useFavorites();
 
   const [selectionMode, setSelectionMode] = useState(false);
+  const [confirmBatchDelete, setConfirmBatchDelete] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [viewingFavorite, setViewingFavorite] = useState<Favorite | null>(null);
 
@@ -123,14 +124,15 @@ export default function FavoritesPage() {
 
   const handleBatchRemove = useCallback(async () => {
     if (selectedIds.size === 0) return;
+    setConfirmBatchDelete(true);
+  }, [selectedIds]);
 
-    const count = selectedIds.size;
-    if (!confirm(m.favorites_confirmBatchUnfavorite({ count: count.toString() }))) return;
-
+  const executeBatchRemove = useCallback(async () => {
     await batchRemove(Array.from(selectedIds));
     setSelectedIds(new Set());
     setSelectionMode(false);
-  }, [selectedIds, batchRemove]);
+    setConfirmBatchDelete(false);
+  }, [batchRemove, selectedIds]);
 
   const handleBrowse = useCallback(() => {
     window.location.href = localizeHref("/generate");
@@ -235,6 +237,14 @@ export default function FavoritesPage() {
           onRemove={(id) => removeFavorite(id)}
         />
       )}
+      <ConfirmModal
+        open={confirmBatchDelete}
+        onClose={() => setConfirmBatchDelete(false)}
+        onConfirm={executeBatchRemove}
+        title={m.favorites_unfavorite()}
+        description={m.favorites_confirmBatchUnfavorite({ count: String(selectedIds.size) })}
+        confirmLabel={m.common_confirm()}
+      />
     </WorkbenchPageLayout>
   );
 }

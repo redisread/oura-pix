@@ -8,7 +8,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { SETTINGS_NAV_ITEMS, type SettingsNavItem } from "./SettingsSidebar";
+import {
+  SETTINGS_NAV_ITEMS,
+  getSettingsNavLabel,
+  type SettingsNavItem,
+} from "./SettingsSidebar";
+import * as m from "@/paraglide/messages.js";
 
 interface MobileSettingsTabsProps {
   currentKey?: string;
@@ -31,7 +36,7 @@ export default function MobileSettingsTabs({ currentKey }: MobileSettingsTabsPro
   return (
     <nav
       ref={containerRef}
-      aria-label="设置导航（移动端）"
+      aria-label={m.settings_centerTitle()}
       className="lg:hidden overflow-x-auto border-b border-[hsl(var(--border))] bg-[hsl(var(--card))] -mx-4 px-4 sm:-mx-6 sm:px-6"
       style={{ scrollbarWidth: "none" }}
     >
@@ -52,7 +57,7 @@ export default function MobileSettingsTabs({ currentKey }: MobileSettingsTabsPro
                 }
               `}
             >
-              {item.label}
+              {getSettingsNavLabel(item.key)}
               {isActive && (
                 <span
                   className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-[hsl(var(--primary))]"

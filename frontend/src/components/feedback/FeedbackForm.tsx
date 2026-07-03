@@ -8,7 +8,7 @@
 
 import { useState } from "react";
 import { useFeedback } from "@/hooks/useFeedback";
-import { formatLocaleDateTime } from "@/lib/locale";
+import { formatShortDateTime } from "@/lib/locale";
 import * as m from "@/paraglide/messages.js";
 
 interface FeedbackFormProps {
@@ -69,15 +69,6 @@ function RatingStars({ value, onChange, readonly = false }: { value: number; onC
       ))}
     </div>
   );
-}
-
-function formatDate(dateString: string): string {
-  return formatLocaleDateTime(dateString, {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 export default function FeedbackForm({ generationId }: FeedbackFormProps) {
@@ -177,7 +168,7 @@ export default function FeedbackForm({ generationId }: FeedbackFormProps) {
             <div key={f.id} className="border-t border-[hsl(var(--border))] pt-2">
               <div className="flex items-center gap-2 mb-1">
                 <RatingStars value={f.rating} readonly />
-                <span className="font-utility text-xs text-foreground-muted">{formatDate(f.createdAt)}</span>
+                <span className="font-utility text-xs text-foreground-muted">{formatShortDateTime(f.createdAt)}</span>
               </div>
               {f.comment && <p className="text-sm text-foreground-muted">{f.comment}</p>}
             </div>

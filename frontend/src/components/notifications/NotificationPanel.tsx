@@ -20,25 +20,10 @@ import {
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { useNotifications, type Notification } from "@/hooks/useNotifications";
-import { formatLocaleDate } from "@/lib/locale";
+import { formatRelativeTime } from "@/lib/format";
 
 interface NotificationPanelProps {
   onClose: () => void;
-}
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return m.common_justNow();
-  if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
-  if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
-  if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return formatLocaleDate(date);
 }
 
 function NotificationTypeIcon({ type }: { type: string }) {
@@ -109,7 +94,7 @@ function NotificationItem({
           </div>
 
           <p className="mt-1 line-clamp-2 text-sm text-foreground-muted">{notification.message}</p>
-          <p className="font-utility mt-2 text-xs text-foreground-muted">{formatTimeAgo(notification.createdAt)}</p>
+          <p className="font-utility mt-2 text-xs text-foreground-muted">{formatRelativeTime(notification.createdAt)}</p>
         </div>
 
         {!notification.isRead && (

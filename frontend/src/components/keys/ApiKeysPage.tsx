@@ -7,23 +7,14 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/Modal";
+import { Modal, ConfirmModal } from "@/components/ui/Modal";
 import { AlertTriangle, Ban, Check, Copy, KeyRound, Plus, X } from "lucide-react";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { StateMessage } from "@/components/StateMessage";
-import { formatLocaleDateTime } from "@/lib/locale";
+import { formatShortDateTime } from "@/lib/locale";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
 import * as m from "@/paraglide/messages.js";
-
-function formatDate(dateString: string | null): string {
-  if (!dateString) return "-";
-  return formatLocaleDateTime(dateString, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function CopyableKey({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
@@ -111,6 +102,7 @@ export default function ApiKeysPage() {
   const [name, setName] = useState("");
   const [expiresInDays, setExpiresInDays] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [confirmRevoke, setConfirmRevoke] = useState<string | null>(null);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,21 +119,18 @@ export default function ApiKeysPage() {
   };
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container max-w-6xl">
-        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.apiKeys_developerKicker()}</p>
-            <h1 className="page-title mt-2">{m.apiKeys_title()}</h1>
-            <p className="page-description mt-3">
-              {m.apiKeys_subtitle({ path: "/api/v1/*" })}
-            </p>
-          </div>
+    <WorkbenchPageLayout maxWidth="max-w-6xl">
+      <PageHeader
+        kicker={m.apiKeys_developerKicker()}
+        title={m.apiKeys_title()}
+        description={m.apiKeys_subtitle({ path: "/api/v1/*" })}
+        actions={
           <button onClick={() => setShowCreate(true)} className="btn-primary h-10 gap-2 px-4">
             <Plus className="h-4 w-4" aria-hidden="true" />
             {m.apiKeys_createButton()}
           </button>
-        </header>
+        }
+      />
 
         {error && <StateMessage variant="error" message={error} className="mb-4" />}
 
@@ -185,15 +174,13 @@ export default function ApiKeysPage() {
                         <span className="status-badge status-badge-success">{m.apiKeys_statusActive()}</span>
                       )}
                     </td>
-                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.lastUsedAt)}</td>
-                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.expiresAt)}</td>
-                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatDate(k.createdAt)}</td>
+                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{k.lastUsedAt ? formatShortDateTime(k.lastUsedAt) : "-"}</td>
+                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{k.expiresAt ? formatShortDateTime(k.expiresAt) : "-"}</td>
+                    <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatShortDateTime(k.createdAt)}</td>
                     <td className="px-4 py-3 text-right">
                       {!k.isRevoked && (
                         <button
-                          onClick={async () => {
-                            if (confirm(m.apiKeys_revokeConfirm({ name: k.name }))) await revokeKey(k.id);
-                          }}
+                          onClick={() => setConfirmRevoke(k.id)}
                           className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
                           aria-label={m.apiKeys_revokeAria()}
                         >
@@ -276,7 +263,21 @@ export default function ApiKeysPage() {
             onClose={() => setNewlyCreated(null)}
           />
         )}
-      </div>
-    </div>
+      <ConfirmModal
+        open={confirmRevoke !== null}
+        onClose={() => setConfirmRevoke(null)}
+        onConfirm={async () => {
+          if (confirmRevoke) await revokeKey(confirmRevoke);
+          setConfirmRevoke(null);
+        }}
+        title={m.apiKeys_revokeTitle()}
+        description={
+          confirmRevoke
+            ? m.apiKeys_revokeConfirm({ name: keys.find((k) => k.id === confirmRevoke)?.name ?? "" })
+            : ""
+        }
+        confirmLabel={m.apiKeys_revoke()}
+      />
+    </WorkbenchPageLayout>
   );
 }

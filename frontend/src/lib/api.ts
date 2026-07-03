@@ -149,7 +149,6 @@ export async function createGeneration(
   const env = await apiJson<{ data: CreateGenerationResult }>(ENDPOINTS.generations.create, {
     method: "POST",
     body: JSON.stringify(input),
-    headers: { "Content-Type": "application/json" },
   });
   return env.data;
 }
@@ -221,7 +220,6 @@ export async function previewGeneration(
     const data = await apiJson<PreviewData>(ENDPOINTS.generations.preview, {
       method: "POST",
       body: JSON.stringify(request),
-      headers: { "Content-Type": "application/json" },
     });
     return { success: true, data };
   } catch (error) {
@@ -264,7 +262,6 @@ export async function createPortalSession(returnUrl: string): Promise<{ url: str
   return apiJson<{ url: string }>(ENDPOINTS.subscription.portal, {
     method: "POST",
     body: JSON.stringify({ returnUrl }),
-    headers: { "Content-Type": "application/json" },
   });
 }
 
@@ -323,7 +320,6 @@ export async function addFavorite(
   const env = await apiJson<{ data: Favorite }>(ENDPOINTS.favorites.add, {
     method: "POST",
     body: JSON.stringify({ generationId, imageUrl, ...(imageIndex !== undefined ? { imageIndex } : {}) }),
-    headers: { "Content-Type": "application/json" },
   });
   return env.data;
 }
@@ -336,7 +332,6 @@ export async function batchRemoveFavorites(ids: string[]): Promise<number> {
   const env = await apiJson<{ data: BatchDeleteResult }>(ENDPOINTS.favorites.batchDelete, {
     method: "POST",
     body: JSON.stringify({ ids }),
-    headers: { "Content-Type": "application/json" },
   });
   return env.data.deleted;
 }

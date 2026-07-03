@@ -6,6 +6,7 @@ import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { requestPasswordReset } from "@/lib/auth";
 import BrandLink from "./ui/BrandLink";
+import { ErrorBanner } from "./ui";
 import { AuthAside } from "./auth/AuthAside";
 
 export default function ForgotPasswordPage() {
@@ -70,11 +71,7 @@ export default function ForgotPasswordPage() {
                 <p className="mt-2 text-foreground-muted">{m.forgotPassword_formDescription()}</p>
               </div>
 
-              {error && (
-                <div className="error-banner mb-6">
-                  <p>{error}</p>
-                </div>
-              )}
+              {error && <ErrorBanner message={error} className="mb-6" />}
 
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="space-y-2">

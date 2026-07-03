@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Eye, ImageIcon, Pencil, RotateCw, Trash2 } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import type { GenerationRecord } from "@/lib/api";
-import { formatLocaleDate } from "@/lib/locale";
+import { formatRelativeTime, getPlatformLabel } from "@/lib/format";
 
 interface GenerationCardProps {
   generation: GenerationRecord;
@@ -16,21 +16,6 @@ interface GenerationCardProps {
   onRegenerate: (id: string) => void;
   onEdit: (genId: string, imageUrl: string, imageIndex?: number) => void;
   onDelete: (id: string) => void;
-}
-
-function formatTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return m.common_justNow();
-  if (diffMins < 60) return m.common_minutesAgo({ count: diffMins.toString() });
-  if (diffHours < 24) return m.common_hoursAgo({ count: diffHours.toString() });
-  if (diffDays < 7) return m.common_daysAgo({ count: diffDays.toString() });
-  return formatLocaleDate(date);
 }
 
 function getStatusInfo(status: string): { label: string; badge: string; progress: number; progressText: string } {
@@ -67,21 +52,6 @@ function getStatusInfo(status: string): { label: string; badge: string; progress
       };
     default:
       return { label: status, badge: "status-badge-neutral", progress: 0, progressText: status };
-  }
-}
-
-function getPlatformLabel(platform: string): string {
-  switch (platform) {
-    case "amazon":
-      return "Amazon";
-    case "shopify":
-      return "Shopify";
-    case "ebay":
-      return "eBay";
-    case "etsy":
-      return "Etsy";
-    default:
-      return platform || m.common_custom();
   }
 }
 
@@ -223,7 +193,7 @@ export default function GenerationCard({
           <div className="font-utility capitalize">
             {platformLabel}
           </div>
-          <div>{formatTime(generation.createdAt)}</div>
+          <div>{formatRelativeTime(generation.createdAt)}</div>
         </div>
 
         <div className="flex flex-wrap gap-1 mt-2">

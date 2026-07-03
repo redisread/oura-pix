@@ -6,6 +6,8 @@
 
 "use client";
 
+import * as m from "@/paraglide/messages.js";
+
 import { useEffect, useRef, useState } from "react";
 import { Camera, Eye, EyeOff, Loader2, Lock, Save, Trash2, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -13,6 +15,7 @@ import { useToast } from "../ui/Toast";
 import { useAuthStore } from "@/stores/auth";
 import { api } from "@/lib/api";
 import { SettingSection, SettingCard, SettingField, SettingActions } from "./ui";
+import { StateMessage } from "@/components/StateMessage";
 
 interface FormState {
   nickname: string;
@@ -60,11 +63,11 @@ export default function AccountSettings() {
   const onPickAvatar = (file: File | null) => {
     if (!file) return;
     if (file.size > AVATAR_MAX_BYTES) {
-      toast.error("头像文件不能超过 2MB");
+      toast.error(m.account_avatarTooLarge());
       return;
     }
     if (!file.type.startsWith("image/")) {
-      toast.error("请选择图片文件");
+      toast.error(m.account_selectImageFile());
       return;
     }
     setPendingAvatar(file);
@@ -75,14 +78,14 @@ export default function AccountSettings() {
   const onSaveProfile = async () => {
     if (!user) return;
     if (form.nickname.trim().length === 0) {
-      toast.error("昵称不能为空");
+      toast.error(m.account_nicknameRequired());
       return;
     }
     setSavingProfile(true);
     try {
       const profileRes = await api.put("/api/user/profile", { name: form.nickname.trim() });
       if (!profileRes.data?.success) {
-        throw new Error(profileRes.data?.error?.message ?? "保存失败");
+        throw new Error(profileRes.data?.error?.message ?? m.account_saveFailed());
       }
 
       if (pendingAvatar) {
@@ -92,7 +95,7 @@ export default function AccountSettings() {
           headers: { "Content-Type": "multipart/form-data" },
         });
         if (!avatarRes.data?.success) {
-          throw new Error(avatarRes.data?.error?.message ?? "头像上传失败");
+          throw new Error(avatarRes.data?.error?.message ?? m.account_avatarUploadFailed());
         }
       }
 
@@ -104,9 +107,9 @@ export default function AccountSettings() {
 
       setDirty(false);
       setPendingAvatar(null);
-      toast.success("账号信息已保存");
+      toast.success(m.account_profileSaved());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "保存失败");
+      toast.error(err instanceof Error ? err.message : m.account_saveFailed());
     } finally {
       setSavingProfile(false);
     }
@@ -114,15 +117,15 @@ export default function AccountSettings() {
 
   const onChangePassword = async () => {
     if (form.currentPassword.length === 0) {
-      toast.error("请输入当前密码");
+      toast.error(m.account_currentPasswordRequired());
       return;
     }
     if (form.newPassword.length < 8) {
-      toast.error("新密码至少 8 位");
+      toast.error(m.account_passwordMinLength());
       return;
     }
     if (form.newPassword !== form.confirmPassword) {
-      toast.error("两次输入的新密码不一致");
+      toast.error(m.account_passwordMismatch());
       return;
     }
     setSavingPassword(true);
@@ -132,21 +135,19 @@ export default function AccountSettings() {
         newPassword: form.newPassword,
       });
       if (!res.data?.success && res.status >= 400) {
-        throw new Error(res.data?.error?.message ?? "密码修改失败");
+        throw new Error(res.data?.error?.message ?? m.account_passwordChangeFailed());
       }
       setForm((f) => ({ ...f, currentPassword: "", newPassword: "", confirmPassword: "" }));
-      toast.success("密码修改成功");
+      toast.success(m.account_passwordChanged());
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "密码修改失败");
+      toast.error(err instanceof Error ? err.message : m.account_passwordChangeFailed());
     } finally {
       setSavingPassword(false);
     }
   };
 
   if (!user) {
-    return (
-      <div className="card p-8 text-center text-foreground-muted">请先登录</div>
-    );
+    return <StateMessage variant="empty" title="请先登录" />;
   }
 
   return (

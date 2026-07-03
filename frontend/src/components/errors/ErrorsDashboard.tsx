@@ -8,11 +8,14 @@
 
 import { useMemo, useState } from "react";
 import { RefreshCw, Trash2 } from "lucide-react";
-import { Modal } from "@/components/ui";
+import { Modal, ConfirmModal } from "@/components/ui";
 import { useErrorDashboard, type ErrorRecord } from "@/hooks/useErrorDashboard";
 import { StateMessage } from "@/components/StateMessage";
-import { formatLocaleDateTime } from "@/lib/locale";
+import { ErrorBanner } from "@/components/ui";
+import { formatShortDateTime } from "@/lib/locale";
 import * as m from "@/paraglide/messages.js";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { WorkbenchPageLayout } from "@/components/layout/WorkbenchPageLayout";
 
 type SeverityFilter = "" | "critical" | "high" | "medium" | "low";
 type TypeFilter = "" | "network" | "validation" | "authentication" | "business_logic" | "runtime" | "unknown";
@@ -25,15 +28,6 @@ const SEVERITY_BADGES: Record<string, string> = {
   medium: "status-badge-warning",
   low: "status-badge-neutral",
 };
-
-function formatTime(dateString: string): string {
-  return formatLocaleDateTime(dateString, {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function getSeverityLabel(severity: string): string {
   switch (severity) {
@@ -159,8 +153,8 @@ function ErrorDetailPanel({
           )}
 
           <div className="grid grid-cols-2 gap-4 border-t border-[hsl(var(--border))] pt-2 text-xs text-foreground-muted">
-            <div>{m.errors_firstSeenShort({ time: formatTime(error.createdAt) })}</div>
-            <div>{m.errors_lastSeenShort({ time: formatTime(error.lastSeenAt) })}</div>
+            <div>{m.errors_firstSeenShort({ time: formatShortDateTime(error.createdAt) })}</div>
+            <div>{m.errors_lastSeenShort({ time: formatShortDateTime(error.lastSeenAt) })}</div>
           </div>
         </div>
     </Modal>
@@ -175,6 +169,9 @@ export default function ErrorsDashboard() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<ErrorRecord | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmDelete, setConfirmDelete] = useState<
+    { type: "single"; id: string } | { type: "batch" } | null
+  >(null);
 
   const { list, stats, loading, error, refetch, deleteOne, deleteMany } = useErrorDashboard({
     range,
@@ -205,23 +202,33 @@ export default function ErrorsDashboard() {
 
   const handleBatchDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (!confirm(m.errors_deleteSelectedConfirm({ count: selectedIds.size.toString() }))) return;
+    setConfirmDelete({ type: "batch" });
+  };
+
+  const executeBatchDelete = async () => {
     await deleteMany(Array.from(selectedIds));
     setSelectedIds(new Set());
+    setConfirmDelete(null);
+  };
+
+  const executeSingleDelete = async () => {
+    if (confirmDelete?.type === "single") {
+      await deleteOne(confirmDelete.id);
+      setConfirmDelete(null);
+    }
   };
 
   return (
-    <div className="workbench-page">
-      <div className="workbench-container">
-        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="page-kicker">{m.errors_operationsKicker()}</p>
-            <h1 className="page-title mt-2">{m.errors_title()}</h1>
-            <p className="page-description mt-3">{m.errors_subtitle()}</p>
-          </div>
+    <WorkbenchPageLayout>
+      <PageHeader
+        kicker={m.errors_operationsKicker()}
+        title={m.errors_title()}
+        description={m.errors_subtitle()}
+        actions={
           <button onClick={refetch} className="btn-secondary h-10 gap-2 px-4">
             <RefreshCw className="h-4 w-4" aria-hidden="true" />{m.common_refresh()}</button>
-        </header>
+        }
+      />
 
         {stats && (
           <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-5">
@@ -305,11 +312,7 @@ export default function ErrorsDashboard() {
           )}
         </div>
 
-        {error && (
-          <div className="error-banner mb-4">
-            <p>{error}</p>
-          </div>
-        )}
+        {error && <ErrorBanner message={error} className="mb-4" />}
 
         {loading && !list ? (
           <StateMessage variant="loading" message={m.errors_loadingRecords()} />
@@ -358,12 +361,10 @@ export default function ErrorsDashboard() {
                       <td className="px-4 py-3 text-foreground-muted">{getModuleLabel(err.module)}</td>
                       <td className="max-w-md truncate px-4 py-3 text-foreground">{err.message}</td>
                       <td className="font-utility px-4 py-3 text-right">{err.occurrences}</td>
-                      <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatTime(err.lastSeenAt)}</td>
+                      <td className="font-utility px-4 py-3 text-xs text-foreground-muted">{formatShortDateTime(err.lastSeenAt)}</td>
                       <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                         <button
-                          onClick={async () => {
-                            if (confirm(m.errors_deleteConfirm())) await deleteOne(err.id);
-                          }}
+                          onClick={() => setConfirmDelete({ type: "single", id: err.id })}
                           className="icon-button h-8 w-8 hover:text-[hsl(var(--color-error))]"
                           aria-label={m.common_delete()}
                         >
@@ -399,7 +400,23 @@ export default function ErrorsDashboard() {
         )}
 
         {selected && <ErrorDetailPanel error={selected} onClose={() => setSelected(null)} />}
-      </div>
-    </div>
+
+        <ConfirmModal
+          open={confirmDelete?.type === "batch"}
+          onClose={() => setConfirmDelete(null)}
+          onConfirm={executeBatchDelete}
+          title={m.errors_deleteSelectedTitle()}
+          description={m.errors_deleteSelectedConfirm({ count: String(selectedIds.size) })}
+          confirmLabel={m.common_delete()}
+        />
+        <ConfirmModal
+          open={confirmDelete?.type === "single"}
+          onClose={() => setConfirmDelete(null)}
+          onConfirm={executeSingleDelete}
+          title={m.errors_deleteTitle()}
+          description={m.errors_deleteConfirm()}
+          confirmLabel={m.common_delete()}
+        />
+    </WorkbenchPageLayout>
   );
 }
