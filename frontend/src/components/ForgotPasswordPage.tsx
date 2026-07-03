@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, MailCheck, Send } from "lucide-react";
+import { MailCheck, Send } from "lucide-react";
 import * as m from "@/paraglide/messages.js";
 import { localizeHref } from "@/paraglide/runtime.js";
 import { requestPasswordReset } from "@/lib/auth";
 import BrandLink from "./ui/BrandLink";
+import { AuthAside } from "./auth/AuthAside";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -34,31 +35,16 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
-      <aside className="relative hidden overflow-hidden border-r border-[hsl(var(--border))] bg-[hsl(var(--card))] lg:block">
-        <div className="proof-strip absolute inset-x-0 top-0 h-2" />
-        <div className="bench-grid absolute inset-0 opacity-40" />
-        <div className="relative z-10 flex min-h-screen flex-col justify-center px-12 xl:px-20">
-          <BrandLink />
-          <p className="page-kicker mt-12">{m.forgotPassword_sideKicker()}</p>
-          <h2 className="font-display mt-4 max-w-xl text-5xl font-semibold leading-none text-foreground">
-            {m.forgotPassword_sideTitle()}
-          </h2>
-          <p className="mt-6 max-w-md text-lg text-foreground-muted">
-            {m.forgotPassword_sideDescription()}
-          </p>
-          <div className="card mt-10 overflow-hidden">
-            <div className="proof-strip h-2" />
-            <div className="space-y-4 p-5">
-              {[m.forgotPassword_proofEmail(), m.forgotPassword_proofHistory(), m.forgotPassword_proofTeams()].map((item) => (
-                <div key={item} className="flex items-center gap-3 text-sm font-semibold text-foreground">
-                  <CheckCircle2 className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </aside>
+      <AuthAside
+        kicker={m.forgotPassword_sideKicker()}
+        title={m.forgotPassword_sideTitle()}
+        description={m.forgotPassword_sideDescription()}
+        checklist={[
+          m.forgotPassword_proofEmail(),
+          m.forgotPassword_proofHistory(),
+          m.forgotPassword_proofTeams(),
+        ]}
+      />
 
       <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
         <div className="mx-auto w-full max-w-md">

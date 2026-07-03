@@ -7,41 +7,13 @@ import { resetPassword } from "@/lib/auth";
 import BrandLink from "./ui/BrandLink";
 import PasswordInput from "./ui/PasswordInput";
 import * as m from "@/paraglide/messages.js";
+import { AuthAside } from "./auth/AuthAside";
 
-function RecoveryAside({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <aside className="relative hidden overflow-hidden border-r border-[hsl(var(--border))] bg-[hsl(var(--card))] lg:block">
-      <div className="proof-strip absolute inset-x-0 top-0 h-2" />
-      <div className="bench-grid absolute inset-0 opacity-40" />
-      <div className="relative z-10 flex min-h-screen flex-col justify-center px-12 xl:px-20">
-        <BrandLink />
-        <p className="page-kicker mt-12">{m.resetPassword_sideKicker()}</p>
-        <h2 className="font-display mt-4 max-w-xl text-5xl font-semibold leading-none text-foreground">
-          {title}
-        </h2>
-        <p className="mt-6 max-w-md text-lg text-foreground-muted">{description}</p>
-        <div className="card mt-10 overflow-hidden">
-          <div className="proof-strip h-2" />
-          <div className="space-y-4 p-5">
-            {[m.resetPassword_requirementLength(), m.resetPassword_requirementLogin(), m.resetPassword_requirementData()].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-sm font-semibold text-foreground">
-                <CheckCircle2 className="h-5 w-5 text-[hsl(var(--primary))]" aria-hidden="true" />
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
+const RESET_CHECKLIST = [
+  m.resetPassword_requirementLength(),
+  m.resetPassword_requirementLogin(),
+  m.resetPassword_requirementData(),
+] as const;
 
 interface Props {
   token: string | null;
@@ -100,9 +72,11 @@ export default function ResetPasswordPage({ token }: Props) {
   if (isValidToken === false) {
     return (
       <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
-        <RecoveryAside
+        <AuthAside
+          kicker={m.resetPassword_sideKicker()}
           title={m.resetPassword_invalidSideTitle()}
           description={m.resetPassword_invalidSideDescription()}
+          checklist={[...RESET_CHECKLIST]}
         />
         <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
           <div className="mx-auto w-full max-w-md text-center">
@@ -125,9 +99,11 @@ export default function ResetPasswordPage({ token }: Props) {
   if (isSuccess) {
     return (
       <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
-        <RecoveryAside
+        <AuthAside
+          kicker={m.resetPassword_sideKicker()}
           title={m.resetPassword_successSideTitle()}
           description={m.resetPassword_successSideDescription()}
+          checklist={[...RESET_CHECKLIST]}
         />
         <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
           <div className="mx-auto w-full max-w-md text-center">
@@ -149,9 +125,11 @@ export default function ResetPasswordPage({ token }: Props) {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[0.95fr_1.05fr]">
-      <RecoveryAside
+      <AuthAside
+        kicker={m.resetPassword_sideKicker()}
         title={m.resetPassword_formSideTitle()}
         description={m.resetPassword_formSideDescription()}
+        checklist={[...RESET_CHECKLIST]}
       />
 
       <main className="flex min-h-screen flex-col justify-center bg-[hsl(var(--background))] px-6 py-12 sm:px-8 lg:px-12 xl:px-16">
